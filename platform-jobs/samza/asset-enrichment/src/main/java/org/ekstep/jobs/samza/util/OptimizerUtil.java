@@ -11,6 +11,7 @@ import org.ekstep.common.optimizr.FileType;
 import org.ekstep.common.optimizr.FileUtils;
 import org.ekstep.common.optimizr.image.ImageResolutionUtil;
 import org.ekstep.common.optimizr.image.ResizeImagemagickProcessor;
+import org.ekstep.common.optimizr.ThumbnailGenerator;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.graph.dac.model.Node;
@@ -229,7 +230,7 @@ public class OptimizerUtil {
 				bufferedImage = converter.convert(frameGrabber.grabImage());
 				if(null != bufferedImage) {
 					ImageIO.write(bufferedImage, "png", inFile);
-					generateThumbNail(inFile, outFile);
+					ThumbnailGenerator.generate(inFile, outFile);
 					int tmpColorCount = getImageColor(outFile);
 					if (colorCount < tmpColorCount) {
 						colorCount = tmpColorCount;
@@ -244,12 +245,13 @@ public class OptimizerUtil {
 		return thumbnail;
 
 	}
-	
-	private static void generateThumbNail(File inFile, File outFile) throws Exception {
+
+	//To be deleted in release-2.2.0
+/*	private static void generateThumbNail(File inFile, File outFile) throws Exception {
 		BufferedImage srcImage = ImageIO.read(inFile);
         BufferedImage scaledImage = Scalr.resize(srcImage, 150);
         ImageIO.write(scaledImage, "png", outFile);
-    }
+    }	*/
 	
 	private static int getImageColor(File imagePath) throws Exception {
         BufferedImage image = ImageIO.read(imagePath);
