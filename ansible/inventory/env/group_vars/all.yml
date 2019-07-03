@@ -34,7 +34,7 @@ search_service_endpoint: "{{ekstep_domain_name}}/api/search/v2/search"
 
 
 ## learning service variables
-plugin_media_base_url: "{{ekstep_domain_name}}"
+plugin_media_base_url: "{{proto}}://{{domain_name}}"  # Plugin should be doanloaded from sunbird. Commenting the ekstep url : "{{ekstep_domain_name}}"
 content_media_base_url: "{{proto}}://{{domain_name}}"      # content_media_base_url
 dial_service_search_url: "{{ekstep_domain_name}}/api/dialcode/v3/search"   # dial_service_search_url
 resourcemanager: "{{ groups['yarn-master'][0] }}"
@@ -75,6 +75,3 @@ backup_azure_storage_access_key: "{{lp_vault_azure_storage_secret}}"
 es_snapshot_host: "{{ groups['composite-search-cluster'][0] }}"
 snapshot_base_path: compositesearch
 
-#artfiact upload download
-artifact_azure_account_name: "{{azure_account_name}}"
-artifact_azure_account_key: "{{lp_vault_azure_storage_secret}}"

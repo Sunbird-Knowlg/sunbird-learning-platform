@@ -50,17 +50,6 @@ assessment.keyspace.table="question_data"
 
 # Actor System Configuration
 LearningActorSystem {
-  fw-dispatcher {
-    type = "Dispatcher"
-    executor = "fork-join-executor"
-    fork-join-executor {
-        parallelism-min = 8
-        parallelism-factor = 32.0
-        parallelism-max = 64
-    }
-      # Throughput for default Dispatcher, set to 1 for as fair as possible
-      throughput = 1
-  }
   akka {
     actor {
       default-dispatcher {
@@ -280,7 +269,7 @@ content.tagging.property="subject,medium"
 # Redis Cache Configuration
 content.cache.ttl=86400
 content.cache.read=true
-content.cache.hierarchy=false
+content.cache.hierarchy=true
 
 framework.categories_cached=["subject", "medium", "gradeLevel", "board"]
 framework.cache.ttl=86400

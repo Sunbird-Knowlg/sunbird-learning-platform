@@ -11,6 +11,7 @@ import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.QRCodeImageGeneratorService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
+import org.ekstep.jobs.samza.util.QRCodeImageGeneratorParams;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,8 +43,10 @@ public class QRCodeImageGeneratorTask implements StreamTask, InitableTask {
 		try {
 			service.processMessage(outgoingMap, metrics, collector);
 		} catch (Exception e) {
-			LOGGER.error("QRCodeImageGeneratorTask:process: Error while processing message:", outgoingMap, e);
-			throw e;
+			LOGGER.error("QRCodeImageGeneratorTask:process: Error while processing message for process_id:: " + 
+					(String) outgoingMap.get(QRCodeImageGeneratorParams.processId.name()), outgoingMap, e);
+			e.printStackTrace();
+			//throw e;
 		}
 	}
 	

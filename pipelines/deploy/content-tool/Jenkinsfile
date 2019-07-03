@@ -43,13 +43,15 @@ node() {
                        unzip ${artifact}
                        mv content-tool-*.jar ansible
                     """
-                    ansiblePlaybook = "${currentWs}/ansible/lp_contenttool_deploy.yml"
-                    ansibleExtraArgs = "--extra-vars \"command=${params.command} parameters=${params.parameters}\" --tags "provision,run" --vault-password-file /var/lib/jenkins/secrets/vault-pass"
+                    ansiblePlaybook = "${currentWs}/ansible/lp_contenttool_deploy_new.yml"
+                    ansibleExtraArgs = "--extra-vars \"host=${params.host} command=${params.command} parameters=${params.parameters}\" --tags ${params.ansible_tag} --vault-password-file /var/lib/jenkins/secrets/vault-pass"
                     values.put('ansiblePlaybook', ansiblePlaybook)
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
                     ansible_playbook_run(values)
-
+                    archiveArtifacts artifacts: "${artifact}", fingerprint: true, onlyIfSuccessful: true
+                    archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
+                    currentBuild.description = "${values.artifact_version}"
                 }
             }
         }

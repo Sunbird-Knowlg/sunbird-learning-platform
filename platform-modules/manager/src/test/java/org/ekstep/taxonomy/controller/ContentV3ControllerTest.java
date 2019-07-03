@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
@@ -1692,12 +1693,66 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		Assert.assertNotNull(response.getResult().get("pre_signed_url"));
 	}
 
+	//Test case to validate whether lastStatusChangedOn property gets updated or not during System Update.
+	@Test
+	public void testSystemUpdateExpectNoChangeInLastStatusChangedOn() throws Exception {
+		String createResourceContentReq = "{\"request\": {\"content\": {\"name\": \"Test Resource Content\",\"code\": \"test.res.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createResourceContentReq);
+		Response getResponse = getContent(contentId);
+		String lastStatusChangedOn = (String) ((Map<String, Object>)getResponse.getResult().get("content")).get("lastStatusChangedOn");
+
+		String systemUpdateReq = "{\"request\": {\"content\": {\"name\": \"Updated Name for Resource Content\"}}}";
+		systemUpdate(contentId, systemUpdateReq);
+		Response getRespPostSysUpdate = getContent(contentId);
+		String lastStatusChangedOnPostSysUpdate = (String) ((Map<String, Object>)getRespPostSysUpdate.getResult().get("content")).get("lastStatusChangedOn");
+
+		assertEquals(lastStatusChangedOn,lastStatusChangedOnPostSysUpdate);
+	}
+
+	//Test case to validate whether lastStatusChangedOn property gets updated or not during Normal Update.
+	@Test
+	public void testNormalUpdateExpectNoChangeInLastStatusChangedOn() throws Exception {
+		String createResourceContentReq = "{\"request\": {\"content\": {\"name\": \"Test Resource Content\",\"code\": \"test.res.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createResourceContentReq);
+		Response getResponse = getContent(contentId);
+		String lastStatusChangedOn = (String) ((Map<String, Object>)getResponse.getResult().get("content")).get("lastStatusChangedOn");
+		update(contentId);
+
+		Response getRespPostUpdate = getContent(contentId);
+		String lastStatusChangedOnPostUpdate = (String) ((Map<String, Object>)getRespPostUpdate.getResult().get("content")).get("lastStatusChangedOn");
+		assertEquals(lastStatusChangedOn,lastStatusChangedOnPostUpdate);
+	}
+
+	//Test case to validate whether lastStatusChangedOn property gets updated or not during status change.
+	@Test
+	public void testReviewContentExpectChangeInLastStatusChangedOn() throws Exception {
+		String createResourceContentReq = "{\"request\": {\"content\": {\"name\": \"Test Resource Content\",\"code\": \"test.res.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createResourceContentReq);
+		Response getResponse = getContent(contentId);
+		String lastStatusChangedOn = (String) ((Map<String, Object>)getResponse.getResult().get("content")).get("lastStatusChangedOn");
+		uploadContent(contentId, "test3.pdf","application/pdf");
+		delay(25000);
+		review(contentId);
+
+		Response getResponsePostReview = getContent(contentId);
+		String lastStatusChangedOnPostReview = (String) ((Map<String, Object>)getResponsePostReview.getResult().get("content")).get("lastStatusChangedOn");
+		assertFalse(StringUtils.equalsIgnoreCase(lastStatusChangedOn,lastStatusChangedOnPostReview));
+
+	}
+
 	private String createContent(String requestBody) throws Exception {
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
 				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(requestBody));
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 		return (String) getResponse(actions).getResult().get(TestParams.node_id.name());
+	}
+
+	private void systemUpdate(String contentId, String requestBody) throws Exception {
+		String path = "/system/v3/content/update/"+contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
+				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(requestBody));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
 	private void retireContent(String contentId) throws Exception {
