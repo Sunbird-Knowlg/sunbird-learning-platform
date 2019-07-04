@@ -1,67 +1,129 @@
 package org.ekstep.graph.dac.util;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.graph.service.common.GraphOperation;
-import org.ekstep.graph.service.request.validator.Neo4jBoltValidator;
-import org.ekstep.graph.service.util.DriverUtil;
+import org.ekstep.graph.service.common.DACConfigurationConstants;
+import org.ekstep.graph.service.request.validator.Neo4JBoltDataVersionKeyValidator;
 import org.junit.Assert;
-import org.neo4j.driver.internal.InternalNode;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.Record;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.StatementResult;
-import org.neo4j.driver.v1.Transaction;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.HashMap;
 
+import static org.mockito.Matchers.anyString;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Neo4JBoltDataVersionKeyValidator.class)
+@PowerMockIgnore("javax.management.*")
 public class Neo4jBoltDataVersionKeyValidatorTest {
 
-	
-	//@Test
-	public void test(){
-		Map<String, Object> nodeMeta = getNeo4jNodeProperty("en", "44347");
-		Node node =new Node("en", nodeMeta);
-		Neo4jBoltValidator validator = new Neo4jBoltValidator();
-		Assert.assertEquals(true, validator.validateUpdateOperation("en", node));
-		
-		Map<String, Object> nodeMeta2 = getNeo4jNodeProperty("domain", "org.ekstep.nov23.story.2");
-		node =new Node("domain", nodeMeta2);
-		Assert.assertEquals(true, validator.validateUpdateOperation("domain", node));
-		Map<String, Object> md = new HashMap<>(node.getMetadata());
-		md.put("versionKey", "1479206180");
-		node.setMetadata(md);
-		try{
-			validator.validateUpdateOperation("domain", node);	
-		}catch(Exception e){
-		
-		}
-		
-	
-	}
-	
-	private Map<String, Object> getNeo4jNodeProperty(String graphId, String identifier) {
-		Map<String, Object> prop = null;
-		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		try (Session session = driver.session()) {
-			try (Transaction tx = session.beginTransaction()) {
-				String query = "match (n:" + graphId + "{IL_UNIQUE_ID:'" + identifier + "'}) return (n) as result";
-				StatementResult result = tx.run(query);
-				if (result.hasNext()) {
-					Record record = result.next();
-					InternalNode node = (InternalNode) record.values().get(0).asObject();
-					prop = node.asMap();
-				}
-				tx.success();
-				tx.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-			}
-		}
-		return prop;
+	private static final String method ="getNeo4jNodeVersionKey";
+	private String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 
+	@Test
+	public void testVersionValidator() throws Exception {
+		Neo4JBoltDataVersionKeyValidator spy = PowerMockito.spy(new Neo4JBoltDataVersionKeyValidator());
+		PowerMockito.doReturn("123345").when(spy, method, anyString(), anyString());
+
+		Node node = new Node();
+		node.setIdentifier("do_123");
+		node.setObjectType("Content");
+		node.setGraphId("domain");
+
+		node.setMetadata(new HashMap<String, Object>(){{
+			put("versionKey", "123345");
+		}});
+		boolean isvalid = spy.validateUpdateOperation("domain", node, "STRICT", "1233345");
+		Assert.assertTrue(isvalid);
 	}
+
+	@Test
+	public void testVersionValidator2() throws Exception {
+		Neo4JBoltDataVersionKeyValidator spy = PowerMockito.spy(new Neo4JBoltDataVersionKeyValidator());
+		PowerMockito.doReturn("123345").when(spy, method, anyString(), anyString());
+
+		Node node = new Node();
+		node.setIdentifier("do_123");
+		node.setObjectType("Content");
+		node.setGraphId("domain");
+
+		node.setMetadata(new HashMap<String, Object>(){{
+			put("versionKey", "123345");
+		}});
+		boolean isvalid = spy.validateUpdateOperation("domain", node, "STRICT", "123345");
+		Assert.assertTrue(isvalid);
+	}
+
+	@Test(expected = ClientException.class)
+	public void testVersionValidator3() throws Exception {
+		Neo4JBoltDataVersionKeyValidator spy = PowerMockito.spy(new Neo4JBoltDataVersionKeyValidator());
+		PowerMockito.doReturn("12345").when(spy, method, anyString(), anyString());
+
+		Node node = new Node();
+		node.setIdentifier("do_123");
+		node.setObjectType("Content");
+		node.setGraphId("domain");
+
+		node.setMetadata(new HashMap<String, Object>(){{
+			put("versionKey", "123345");
+		}});
+		boolean isvalid = spy.validateUpdateOperation("domain", node, "STRICT", "1233345");
+	}
+
+	@Test(expected = ClientException.class)
+	public void testVersionValidator4() throws Exception {
+		Neo4JBoltDataVersionKeyValidator spy = PowerMockito.spy(new Neo4JBoltDataVersionKeyValidator());
+		PowerMockito.doReturn("12345").when(spy, method, anyString(), anyString());
+
+		Node node = new Node();
+		node.setIdentifier("do_123");
+		node.setObjectType("Content");
+		node.setGraphId("domain");
+
+		node.setMetadata(new HashMap<String, Object>(){{
+			put("versionKey", "");
+		}});
+		boolean isvalid = spy.validateUpdateOperation("domain", node, "STRICT", "1233345");
+	}
+
+	@Test
+	public void testVersionValidator6() throws Exception {
+		Neo4JBoltDataVersionKeyValidator spy = PowerMockito.spy(new Neo4JBoltDataVersionKeyValidator());
+		PowerMockito.doReturn("123345").when(spy, method, anyString(), anyString());
+
+		Node node = new Node();
+		node.setIdentifier("do_123");
+		node.setObjectType("Content");
+		node.setGraphId("domain");
+
+		node.setMetadata(new HashMap<String, Object>(){{
+			put("versionKey", graphPassportKey);
+		}});
+		boolean isvalid = spy.validateUpdateOperation("domain", node, "STRICT", "123345");
+		Assert.assertTrue(isvalid);
+	}
+
+
+	@Test(expected = ClientException.class)
+	public void testVersionValidator7() throws Exception {
+		Neo4JBoltDataVersionKeyValidator spy = PowerMockito.spy(new Neo4JBoltDataVersionKeyValidator());
+		PowerMockito.doReturn("12345").when(spy, method, anyString(), anyString());
+		PowerMockito.doReturn(new HashMap<String, Object>()).when(spy, "getNeo4jNodeProperty", anyString(), anyString());
+
+		Node node = new Node();
+		node.setIdentifier("do_123");
+		node.setObjectType("Content");
+		node.setGraphId("domain");
+
+		node.setMetadata(new HashMap<String, Object>(){{
+			put("versionKey", "12345");
+		}});
+		boolean isvalid = spy.validateUpdateOperation("domain", node, "STRICT", "");
+	}
+
 }

@@ -28,7 +28,6 @@ import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
-import org.ekstep.graph.service.request.validator.Neo4JBoltAuthorizationValidator;
 import org.ekstep.graph.service.request.validator.Neo4jBoltValidator;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.ekstep.graph.service.util.NodeQueryGenerationUtil;
@@ -44,7 +43,6 @@ public class Neo4JBoltNodeOperations {
 
 	private final static String DEFAULT_CYPHER_NODE_OBJECT = "ee";
 	private static Neo4jBoltValidator versionValidator = new Neo4jBoltValidator();
-	private static Neo4JBoltAuthorizationValidator authorizationValidator = new Neo4JBoltAuthorizationValidator();
 
 	@SuppressWarnings("unchecked")
 	public static Node upsertNode(String graphId, Node node, Request request) {
@@ -59,7 +57,7 @@ public class Neo4JBoltNodeOperations {
 
 		TelemetryManager.log("Applying the Consumer Authorization Check for Node Id: " + node.getIdentifier());
 		setRequestContextToNode(node, request);
-		authorizationValidator.validateAuthorization(graphId, node, request);
+		validateAuthorization(graphId, node, request);
 		TelemetryManager.log("Consumer is Authorized for Node Id: " + node.getIdentifier());
 
 		TelemetryManager.log("Validating the Update Operation for Node Id: " + node.getIdentifier());
@@ -212,7 +210,7 @@ public class Neo4JBoltNodeOperations {
 					DACErrorMessageConstants.INVALID_NODE + " | [Update Node Operation Failed.]");
 
 		TelemetryManager.log("Applying the Consumer Authorization Check for Node Id: " + node.getIdentifier());
-		authorizationValidator.validateAuthorization(graphId, node, request);
+		validateAuthorization(graphId, node, request);
 		node.getMetadata().remove(GraphDACParams.consumerId.name());
 		TelemetryManager.log("Consumer is Authorized for Node Id: " + node.getIdentifier());
 
@@ -263,12 +261,6 @@ public class Neo4JBoltNodeOperations {
 							node.setIdentifier(identifier);
 							if (StringUtils.isNotBlank(versionKey))
 								node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
-							try {
-								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
-							} catch (Exception e) {
-								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
-										DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
-							}
 						} catch (Exception e) {
 							//suppress exception happened when versionKey is null
 						}
@@ -572,8 +564,21 @@ public class Neo4JBoltNodeOperations {
 		}
 	}
 
+	private static void validateAuthorization(String graphId, Node node, Request request) {
+		if (StringUtils.isBlank(graphId))
+			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
+					DACErrorMessageConstants.INVALID_GRAPH_ID + " | [Invalid or 'null' Graph Id.]");
+		if (null == node)
+			throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
+					DACErrorMessageConstants.INVALID_NODE + " | [Invalid or 'null' Node.]");
+		if (null == request)
+			throw new ClientException(DACErrorCodeConstants.INVALID_REQUEST.name(),
+					DACErrorMessageConstants.INVALID_REQUEST + " | [Invalid or 'null' Request Object.]");
+	}
+
+
 	private static void updateRedisCache(String graphId, org.neo4j.driver.v1.types.Node neo4JNode, String nodeId,
-			String nodeType) {
+										 String nodeType) {
 
 		if (!graphId.equalsIgnoreCase("domain"))
 			return;
@@ -584,18 +589,10 @@ public class Neo4JBoltNodeOperations {
 		Map<String, Object> cacheMap = new HashMap<>();
 		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.versionKey.name()).asString()))
 			cacheMap.put(GraphDACParams.versionKey.name(), neo4JNode.get(GraphDACParams.versionKey.name()).asString());
-		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.consumerId.name()).asString()))
-			cacheMap.put(GraphDACParams.consumerId.name(), neo4JNode.get(GraphDACParams.consumerId.name()).asString());
-		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.lastUpdatedOn.name()).asString()))
-			cacheMap.put(GraphDACParams.lastUpdatedOn.name(),
-					neo4JNode.get(GraphDACParams.lastUpdatedOn.name()).asString());
-		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.createdBy.name()).asString()))
-			cacheMap.put(GraphDACParams.createdBy.name(), neo4JNode.get(GraphDACParams.createdBy.name()).asString());
-		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.status.name()).asString()))
-			cacheMap.put(GraphDACParams.status.name(), neo4JNode.get(GraphDACParams.status.name()).asString());
 
 		if (cacheMap.size() > 0)
 			RedisStoreUtil.saveNodeProperties(graphId, nodeId, cacheMap);
 		NodeCacheManager.deleteDataNode(graphId, nodeId);
 	}
+
 }
