@@ -2879,7 +2879,22 @@
                     "indexed": true,
                     "draft": false,
                     "rangeValidation": true
-                }
+                },
+				{
+					"required": false,
+					"dataType": "List",
+					"propertyName": "leafNodes",
+					"title": "leafNodes",
+					"description": "Unique leafNodes attached to collection mimeTypes",
+					"category": "general",
+					"displayProperty": "Editable",
+					"range": null,
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+					"indexed": true,
+					"draft": false,
+					"rangeValidation": true
+				}
 			],
 			"inRelations": [
 				{
