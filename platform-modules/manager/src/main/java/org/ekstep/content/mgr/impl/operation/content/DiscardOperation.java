@@ -38,7 +38,7 @@ public class DiscardOperation extends BaseContentManager {
      */
     public Response discard(String contentId) throws Exception {
         Response response;
-        validateEmptyOrNull(contentId, "Content Id", ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name());
+        validateNullorInvalid(contentId, "Content Id");
         Node imageNode = getNode(contentId, true);
         if (imageNode != null) {
             String objectType = imageNode.getObjectType();
@@ -70,7 +70,7 @@ public class DiscardOperation extends BaseContentManager {
         if (StringUtils.isNotBlank(mimeType) && StringUtils.isNotBlank(status)){
             isCollection = StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType);
         }else {
-            throw new ClientException(ContentErrorCodes.ERR_METADATA_ISSUE.name(), "Content Status and/or Mimetype can't be null");
+            throw new ClientException(ContentErrorCodes.ERR_METADATA_ISSUE.name(), "Content Status and/or Mimetype can't be null for content id: " +contentId);
         }
         if (CONTENT_DISCARD_STATUS.contains(status)) {
             if (isCollection) {
@@ -84,7 +84,7 @@ public class DiscardOperation extends BaseContentManager {
             }
         } else {
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_NOT_DRAFT.name(),
-                    "No changes to discard since content status isn't draft " + contentId, contentId);
+                    "No changes to discard for content with content id: "+ contentId + " since content status isn't draft" , contentId);
         }
     }
 
@@ -92,14 +92,16 @@ public class DiscardOperation extends BaseContentManager {
      * Check if content id is blank or not
      * @param contentValue
      * @param contentName
-     * @param contentErrorCode
      * @throws Exception
      */
 
-    private void validateEmptyOrNull(Object contentValue, String contentName, String contentErrorCode) throws Exception {
+    private void validateNullorInvalid(Object contentValue, String contentName) throws Exception {
         if (RequestValidatorUtil.isEmptyOrNull(contentValue)) {
-            throw new ClientException(contentErrorCode,
-                    contentName + " can not be blank or null");
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+                    contentName + " can not be blank or null for contentId: " + contentValue);
+        }
+        if (StringUtils.endsWithIgnoreCase((String) contentValue, ".img")) {
+            throw new ClientException(ContentErrorCodes.ERR_INVALID_CONTENT_ID.name(), contentName + "shouldn't contain .img, for contentId:" + contentValue);
         }
     }
 
