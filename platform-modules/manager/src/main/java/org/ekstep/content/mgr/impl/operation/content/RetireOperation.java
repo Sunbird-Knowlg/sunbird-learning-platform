@@ -15,11 +15,16 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.ekstep.taxonomy.enums.DialCodeEnum;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 
 public class RetireOperation extends BaseContentManager {
 
@@ -29,13 +34,9 @@ public class RetireOperation extends BaseContentManager {
      */
     public Response retire(String contentId) {
         Boolean isImageNodeExist = false;
-        Map<String, Object> params = new HashMap<>();
-        params.put("status", "Retired");
-        params.put("lastStatusChangedOn", DateUtils.formatCurrentDate());
-
-        if (StringUtils.isBlank(contentId))
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
-                    "Content Object Id cannot is Blank.");
+        if (StringUtils.isBlank(contentId) || StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
+            throw new ClientException(ContentErrorCodes.ERR_INVALID_CONTENT_ID.name(),
+                    "Please Provide Valid Content Identifier.");
 
         Response response = getDataNode(TAXONOMY_ID, contentId);
         if (checkError(response))
@@ -50,43 +51,59 @@ public class RetireOperation extends BaseContentManager {
                     "Content with Identifier [" + contentId + "] is already Retired.");
         }
 
+        Boolean isCollWithFinalStatus = (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType) && finalStatus.contains(status)) ? true : false;
+        RedisStoreUtil.delete(contentId);
         Response imageNodeResponse = getDataNode(TAXONOMY_ID, getImageId(contentId));
         if (!checkError(imageNodeResponse))
             isImageNodeExist = true;
 
         List<String> identifiers = (isImageNodeExist) ? Arrays.asList(contentId, getImageId(contentId)) : Arrays.asList(contentId);
 
+        if (isCollWithFinalStatus) {
+            RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
+            Response hierarchyResponse = getCollectionHierarchy(contentId);
+            if (checkError(hierarchyResponse)) {
+                throw new ServerException(ContentErrorCodes.ERR_CONTENT_RETIRE.name(),
+                        "Unable to fetch Hierarchy for Root Node: [" + contentId + "]");
+            }
+            Map<String, Object> rootHierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
+            List<Map<String, Object>> rootChildren = (List<Map<String, Object>>) rootHierarchy.get("children");
+            List<String> childrenIdentifiers = getChildrenIdentifiers(rootChildren);
+
+            if (CollectionUtils.isNotEmpty(childrenIdentifiers)) {
+                String[] unitIds = childrenIdentifiers.stream().map(id -> (COLLECTION_CACHE_KEY_PREFIX + id)).collect(Collectors.toList()).toArray(new String[childrenIdentifiers.size()]);
+                if (unitIds.length > 0)
+                    RedisStoreUtil.delete(unitIds);
+            }
+
+            try {
+                ElasticSearchUtil.bulkDeleteDocumentById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, childrenIdentifiers);
+            } catch (Exception e) {
+                TelemetryManager.error("Exception Occured While Removing Children's from ES | Exception is : " + e);
+                throw new ServerException(ContentErrorCodes.ERR_CONTENT_RETIRE.name(), "Something Went Wrong While Removing Children's from ES.");
+            }
+        }
+
+        String date = DateUtils.formatCurrentDate();
+        Map<String, Object> params = new HashMap<>();
+        params.put("status", "Retired");
+        params.put("lastStatusChangedOn", date);
+        params.put("lastUpdatedOn", date);
         response = updateDataNodes(params, identifiers, TAXONOMY_ID);
         if (checkError(response)) {
             return response;
-        } else {
-            if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType) && StringUtils.equalsIgnoreCase("Live", status)) {
-                // Delete Units from ES
-                Response hierarchyResponse = getCollectionHierarchy(contentId);
-                if (checkError(hierarchyResponse)) {
-                    throw new ServerException(DialCodeEnum.ERR_DIALCODE_LINK.name(),
-                            "Unable to fetch Hierarchy for Root Node: [" + contentId + "]");
-                }
-                Map<String, Object> rootHierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
-                List<Map<String, Object>> rootChildren = (List<Map<String, Object>>) rootHierarchy.get("children");
-                List<String> childrenIdentifiers = getChildrenIdentifiers(rootChildren);
-                try {
-                    ElasticSearchUtil.bulkDeleteDocumentById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, childrenIdentifiers);
-                } catch (Exception e) {
-                    throw new ServerException(ContentErrorCodes.ERR_CONTENT_RETIRE.name(), "Something Went Wrong While Removing Children's from ES.");
-                }
-                deleteHierarchy(Arrays.asList(contentId));
-                RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
-            }
-            Response responseNode = validateAndGetNodeResponseForOperation(contentId);
-            node = (Node) responseNode.get("node");
-            RedisStoreUtil.delete(contentId);
-
-            Response res = getSuccessResponse();
-            res.put(ContentAPIParams.node_id.name(), node.getIdentifier());
-            res.put(ContentAPIParams.versionKey.name(), node.getMetadata().get("versionKey"));
-            return res;
         }
+        if (isCollWithFinalStatus)
+            deleteHierarchy(Arrays.asList(contentId));
+
+        Response responseNode = validateAndGetNodeResponseForOperation(contentId);
+        node = (Node) responseNode.get("node");
+
+        Response res = getSuccessResponse();
+        res.put(ContentAPIParams.node_id.name(), node.getIdentifier());
+        res.put(ContentAPIParams.versionKey.name(), node.getMetadata().get("versionKey"));
+        return res;
+
     }
 
     /**

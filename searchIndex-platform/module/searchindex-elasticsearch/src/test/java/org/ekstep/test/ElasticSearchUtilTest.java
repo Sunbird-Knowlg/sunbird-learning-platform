@@ -135,6 +135,8 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 	@Test
 	public void testBulkDeleteDocumentWithId() throws Exception {
 		List<String> identifiers = createBulkTestRecord(100);
+		//For Negative Scenario, bulkDeleteDocumentById() should log failed identifiers.
+		//identifiers.add("TDOC_1");
 		ElasticSearchUtil.bulkDeleteDocumentById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE,identifiers);
 		for(String id : identifiers){
 			String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
