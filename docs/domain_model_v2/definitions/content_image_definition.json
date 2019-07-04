@@ -2894,7 +2894,37 @@
 					"indexed": true,
 					"draft": false,
 					"rangeValidation": true
-				}
+				},
+				{
+                    "required": false,
+                    "dataType": "Number",
+                    "propertyName": "editorVersion",
+                    "title": "Editor Version",
+                    "description": "Version of the Editor",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                },
+                {
+                    "required": false,
+                    "dataType": "Text",
+                    "propertyName": "textBookUnitIdentifier",
+                    "title": "TextBook Unit Identifier",
+                    "description": "TextBook Unit Identifier",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                }
 			],
 			"inRelations": [
 				{
