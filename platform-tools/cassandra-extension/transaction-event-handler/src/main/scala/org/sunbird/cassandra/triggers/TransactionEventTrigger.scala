@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.apache.cassandra.db.{Clustering, Mutation}
-import org.apache.cassandra.db.marshal.{CompositeType, MapType}
+import org.apache.cassandra.db.marshal.{CompositeType, ListType, MapType}
 import org.apache.cassandra.db.partitions.Partition
 import org.apache.cassandra.db.rows.{Cell, CellPath, Unfiltered}
 import org.apache.cassandra.triggers.ITrigger
@@ -38,43 +38,41 @@ class TransactionEventTrigger extends ITrigger {
         if (!levelDeletion.isLive) {
             logger.info(mapper.writeValueAsString(Map("operationType" -> "DELETE" ,"partitionKeys" -> partitionData, "objectType" -> objectType)))
         } else {
-            logger.info(mapper.writeValueAsString(processEvent(partition,partitionData)))
-            logger.info(mapper.writeValueAsString(Map("operationType" -> "UPSERT", "partitionKeys" -> partitionData, "objectType" -> objectType)))
+            logger.info(mapper.writeValueAsString(Map("operationType" -> "UPSERT", "partitionKeys" -> partitionData, "objectType" -> objectType, "metadata" -> processEvent(partition,partitionData))))
         }
 
         return null;
     }
 
-    protected def processEvent(partition: Partition, partitionKeyData: Map[String, Any]): Map[String,Any] = {
+    protected def processEvent(partition: Partition, partitionKeyData: Map[String, Any]): mutable.Map[String,Any] = {
         try {
             val unfilteredIterator = partition.unfilteredIterator()
-            var event = Map[String,Any]()
+            val event = mutable.Map[String,Any]()
             while (unfilteredIterator.hasNext) {
                 val next = unfilteredIterator.next()
                 val clusterKeyData: Map[String, Any] = getClusterKeyData(partition, next)
-                val clustering = next.clustering()
-                val row = partition.getRow(clustering.asInstanceOf[Clustering])
-                val cells = row.cells()
+                val row = partition.getRow(next.clustering().asInstanceOf[Clustering])
+                val cells = row.cells().iterator()
                 var eventMap: Map[String,Any] = Map()
                 val updatedDataMap = Map[String, AnyRef]()
-                while (cells.iterator().hasNext) {
-                    val cell = cells.iterator().next()
+                while (cells.hasNext) {
+                    val cell = cells.next()
                     val columnType = getColumnType(cell)
-//                    if (columnType.isInstanceOf[Map[Any, Any]])
-//                        processMapDataType(eventMap, updatedDataMap, cell)
-//                    else if (columnType.isInstanceOf[List[Any]])
-//                        processListDataType(eventMap, updatedDataMap, cell)
-//                    else
-                    eventMap = processDefaultDataType(cell)
+                    logger.info(columnType.toString)
+                    if (columnType.isInstanceOf[Map[Any, Any]])
+                        processMapDataType(eventMap, updatedDataMap, cell)
+                    else if (columnType.isInstanceOf[List[Any]])
+                        eventMap += (getColumnName(cell) -> processListDataType(cell, eventMap))
+                    else
+                    eventMap += (getColumnName(cell) -> Map("nv" -> processDefaultDataType(cell)))
                     logger.info(mapper.writeValueAsString(eventMap))
                 }
                 eventMap += (OPERATION_TYPE -> UPDATE_ROW)
                 eventMap += (OBJECT_TYPE -> partition.metadata.cfName)
-//                eventMap.putAll(partitionKeyData)
-//                eventMap.putAll(clusterKeyData)
-                event = eventMap
+                event.putAll(eventMap)
+                event.putAll(clusterKeyData)
             }
-            logger.info(mapper.writeValueAsString(event))
+            event.putAll(partitionKeyData)
             event
         } catch {
             case e: Exception => {
@@ -110,28 +108,39 @@ class TransactionEventTrigger extends ITrigger {
         }
     }
 
+//    private def processListDataType(dataMap: Map[String,Any], updateColumnCollectionInfo: Map[String, AnyRef], cell: Cell): Unit = {
+//        val columnName = getColumnName(cell)
+//        val cellValue = getCellValue(cell)
+//        val columnType = getColumnType(cell)
+//        updateColumnCollectionInfo.put(columnName, columnType.getClass.getName)
+//        if (cell.isLive(0)) if (!dataMap.containsKey(columnName)) {
+//            val arrayList = List[AnyRef]()
+//            arrayList.add(cellValue)
+//            dataMap.put(columnName, arrayList)
+//        } else {
+//            val arrayList =  dataMap(columnName).asInstanceOf[List[AnyRef]]
+//            if (!arrayList.contains(cellValue))
+//                arrayList.add(cellValue)
+//        }
+//    }
 
-    private def processListDataType(dataMap: Map[String,Any], updateColumnCollectionInfo: Map[String, AnyRef], cell: Cell): Unit = {
+    private def processListDataType(cell: Cell, eventMap: Map[String,Any]): List[AnyRef] = {
         val columnName = getColumnName(cell)
-        val cellValue = getCellValue(cell)
-        val columnType = getColumnType(cell)
-        updateColumnCollectionInfo.put(columnName, columnType.getClass.getName)
-        if (cell.isLive(0)) if (!dataMap.containsKey(columnName)) {
-            val arrayList = List[AnyRef]()
-            arrayList.add(cellValue)
-            dataMap.put(columnName, arrayList)
-        } else {
-            val arrayList =  dataMap(columnName).asInstanceOf[List[AnyRef]]
-            if (!arrayList.contains(cellValue))
-                arrayList.add(cellValue)
-        }
+        val returnList: List[AnyRef] = List()
+        if (cell.isLive(0))
+            if(eventMap.containsKey(columnName)) {
+                returnList.addAll(eventMap(columnName).asInstanceOf[List[AnyRef]])
+                returnList.add(getCellValue(cell))
+            } else {
+                List(getCellValue(cell))
+            }
+        returnList
     }
 
-    private def processDefaultDataType(cell: Cell): Map[String, Any] = {
-        val columnName = getColumnName(cell)
+    private def processDefaultDataType(cell: Cell): String = {
         if (cell.isLive(0))
-            Map(columnName -> getCellValue(cell))
-        else Map(columnName -> null)
+            getCellValue(cell).toString
+        else null
     }
 
     protected def getPartitionKeyData(partition: Partition): Map[String, Any] = {
@@ -151,7 +160,7 @@ class TransactionEventTrigger extends ITrigger {
             }}.flatten.toMap
         }
     }
-//
+
 //    protected def getClusterKeyData(partition: Partition, next: Unfiltered): Map[String, Any] = {
 //        val clusterKeyList = partition.metadata().clusteringColumns()
 //        val clustering = next.clustering()
