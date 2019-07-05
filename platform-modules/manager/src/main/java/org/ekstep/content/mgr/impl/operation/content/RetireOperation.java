@@ -68,7 +68,8 @@ public class RetireOperation extends BaseContentManager {
             }
             Map<String, Object> rootHierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
             List<Map<String, Object>> rootChildren = (List<Map<String, Object>>) rootHierarchy.get("children");
-            List<String> childrenIdentifiers = getChildrenIdentifiers(rootChildren);
+            List<String> childrenIdentifiers = new ArrayList<String>();
+            getChildrenIdentifiers(childrenIdentifiers, rootChildren);
 
             if (CollectionUtils.isNotEmpty(childrenIdentifiers)) {
                 String[] unitIds = childrenIdentifiers.stream().map(id -> (COLLECTION_CACHE_KEY_PREFIX + id)).collect(Collectors.toList()).toArray(new String[childrenIdentifiers.size()]);
@@ -126,20 +127,18 @@ public class RetireOperation extends BaseContentManager {
 
     /**
      *
+     * @param unitNodes
      * @param children
-     * @return List<String>
      */
-    private List<String> getChildrenIdentifiers(List<Map<String, Object>> children) {
-        List<String> identifiers = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(children)) {
-            children.forEach(child -> {
-                if (StringUtils.equalsIgnoreCase("Parent", (String) child.get(ContentAPIParams.visibility.name())))
-                    identifiers.add((String) child.get(ContentAPIParams.identifier.name()));
-
-                getChildrenIdentifiers((List<Map<String, Object>>) child.get(ContentAPIParams.children.name()));
+    private void getChildrenIdentifiers(List<String> unitNodes, List<Map<String, Object>> children) {
+        if(CollectionUtils.isNotEmpty(children)) {
+            children.stream().forEach(child -> {
+                if(StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
+                    unitNodes.add((String)child.get("identifier"));
+                    getChildrenIdentifiers(unitNodes, (List<Map<String, Object>>) child.get("children"));
+                }
             });
         }
-        return identifiers;
     }
 
 }
