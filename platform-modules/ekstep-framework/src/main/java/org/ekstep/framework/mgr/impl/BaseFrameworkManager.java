@@ -63,7 +63,6 @@ public class BaseFrameworkManager extends BaseManager {
 			: null;
 
 	protected static final int cacheTtl = Platform.config.hasPath("framework.cache.ttl") ? Platform.config.getInt("framework.cache.ttl") : 86400;
-
 	protected ObjectMapper mapper = new ObjectMapper();
 
 	protected Response create(Map<String, Object> request, String objectType) {

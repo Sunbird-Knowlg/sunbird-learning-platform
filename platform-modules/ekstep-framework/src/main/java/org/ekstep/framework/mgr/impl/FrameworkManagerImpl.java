@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * The Class <code>FrameworkManagerImpl</code> is the implementation of
@@ -77,7 +76,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	@Override
 	public Response readFramework(String frameworkId, List<String> returnCategories) throws Exception {
 		Map<String, Object> framework = null;
-
 		if(CollectionUtils.isNotEmpty(returnCategories) && cacheEnabled){
 			Collections.sort(returnCategories);
 			String cachedCategories = RedisStoreUtil.get(getFwCacheKey(frameworkId, returnCategories));

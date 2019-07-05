@@ -1094,7 +1094,14 @@
 						"CourseUnit",
 						"TextBookUnit",
 						"TeachingMethod",
-						"PedagogyFlow"
+						"PedagogyFlow",
+						"FocusSpot",
+                        "LearningOutcomeDefinition",
+                        "PracticeQuestionSet",
+                        "CuriosityQuestions",
+                        "MarkingSchemeRubric",
+                        "ExplanationResource",
+                        "ExperientialResource"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -2857,6 +2864,36 @@
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
+				},
+				{
+                    "required": false,
+                    "dataType": "Text",
+                    "propertyName": "programId",
+                    "title": "ProgramId",
+                    "description": "Id of the Program",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                },
+				{
+					"required": false,
+					"dataType": "List",
+					"propertyName": "leafNodes",
+					"title": "leafNodes",
+					"description": "Unique leafNodes attached to collection mimeTypes",
+					"category": "general",
+					"displayProperty": "Editable",
+					"range": null,
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+					"indexed": true,
+					"draft": false,
+					"rangeValidation": true
 				}
 			],
 			"inRelations": [
@@ -3075,6 +3112,7 @@
 				"versionCheckMode": "STRICT",
 				"allowupdate_status": false,
 				"allowupdate_framework": true,
+				"allowupdate_mimeType": false,
 				"fields": [
 					"identifier",
 					"name",

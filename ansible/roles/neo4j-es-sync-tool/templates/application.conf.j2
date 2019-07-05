@@ -16,10 +16,6 @@ SyncActorSystem{
   }
 }
 
-# Redis Configuration
-redis.host="{{ redis_host }}"
-redis.port={{ redis_port }}
-redis.maxConnections=128
 
 # Neo4j Graph Configuration
 graph.dir="/data/graphDB"
@@ -44,7 +40,7 @@ search.fields.query=["name^100","title^100","lemma^100","code^100","tags^100","d
 search.fields.date=["lastUpdatedOn","createdOn","versionDate","lastSubmittedOn","lastPublishedOn"]
 search.batch.size=500
 search.connection.timeout=30
-search.index.name="{{ compositesearch_index_name }}"
+search.index.name="compositesearch"
 
 nested.fields=["badgeAssertions","targets","badgeAssociations"]
 channel.default="in.ekstep"
