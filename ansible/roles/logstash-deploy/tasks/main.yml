@@ -27,17 +27,6 @@
   become_user: "{{learner_user}}"
   file: path={{logstash_home}}/logs state=directory mode=0755
  
-#- name: remove sincedb file
-#  become: yes
-#  become_user: "{{learner_user}}"
-#  file: path={{logstash_home}}/{{ item }} state=absent
-#  with_items:
-#    - '.sincedb_config_telemetry_event_mw'
-#    - '.sincedb_language_telemetry_event_mw'
-#    - '.sincedb_learning_service_mw'
-#    - '.sincedb_learning_telemetry_event_mw'
-#    - '.sincedb_search_telemetry_event_mw'
- 
 - name: Start logstash processes related to platform
   become: yes
   systemd: name=logstash state=started 
