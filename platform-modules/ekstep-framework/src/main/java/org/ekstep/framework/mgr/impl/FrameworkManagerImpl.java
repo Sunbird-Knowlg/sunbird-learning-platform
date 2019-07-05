@@ -2,6 +2,7 @@
 package org.ekstep.framework.mgr.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.rits.cloning.Cloner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -95,9 +96,12 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 			Response getHierarchyResp = getFrameworkHierarchy(frameworkId);
 			if (!checkError(getHierarchyResp)) {
 				framework = (Map<String, Object>) getHierarchyResp.get("framework");
-				Map<String, Object> cacheFW = new HashMap<>(framework);
-				filterFrameworkCategories(cacheFW, categoriesCached);
-				RedisStoreUtil.save(frameworkId + CACHE_SUFFIX, mapper.writeValueAsString(cacheFW), cacheTtl);
+				if(cacheEnabled){
+					Cloner cloner = new Cloner();
+					Map<String, Object> cacheFW = cloner.deepClone(framework);
+					filterFrameworkCategories(cacheFW, categoriesCached);
+					RedisStoreUtil.save(frameworkId + CACHE_SUFFIX, mapper.writeValueAsString(cacheFW), cacheTtl);
+				}
 			}
 		}
 
