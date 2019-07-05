@@ -113,7 +113,7 @@ public abstract class BaseContentManager extends BaseManager {
 	
 	protected String getImageId(String identifier) {
 		String imageId = "";
-		if (StringUtils.isNotBlank(identifier))
+		if (StringUtils.isNotBlank(identifier) && !StringUtils.endsWithIgnoreCase(identifier,".img"))
 			imageId = identifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
 		return imageId;
 	}
