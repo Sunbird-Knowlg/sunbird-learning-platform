@@ -1,10 +1,12 @@
 # Search Service Deployment Tasks.
 
-- name: stop monit
-  service:
-    name: monit
-    state: "stopped"
-  ignore_errors: yes
+- name: checking the list of installed services
+  service_facts:
+
+- name: Stop the monit
+  service: name=monit state=stopped
+  become: yes
+  when: ansible_facts.services.monit is defined
 
 - name: Status of the search service
   become: yes
@@ -73,8 +75,7 @@
   async: 20
   poll: 5 
 
-- name: start monit
-  service:
-    name: monit
-    state: "started"
-  ignore_errors: yes
+- name: Start the monit
+  service: name=monit state=started
+  become: yes
+  when: ansible_facts.services.monit is defined

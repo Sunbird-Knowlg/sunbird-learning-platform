@@ -1,9 +1,10 @@
-- name: stop monit
+- name: checking the list of installed services
+  service_facts:
+
+- name: Stop the monit
+  service: name=monit state=stopped
   become: yes
-  service:
-    name: monit
-    state: "stopped"
-  ignore_errors: yes
+  when: ansible_facts.services.monit is defined
 
 - name: Stop logstash process
   become: yes
@@ -39,9 +40,9 @@
   become: yes
   systemd: name=logstash state=started
 
-- name: start monit
+- name: Start the monit
+  service: name=monit state=started
   become: yes
-  service:
-    name: monit
-    state: "started"
-  ignore_errors: yes
+  when: ansible_facts.services.monit is defined
+
+
