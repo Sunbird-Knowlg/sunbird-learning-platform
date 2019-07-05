@@ -75,7 +75,6 @@ public class CompositeSearchIndexerTask extends BaseTask {
 				}
 			} else {
 				service.processMessage(outgoingMap, metrics, collector);
-				setMetricsOffset(getSystemStreamPartition(envelope), getOffset(envelope), metrics);
 			}
 		} catch (Exception e) {
 			metrics.incErrorCounter();

@@ -18,8 +18,16 @@ public class MetricsStreamStub {
 
     public static final String METRIC_STREAM_NO_EVENT = "{\n" +
             "  \"org.apache.samza.system.kafka.KafkaSystemConsumerMetrics\": {\n" +
-            "    \"kafka-test.topic-0-offset-change\": {\n" +
-            "      \"name\": \"kafka-test.topic-0-offset-change\",\n" +
+            "    \"kafka-test.topic-0-high-watermark\": {\n" +
+            "      \"name\": \"kafka-test.topic-0-high-watermark\",\n" +
+            "      \"count\": {\n" +
+            "        \"value\": 0\n" +
+            "      }\n" +
+            "    }\n" +
+            "  },\n" +
+            "  \"org.apache.samza.checkpoint.OffsetManagerMetrics\": {\n" +
+            "    \"kafka-test.topic-0-checkpointed-offset\": {\n" +
+            "      \"name\": \"kafka-test.topic-0-checkpointed-offset\",\n" +
             "      \"count\": {\n" +
             "        \"value\": 0\n" +
             "      }\n" +
@@ -27,18 +35,32 @@ public class MetricsStreamStub {
             "  }\n" +
             "}";
 
-    public static final String METRIC_STREAM_SOME_EVENT = "{\n" +
+    public static final String METRIC_STREAM_SOME_EVENT_MULTI_PARTITION = "{\n" +
             "  \"org.apache.samza.system.kafka.KafkaSystemConsumerMetrics\": {\n" +
-            "    \"kafka-topic1-0-offset-change\": {\n" +
-            "      \"name\": \"kafka-topic1-0-offset-change\",\n" +
+            "    \"kafka-topic1-0-high-watermark\": {\n" +
+            "      \"name\": \"kafka-topic1-0-high-watermark\",\n" +
             "      \"count\": {\n" +
             "        \"value\": 10\n" +
             "      }\n" +
             "    },\n" +
-            "    \"kafka-topic2-0-offset-change\": {\n" +
-            "      \"name\": \"kafka-topic2-0-offset-change\",\n" +
+            "    \"kafka-topic2-0-high-watermark\": {\n" +
+            "      \"name\": \"kafka-topic2-0-high-watermark\",\n" +
             "      \"count\": {\n" +
-            "        \"value\": 20\n" +
+            "        \"value\": 100\n" +
+            "      }\n" +
+            "    }\n" +
+            "  },\n" +
+            "  \"org.apache.samza.checkpoint.OffsetManagerMetrics\": {\n" +
+            "    \"kafka-topic1-0-checkpointed-offset\": {\n" +
+            "      \"name\": \"kafka-topic1-0-checkpointed-offset\",\n" +
+            "      \"count\": {\n" +
+            "        \"value\": 5\n" +
+            "      }\n" +
+            "    },\n" +
+            "    \"kafka-topic2-0-checkpointed-offset\": {\n" +
+            "      \"name\": \"kafka-topic2-0-checkpointed-offset\",\n" +
+            "      \"count\": {\n" +
+            "        \"value\": 50\n" +
             "      }\n" +
             "    }\n" +
             "  }\n" +
@@ -46,16 +68,61 @@ public class MetricsStreamStub {
 
     public static final String SAMZA_EVENT_STREAM_WITH_SYSTEM_COMMAND = "{\n" +
             "  \"org.apache.samza.system.kafka.KafkaSystemConsumerMetrics\": {\n" +
-            "    \"kafka-system.command-0-offset-change\": {\n" +
-            "      \"name\": \"kafka-system.command-0-offset-change\",\n" +
+            "    \"kafka-system.command-0-high-watermark\": {\n" +
+            "      \"name\": \"kafka-system.command-0-high-watermark\",\n" +
             "      \"count\": {\n" +
-            "        \"value\": 6\n" +
+            "        \"value\": 100\n" +
             "      }\n" +
             "    },\n" +
-            "    \"kafka-learning.job.request-0-offset-change\": {\n" +
-            "      \"name\": \"kafka-learning.job.request-0-offset-change\",\n" +
+            "    \"kafka-learning.job.request-0-high-watermark\": {\n" +
+            "      \"name\": \"kafka-learning.job.request-0-high-watermark\",\n" +
             "      \"count\": {\n" +
-            "        \"value\": 20\n" +
+            "        \"value\": 200\n" +
+            "      }\n" +
+            "    }\n" +
+            "  },\n" +
+            "  \"org.apache.samza.checkpoint.OffsetManagerMetrics\": {\n" +
+            "    \"kafka-system.command-0-checkpointed-offset\": {\n" +
+            "      \"name\": \"kafka-system.command-0-checkpointed-offset\",\n" +
+            "      \"count\": {\n" +
+            "        \"value\": 90\n" +
+            "      }\n" +
+            "    },\n" +
+            "    \"kafka-learning.job.request-0-checkpointed-offset\": {\n" +
+            "      \"name\": \"kafka-learning.job.request-0-checkpointed-offset\",\n" +
+            "      \"count\": {\n" +
+            "        \"value\": 100\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+
+    public static final String METRIC_STREAM_SOME_EVENT_SINGLE_TOPIC_MULTI_PARTITION = "{\n" +
+            "  \"org.apache.samza.system.kafka.KafkaSystemConsumerMetrics\": {\n" +
+            "    \"kafka-topic1-0-high-watermark\": {\n" +
+            "      \"name\": \"kafka-topic1-0-high-watermark\",\n" +
+            "      \"count\": {\n" +
+            "        \"value\": 10\n" +
+            "      }\n" +
+            "    },\n" +
+            "    \"kafka-topic1-1-high-watermark\": {\n" +
+            "      \"name\": \"kafka-topic1-1-high-watermark\",\n" +
+            "      \"count\": {\n" +
+            "        \"value\": 100\n" +
+            "      }\n" +
+            "    }\n" +
+            "  },\n" +
+            "  \"org.apache.samza.checkpoint.OffsetManagerMetrics\": {\n" +
+            "    \"kafka-topic1-0-checkpointed-offset\": {\n" +
+            "      \"name\": \"kafka-topic1-0-checkpointed-offset\",\n" +
+            "      \"count\": {\n" +
+            "        \"value\": 5\n" +
+            "      }\n" +
+            "    },\n" +
+            "    \"kafka-topic1-1-checkpointed-offset\": {\n" +
+            "      \"name\": \"kafka-topic1-1-checkpointed-offset\",\n" +
+            "      \"count\": {\n" +
+            "        \"value\": 50\n" +
             "      }\n" +
             "    }\n" +
             "  }\n" +
@@ -67,4 +134,5 @@ public class MetricsStreamStub {
         }.getType();
         return (Map<String, ConcurrentHashMap<String, Metric>>) new Gson().fromJson(message, type);
     }
+
 }

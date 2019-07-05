@@ -41,24 +41,40 @@ public class JobMetricsTest  {
     }
 
     @Test
-    public void testConsumerLagWithEventProcessed() {
+    public void testConsumerLagWithMultipleTopicEventProcessed() {
 
         jobMetricsMock = new JobMetrics(contextMock);
 
         Set<SystemStreamPartition> systemStreamPartitions = new HashSet<>();
-        SystemStreamPartition systemStreamTopic1 = new SystemStreamPartition("kafka", "topic1", new Partition(0));
-        SystemStreamPartition systemStreamTopic2 = new SystemStreamPartition("kafka", "topic2", new Partition(0));
-        systemStreamPartitions.add(systemStreamTopic1);
-        systemStreamPartitions.add(systemStreamTopic2);
+        SystemStreamPartition systemStreamTopic1Partition0 = new SystemStreamPartition("kafka", "topic1", new Partition(0));
+        SystemStreamPartition systemStreamTopic2Partition0 = new SystemStreamPartition("kafka", "topic2", new Partition(0));
+        systemStreamPartitions.add(systemStreamTopic1Partition0);
+        systemStreamPartitions.add(systemStreamTopic2Partition0);
 
-        jobMetricsMock.setOffset(systemStreamTopic1, "5");
-        jobMetricsMock.setOffset(systemStreamTopic2, "10");
-
-        Map<String, ConcurrentHashMap<String, Metric>> concurrentHashMap = MetricsStreamStub.getMetricMap(MetricsStreamStub.METRIC_STREAM_SOME_EVENT);
+        Map<String, ConcurrentHashMap<String, Metric>> concurrentHashMap = MetricsStreamStub.getMetricMap(MetricsStreamStub.METRIC_STREAM_SOME_EVENT_MULTI_PARTITION);
 
         when(contextMock.getSystemStreamPartitions()).thenReturn(systemStreamPartitions);
         long consumer_lag = jobMetricsMock.computeConsumerLag(concurrentHashMap);
-        assertEquals(13, consumer_lag);
+        assertEquals(55, consumer_lag);
+
+    }
+
+    @Test
+    public void testConsumerLagWithMultiplePartitionEventProcessed() {
+
+        jobMetricsMock = new JobMetrics(contextMock);
+
+        Set<SystemStreamPartition> systemStreamPartitions = new HashSet<>();
+        SystemStreamPartition systemStreamTopic1Partition0 = new SystemStreamPartition("kafka", "topic1", new Partition(0));
+        SystemStreamPartition systemStreamTopic1Partition1 = new SystemStreamPartition("kafka", "topic1", new Partition(1));
+        systemStreamPartitions.add(systemStreamTopic1Partition0);
+        systemStreamPartitions.add(systemStreamTopic1Partition1);
+
+        Map<String, ConcurrentHashMap<String, Metric>> concurrentHashMap = MetricsStreamStub.getMetricMap(MetricsStreamStub.METRIC_STREAM_SOME_EVENT_SINGLE_TOPIC_MULTI_PARTITION);
+
+        when(contextMock.getSystemStreamPartitions()).thenReturn(systemStreamPartitions);
+        long consumer_lag = jobMetricsMock.computeConsumerLag(concurrentHashMap);
+        assertEquals(55, consumer_lag);
 
     }
 
@@ -89,19 +105,16 @@ public class JobMetricsTest  {
         systemStreamPartitions.add(streamSysCommand);
         systemStreamPartitions.add(streamJobReq);
 
-        jobMetricsMock.setOffset(streamSysCommand, "3");
-        jobMetricsMock.setOffset(streamJobReq, "8");
-
         Map<String, ConcurrentHashMap<String, Metric>> concurrentHashMap = MetricsStreamStub.getMetricMap(MetricsStreamStub.SAMZA_EVENT_STREAM_WITH_SYSTEM_COMMAND);
 
         when(contextMock.getSystemStreamPartitions()).thenReturn(systemStreamPartitions);
         long consumer_lag = jobMetricsMock.computeConsumerLag(concurrentHashMap);
         System.out.println("consumer_lag :"+consumer_lag);
         //Before Ignoring system.command stream
-        //Assert.assertEquals(15, consumer_lag);
+        //assertEquals(110, consumer_lag);
 
         //After Ignoring system.command stream
-        assertEquals(11, consumer_lag);
+        assertEquals(100, consumer_lag);
 
     }
 }
