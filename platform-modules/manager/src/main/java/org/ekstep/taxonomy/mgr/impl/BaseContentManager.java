@@ -379,16 +379,19 @@ public abstract class BaseContentManager extends BaseManager {
                 (equalsIgnoreCase(status, TaxonomyAPIParams.Live.name()) ||
                         equalsIgnoreCase(status, TaxonomyAPIParams.Unlisted.name()))) {
             Response collectionHierarchyResponse = getCollectionHierarchy(objectId);
-            Map<String, Object> currentHierarchy = (Map<String, Object>) collectionHierarchyResponse.getResult().get(ContentAPIParams.hierarchy.name());
+            if(!checkError(collectionHierarchyResponse)) {
+                Map<String, Object> currentHierarchy = (Map<String, Object>) collectionHierarchyResponse.getResult().get(ContentAPIParams.hierarchy.name());
+                if (MapUtils.isNotEmpty(currentHierarchy)) {
+                    //Remove version key from node without relations
+                    nodeWithoutRelations.remove(ContentAPIParams.versionKey.name());
 
-            //Remove version key from node without relations
-            nodeWithoutRelations.remove(ContentAPIParams.versionKey.name());
-
-            //update currentHierarchy in Cassandra
-            nodeWithoutRelations.keySet().forEach(key -> currentHierarchy.put(key, changedData.get(key)));
-            Response updateHierarchyResponse = updateCollectionHierarchy(objectId, currentHierarchy);
-            if (checkError(updateHierarchyResponse))
-                return updateHierarchyResponse;
+                    //update currentHierarchy in Cassandra
+                    nodeWithoutRelations.keySet().forEach(key -> currentHierarchy.put(key, changedData.get(key)));
+                    Response updateHierarchyResponse = updateCollectionHierarchy(objectId, currentHierarchy);
+                    if (checkError(updateHierarchyResponse))
+                        return updateHierarchyResponse;
+                }
+            }
         }
         return updateResponse;
 
