@@ -319,7 +319,9 @@ public abstract class BaseContentManager extends BaseManager {
             if (!checkError(updateResponse)) {
                 Response imageNodeResponse = getDataNode(TAXONOMY_ID, originalId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
                 if (!checkError(imageNodeResponse)) {
-                    updateResponse = updateContent(CONTENT_IMAGE_OBJECT_TYPE, originalId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, backUpInputMap);
+                    Response imageUpdateResponse = updateContent(CONTENT_IMAGE_OBJECT_TYPE, originalId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, backUpInputMap);
+                    if(checkError(imageUpdateResponse))
+                        return imageUpdateResponse;
                 }
             }
             return updateResponse;
