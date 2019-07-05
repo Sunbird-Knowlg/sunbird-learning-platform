@@ -72,7 +72,7 @@ public class Neo4jBoltDataVersionKeyValidatorTest {
 		node.setMetadata(new HashMap<String, Object>(){{
 			put("versionKey", "123345");
 		}});
-		boolean isvalid = spy.validateUpdateOperation("domain", node, "STRICT", "1233345");
+		spy.validateUpdateOperation("domain", node, "STRICT", "1233345");
 	}
 
 	@Test(expected = ClientException.class)
@@ -88,7 +88,7 @@ public class Neo4jBoltDataVersionKeyValidatorTest {
 		node.setMetadata(new HashMap<String, Object>(){{
 			put("versionKey", "");
 		}});
-		boolean isvalid = spy.validateUpdateOperation("domain", node, "STRICT", "1233345");
+		spy.validateUpdateOperation("domain", node, "STRICT", "1233345");
 	}
 
 	@Test
@@ -123,7 +123,7 @@ public class Neo4jBoltDataVersionKeyValidatorTest {
 		node.setMetadata(new HashMap<String, Object>(){{
 			put("versionKey", "12345");
 		}});
-		boolean isvalid = spy.validateUpdateOperation("domain", node, "STRICT", "");
+		spy.validateUpdateOperation("domain", node, "STRICT", "");
 	}
 
 }
