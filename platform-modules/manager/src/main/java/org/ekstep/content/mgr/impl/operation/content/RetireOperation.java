@@ -76,7 +76,6 @@ public class RetireOperation extends BaseContentManager {
                 if (unitIds.length > 0)
                     RedisStoreUtil.delete(unitIds);
             }
-
             try {
                 ElasticSearchUtil.bulkDeleteDocumentById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, childrenIdentifiers);
             } catch (Exception e) {
@@ -97,14 +96,9 @@ public class RetireOperation extends BaseContentManager {
         if (isCollWithFinalStatus)
             deleteHierarchy(Arrays.asList(contentId));
 
-        Response responseNode = validateAndGetNodeResponseForOperation(contentId);
-        node = (Node) responseNode.get("node");
-
         Response res = getSuccessResponse();
-        res.put(ContentAPIParams.node_id.name(), node.getIdentifier());
-        res.put(ContentAPIParams.versionKey.name(), node.getMetadata().get("versionKey"));
+        res.put(ContentAPIParams.node_id.name(), contentId);
         return res;
-
     }
 
     /**
