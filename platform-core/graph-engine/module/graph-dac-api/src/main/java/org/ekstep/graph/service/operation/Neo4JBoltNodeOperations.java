@@ -261,6 +261,12 @@ public class Neo4JBoltNodeOperations {
 							node.setIdentifier(identifier);
 							if (StringUtils.isNotBlank(versionKey))
 								node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+							try {
+								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
+							} catch (Exception e) {
+								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
+										DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
+							}
 						} catch (Exception e) {
 							//suppress exception happened when versionKey is null
 						}
