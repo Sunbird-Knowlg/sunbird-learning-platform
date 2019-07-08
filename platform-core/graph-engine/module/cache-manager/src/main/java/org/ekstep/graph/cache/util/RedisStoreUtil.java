@@ -112,21 +112,9 @@ public class RedisStoreUtil {
 	}
 
 	public static void deleteAllNodeProperty(String graphId, String propertyName) {
-		Jedis jedis = getRedisConncetion();
-		try {
+		String delKeysPattern = CacheKeyGenerator.getAllNodePropertyKeysPattern(graphId, propertyName);
+		deleteByPattern(delKeysPattern);
 
-			String delKeysPattern = CacheKeyGenerator.getAllNodePropertyKeysPattern(graphId, propertyName);
-			Set<String> keys = jedis.keys(delKeysPattern);
-			if (keys != null && keys.size() > 0) {
-				List<String> keyList = new ArrayList<>(keys);
-				jedis.del(keyList.toArray(new String[keyList.size()]));
-			}
-
-		} catch (Exception e) {
-			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SAVE_PROPERTY_ERROR.name(), e.getMessage());
-		} finally {
-			returnConnection(jedis);
-		}
 	}
 
 	public static Double getNodePropertyIncVal(String graphId, String objectId, String nodeProperty) {
@@ -203,6 +191,22 @@ public class RedisStoreUtil {
 		} finally {
 			returnConnection(jedis);
 		}
+	}
+
+	public static void deleteByPattern(String pattern) {
+		Jedis jedis = getRedisConncetion();
+		try {
+			Set<String> keys = jedis.keys(pattern);
+			if (keys != null && keys.size() > 0) {
+				List<String> keyList = new ArrayList<>(keys);
+				jedis.del(keyList.toArray(new String[keyList.size()]));
+			}
+		} catch (Exception e) {
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SAVE_PROPERTY_ERROR.name(), e.getMessage());
+		} finally {
+			returnConnection(jedis);
+		}
+
 	}
 
 }

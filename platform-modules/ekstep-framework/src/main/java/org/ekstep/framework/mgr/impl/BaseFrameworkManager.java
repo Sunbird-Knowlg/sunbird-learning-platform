@@ -64,6 +64,8 @@ public class BaseFrameworkManager extends BaseManager {
 
 	protected static final int cacheTtl = Platform.config.hasPath("framework.cache.ttl") ? Platform.config.getInt("framework.cache.ttl") : 86400;
 	protected ObjectMapper mapper = new ObjectMapper();
+	protected boolean cacheEnabled = Platform.config.hasPath("framework.cache.read") ? Platform.config.getBoolean("framework.cache.read") : false;
+	private static final String CACHE_PREFIX = "fw_";
 
 	protected Response create(Map<String, Object> request, String objectType) {
 		if (request.containsKey("translations"))
@@ -649,14 +651,17 @@ public class BaseFrameworkManager extends BaseManager {
 					categories.stream().filter(p -> categoryNames.contains(p.get("code")))
 							.collect(Collectors.toList()));
 			removeAssociations(framework, categoryNames);
-			String key = getFwCacheKey((String) framework.get("identifier"), categoryNames);
-			RedisStoreUtil.save(key, mapper.writeValueAsString(framework), cacheTtl);
+			if(cacheEnabled){
+				String key = getFwCacheKey((String) framework.get("identifier"), categoryNames);
+				RedisStoreUtil.save(key, mapper.writeValueAsString(framework), cacheTtl);
+			}
+
 		}
 	}
 
 	protected String getFwCacheKey(String identifier, List<String> categoryNames) {
 		Collections.sort(categoryNames);
-		return "fw_" + identifier.toLowerCase() + "_" + categoryNames.stream().map(cat -> cat.toLowerCase()).collect(Collectors.joining("_"));
+		return CACHE_PREFIX + identifier.toLowerCase() + "_" + categoryNames.stream().map(cat -> cat.toLowerCase()).collect(Collectors.joining("_"));
 	}
 
 }

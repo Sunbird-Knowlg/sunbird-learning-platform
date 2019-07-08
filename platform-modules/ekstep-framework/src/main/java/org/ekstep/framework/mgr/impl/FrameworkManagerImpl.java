@@ -35,7 +35,6 @@ import java.util.Map;
 public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrameworkManager {
 
 	private static final String FRAMEWORK_OBJECT_TYPE = "Framework";
-	private boolean cacheEnabled = Platform.config.hasPath("framework.cache.read") ? Platform.config.getBoolean("framework.cache.read") : false;
 
 	/*
 	 * create framework
