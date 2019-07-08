@@ -5,11 +5,14 @@ package org.ekstep.searchindex.elasticsearch;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.util.EntityUtils;
@@ -686,7 +689,11 @@ public class ElasticSearchUtil {
 					request.add(new DeleteRequest(indexName, documentType, documentId));
 					if (count % BATCH_SIZE == 0 || (count % BATCH_SIZE < BATCH_SIZE && count == identifiers.size())) {
 						BulkResponse bulkResponse = getClient(indexName).bulk(request);
-						//TODO: Iterate through response and return the identifiers successfully processed.
+						List<String> failedIds = Arrays.stream(bulkResponse.getItems()).filter(
+								itemResp -> !StringUtils.equals(itemResp.getResponse().getResult().getLowercase(),"deleted")
+						).map(r -> r.getResponse().getId()).collect(Collectors.toList());
+						if (CollectionUtils.isNotEmpty(failedIds))
+							TelemetryManager.log("Failed Id's While Deleting Elasticsearch Documents (Bulk Delete) : " + failedIds);
 						if (bulkResponse.hasFailures()) {
 							//TODO: Implement Retry Mechanism
 							TelemetryManager

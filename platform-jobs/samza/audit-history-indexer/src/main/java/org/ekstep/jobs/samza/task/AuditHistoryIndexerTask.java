@@ -44,7 +44,6 @@ public class AuditHistoryIndexerTask extends BaseTask {
 		Map<String, Object> outgoingMap = getMessage(envelope);
 		try {
 			auditHistoryMsgProcessor.processMessage(outgoingMap, metrics, collector);
-			setMetricsOffset(getSystemStreamPartition(envelope), getOffset(envelope), metrics);
 		} catch (Exception e) {
 			metrics.incErrorCounter();
 			LOGGER.error("Message processing Error", outgoingMap, e);

@@ -787,6 +787,7 @@ public class FrameworkV3ControllerTest extends CommonTestSetup {
 		executeScript(query);
 		//Read Framework
 		String path = BASE_PATH + "/read/tests/?categories=subject,board";
+
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response resp=getResponse(actions);
@@ -796,5 +797,20 @@ public class FrameworkV3ControllerTest extends CommonTestSetup {
 		Assert.assertNotNull(RedisStoreUtil.get("fw_tests_board_subject"));
 		RedisStoreUtil.delete("fw_tests_board_subject");
 	}
-		
+
+	public void readFrameworkWithValidIdentifierAndAssociationsExpect200() throws Exception {
+		String frameworkHierarchy = "{\"identifier\":\"tn_k-12_5\",\"code\":\"tn_k-12_5\",\"name\":\"State (Tamil Nadu)\",\"description\":\"tn_k-12_5\",\"categories\":[{\"identifier\":\"tn_k-12_5_subject\",\"code\":\"subject\",\"terms\":[{\"associations\":[{\"identifier\":\"tn_k-12_5_topic_english_l1con_118\",\"code\":\"english_l1Con_118\",\"translations\":null,\"name\":\"The Cat And The Pain Killer\",\"description\":\"The Cat And The Pain Killer\",\"category\":\"topic\",\"status\":\"Live\"},{\"identifier\":\"tn_k-12_5_topic_english_l1con_116\",\"code\":\"english_l1Con_116\",\"translations\":null,\"name\":\"Seventeen Oranges\",\"description\":\"Seventeen Oranges\",\"category\":\"topic\",\"status\":\"Live\"},{\"identifier\":\"tn_k-12_5_topic_english_l1con_120\",\"code\":\"english_l1Con_120\",\"translations\":null,\"name\":\"On Killing A Tree\",\"description\":\"On Killing A Tree\",\"category\":\"topic\",\"status\":\"Live\"},{\"identifier\":\"tn_k-12_5_topic_english_l1con_117\",\"code\":\"english_l1Con_117\",\"translations\":null,\"name\":\"The Spider And The Fly\",\"description\":\"The Spider And The Fly\",\"category\":\"topic\",\"status\":\"Live\"},{\"identifier\":\"tn_k-12_5_topic_english_l1con_119\",\"code\":\"english_l1Con_119\",\"translations\":null,\"name\":\"Water–the Elixir Of Life\",\"description\":\"Water–the Elixir Of Life\",\"category\":\"topic\",\"status\":\"Live\"}],\"identifier\":\"tn_k-12_5_subject_english\",\"code\":\"english\",\"translations\":null,\"name\":\"English\",\"description\":\"English\",\"index\":24,\"category\":\"subject\",\"status\":\"Live\"}],\"translations\":null,\"name\":\"Subject\",\"description\":\"Subject\",\"index\":4,\"status\":\"Live\"}],\"type\":\"K-12\",\"objectType\":\"Framework\"}";
+		String query = "INSERT into hierarchy_store_test.framework_hierarchy_test(identifier, hierarchy) values('tn_k-12_5', '" + frameworkHierarchy + "');";
+		executeScript(query);
+		//Read Framework
+		String path = BASE_PATH + "/read/" + "tn_k-12_5";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp=getResponse(actions);
+		Map<String,Object> framework=(Map<String, Object>) resp.getResult().get("framework");
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		List<Map<String, Object>> associations = (List<Map<String, Object>>) ((List<Map<String, Object>>) ((List<Map<String, Object>>)framework.get("categories")).get(0).get("terms")).get(0).get("associations");
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Assert.assertNotNull(associations);
+	}
 }
