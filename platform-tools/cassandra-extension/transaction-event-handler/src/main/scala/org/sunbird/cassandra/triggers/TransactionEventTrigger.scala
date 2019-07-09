@@ -6,14 +6,14 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.apache.cassandra.db.{Clustering, Mutation}
-import org.apache.cassandra.db.marshal.{CompositeType, ListType, MapType}
+import org.apache.cassandra.db.marshal.{CompositeType, MapType}
 import org.apache.cassandra.db.partitions.Partition
-import org.apache.cassandra.db.rows.{Cell, CellPath, Unfiltered}
+import org.apache.cassandra.db.rows.{Cell, Unfiltered}
+import org.apache.cassandra.db.marshal.AbstractType
 import org.apache.cassandra.triggers.ITrigger
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
-import scala.collection.mutable
 
 
 class TransactionEventTrigger extends ITrigger {
@@ -130,7 +130,6 @@ class TransactionEventTrigger extends ITrigger {
         }
     }
 
-    import org.apache.cassandra.db.marshal.AbstractType
 
     private def getColumnName(cell: Cell): String = cell.column().name.toString
 
