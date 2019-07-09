@@ -114,13 +114,13 @@ public class CopyOperation extends BaseContentManager {
         Map<String, Object> metaData = new HashMap<>();
         metaData.putAll(existingNode.getMetadata());
         
-        Map<String, Object> existingNodeData = new HashMap<>();
-        List<String> existingNodeMetadataList = Platform.config.getStringList("learning.content.copy.origin_data");
-        if(CollectionUtils.isNotEmpty(existingNodeMetadataList))
-        	existingNodeMetadataList.forEach(meta -> {
-        		if(metaData.containsKey(meta))
-        			existingNodeData.put(meta, metaData.get(meta));
-        		});
+        Map<String, Object> originData = new HashMap<>();
+        List<String> originNodeMetadataList = Platform.config.getStringList("learning.content.copy.origin_data");
+        if(CollectionUtils.isNotEmpty(originNodeMetadataList))
+	        	originNodeMetadataList.forEach(meta -> {
+	        		if(metaData.containsKey(meta))
+	        			originData.put(meta, metaData.get(meta));
+	        		});
         
         List<String> nullPropList = Platform.config.getStringList("learning.content.copy.props_to_remove");
         if(CollectionUtils.isNotEmpty(nullPropList))
@@ -130,7 +130,7 @@ public class CopyOperation extends BaseContentManager {
         copyNode.getMetadata().putAll(requestMap);
         copyNode.getMetadata().put("status", "Draft");
         copyNode.getMetadata().put("origin", existingNode.getIdentifier());
-        copyNode.getMetadata().put("originData", existingNodeData);
+        copyNode.getMetadata().put("originData", originData);
 
         List<Relation> existingNodeOutRelations = existingNode.getOutRelations();
         List<Relation> copiedNodeOutRelations = new ArrayList<>();
