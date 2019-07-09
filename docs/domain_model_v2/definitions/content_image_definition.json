@@ -1893,6 +1893,18 @@
 					"indexed": true
 				},
 				{
+					"propertyName": "originData",
+					"title": "Origin Data",
+					"description": "Origin Content metadata",
+					"category": "Lifecycle",
+					"dataType": "JSON",
+					"required": false,
+					"displayProperty": "Readonly",
+					"defaultValue": "",
+					"renderingHints": "{'order': 24}",
+					"indexed": true
+				},
+				{
 					"propertyName": "versionCreatedBy",
 					"title": "Version Created By",
 					"description": "Version Created By",
@@ -2894,22 +2906,7 @@
 					"indexed": true,
 					"draft": false,
 					"rangeValidation": true
-				},
-				{
-                    "required": false,
-                    "dataType": "Text",
-                    "propertyName": "copyRight",
-                    "title": "CopyRight",
-                    "description": "Who owns the copyRight of the content",
-                    "category": "general",
-                    "displayProperty": "Editable",
-                    "range": null,
-                    "defaultValue": "",
-                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
-                    "indexed": true,
-                    "draft": false,
-                    "rangeValidation": true
-                }
+				}
 			],
 			"inRelations": [
 				{
