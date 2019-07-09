@@ -1,5 +1,6 @@
 package org.ekstep.graph.cache.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.exception.GraphCacheErrorCodes;
@@ -194,19 +195,20 @@ public class RedisStoreUtil {
 	}
 
 	public static void deleteByPattern(String pattern) {
-		Jedis jedis = getRedisConncetion();
-		try {
-			Set<String> keys = jedis.keys(pattern);
-			if (keys != null && keys.size() > 0) {
-				List<String> keyList = new ArrayList<>(keys);
-				jedis.del(keyList.toArray(new String[keyList.size()]));
+		if(StringUtils.isNotBlank(pattern) && !StringUtils.equalsIgnoreCase(pattern, "*")){
+			Jedis jedis = getRedisConncetion();
+			try {
+				Set<String> keys = jedis.keys(pattern);
+				if (keys != null && keys.size() > 0) {
+					List<String> keyList = new ArrayList<>(keys);
+					jedis.del(keyList.toArray(new String[keyList.size()]));
+				}
+			} catch (Exception e) {
+				throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SAVE_PROPERTY_ERROR.name(), e.getMessage());
+			} finally {
+				returnConnection(jedis);
 			}
-		} catch (Exception e) {
-			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SAVE_PROPERTY_ERROR.name(), e.getMessage());
-		} finally {
-			returnConnection(jedis);
 		}
-
 	}
 
 }

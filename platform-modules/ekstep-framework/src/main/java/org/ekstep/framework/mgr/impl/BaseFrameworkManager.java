@@ -31,7 +31,6 @@ import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.framework.enums.FrameworkEnum;
-import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Filter;
 import org.ekstep.graph.dac.model.MetadataCriterion;
@@ -61,11 +60,8 @@ public class BaseFrameworkManager extends BaseManager {
 	private static final List<String> LANGUAGE_CODES = (Platform.config.hasPath("language.graph_ids"))
 			? Platform.config.getStringList("language.graph_ids")
 			: null;
-
-	protected static final int cacheTtl = Platform.config.hasPath("framework.cache.ttl") ? Platform.config.getInt("framework.cache.ttl") : 86400;
 	protected ObjectMapper mapper = new ObjectMapper();
-	protected boolean cacheEnabled = Platform.config.hasPath("framework.cache.read") ? Platform.config.getBoolean("framework.cache.read") : false;
-	private static final String CACHE_PREFIX = "fw_";
+
 
 	protected Response create(Map<String, Object> request, String objectType) {
 		if (request.containsKey("translations"))
@@ -651,17 +647,9 @@ public class BaseFrameworkManager extends BaseManager {
 					categories.stream().filter(p -> categoryNames.contains(p.get("code")))
 							.collect(Collectors.toList()));
 			removeAssociations(framework, categoryNames);
-			if(cacheEnabled){
-				String key = getFwCacheKey((String) framework.get("identifier"), categoryNames);
-				RedisStoreUtil.save(key, mapper.writeValueAsString(framework), cacheTtl);
-			}
-
 		}
 	}
 
-	protected String getFwCacheKey(String identifier, List<String> categoryNames) {
-		Collections.sort(categoryNames);
-		return CACHE_PREFIX + identifier.toLowerCase() + "_" + categoryNames.stream().map(cat -> cat.toLowerCase()).collect(Collectors.joining("_"));
-	}
+
 
 }

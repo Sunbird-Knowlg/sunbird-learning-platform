@@ -1,25 +1,20 @@
 
 package org.ekstep.framework.mgr.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.rits.cloning.Cloner;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.util.FrameworkCache;
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.framework.mgr.IFrameworkManager;
-import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -75,16 +70,11 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response readFramework(String frameworkId, List<String> returnCategories) throws Exception {
-		Map<String, Object> framework = null;
-		if(CollectionUtils.isNotEmpty(returnCategories) && cacheEnabled){
-			Collections.sort(returnCategories);
-			String cachedCategories = RedisStoreUtil.get(getFwCacheKey(frameworkId, returnCategories));
-			if(StringUtils.isNotBlank(cachedCategories)) {
-				framework = mapper.readValue(cachedCategories, new TypeReference<Map<String, Object>>(){});
-				Response response = OK();
-				response.put(FrameworkEnum.framework.name(), framework);
-				return response;
-			}
+		Map<String, Object> framework = FrameworkCache.get(frameworkId, returnCategories);
+		if(MapUtils.isNotEmpty(framework)){
+			Response response = OK();
+			response.put(FrameworkEnum.framework.name(), framework);
+			return response;
 		}
 
 		Response getHierarchyResp = getFrameworkHierarchy(frameworkId);
@@ -94,6 +84,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 		if (MapUtils.isNotEmpty(framework)) {
 			filterFrameworkCategories(framework, returnCategories);
+			FrameworkCache.save(framework, returnCategories);
 			Response response = OK();
 			response.put(FrameworkEnum.framework.name(), framework);
 			return response;

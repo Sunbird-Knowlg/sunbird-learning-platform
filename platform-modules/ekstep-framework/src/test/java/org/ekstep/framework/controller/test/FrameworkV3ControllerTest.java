@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.util.FrameworkCache;
 import org.ekstep.framework.mgr.impl.CategoryInstanceManagerImpl;
 import org.ekstep.framework.mgr.impl.CategoryManagerImpl;
 import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
@@ -795,7 +796,7 @@ public class FrameworkV3ControllerTest extends CommonTestSetup {
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Assert.assertNotNull(framework);
 		Assert.assertNotNull(RedisStoreUtil.get("fw_tests_board_subject"));
-		RedisStoreUtil.delete("fw_tests_board_subject");
+		FrameworkCache.delete("tests");
 	}
 
 	public void readFrameworkWithValidIdentifierAndAssociationsExpect200() throws Exception {
