@@ -304,37 +304,64 @@ public abstract class BaseContentManager extends BaseManager {
     }
 
     public Response updateAllContents(String originalId, Map<String, Object> inputMap) throws Exception {
-        if (null == inputMap)
+        if (MapUtils.isEmpty(inputMap))
             return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
         //Clear redis cache before updates
         RedisStoreUtil.delete(originalId);
         RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + originalId);
 
+        //Check whether the node exists in graph db
+        Response originalNodeResponse = getDataNode(TAXONOMY_ID, originalId);
+        if (checkError(originalNodeResponse)) {
+            return originalNodeResponse;
+        }
+        Map resultMap = originalNodeResponse.getResult();
+        Node node = (Node) resultMap.get(ContentAPIParams.node.name());
+        Map currentMetadata = node.getMetadata();
+
         if (originalId.endsWith(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
-            return updateContent(CONTENT_IMAGE_OBJECT_TYPE, originalId, inputMap);
+            return updateContent(CONTENT_IMAGE_OBJECT_TYPE, originalId, inputMap, currentMetadata);
         } else {
+            //Backup input data to update image node
             Map<String, Object> backUpInputMap = new HashMap<>(inputMap);
-            Response updateResponse = updateContent(CONTENT_OBJECT_TYPE, originalId, inputMap);
-            if (!checkError(updateResponse)) {
-                Response imageNodeResponse = getDataNode(TAXONOMY_ID, originalId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
-                if (!checkError(imageNodeResponse)) {
-                    Response imageUpdateResponse = updateContent(CONTENT_IMAGE_OBJECT_TYPE, originalId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, backUpInputMap);
-                    if(checkError(imageUpdateResponse))
-                        return imageUpdateResponse;
+
+            //Check whether image node exists
+            Response imageNodeResponse = getDataNode(TAXONOMY_ID, originalId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
+            boolean isImageNodeExists = !checkError(imageNodeResponse);
+
+            //Status of Live Content Node(with no image node) should not be updated
+            String currentStatus = (String) currentMetadata.get(TaxonomyAPIParams.status.name());
+            if(TaxonomyAPIParams.Live.name().equalsIgnoreCase(currentStatus)) {
+                inputMap.remove(TaxonomyAPIParams.status.name());
+            }
+            if(MapUtils.isEmpty(inputMap) && !isImageNodeExists) {
+                return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request. Cannot update status of Live Node.", ResponseCode.CLIENT_ERROR);
+            }
+
+            //Update Content Node
+            Response updateResponse = null;
+            if(MapUtils.isNotEmpty(inputMap)) {
+                updateResponse = updateContent(CONTENT_OBJECT_TYPE, originalId, inputMap, currentMetadata);
+                if (checkError(updateResponse)) {
+                    return updateResponse;
                 }
+            }
+
+            //Update Content Image Node
+            if (isImageNodeExists) {
+                Map imageResultMap = imageNodeResponse.getResult();
+                Node imageNode = (Node) imageResultMap.get(ContentAPIParams.node.name());
+                Map currentImageMetadata = imageNode.getMetadata();
+                Response imageUpdateResponse = updateContent(CONTENT_IMAGE_OBJECT_TYPE, originalId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, backUpInputMap, currentImageMetadata);
+                if(checkError(imageUpdateResponse) || null == updateResponse)
+                    return imageUpdateResponse;
             }
             return updateResponse;
         }
     }
 
-    private Response updateContent(String objectType, String objectId, Map<String, Object> changedData) throws Exception {
-
-        //Check whether the node exists in graph db
-        Response originalNodeResponse = getDataNode(TAXONOMY_ID, objectId);
-        if (checkError(originalNodeResponse)) {
-            return originalNodeResponse;
-        }
+    private Response updateContent(String objectType, String objectId, Map<String, Object> changedData, Map currentMetadata) throws Exception {
 
         //Get configured definition
         DefinitionDTO definition = getDefinition(TAXONOMY_ID, objectType);
@@ -368,13 +395,10 @@ public abstract class BaseContentManager extends BaseManager {
         }
 
         //Update hierarchy in Cassandra for Live/Unlisted Collections
-        Map resultMap = originalNodeResponse.getResult();
-        Node node = (Node) resultMap.get(ContentAPIParams.node.name());
-        Map metadataMap = node.getMetadata();
         String status = isBlank((String) changedData.get(TaxonomyAPIParams.status.name())) ?
-                (String) metadataMap.get(TaxonomyAPIParams.status.name()) :
+                (String) currentMetadata.get(TaxonomyAPIParams.status.name()) :
                 (String) changedData.get(TaxonomyAPIParams.status.name());
-        String mimeType = (String) metadataMap.get(TaxonomyAPIParams.mimeType.name());
+        String mimeType = (String) currentMetadata.get(TaxonomyAPIParams.mimeType.name());
         if (equalsIgnoreCase(mimeType, COLLECTION_MIME_TYPE) &&
                 (equalsIgnoreCase(status, TaxonomyAPIParams.Live.name()) ||
                         equalsIgnoreCase(status, TaxonomyAPIParams.Unlisted.name()))) {
