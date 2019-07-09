@@ -1,4 +1,4 @@
-- hosts: neo4j-restore-test #learning-neo4j-cluster
+- hosts: learning-neo4j-cluster
   vars_files:
     - "{{inventory_dir}}/secrets.yml"
   roles: 
