@@ -28,7 +28,8 @@
 		<module>qrcode-image-generator</module>
 		<module>collection-migration</module>
 		<module>distribution</module>
-  </modules>
+        <module>course-batch-updater</module>
+    </modules>
 
 	<build>
 		<plugins>
