@@ -6,6 +6,6 @@ learner_user_home: /home/{{learner_user}}
 path_to_neo4j_db: "{{neo4j_home}}/data/databases"
 
 #####
-#neo4j_restore_gzip_file_name: input from jenkins job
+#neo4j_backup_file_name: input from jenkins job
 #backup_azure_storage_account_name:  defined in private repo
-#backup_azure_storage_access_key: defined in all yml
+#backup_azure_storage_access_key: defined in secrets.yml

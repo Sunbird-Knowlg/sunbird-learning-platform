@@ -2,10 +2,10 @@
   file: path="{{ neo4j_restore_dir }}" state=directory owner={{ learner_user }} group={{ learner_user }}
 
 - set_fact:
-    neo4j_restore_gzip_file_path: "{{ neo4j_restore_dir }}/{{ neo4j_restore_gzip_file_name }}"
+    neo4j_backup_file_path: "{{ neo4j_restore_dir }}/{{ neo4j_backup_file_name }}"
 
 - name: Download restore file from azure
-  command: az storage blob download --container-name {{ neo4j_backup_azure_container_name }} --name {{ neo4j_restore_gzip_file_name }} --file {{ neo4j_restore_gzip_file_path }}
+  command: az storage blob download --container-name {{ neo4j_backup_azure_container_name }} --name {{ neo4j_backup_file_name }} --file {{ neo4j_backup_file_path }}
   environment:
     AZURE_STORAGE_ACCOUNT: "{{ backup_azure_storage_account_name }}"
     AZURE_STORAGE_KEY: "{{ backup_azure_storage_access_key }}"
@@ -25,10 +25,10 @@
     chdir: "{{ neo4j_home }}"
   when: "neo4j_process.stdout != '0'"
 
-- name: unzip 
+- name: unaarchive backup file
   become: yes
   become_user: "{{learner_user}}"
-  unarchive: src={{neo4j_restore_gzip_file_path}} dest={{learner_user_home}} copy=no group={{learner_user}} owner={{learner_user}}
+  unarchive: src={{neo4j_backup_file_path}} dest={{learner_user_home}} copy=no group={{learner_user}} owner={{learner_user}}
 
 - name: delete existing graph db
   become: yes
@@ -53,4 +53,5 @@
   file:
     state: absent
     path: "{{ neo4j_restore_dir }}"
+
 
