@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rits.cloning.Cloner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -103,6 +104,8 @@ public abstract class BaseContentManager extends BaseManager {
             : 259200;
 
     protected static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
+
+    protected static final List<String> SYSTEM_UPDATE_ALLOWED_CONTENT_STATUS = Arrays.asList(TaxonomyAPIParams.Live.name(), TaxonomyAPIParams.Unlisted.name());
 
 	protected String getId(String identifier) {
 		if (StringUtils.endsWith(identifier, ".img")) {
@@ -324,7 +327,8 @@ public abstract class BaseContentManager extends BaseManager {
             return updateContent(CONTENT_IMAGE_OBJECT_TYPE, originalId, inputMap, currentMetadata);
         } else {
             //Backup input data to update image node
-            Map<String, Object> backUpInputMap = new HashMap<>(inputMap);
+            Cloner cloner = new Cloner();
+            Map<String, Object> backUpInputMap = cloner.deepClone(inputMap);
 
             //Check whether image node exists
             Response imageNodeResponse = getDataNode(TAXONOMY_ID, originalId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
@@ -332,7 +336,7 @@ public abstract class BaseContentManager extends BaseManager {
 
             //Status of Live Content Node(with no image node) should not be updated
             String currentStatus = (String) currentMetadata.get(TaxonomyAPIParams.status.name());
-            if(TaxonomyAPIParams.Live.name().equalsIgnoreCase(currentStatus)) {
+            if(SYSTEM_UPDATE_ALLOWED_CONTENT_STATUS.contains(currentStatus)) {
                 inputMap.remove(TaxonomyAPIParams.status.name());
             }
             if(MapUtils.isEmpty(inputMap) && !isImageNodeExists) {
@@ -400,8 +404,7 @@ public abstract class BaseContentManager extends BaseManager {
                 (String) changedData.get(TaxonomyAPIParams.status.name());
         String mimeType = (String) currentMetadata.get(TaxonomyAPIParams.mimeType.name());
         if (equalsIgnoreCase(mimeType, COLLECTION_MIME_TYPE) &&
-                (equalsIgnoreCase(status, TaxonomyAPIParams.Live.name()) ||
-                        equalsIgnoreCase(status, TaxonomyAPIParams.Unlisted.name()))) {
+                SYSTEM_UPDATE_ALLOWED_CONTENT_STATUS.contains(status)) {
             Response collectionHierarchyResponse = getCollectionHierarchy(objectId);
             if(!checkError(collectionHierarchyResponse)) {
                 Map<String, Object> currentHierarchy = (Map<String, Object>) collectionHierarchyResponse.getResult().get(ContentAPIParams.hierarchy.name());
