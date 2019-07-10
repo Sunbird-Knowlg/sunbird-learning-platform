@@ -1893,6 +1893,18 @@
 					"indexed": true
 				},
 				{
+					"propertyName": "originData",
+					"title": "Origin Data",
+					"description": "Origin Content metadata",
+					"category": "Lifecycle",
+					"dataType": "JSON",
+					"required": false,
+					"displayProperty": "Readonly",
+					"defaultValue": "",
+					"renderingHints": "{'order': 24}",
+					"indexed": true
+				},
+				{
 					"propertyName": "versionCreatedBy",
 					"title": "Version Created By",
 					"description": "Version Created By",
@@ -3197,7 +3209,11 @@
 					"consumerId",
 					"organisation",
 					"migratedUrl",
-					"totalCompressedSize"
+					"totalCompressedSize",
+					"programId",
+					"leafNodes",
+					"origin",
+					"originData"
 				]
 			}
 		}

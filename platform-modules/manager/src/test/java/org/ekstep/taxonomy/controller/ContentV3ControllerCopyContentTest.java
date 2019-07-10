@@ -103,7 +103,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 
 	public static void createDocumentContent() throws Exception {
 		for (int i = 1; i <= 2; i++) {
-			String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"testcontent\",\"mimeType\":\"application/pdf\"}";
+			String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"testcontent\",\"mimeType\":\"application/pdf\",\"creator\": \"ContentCreator\", \"author\": \"ContentAuthor\", \"license\": \"Creative Commons Attribution (CC BY)\", \"copyright\": \"copyright - Content qoned by\", \"organisation\": [\"Content_Creator_Organisation\"], \"attributions\":[\"Content_Attributions1\", \"Content_Attributions2\"]}";
 			Map<String, Object> documentContentMap = mapper.readValue(createDocumentContent,
 					new TypeReference<Map<String, Object>>() {
 					});
@@ -180,6 +180,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
         System.out.println("Original CreatedOn : " + createdOn);
         System.out.println("Copied  CreatedOn : " + createdOnCopy);
 		Assert.assertNotEquals(createdOn, createdOnCopy);
+		Assert.assertNotNull(((Map<String, Object>) readCopyResp.getResult().get("content")).get("originData"));
 	}
 
 	/*
