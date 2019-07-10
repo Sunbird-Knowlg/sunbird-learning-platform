@@ -3209,7 +3209,11 @@
 					"consumerId",
 					"organisation",
 					"migratedUrl",
-					"totalCompressedSize"
+					"totalCompressedSize",
+					"programId",
+					"leafNodes",
+					"origin",
+					"originData"
 				]
 			}
 		}

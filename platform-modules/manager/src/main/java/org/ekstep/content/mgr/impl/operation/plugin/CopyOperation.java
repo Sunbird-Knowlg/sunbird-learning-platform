@@ -115,14 +115,17 @@ public class CopyOperation extends BaseContentManager {
         metaData.putAll(existingNode.getMetadata());
         
         Map<String, Object> originData = new HashMap<>();
-        List<String> originNodeMetadataList = Platform.config.getStringList("learning.content.copy.origin_data");
+        
+        List<String> originNodeMetadataList = Platform.config.hasPath("learning.content.copy.origin_data")
+        		? Platform.config.getStringList("learning.content.copy.origin_data") : null;
         if(CollectionUtils.isNotEmpty(originNodeMetadataList))
 	        	originNodeMetadataList.forEach(meta -> {
 	        		if(metaData.containsKey(meta))
 	        			originData.put(meta, metaData.get(meta));
 	        		});
         
-        List<String> nullPropList = Platform.config.getStringList("learning.content.copy.props_to_remove");
+        List<String> nullPropList = Platform.config.hasPath("learning.content.copy.props_to_remove")
+        		? Platform.config.getStringList("learning.content.copy.props_to_remove"): null;
         if(CollectionUtils.isNotEmpty(nullPropList))
         		nullPropList.forEach(prop -> metaData.remove(prop));
         copyNode.setMetadata(metaData);
