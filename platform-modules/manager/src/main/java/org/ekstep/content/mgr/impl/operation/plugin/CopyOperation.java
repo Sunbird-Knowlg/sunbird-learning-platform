@@ -133,7 +133,8 @@ public class CopyOperation extends BaseContentManager {
         copyNode.getMetadata().putAll(requestMap);
         copyNode.getMetadata().put("status", "Draft");
         copyNode.getMetadata().put("origin", existingNode.getIdentifier());
-        copyNode.getMetadata().put("originData", originData);
+        if(MapUtils.isNotEmpty(originData))
+        		copyNode.getMetadata().put("originData", originData);
 
         List<Relation> existingNodeOutRelations = existingNode.getOutRelations();
         List<Relation> copiedNodeOutRelations = new ArrayList<>();
