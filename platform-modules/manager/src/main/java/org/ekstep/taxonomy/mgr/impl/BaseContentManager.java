@@ -29,9 +29,11 @@ import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.model.node.MetadataDefinition;
+import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
@@ -106,6 +108,8 @@ public abstract class BaseContentManager extends BaseManager {
     protected static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
 
     protected static final List<String> SYSTEM_UPDATE_ALLOWED_CONTENT_STATUS = Arrays.asList(TaxonomyAPIParams.Live.name(), TaxonomyAPIParams.Unlisted.name());
+
+    protected static final List<String> FLAGGABLE_STATUS = Arrays.asList(TaxonomyAPIParams.Live.name(), TaxonomyAPIParams.Processing.name(), TaxonomyAPIParams.Flagged.name());
 
 	protected String getId(String identifier) {
 		if (StringUtils.endsWith(identifier, ".img")) {
@@ -374,11 +378,20 @@ public abstract class BaseContentManager extends BaseManager {
         String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
         changedData.put(ContentAPIParams.versionKey.name(), graphPassportKey);
 
+        //Get in-relation and out-relation titles
+        List<String> relationTitles = new ArrayList<>();
+        List<RelationDefinition> relations = definition.getInRelations();
+        relations.addAll(definition.getOutRelations());
+        relations.forEach(relation -> relationTitles.add(relation.getTitle()));
+
+        //Relation fields should not be updated as part of system update call
+        relationTitles.forEach(title -> changedData.remove(title));
+
         //Prepare Node Object to be updated
         Node domainObj = ConvertToGraphNode.convertToGraphNode(changedData, definition, null);
 
         //Get node data for cassandra hierarchy update
-        Map<String, Object> nodeWithoutRelations = ConvertGraphNode.convertGraphNodeWithoutRelations(domainObj, TAXONOMY_ID, definition, null);
+        //Map<String, Object> nodeWithoutRelations = ConvertGraphNode.convertGraphNodeWithoutRelations(domainObj, TAXONOMY_ID, definition, null);
 
         //Update graph node
         Response updateResponse = updateNode(objectId, objectType, domainObj);
@@ -409,11 +422,12 @@ public abstract class BaseContentManager extends BaseManager {
             if(!checkError(collectionHierarchyResponse)) {
                 Map<String, Object> currentHierarchy = (Map<String, Object>) collectionHierarchyResponse.getResult().get(ContentAPIParams.hierarchy.name());
                 if (MapUtils.isNotEmpty(currentHierarchy)) {
-                    //Remove version key from node without relations
-                    nodeWithoutRelations.remove(ContentAPIParams.versionKey.name());
+                    //Remove version key from data
+                    changedData.remove(ContentAPIParams.versionKey.name());
 
                     //update currentHierarchy in Cassandra
-                    nodeWithoutRelations.keySet().forEach(key -> currentHierarchy.put(key, changedData.get(key)));
+                    changedData.keySet().forEach(key -> currentHierarchy.put(key, changedData.get(key)));
+                    //nodeWithoutRelations.keySet().forEach(key -> currentHierarchy.put(key, nodeWithoutRelations.get(key)));
                     Response updateHierarchyResponse = updateCollectionHierarchy(objectId, currentHierarchy);
                     if (checkError(updateHierarchyResponse))
                         return updateHierarchyResponse;
