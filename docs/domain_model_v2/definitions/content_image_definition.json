@@ -920,7 +920,7 @@
 					],
 					"category": "Ownership",
 					"displayProperty": "Editable",
-					"defaultValue": "",
+					"defaultValue": "Creative Commons Attribution (CC BY)",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
@@ -1886,6 +1886,18 @@
 					"description": "Origin",
 					"category": "Lifecycle",
 					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Readonly",
+					"defaultValue": "",
+					"renderingHints": "{'order': 24}",
+					"indexed": true
+				},
+				{
+					"propertyName": "originData",
+					"title": "Origin Data",
+					"description": "Origin Content metadata",
+					"category": "Lifecycle",
+					"dataType": "JSON",
 					"required": false,
 					"displayProperty": "Readonly",
 					"defaultValue": "",
@@ -3197,7 +3209,11 @@
 					"consumerId",
 					"organisation",
 					"migratedUrl",
-					"totalCompressedSize"
+					"totalCompressedSize",
+					"programId",
+					"leafNodes",
+					"origin",
+					"originData"
 				]
 			}
 		}

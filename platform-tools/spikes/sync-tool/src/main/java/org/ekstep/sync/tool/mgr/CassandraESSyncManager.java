@@ -416,8 +416,9 @@ public class CassandraESSyncManager {
                 getLeafNodesIds(hierarchy, leafNodeIds);
                 if(CollectionUtils.isNotEmpty(leafNodeIds)) {
                     System.out.println("LeafNodes are :" + leafNodeIds);
-                    updateTextBookNode(collectionId, "leafNodes", leafNodeIds);
-                    hierarchy.put("leafNodes", leafNodeIds);
+                    List<String> leafNodes = new ArrayList<>(leafNodeIds);
+                    updateTextBookNode(collectionId, "leafNodes", leafNodes);
+                    hierarchy.put("leafNodes", leafNodes);
                     hierarchyStore.saveOrUpdateHierarchy(collectionId, hierarchy);
                     return true;
                 } else {

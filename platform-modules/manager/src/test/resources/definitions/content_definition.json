@@ -1094,7 +1094,14 @@
 						"CourseUnit",
 						"TextBookUnit",
 						"TeachingMethod",
-						"PedagogyFlow"
+						"PedagogyFlow",
+						"FocusSpot",
+                        "LearningOutcomeDefinition",
+                        "PracticeQuestionSet",
+                        "CuriosityQuestions",
+                        "MarkingSchemeRubric",
+                        "ExplanationResource",
+                        "ExperientialResource"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -1766,18 +1773,6 @@
 					"indexed": true
 				},
 				{
-					"propertyName": "udpdater",
-					"title": "Name of the user who updated Content last",
-					"description": "",
-					"category": "Lifecycle",
-					"dataType": "Text",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "{'order': 21}",
-					"indexed": true
-				},
-				{
 					"propertyName": "reviewer",
 					"title": "Name of the user who did the final review and published the content",
 					"description": "",
@@ -1891,6 +1886,18 @@
 					"description": "Origin",
 					"category": "Lifecycle",
 					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Readonly",
+					"defaultValue": "",
+					"renderingHints": "{'order': 24}",
+					"indexed": true
+				},
+				{
+					"propertyName": "originData",
+					"title": "Origin Data",
+					"description": "Origin Content metadata",
+					"category": "Lifecycle",
+					"dataType": "JSON",
 					"required": false,
 					"displayProperty": "Readonly",
 					"defaultValue": "",
@@ -2643,18 +2650,6 @@
 					"indexed": true
 				},
 				{
-					"propertyName": "isNew",
-					"title": "isNew",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Boolean",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": false
-				},
-				{
 					"propertyName": "reviewError",
 					"title": "reviewError",
 					"description": "R1.15",
@@ -2727,117 +2722,9 @@
 					"indexed": true
 				},
 				{
-					"propertyName": "year",
-					"title": "year",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Text",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
 					"propertyName": "depth",
 					"title": "Depth",
 					"description": "R1.15-Depth for Collection Units",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_diksha_stage_open_batch_count",
-					"title": "c_diksha_stage_open_batch_count",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_diksha_stage_private_batch_count",
-					"title": "c_diksha_stage_private_batch_count",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_diksha_open_batch_count",
-					"title": "c_diksha_open_batch_count",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_diksha_private_batch_count",
-					"title": "c_diksha_private_batch_count",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_diksha_preprod_open_batch_count",
-					"title": "c_diksha_preprod_open_batch_count",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_diksha_preprod_private_batch_count",
-					"title": "c_diksha_preprod_private_batch_count",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_sunbird_dev_open_batch_count",
-					"title": "c_sunbird_dev_open_batch_count",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_sunbird_dev_private_batch_count",
-					"title": "c_sunbird_dev_private_batch_count",
-					"description": "R1.15",
 					"category": "General",
 					"dataType": "Number",
 					"required": false,
@@ -2937,7 +2824,89 @@
                   "renderingHints": "",
                   "indexed": true,
                   "draft": false
-                }
+                },
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "creatorInfo",
+					"title": "CreatorInfo",
+					"description": "R-1.15_creatorInfo",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true,
+					"draft": false
+                },
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "migratedUrl",
+					"title": "Drive Url",
+					"description": "This Url has to be migrated",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "baseUrl",
+					"title": "Base Url of Instanse",
+					"description": "R-1.15_baseUrl-VR",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Number",
+					"propertyName": "totalCompressedSize",
+					"title": "Download File Size (in bytes)",
+					"description": "Download File Size (in bytes)",
+					"category": "Technical",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+                    "required": false,
+                    "dataType": "Text",
+                    "propertyName": "programId",
+                    "title": "ProgramId",
+                    "description": "Id of the Program",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                },
+				{
+					"required": false,
+					"dataType": "List",
+					"propertyName": "leafNodes",
+					"title": "leafNodes",
+					"description": "Unique leafNodes attached to collection mimeTypes",
+					"category": "general",
+					"displayProperty": "Editable",
+					"range": null,
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+					"indexed": true,
+					"draft": false,
+					"rangeValidation": true
+				}
 			],
 			"inRelations": [
 				{
@@ -3155,6 +3124,7 @@
 				"versionCheckMode": "STRICT",
 				"allowupdate_status": false,
 				"allowupdate_framework": true,
+				"allowupdate_mimeType": false,
 				"fields": [
 					"identifier",
 					"name",
@@ -3237,7 +3207,13 @@
 					"appId",
 					"s3Key",
 					"consumerId",
-					"organisation"
+					"organisation",
+					"migratedUrl",
+					"totalCompressedSize",
+					"programId",
+					"leafNodes",
+					"origin",
+					"originData"
 				]
 			}
 		}
