@@ -58,7 +58,7 @@ public class CopyOperation extends BaseContentManager {
             throw new ClientException("ERR_INVALID_REQUEST", "Please provide valid request");
 
         validateOrThrowExceptionForEmptyKeys(requestMap, "Content", Arrays.asList("createdBy", "createdFor",
-                "organization", "framework"));
+                "organisation", "framework"));
 
         Node node = getContentNode(TAXONOMY_ID, contentId, mode);
         List<String> notCoppiedContent = null;
