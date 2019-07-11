@@ -25,7 +25,7 @@ public class MigrationCommand extends BaseCommand implements CommandMarker {
                                @CliOption(key = {
                                        "createdFor"}, mandatory = false, help = "Content created for?") final String[] createdFor,
                                @CliOption(key = {
-                                       "organisation"}, mandatory = false, help = "list of organization") final String[] organisation,
+                                       "organisation"}, mandatory = false, help = "list of organisation") final String[] organisation,
                                @CliOption(key = {
                                        "creator"}, mandatory = false, help = "Content creator") final String creator,
                                @CliOption(key = {
