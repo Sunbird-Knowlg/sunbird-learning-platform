@@ -1,13 +1,4 @@
 ---
-#- name: Register with azure blob 
-#  uri:
-#    url: "http://{{ es_restore_host }}:9200/_snapshot/azurebackup"
-#    method: PUT
-#    headers:
-#      Content-Type: "application/json"
-#    body_format : json
-#    data: 
-
 - name: Create azure snapshot
   uri:
     url: "http://{{ es_snapshot_host }}:9200/_snapshot/azurebackup"
@@ -30,5 +21,5 @@
     body_format: json
   register: result
   until: result.json.snapshots[0].state == 'SUCCESS'
-  retries: 360
+  retries: 500
   delay: 10

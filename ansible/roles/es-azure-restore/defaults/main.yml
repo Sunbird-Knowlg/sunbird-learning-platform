@@ -6,4 +6,5 @@ snapshot_create_request_body: {
       base_path: "{{ snapshot_base_path }}"
     }
 }
-snapshot_base_path: folderNameInTheAzureContainer 
+#snapshot_base_path: folderNameInTheAzureContainer 
+snapshot_base_path: compositesearch
