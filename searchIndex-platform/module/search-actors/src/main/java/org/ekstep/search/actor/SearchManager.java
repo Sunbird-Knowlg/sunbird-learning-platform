@@ -1,16 +1,10 @@
 package org.ekstep.search.actor;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-
+import akka.actor.ActorRef;
 import akka.dispatch.OnFailure;
+import akka.dispatch.OnSuccess;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -30,20 +24,27 @@ import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 import org.ekstep.telemetry.logger.TelemetryManager;
-
-import akka.actor.ActorRef;
-import akka.dispatch.OnSuccess;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class SearchManager extends SearchBaseActor {
 
 	private ObjectMapper mapper = new ObjectMapper();
+
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
 		String operation = request.getOperation();
-		SearchProcessor processor = new SearchProcessor();
+		SearchProcessor processor = isCustomSearchProcessorReq(request) ? new SearchProcessor(CompositeSearchConstants.EXPERIMENT_SEARCH_INDEX) : new SearchProcessor();
 		try {
 			if (StringUtils.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name(), operation)) {
 				SearchDTO searchDTO = getSearchDTO(request);
@@ -733,6 +734,25 @@ private Integer getIntValue(Object num) {
 		collectionResult.remove("count");
 		collectionResult.remove("results");
 		return collectionResult;
+	}
+
+	/**
+	 * This Method checks that whether Search Processor With Custom Index is Required or not.
+	 * @param request
+	 * @return
+	 */
+	private Boolean isCustomSearchProcessorReq(Request request) {
+		boolean result = false;
+		if (StringUtils.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name(), request.getOperation())) {
+			Map<String, Object> filters = (Map<String, Object>) request.getRequest().get(CompositeSearchParams.filters.name());
+			if (MapUtils.isNotEmpty(filters)) {
+				Object objectType = filters.get(CompositeSearchParams.objectType.name());
+				if (null != objectType && objectType instanceof String && StringUtils.equalsIgnoreCase("experiment", (String) objectType)) {
+					result = true;
+				}
+			}
+		}
+		return result;
 	}
 
 }

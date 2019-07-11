@@ -68,4 +68,5 @@ public class CompositeSearchConstants {
 	public static final String SEARCH_OPERATION_CONTAINS_OPERATOR = "contains";
 	public static final String SEARCH_OPERATION_AND_TEXT_LOWERCASE = "and";
 	public static final String SEARCH_OPERATION_AND_OPERATOR = "&";
+	public static String EXPERIMENT_SEARCH_INDEX = Platform.config.hasPath("experiment.index.name") ? Platform.config.getString("experiment.index.name"): "experimentsearch";
 }

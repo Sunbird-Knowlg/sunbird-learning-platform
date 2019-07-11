@@ -1,12 +1,6 @@
 package org.ekstep.searchindex.processor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import akka.dispatch.Mapper;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -35,10 +29,15 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-
-import akka.dispatch.Mapper;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SearchProcessor {
 
@@ -46,13 +45,16 @@ public class SearchProcessor {
 	private static final String ASC_ORDER = "asc";
 	private static final String AND = "AND";
 	private boolean relevanceSort = false;
+	private String searchIndexName;
 
 	public SearchProcessor() {
-		ElasticSearchUtil.initialiseESClient(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				Platform.config.getString("search.es_conn_info"));
+		this.searchIndexName = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
+		ElasticSearchUtil.initialiseESClient(searchIndexName, Platform.config.getString("search.es_conn_info"));
 	}
 	
 	public SearchProcessor(String indexName) {
+		this.searchIndexName = StringUtils.isNotBlank(indexName)? indexName : CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
+		ElasticSearchUtil.initialiseESClient(searchIndexName, Platform.config.getString("search.es_conn_info"));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -61,7 +63,7 @@ public class SearchProcessor {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		SearchSourceBuilder query = processSearchQuery(searchDTO, groupByFinalList, true);
 		Future<SearchResponse> searchResponse = ElasticSearchUtil.search(
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				searchIndexName,
 				query);
 
 		return searchResponse.map(new Mapper<SearchResponse, Map<String, Object>>() {
