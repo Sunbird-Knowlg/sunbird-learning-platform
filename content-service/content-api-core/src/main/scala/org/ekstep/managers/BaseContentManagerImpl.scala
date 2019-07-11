@@ -8,6 +8,7 @@ import org.ekstep.common.exception.{ClientException, ServerException}
 import org.ekstep.common.mgr.BaseManager
 import org.ekstep.common.router.RequestRouterPool
 import org.ekstep.commons.{Constants, ContentErrorCodes, TaxonomyAPIParams}
+import org.ekstep.content.enums.ContentMetadata
 import org.ekstep.graph.cache.util.RedisStoreUtil
 import org.ekstep.graph.dac.enums.{GraphDACParams, SystemNodeTypes}
 import org.ekstep.graph.dac.model.Node
@@ -37,6 +38,8 @@ class BaseContentManagerImpl extends BaseManager {
     val publishedStatus:List[String] = List("Live", "Unlisted", "Flagged")
     val YOUTUBE_MIMETYPE = "video/x-youtube"
     val DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX: String = ".img"
+    val reviewStatus =  List("Review", "FlagReview")
+
 
     /**
       * Get definition
@@ -262,7 +265,7 @@ class BaseContentManagerImpl extends BaseManager {
     }
 
 
-<<<<<<< HEAD
+
     protected def updateDefaultValuesByMimeType(map: Map[String, AnyRef], mimeType: String): Unit = {
         if (StringUtils.isNotBlank(mimeType)) {
             if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection") || mimeType.endsWith("epub"))
@@ -292,7 +295,4 @@ class BaseContentManagerImpl extends BaseManager {
         return  getResponse(request, LearningRequestRouterPool.getRequestRouter)
     }
 
-
-=======
->>>>>>> parent of c5eca41... Issue #Sb-12311 Update Api refactored - contentManager
 }
