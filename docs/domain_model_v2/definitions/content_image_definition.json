@@ -920,7 +920,7 @@
 					],
 					"category": "Ownership",
 					"displayProperty": "Editable",
-					"defaultValue": "",
+					"defaultValue": "Creative Commons Attribution (CC BY)",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
