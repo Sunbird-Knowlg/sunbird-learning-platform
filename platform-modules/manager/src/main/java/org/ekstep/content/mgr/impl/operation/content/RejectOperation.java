@@ -42,7 +42,7 @@ public class RejectOperation extends BaseContentManager {
             if (checkError(getImageResponse))
                 return null;
             Node imageNode = ((Node) getImageResponse.get(GraphDACParams.node.name()));
-            if(reviewStatus.contains(imageNode.getMetadata().get(status)))
+            if(reviewStatus.contains(imageNode.getMetadata().get("status")))
                 return imageNode;
         }
         return null;
@@ -51,12 +51,14 @@ public class RejectOperation extends BaseContentManager {
     private void populateNodeMetadata(Map<String, Object> requestMap, Node node) {
         Map<String, Object> metadata = node.getMetadata();
         String status = (String) node.getMetadata().get("status");
-        if (Arrays.asList("FlagReview", "Flagged").contains(status))
+        if (Arrays.asList("FlagReview").contains(status))
             metadata.put("status", "FlagDraft");
         else
             metadata.put("status", "Draft");
         if (MapUtils.isNotEmpty(requestMap)) {
             if (null != requestMap.get("rejectReasons")) {
+                if(!(requestMap.get("rejectReasons") instanceof List))
+                    throw new ClientException(ContentErrorCodes.ERR_INVALID_REQUEST_FORMAT.name(), "rejectReasons should be a List");
                 metadata.put("rejectReasons", (List<String>)requestMap.get("rejectReasons"));
             }
             if (null != requestMap.get("rejectComment"))
