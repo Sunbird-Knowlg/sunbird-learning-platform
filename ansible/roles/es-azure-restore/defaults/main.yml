@@ -1,4 +1,6 @@
 es_restore_host: localhost
+snapshot_base_path: compositesearch
+
 snapshot_create_request_body: {
     type: azure,
     settings: {
@@ -6,5 +8,5 @@ snapshot_create_request_body: {
       base_path: "{{ snapshot_base_path }}"
     }
 }
+
 #snapshot_base_path: folderNameInTheAzureContainer 
-snapshot_base_path: compositesearch

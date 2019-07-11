@@ -3,7 +3,6 @@
   become: yes
   vars:
     - es_restore_host: "{{ es_restore_host }}"
-    - snapshot_base_path: "{{ snapshot_base_path }}"
   vars_files:
     - ['{{inventory_dir}}/secrets.yml']
   roles:
