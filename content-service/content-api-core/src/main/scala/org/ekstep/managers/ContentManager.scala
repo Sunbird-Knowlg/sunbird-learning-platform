@@ -267,31 +267,21 @@ object ContentManager extends BaseContentManagerImpl {
     def uploadFile(request: org.ekstep.commons.Request) : Response ={
         val params = request.params.getOrElse(Map())
         val contentId = params.getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
-
         val file = params.getOrElse("file", new File("Empty")).asInstanceOf[File]
-        var mimeType = params.getOrElse("mimeType", "").asInstanceOf[String]
 
         try{
             val node = getNodeForOperation(contentId, "upload")
-            isNodeUnderProcessing(node, "Upload");
+            isNodeUnderProcessing(node, "Upload")
+            val mimeType = params.getOrElse("mimeType", node.getMetadata().getOrDefault("mimeType", Constants.DEFAULT_MIME_TYPE).toString).asInstanceOf[String]
 
-            //update the mime type
-            var updateMimeType = false
-            if (StringUtils.isBlank(mimeType)) {
-                mimeType = node.getMetadata().getOrDefault("mimeType", Constants.DEFAULT_MIME_TYPE).toString
-            } else {
-                node.getMetadata.asScala += ("mimeType"-> mimeType)
-                updateDefaultValuesByMimeType(node.getMetadata.asInstanceOf[Map[String, AnyRef]], mimeType)
-                updateMimeType = true
-            }
+            node.getMetadata.asScala += ("mimeType"-> mimeType)
+            updateDefaultValuesByMimeType(node.getMetadata.asInstanceOf[Map[String, AnyRef]], mimeType)
 
             val mimeTypeManager = MimeTypeManagerFactory.getManager(node.getMetadata.get("contentType").asInstanceOf[String], mimeType)
             val response = mimeTypeManager.upload(contentId, node, file, false)
             if(checkError(response)) return response
-            if (updateMimeType) {
-                val updatedRes = updateResponseWith(response, node, contentId, mimeType)
-                if (checkError(updatedRes)) return response
-            }
+            val updatedRes = updateResponseWith(response, node, contentId, mimeType)
+            if (checkError(updatedRes)) return response
 
             editResponse(response)
             return response
@@ -317,32 +307,22 @@ object ContentManager extends BaseContentManagerImpl {
         val params = request.params.getOrElse(Map())
         val contentId = params.getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
         val fileUrl = params.getOrElse("fileUrl", "").asInstanceOf[String]
-        var mimeType = params.getOrElse("mimeType", "").asInstanceOf[String]
 
         try {
             val node = getNodeForOperation(contentId, "upload")
-            isNodeUnderProcessing(node, "Upload");
+            isNodeUnderProcessing(node, "Upload")
+            val mimeType = params.getOrElse("mimeType", node.getMetadata().getOrDefault("mimeType", Constants.DEFAULT_MIME_TYPE).toString).asInstanceOf[String]
+            node.getMetadata.asScala += ("mimeType"-> mimeType)
+            updateDefaultValuesByMimeType(node.getMetadata.asInstanceOf[Map[String, AnyRef]], mimeType)
 
-            //update the mime type
-            var updateMimeType = false
-            if (StringUtils.isBlank(mimeType)) {
-                mimeType = node.getMetadata().getOrDefault("mimeType", Constants.DEFAULT_MIME_TYPE).toString
-            } else {
-                node.getMetadata.asScala += ("mimeType"-> mimeType)
-                updateDefaultValuesByMimeType(node.getMetadata.asInstanceOf[Map[String, AnyRef]], mimeType)
-                updateMimeType = true
-            }
 
             ValidationUtils.validateUrlLicense(mimeType, fileUrl, node)
             val mimeTypeManager = MimeTypeManagerFactory.getManager(node.getMetadata.get("contentType").asInstanceOf[String], mimeType)
             val response = mimeTypeManager.upload(contentId, node, fileUrl)
 
-
             if(checkError(response)) return response
-            if (updateMimeType) {
-                val updatedRes = updateResponseWith(response, node, contentId, mimeType)
-                if (checkError(updatedRes)) return response
-            }
+            val updatedRes = updateResponseWith(response, node, contentId, mimeType)
+            if (checkError(updatedRes)) return response
 
             editResponse(response)
             return response

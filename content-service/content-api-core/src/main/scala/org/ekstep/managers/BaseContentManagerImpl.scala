@@ -264,8 +264,6 @@ class BaseContentManagerImpl extends BaseManager {
         response
     }
 
-
-
     protected def updateDefaultValuesByMimeType(map: Map[String, AnyRef], mimeType: String): Unit = {
         if (StringUtils.isNotBlank(mimeType)) {
             if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection") || mimeType.endsWith("epub"))
