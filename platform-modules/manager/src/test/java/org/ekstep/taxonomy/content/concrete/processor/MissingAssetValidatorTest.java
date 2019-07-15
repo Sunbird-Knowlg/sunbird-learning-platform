@@ -28,7 +28,7 @@ public class MissingAssetValidatorTest {
 			String strContent = getFileString("Verbs_III/index.ecml");
 			Plugin plugin = fixture.getECRF(strContent);
 			PipelineRequestorClient
-					.getPipeline("missingAssetValidatorProcessor", folder.getPath(), "")
+					.getPipeline("missingAssetValidatorProcessor", folder.getPath(), "", null)
 					.execute(plugin);
 	}
 	
@@ -41,7 +41,7 @@ public class MissingAssetValidatorTest {
 			String strContent = getFileString("Verbs_III/index.ecml");
 			Plugin plugin = fixture.getECRF(strContent);
 			PipelineRequestorClient
-					.getPipeline("missingAssetValidatorProcessor", "", "")
+					.getPipeline("missingAssetValidatorProcessor", "", "", null)
 					.execute(plugin);
 	}
 	
@@ -54,7 +54,7 @@ public class MissingAssetValidatorTest {
 			String strContent = getFileString("Verbs_III/index.ecml");
 			Plugin plugin = fixture.getECRF(strContent);
 			PipelineRequestorClient
-					.getPipeline("missingAssetValidatorProcessor", folder.getPath(), "test_12")
+					.getPipeline("missingAssetValidatorProcessor", folder.getPath(), "test_12", null)
 					.execute(plugin);
 	}
 	
@@ -67,7 +67,7 @@ public class MissingAssetValidatorTest {
 			String strContent = getFileString("Verbs_III/index.ecml");
 			Plugin plugin = fixture.getECRF(strContent);
 			PipelineRequestorClient
-					.getPipeline("missingAssetValidatorProcessor", folder.getPath(), "test_12")
+					.getPipeline("missingAssetValidatorProcessor", folder.getPath(), "test_12", null)
 					.execute(plugin);
 	}
 
@@ -79,7 +79,7 @@ public class MissingAssetValidatorTest {
 			String strContent = getFileString("testAsset/index.ecml");
 			Plugin plugin = fixture.getECRF(strContent);
 			PipelineRequestorClient
-					.getPipeline("missingAssetValidatorProcessor", "src/test/resources/Contents/testAsset", "test_12")
+					.getPipeline("missingAssetValidatorProcessor", "src/test/resources/Contents/testAsset", "test_12", null)
 					.execute(plugin);
 	}
 	

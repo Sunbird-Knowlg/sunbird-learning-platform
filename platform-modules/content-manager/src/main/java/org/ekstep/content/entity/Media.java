@@ -6,6 +6,7 @@ public class Media extends ECRFObject {
 	
 	private String src = null;
 	private String type = null;
+	private String sourceId = null;
 	private List<Plugin> childrenPlugin = null;
 	
 	/**
@@ -48,6 +49,14 @@ public class Media extends ECRFObject {
      */
 	public void setChildrenPlugin(List<Plugin> childrenPlugin) {
 		this.childrenPlugin = childrenPlugin;
+	}
+
+	public String getSourceId() {
+		return sourceId;
+	}
+
+	public void setSourceId(String sourceId) {
+		this.sourceId = sourceId;
 	}
 	
 }

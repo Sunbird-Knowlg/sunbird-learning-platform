@@ -27,7 +27,7 @@ public class MissingControllerValidatorTest {
 			ECRFConversionUtility fixture = new ECRFConversionUtility();
 			String strContent = getFileString("Verbs_III/index.ecml");
 			Plugin plugin = fixture.getECRF(strContent);
-			PipelineRequestorClient.getPipeline("missingCtrlValidatorProcessor", FOLDER.getPath(), "")
+			PipelineRequestorClient.getPipeline("missingCtrlValidatorProcessor", FOLDER.getPath(), "", null)
 			.execute(plugin);
 	}
 	
@@ -39,7 +39,7 @@ public class MissingControllerValidatorTest {
 			ECRFConversionUtility fixture = new ECRFConversionUtility();
 			String strContent = getFileString("Verbs_III/index.ecml");
 			Plugin plugin = fixture.getECRF(strContent);
-			PipelineRequestorClient.getPipeline("missingCtrlValidatorProcessor", "", "")
+			PipelineRequestorClient.getPipeline("missingCtrlValidatorProcessor", "", "", null)
 			.execute(plugin);
 	}
 	
@@ -50,7 +50,7 @@ public class MissingControllerValidatorTest {
 		ECRFConversionUtility fixture = new ECRFConversionUtility();
 		String strContent = getFileString("testAsset/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
-		PipelineRequestorClient.getPipeline("missingCtrlValidatorProcessor", "src/test/resources/Contents/testAsset", "test_12")
+		PipelineRequestorClient.getPipeline("missingCtrlValidatorProcessor", "src/test/resources/Contents/testAsset", "test_12", null)
 				.execute(plugin);
 	}
 
@@ -61,7 +61,7 @@ public class MissingControllerValidatorTest {
 		ECRFConversionUtility fixture = new ECRFConversionUtility();
 		String strContent = getFileString("Verbs/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
-		PipelineRequestorClient.getPipeline("missingCtrlValidatorProcessor", FOLDER.getPath(), "test_12")
+		PipelineRequestorClient.getPipeline("missingCtrlValidatorProcessor", FOLDER.getPath(), "test_12", null)
 				.execute(plugin);
 	}
 
@@ -73,7 +73,7 @@ public class MissingControllerValidatorTest {
 		String strContent = getFileString("/Sample_XML_1_ERROR_DUPLICATE_CONTROLLER.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
 		PipelineRequestorClient
-				.getPipeline("missingCtrlValidatorProcessor", FOLDER.getPath(), "test_12")
+				.getPipeline("missingCtrlValidatorProcessor", FOLDER.getPath(), "test_12", null)
 				.execute(plugin);
 	}
 	

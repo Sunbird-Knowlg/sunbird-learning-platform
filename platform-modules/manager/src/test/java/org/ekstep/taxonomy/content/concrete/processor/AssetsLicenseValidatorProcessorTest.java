@@ -55,7 +55,7 @@ public class AssetsLicenseValidatorProcessorTest {
             ECRFConversionUtility fixture = new ECRFConversionUtility();
             String strContent = getFileString("testEcmlMediaYoutube/index.ecml");
             Plugin plugin = fixture.getECRF(strContent);
-            PipelineRequestorClient.getPipeline("assetsLicenseValidatorProcessor", tmpFolder.getPath(), "TestEcmlContent")
+            PipelineRequestorClient.getPipeline("assetsLicenseValidatorProcessor", tmpFolder.getPath(), "TestEcmlContent", null)
                     .execute(plugin);
         } catch (Exception e) {
             assertEquals(ContentErrorMessageConstants.LICENSE_NOT_SUPPORTED, e.getMessage());
@@ -70,7 +70,7 @@ public class AssetsLicenseValidatorProcessorTest {
             ECRFConversionUtility fixture = new ECRFConversionUtility();
             String strContent = getFileString("testEcmlMediaYoutube/index_with_unsupported_youtube_license.ecml");
             Plugin plugin = fixture.getECRF(strContent);
-            PipelineRequestorClient.getPipeline("assetsLicenseValidatorProcessor", tmpFolder.getPath(), "TestEcmlContent")
+            PipelineRequestorClient.getPipeline("assetsLicenseValidatorProcessor", tmpFolder.getPath(), "TestEcmlContent", null)
                     .execute(plugin);
         } catch (Exception e) {
             assertEquals(ContentErrorMessageConstants.LICENSE_NOT_SUPPORTED, e.getMessage());

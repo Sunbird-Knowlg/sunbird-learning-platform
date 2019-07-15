@@ -34,7 +34,7 @@ public class GlobalizeAssetProcessorTest {
 		ECRFConversionUtility fixture = new ECRFConversionUtility();
 		String strContent = getFileString("testglobal_01/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
-		Plugin result = PipelineRequestorClient.getPipeline("globalizeAssetProcessor", FOLDER.getPath(), "test_11")
+		Plugin result = PipelineRequestorClient.getPipeline("globalizeAssetProcessor", FOLDER.getPath(), "test_11", null)
 				.execute(plugin);
 
 		List<String> expected = new ArrayList<String>();
@@ -64,7 +64,7 @@ public class GlobalizeAssetProcessorTest {
 		ECRFConversionUtility fixture = new ECRFConversionUtility();
 		String strContent = getFileString("testglobal_01/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
-		PipelineRequestorClient.getPipeline("globalizeAssetProcessor", FOLDER.getPath(), "").execute(plugin);
+		PipelineRequestorClient.getPipeline("globalizeAssetProcessor", FOLDER.getPath(), "", null).execute(plugin);
 	}
 
 	@Test
@@ -75,7 +75,7 @@ public class GlobalizeAssetProcessorTest {
 		ECRFConversionUtility fixture = new ECRFConversionUtility();
 		String strContent = getFileString("testglobal_01/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
-		PipelineRequestorClient.getPipeline("globalizeAssetProcessor", "", "").execute(plugin);
+		PipelineRequestorClient.getPipeline("globalizeAssetProcessor", "", "", null).execute(plugin);
 	}
 	
 	public String getFileString(String fileName) {

@@ -30,7 +30,7 @@ public class EmbedControllerProcessorTest {
 		ECRFConversionUtility fixture = new ECRFConversionUtility();
 		String strContent = getFileString("testglobal_01/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
-		PipelineRequestorClient.getPipeline("embedControllerProcessor", FOLDER.getPath(), "").execute(plugin);
+		PipelineRequestorClient.getPipeline("embedControllerProcessor", FOLDER.getPath(), "", null).execute(plugin);
 	}
 
 	@Test
@@ -41,7 +41,7 @@ public class EmbedControllerProcessorTest {
 		ECRFConversionUtility fixture = new ECRFConversionUtility();
 		String strContent = getFileString("testglobal_01/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
-		PipelineRequestorClient.getPipeline("embedControllerProcessor", "", "").execute(plugin);
+		PipelineRequestorClient.getPipeline("embedControllerProcessor", "", "", null).execute(plugin);
 	}
 
 	@Test
@@ -49,7 +49,7 @@ public class EmbedControllerProcessorTest {
 			ECRFConversionUtility fixture = new ECRFConversionUtility();
 			String strContent = getFileString("Verbs_III/index.ecml");
 			Plugin plugin = fixture.getECRF(strContent);
-			Plugin result = PipelineRequestorClient.getPipeline("embedControllerProcessor", FOLDER.getPath(), "test_12")
+			Plugin result = PipelineRequestorClient.getPipeline("embedControllerProcessor", FOLDER.getPath(), "test_12", null)
 					.execute(plugin);
 			String expected = getFileString("Verbs_III/items/assessment.json");
 			for (Controller controller : result.getControllers()) {

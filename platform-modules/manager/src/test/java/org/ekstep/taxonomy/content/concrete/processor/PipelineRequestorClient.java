@@ -9,12 +9,14 @@ import org.ekstep.content.concrete.processor.MissingControllerValidatorProcessor
 import org.ekstep.content.processor.AbstractProcessor;
 import org.ekstep.content.processor.ContentPipelineProcessor;
 
+import java.util.Map;
+
 public class PipelineRequestorClient {
 
-	public static AbstractProcessor getPipeline(String operation, String basePath, String contentId) {
+	public static AbstractProcessor getPipeline(String operation, String basePath, String contentId, Map<String, Object> metadata) {
 		ContentPipelineProcessor contentPipeline = new ContentPipelineProcessor();
 
-		AbstractProcessor localizeAssetProcessor = new LocalizeAssetProcessor(basePath, contentId);
+		AbstractProcessor localizeAssetProcessor = new LocalizeAssetProcessor(basePath, contentId, metadata);
 		AbstractProcessor embedControllerProcessor = new EmbedControllerProcessor(basePath, contentId);
 		AbstractProcessor missingAssetValidatorProcessor = new MissingAssetValidatorProcessor(basePath, contentId);
 		AbstractProcessor missingCtrlValidatorProcessor = new MissingControllerValidatorProcessor(basePath, contentId);

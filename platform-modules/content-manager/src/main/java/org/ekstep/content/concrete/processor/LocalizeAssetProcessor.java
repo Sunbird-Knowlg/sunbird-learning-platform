@@ -1,5 +1,6 @@
 package org.ekstep.content.concrete.processor;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
@@ -20,7 +21,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * The Class LocalizeAssetProcessor is a Content Workflow pipeline Processor
@@ -72,9 +77,14 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 		this.pluginMediaBaseURL = S3PropertyReader.getProperty("plugin.media.base.url");
 		// TODO need to throw exception if this property not exist. Plan in release-1.10.0
 		this.contentMediaBaseURL = Platform.config.hasPath("content.media.base.url") ? Platform.config.getString("content.media.base.url") : this.pluginMediaBaseURL;
-
-		
 	}
+
+	public LocalizeAssetProcessor(String basePath, String contentId, Map<String, Object> metadata) {
+		this(basePath, contentId);
+		this.metadata = metadata;
+	}
+
+
 
 	/*
 	 * (non-Javadoc)
@@ -208,7 +218,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 							if (StringUtils.isNotBlank(subFolder))
 								downloadPath += File.separator + subFolder;
 							createDirectoryIfNeeded(downloadPath);
-							File downloadedFile = HttpDownloadUtility.downloadFile(getDownloadUrl(media.getSrc()),
+							File downloadedFile = HttpDownloadUtility.downloadFile(getDownloadUrl(media.getSrc(), media.getSourceId()),
 									downloadPath);
 							TelemetryManager.log("Downloaded file : " + media.getSrc() + " - " + downloadedFile
 									+ " | [Content Id '" + contentId + "']");
@@ -244,19 +254,24 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 		return map;
 	}
 
-	private String getDownloadUrl(String src) {
+	private String getDownloadUrl(String src, String sourceId) {
 		if (StringUtils.isNotBlank(src)) {
 			if (!src.startsWith("http")) {
 				String prefix = "";
-				if (src.contains("content-plugins/")) {
-					prefix = pluginMediaBaseURL;
+				if (StringUtils.isNotBlank(sourceId) && MapUtils.isNotEmpty(metadata) && MapUtils.isNotEmpty((Map<String, Object>) metadata.get("sources")) &&
+						StringUtils.isNotBlank((String) ((Map<String, Object>) metadata.get("sources")).get(sourceId))) {
+					prefix = (String) ((Map<String, Object>) metadata.get("sources")).get(sourceId);
 				} else {
-					prefix = this.contentMediaBaseURL;
+					if (src.contains("content-plugins/")) {
+						prefix = pluginMediaBaseURL;
+					} else {
+						prefix = this.contentMediaBaseURL;
+					}
 				}
 				src = prefix + src;
 			}
 		}
-		TelemetryManager.log("Returning src url: "+ src);
+		TelemetryManager.log("Returning src url: " + src);
 		return src;
 	}
 

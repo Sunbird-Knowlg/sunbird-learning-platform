@@ -102,7 +102,7 @@ public class UploadInitializer extends BaseInitializer {
 
 			// Get Pipeline Object 
 			AbstractProcessor pipeline = PipelineRequestorClient
-					.getPipeline(ContentWorkflowPipelineParams.extract.name(), basePath, contentId);
+					.getPipeline(ContentWorkflowPipelineParams.extract.name(), basePath, contentId, node.getMetadata());
 
 			//  Start Pipeline Operation 
 			ecrf = pipeline.execute(ecrf);

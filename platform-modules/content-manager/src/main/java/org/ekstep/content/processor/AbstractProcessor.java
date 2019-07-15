@@ -1,6 +1,7 @@
 package org.ekstep.content.processor;
 
 import java.io.File;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.content.concrete.processor.AssessmentItemCreatorProcessor;
@@ -59,6 +60,11 @@ public abstract class AbstractProcessor extends BaseConcreteProcessor {
 
 	/** The content id is the identifier of Content <code>Node</code> */
 	protected String contentId;
+
+	/**
+	 * Content Metadata
+	 */
+	protected Map<String, Object> metadata;
 
 	/**
 	 * The next processor points to the instance of Next Processor which needs

@@ -153,7 +153,7 @@ public class BundleInitializer extends BaseInitializer {
 				if (isCompressRequired) {
 					// Get Pipeline Object
 					AbstractProcessor pipeline = PipelineRequestorClient
-							.getPipeline(ContentWorkflowPipelineParams.compress.name(), basePath, contentId);
+							.getPipeline(ContentWorkflowPipelineParams.compress.name(), basePath, contentId, node.getMetadata());
 
 					// Start Pipeline Operation
 					ecrf = pipeline.execute(ecrf);

@@ -2879,7 +2879,18 @@
                     "indexed": true,
                     "draft": false,
                     "rangeValidation": true
-                }
+                },
+				{
+					"propertyName": "sources",
+					"title": "Sources",
+					"description": "Source Urls for Media/Asset used in the content",
+					"category": "Technical",
+					"dataType": "JSON",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"indexed": true
+				}
 			],
 			"inRelations": [
 				{

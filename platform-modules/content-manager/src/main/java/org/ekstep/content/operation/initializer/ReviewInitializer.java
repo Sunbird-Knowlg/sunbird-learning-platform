@@ -95,7 +95,7 @@ public class ReviewInitializer extends BaseInitializer {
 			if (isValidationRequired) {
 				// Get Pipeline Object
 				AbstractProcessor pipeline = PipelineRequestorClient
-						.getPipeline(ContentWorkflowPipelineParams.validate.name(), basePath, contentId);
+						.getPipeline(ContentWorkflowPipelineParams.validate.name(), basePath, contentId, node.getMetadata());
 
 				// Start Pipeline Operation
 				ecrf = pipeline.execute(ecrf);

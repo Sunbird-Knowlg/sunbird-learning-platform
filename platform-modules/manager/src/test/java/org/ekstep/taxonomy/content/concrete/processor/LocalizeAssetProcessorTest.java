@@ -62,7 +62,7 @@ public class LocalizeAssetProcessorTest {
 		String strContent = getFileString("testglobal_01/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
 		PipelineRequestorClient
-				.getPipeline("localizeAssetProcessor", tmpFolder.getAbsolutePath(), "").execute(plugin);
+				.getPipeline("localizeAssetProcessor", tmpFolder.getAbsolutePath(), "", null).execute(plugin);
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class LocalizeAssetProcessorTest {
 		String strContent = getFileString("testglobal_01/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
 		PipelineRequestorClient
-				.getPipeline("localizeAssetProcessor", "" , "").execute(plugin);
+				.getPipeline("xx", "" , "", null).execute(plugin);
 	}
 	
 	@Test
@@ -84,7 +84,7 @@ public class LocalizeAssetProcessorTest {
 		String strContent = getFileString("testlocal_01/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
 		Plugin result = PipelineRequestorClient
-				.getPipeline("localizeAssetProcessor", tmpFolder.getAbsolutePath(), "test_01").execute(plugin);
+				.getPipeline("localizeAssetProcessor", tmpFolder.getAbsolutePath(), "test_01", null).execute(plugin);
 		
 		List<String> expected = new ArrayList<String>();
 		for (final File fileEntry : assetFolder.listFiles()) {
