@@ -314,8 +314,7 @@ public abstract class BaseContentManager extends BaseManager {
             return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
         //Clear redis cache before updates
-        RedisStoreUtil.delete(originalId);
-        RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + originalId);
+        clearRedisCache(originalId);
 
         //Check whether the node exists in graph db
         Response originalNodeResponse = getDataNode(TAXONOMY_ID, originalId);
@@ -384,19 +383,9 @@ public abstract class BaseContentManager extends BaseManager {
         //Get configured definition
         DefinitionDTO definition = getDefinition(TAXONOMY_ID, objectType);
 
-        //Add passport key to update without changing the version key
-        String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
-        changedData.put(ContentAPIParams.versionKey.name(), graphPassportKey);
+        setPassportKey(changedData);
 
-        //Get in-relation and out-relation titles
-        List<String> relationTitles = new ArrayList<>();
-        List<RelationDefinition> relations = new ArrayList<>();
-        relations.addAll(definition.getInRelations());
-        relations.addAll(definition.getOutRelations());
-        relations.forEach(relation -> relationTitles.add(relation.getTitle()));
-
-        //Relation fields should not be updated as part of system update call
-        relationTitles.forEach(title -> changedData.remove(title));
+        removeRelationsFromData(definition, changedData);
 
         //Prepare Node Object to be updated
         Node domainObj = ConvertToGraphNode.convertToGraphNode(changedData, definition, null);
@@ -447,6 +436,29 @@ public abstract class BaseContentManager extends BaseManager {
         }
         return updateResponse;
 
+    }
+
+    private void clearRedisCache(String originalId) {
+        RedisStoreUtil.delete(originalId);
+        RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + originalId);
+    }
+
+    private void setPassportKey(Map<String, Object> changedData) {
+        //Add passport key to update without changing the version key
+        String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+        changedData.put(ContentAPIParams.versionKey.name(), graphPassportKey);
+    }
+
+    private void removeRelationsFromData(DefinitionDTO definition, Map<String, Object> changedData) {
+        //Get in-relation and out-relation titles
+        List<String> relationTitles = new ArrayList<>();
+        List<RelationDefinition> relations = new ArrayList<>();
+        relations.addAll(definition.getInRelations());
+        relations.addAll(definition.getOutRelations());
+        relations.forEach(relation -> relationTitles.add(relation.getTitle()));
+
+        //Relation fields should not be updated as part of system update call
+        relationTitles.forEach(title -> changedData.remove(title));
     }
 
     private Map<String, Object> extractExternalProps(Map<String, Object> data, DefinitionDTO definition) {
