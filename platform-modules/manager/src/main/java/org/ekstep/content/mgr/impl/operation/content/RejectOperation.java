@@ -27,7 +27,7 @@ public class RejectOperation extends BaseContentManager {
         }
         Node node = isValidRejectContent(contentId);
         if (null == node)
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_NOT_IN_REVIEW.name(), "Content is not in review state for identifier: " + node.getIdentifier());
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_NOT_IN_REVIEW.name(), "Content is not in review state for identifier: " + contentId);
         Map<String, Object> map = populateNodeMetadata(requestMap, node);
         try {
             Node updatedNode = ConvertToGraphNode.convertToGraphNode(map, getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE), node);
@@ -56,6 +56,7 @@ public class RejectOperation extends BaseContentManager {
             requestMap.put("status", "FlagDraft");
         else
             requestMap.put("status", "Draft");
+        requestMap.put("versionKey", node.getMetadata().get("versionKey"));
         if (MapUtils.isNotEmpty(requestMap) && null != requestMap.get("rejectReasons")
                 &&  !(requestMap.get("rejectReasons") instanceof List) ) {
             throw new ClientException(ContentErrorCodes.ERR_INVALID_REQUEST_FORMAT.name(), "rejectReasons should be a List");
