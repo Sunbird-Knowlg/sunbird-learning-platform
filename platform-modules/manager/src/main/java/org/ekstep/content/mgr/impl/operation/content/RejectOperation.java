@@ -1,13 +1,17 @@
 package org.ekstep.content.mgr.impl.operation.content;
 
+import com.google.common.base.Throwables;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,56 +21,48 @@ public class RejectOperation extends BaseContentManager {
 
 
     public Response rejectContent(String contentId, Map<String, Object> requestMap) {
-        validateEmptyOrNullContentId(contentId);
-        Response getResponse = validateAndGetNodeResponseForOperation(contentId);
-        if (checkError(getResponse))
-            return getResponse;
-        Node node = isValidRejectContent(getResponse);
+        if (StringUtils.isBlank(contentId) || StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+            throw new ClientException(ContentErrorCodes.ERR_INVALID_CONTENT_ID.name(),
+                    "Please provide valid content identifier");
+        }
+        Node node = isValidRejectContent(contentId);
         if (null == node)
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_NOT_IN_REVIEW.name(), "Content is not in review state for identifier: " + node.getIdentifier());
-        populateNodeMetadata(requestMap, node);
-        Response response = updateNode(node.getIdentifier(), CONTENT_OBJECT_TYPE, node);
-        response.put("node_id", contentId);
-        return response;
+        Map<String, Object> map = populateNodeMetadata(requestMap, node);
+        try {
+            Node updatedNode = ConvertToGraphNode.convertToGraphNode(map, getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE), node);
+            Response response = updateNode(node.getIdentifier(), CONTENT_OBJECT_TYPE, updatedNode);
+            response.put("node_id", contentId);
+            return response;
+        } catch (Exception e) {
+            TelemetryManager.error("Error occured while updating content node for identifier:" + contentId, e);
+            throw Throwables.propagate(e);
+        }
     }
 
-    private Node isValidRejectContent(Response response) {
-        Node node = (Node) response.get(GraphDACParams.node.name());
+    private Node isValidRejectContent(String contentId) {
+        Node node = getContentNode(TAXONOMY_ID, contentId, "edit");
         String status = (String) node.getMetadata().get("status");
         if (StringUtils.isBlank(status))
             throw new ClientException(ContentErrorCodes.ERR_METADATA_ISSUE.name(), "Content metadata error, status is blank for identifier:" + node.getIdentifier());
         if (reviewStatus.contains(status))
             return node;
-        if (finalStatus.contains(status)) {
-            Response getImageResponse = validateAndGetNodeResponseForOperation(node.getIdentifier() + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
-            if (checkError(getImageResponse))
-                return null;
-            Node imageNode = ((Node) getImageResponse.get(GraphDACParams.node.name()));
-            if(reviewStatus.contains(imageNode.getMetadata().get("status")))
-                return imageNode;
-        }
         return null;
     }
 
-    private void populateNodeMetadata(Map<String, Object> requestMap, Node node) {
-        Map<String, Object> metadata = node.getMetadata();
+    private Map<String,Object> populateNodeMetadata(Map<String, Object> requestMap, Node node) {
         String status = (String) node.getMetadata().get("status");
         if (Arrays.asList("FlagReview").contains(status))
-            metadata.put("status", "FlagDraft");
+            requestMap.put("status", "FlagDraft");
         else
-            metadata.put("status", "Draft");
-        if (MapUtils.isNotEmpty(requestMap)) {
-            if (null != requestMap.get("rejectReasons")) {
-                if(!(requestMap.get("rejectReasons") instanceof List))
-                    throw new ClientException(ContentErrorCodes.ERR_INVALID_REQUEST_FORMAT.name(), "rejectReasons should be a List");
-                metadata.put("rejectReasons", (List<String>)requestMap.get("rejectReasons"));
-            }
-            if (null != requestMap.get("rejectComment"))
-                metadata.put("rejectComment", requestMap.get("rejectComment"));
+            requestMap.put("status", "Draft");
+        if (MapUtils.isNotEmpty(requestMap) && null != requestMap.get("rejectReasons")
+                &&  !(requestMap.get("rejectReasons") instanceof List) ) {
+            throw new ClientException(ContentErrorCodes.ERR_INVALID_REQUEST_FORMAT.name(), "rejectReasons should be a List");
         }
-        metadata.put("publishChecklist", null);
-        metadata.put("publishComment", null);
-        node.setMetadata(metadata);
+        requestMap.put("publishChecklist", null);
+        requestMap.put("publishComment", null);
+        return requestMap;
     }
 
 
