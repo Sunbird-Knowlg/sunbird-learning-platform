@@ -163,12 +163,10 @@ object ContentActor extends BaseAPIActor {
     val isFileUrlPresent = request.params.get.contains("fileUrl")
 
     if(isFileUrlPresent){
-      println("calling upload url")
 
       val result = ContentManager.uploadUrl(request)
       setResponseEnvelope(result, request.apiId, null)
     } else {
-      println("calling upload file")
 
       val result = ContentManager.uploadFile(request)
       setResponseEnvelope(result, request.apiId, null)

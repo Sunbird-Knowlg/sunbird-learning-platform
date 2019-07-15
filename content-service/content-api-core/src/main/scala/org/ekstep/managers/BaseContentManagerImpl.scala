@@ -264,15 +264,18 @@ class BaseContentManagerImpl extends BaseManager {
         response
     }
 
-    protected def updateDefaultValuesByMimeType(map: Map[String, AnyRef], mimeType: String): Unit = {
-        if (StringUtils.isNotBlank(mimeType)) {
+    def updateDefaultValuesByMimeType(map: Map[String, AnyRef], mimeType: String): Map[String, AnyRef] = {
+        var inputMap = map
+        if (StringUtils.isNotBlank(mimeType) && !map.contains(TaxonomyAPIParams.contentEncoding.toString)) {
             if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection") || mimeType.endsWith("epub"))
-                map + TaxonomyAPIParams.contentEncoding.toString -> ContentMetadata.ContentEncoding.identity
-            else map + TaxonomyAPIParams.contentEncoding.toString -> ContentMetadata.ContentEncoding.identity
+                inputMap += TaxonomyAPIParams.contentEncoding.toString -> ContentMetadata.ContentEncoding.identity
+            else inputMap += TaxonomyAPIParams.contentEncoding.toString -> ContentMetadata.ContentEncoding.identity
             if (mimeType.endsWith("youtube") || mimeType.endsWith("x-url"))
-                map + TaxonomyAPIParams.contentDisposition.toString -> ContentMetadata.ContentDisposition.online
-            else map + TaxonomyAPIParams.contentDisposition.toString -> ContentMetadata.ContentDisposition.inline
+                inputMap += TaxonomyAPIParams.contentDisposition.toString -> ContentMetadata.ContentDisposition.online
+            else inputMap += TaxonomyAPIParams.contentDisposition.toString -> ContentMetadata.ContentDisposition.inline
         }
+        inputMap.toMap
+
     }
 
     protected def modifyContentProperties(contentId: String, properties: List[String]) = {

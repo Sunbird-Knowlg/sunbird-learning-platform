@@ -22,6 +22,7 @@ import org.ekstep.graph.dac.model.Node
 import org.ekstep.graph.service.common.DACConfigurationConstants
 import org.ekstep.telemetry.logger.TelemetryManager
 
+import scala.collection.JavaConversions
 import scala.collection.JavaConverters._
 
 object ContentManager extends BaseContentManagerImpl {
@@ -275,7 +276,7 @@ object ContentManager extends BaseContentManagerImpl {
             val mimeType = params.getOrElse("mimeType", node.getMetadata().getOrDefault("mimeType", Constants.DEFAULT_MIME_TYPE).toString).asInstanceOf[String]
 
             node.getMetadata.asScala += ("mimeType"-> mimeType)
-            updateDefaultValuesByMimeType(node.getMetadata.asInstanceOf[Map[String, AnyRef]], mimeType)
+            //updateNodeMimeType(node, mimeType)
 
             val mimeTypeManager = MimeTypeManagerFactory.getManager(node.getMetadata.get("contentType").asInstanceOf[String], mimeType)
             val response = mimeTypeManager.upload(contentId, node, file, false)
@@ -287,13 +288,10 @@ object ContentManager extends BaseContentManagerImpl {
             return response
         }  catch {
             case e: ClientException =>
-                println("c-execp "+e.printStackTrace())
                 throw e
             case e: ServerException =>
-                println("S-execp "+e.printStackTrace())
                 return ERROR(e.getErrCode, e.getMessage, ResponseCode.SERVER_ERROR)
             case e: Exception =>
-                println("e-execp "+e.printStackTrace())
                 val message = "Something went wrong while processing uploaded file."
                 TelemetryManager.error(message, e)
                 return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name, message, ResponseCode.SERVER_ERROR)
@@ -313,8 +311,6 @@ object ContentManager extends BaseContentManagerImpl {
             isNodeUnderProcessing(node, "Upload")
             val mimeType = params.getOrElse("mimeType", node.getMetadata().getOrDefault("mimeType", Constants.DEFAULT_MIME_TYPE).toString).asInstanceOf[String]
             node.getMetadata.asScala += ("mimeType"-> mimeType)
-            updateDefaultValuesByMimeType(node.getMetadata.asInstanceOf[Map[String, AnyRef]], mimeType)
-
 
             ValidationUtils.validateUrlLicense(mimeType, fileUrl, node)
             val mimeTypeManager = MimeTypeManagerFactory.getManager(node.getMetadata.get("contentType").asInstanceOf[String], mimeType)
@@ -341,9 +337,7 @@ object ContentManager extends BaseContentManagerImpl {
 
     protected def updateResponseWith(response: Response, node: Node, id: String,  mimeType:String): Response ={
         node.getMetadata.asScala += "versionKey" -> response.getResult().get("versionKey")
-        val map = Map[String, AnyRef]()
-        map + "mimeType" -> mimeType
-        map + "versionKey" -> Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY)
+        val map = Map[String, AnyRef]( "versionKey" -> Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY))
         return getUpdatedResponse(id, map)
 
     }
