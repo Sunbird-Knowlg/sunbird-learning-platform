@@ -153,6 +153,7 @@ public class XMLContentParser {
 			String id = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.id.name());
 			String type = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.type.name());
 			String src = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.src.name());
+			String sourceId = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.sourceId.name());
 			if (validateMedia) {
 				if (StringUtils.isBlank(id) && isMediaIdRequiredForMediaType(type))
 					throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(),
@@ -167,6 +168,7 @@ public class XMLContentParser {
 			media.setId(id);
 			media.setSrc(src);
 			media.setType(type);
+			media.setSourceId(sourceId);
 			media.setData(getDataMap(mediaNode));
 			media.setInnerText(getInnerText(mediaNode));
 			media.setcData(getCData(mediaNode));

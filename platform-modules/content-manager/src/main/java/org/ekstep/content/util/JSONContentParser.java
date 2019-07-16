@@ -153,6 +153,7 @@ public class JSONContentParser {
 				JsonElement id = mediaObj.get(ContentWorkflowPipelineParams.id.name());
 				JsonElement src = mediaObj.get(ContentWorkflowPipelineParams.src.name());
 				JsonElement type = mediaObj.get(ContentWorkflowPipelineParams.type.name());
+				JsonElement sourceId = mediaObj.get(ContentWorkflowPipelineParams.sourceId.name());
 				if (validateMedia) {
 					if (null == id || !id.isJsonPrimitive() || (StringUtils.isBlank(id.toString()) && isMediaIdRequiredForMediaType(type)))
 						throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
@@ -170,6 +171,8 @@ public class JSONContentParser {
 					media.setSrc(src.getAsString());
 				if (null != type)
 					media.setType(type.getAsString());
+				if (null != sourceId)
+					media.setSourceId(sourceId.getAsString());
 				media.setData(getData(mediaObj, ContentWorkflowPipelineParams.media.name()));
 				media.setInnerText(getInnerText(mediaObj));
 				media.setcData(getCData(mediaObj, ContentWorkflowPipelineParams.__cdata.name()));
