@@ -74,7 +74,7 @@ public class LocalizeAssetProcessorTest {
 		String strContent = getFileString("testglobal_01/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
 		PipelineRequestorClient
-				.getPipeline("xx", "" , "", null).execute(plugin);
+				.getPipeline("localizeAssetProcessor", "" , "", null).execute(plugin);
 	}
 	
 	@Test
