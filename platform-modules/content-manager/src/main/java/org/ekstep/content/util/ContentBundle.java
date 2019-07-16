@@ -303,11 +303,12 @@ public class ContentBundle {
 
 			TelemetryManager.log("Updating the 'variant' map from JSON string to JSON Object.");
 			contents.stream().forEach(c -> {
-				if(c.get(ContentWorkflowPipelineParams.variants.name()) instanceof String){
+				Object variants = c.get(ContentWorkflowPipelineParams.variants.name());
+				if(variants instanceof String){
 					c.put(ContentWorkflowPipelineParams.variants.name(),
-							JSONUtils.convertJSONString((String) c.get(ContentWorkflowPipelineParams.variants.name())));
+							JSONUtils.convertJSONString((String) variants));
 				}else{
-					c.put(ContentWorkflowPipelineParams.variants.name(), c.get(ContentWorkflowPipelineParams.variants.name()));
+					c.put(ContentWorkflowPipelineParams.variants.name(), variants);
 				}
 			});
 
