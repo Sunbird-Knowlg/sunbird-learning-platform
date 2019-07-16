@@ -14,10 +14,6 @@ learner_user: learning
 learner_group: learning
 learner_user_home: "/home/{{ learner_user }}"
 
-#artifact upload
-artifact_azure_account_name: "{{lp_artifact_azure_account_name}}"
-artifact_azure_account_key: "{{lp_vault_artifact_azure_account_key}}"
-
 ## Common variables for LP
 # these  variables can be defined as {{instance}}_*
 content_keyspace_name: "{{instance}}_content_store"
