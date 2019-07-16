@@ -1,6 +1,7 @@
 package org.ekstep.content.operation.finalizer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rits.cloning.Cloner;
 import org.apache.commons.collections.CollectionUtils;
@@ -8,7 +9,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Request;
@@ -94,8 +94,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final List<String> LEVEL4_CONTENT_TYPES = Arrays.asList("Course","CourseUnit","LessonPlan","LessonPlanUnit");
 	private static final String  ES_INDEX_NAME = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
 	private static final String DOCUMENT_TYPE = Platform.config.hasPath("search.document.type") ? Platform.config.getString("search.document.type") : CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE;
-	private static final Boolean CONTENT_CACHE_ENABLED = Platform.config.hasPath("content.cache.read") ? Platform.config.getBoolean("content.cache.read") : false;
-	private static final Boolean CONTENT_HIERARCHY_CACHE_ENABLED = Platform.config.hasPath("content.cache.hierarchy") ? Platform.config.getBoolean("content.cache.hierarchy") : false;
+	private static final List<String> PUBLISHED_STATUS_LIST = Arrays.asList("Live", "Unlisted");
 
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -160,11 +159,11 @@ public class PublishFinalizer extends BaseFinalizer {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
 		RedisStoreUtil.delete(contentId);
+		RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
 		if (node.getIdentifier().endsWith(".img")) {
 			String updatedVersion = preUpdateNode(node.getIdentifier());
 			node.getMetadata().put(GraphDACParams.versionKey.name(), updatedVersion);
 			if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
-				RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
 				unitNodes = new ArrayList<>();
 				getUnitFromLiveContent(unitNodes);
 				cleanUnitsInRedis(unitNodes);
@@ -256,7 +255,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		if(MapUtils.isNotEmpty(collectionHierarchy)) {
 			Set<String> collectionResourceChildNodes = new HashSet<>();
 			children = (List<Map<String,Object>>)collectionHierarchy.get("children");
-			enrichChildren(children, collectionResourceChildNodes);
+			enrichChildren(children, collectionResourceChildNodes, node);
 			if(!collectionResourceChildNodes.isEmpty()) {
 				List<String> collectionChildNodes = getList(node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name()));
 				collectionChildNodes.addAll(collectionResourceChildNodes);
@@ -338,14 +337,14 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 	}
 
-	private void enrichChildren(List<Map<String, Object>> children, Set<String> collectionResourceChildNodes) {
+	private void enrichChildren(List<Map<String, Object>> children, Set<String> collectionResourceChildNodes, Node node) {
 		if(CollectionUtils.isNotEmpty(children)) {
 			List<Map<String, Object>> newChildren = new ArrayList<>(children);
 			if (null!=newChildren && !newChildren.isEmpty()) {
 				for (Map<String, Object> child : newChildren) {
 					if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Parent") &&
 							StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE))
-						enrichChildren((List<Map<String, Object>>)child.get(ContentWorkflowPipelineParams.children.name()), collectionResourceChildNodes);
+						enrichChildren((List<Map<String, Object>>)child.get(ContentWorkflowPipelineParams.children.name()), collectionResourceChildNodes, node);
 					if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
 							StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
 						Map<String,Object> collectionHierarchy = getHierarchy((String)child.get(ContentWorkflowPipelineParams.identifier.name()), false);
@@ -360,6 +359,23 @@ public class PublishFinalizer extends BaseFinalizer {
 								children.remove(child);
 								children.add(collectionHierarchy);
 							}
+						}
+					}
+					if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
+							! StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
+						Response readResponse = getDataNode(TAXONOMY_ID, (String) child.get(ContentWorkflowPipelineParams.identifier.name()));
+						children.remove(child);
+						List<String> childNodes = getList(node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name()));
+						if(!checkError(readResponse)){
+							Node resNode = (Node) readResponse.get(GraphDACParams.node.name());
+							if(PUBLISHED_STATUS_LIST.contains(resNode.getMetadata().get(ContentWorkflowPipelineParams.status.name()))) {
+								DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
+								Map<String, Object> resourceNode = ConvertGraphNode.convertGraphNode(resNode, TAXONOMY_ID, definition, null);
+								children.add(resourceNode);
+							} else {
+								childNodes.remove((String) child.get(ContentWorkflowPipelineParams.identifier.name()));
+							}
+							node.getMetadata().put(ContentWorkflowPipelineParams.childNodes.name(), childNodes);
 						}
 					}
 				}
@@ -400,8 +416,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			return;
 
 		Map<String, String> errors;
-		org.codehaus.jackson.map.ObjectMapper o = new org.codehaus.jackson.map.ObjectMapper();
-		Map<String, Object> def =  o.convertValue(definition, new TypeReference<Map<String, Object>>() {});
+		Map<String, Object> def =  mapper.convertValue(definition, new TypeReference<Map<String, Object>>() {});
 		Map<String, String> relationMap = GraphUtil.getRelationMap(ContentWorkflowPipelineParams.Content.name(), def);
 		if(CollectionUtils.isNotEmpty(nodes)) {
 			while (!nodes.isEmpty()) {
