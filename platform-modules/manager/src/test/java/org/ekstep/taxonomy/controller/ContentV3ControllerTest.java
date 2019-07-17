@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -1692,6 +1693,65 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		assertEquals(contentId, response.getResult().get("content_id"));
 		Assert.assertNotNull(response.getResult().get("pre_signed_url"));
 	}
+
+    /**
+     * Test case to validate whether both Content and ContentImage nodes are getting updated,
+     * without changing the version key, when a published content having image node is updated.
+     */
+    @Test
+    public void testSystemUpdateExpectContentAndImageNodesToUpdateOnContentUpdate() throws Exception {
+        String createResourceContentReq = "{\"request\": {\"content\": {\"name\": \"Test Resource Content\",\"code\": \"test.res.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+        String contentId = createContent(createResourceContentReq);
+        uploadContent(contentId, "test2.pdf", "application/pdf");
+        publish(contentId);
+        TimeUnit.SECONDS.sleep(10);
+        update(contentId);
+
+        String liveVersionKey = (String) ((Map<String, Object>) getContent(contentId).getResult().get("content")).get("versionKey");
+        String draftVersionKey = (String) ((Map<String, Object>) getContent(contentId + ".img").getResult().get("content")).get("versionKey");
+
+        String contentUpdateName = "Updated Name for Resource Content";
+        String systemUpdateReqForContent = "{\"request\": {\"content\": {\"name\": \"" + contentUpdateName + "\"}}}";
+        systemUpdate(contentId, systemUpdateReqForContent);
+
+        Response contentResponse = getContent(contentId);
+        Response contentImageResponse = getContent(contentId + ".img");
+
+        assertEquals(contentUpdateName, (String) ((Map<String, Object>) contentResponse.getResult().get("content")).get("name"));
+        assertEquals(contentUpdateName, (String) ((Map<String, Object>) contentImageResponse.getResult().get("content")).get("name"));
+        assertEquals(liveVersionKey, (String) ((Map<String, Object>) contentResponse.getResult().get("content")).get("versionKey"));
+        assertEquals(draftVersionKey, (String) ((Map<String, Object>) contentImageResponse.getResult().get("content")).get("versionKey"));
+    }
+
+    /**
+     * Test case to validate whether only ContentImage node is getting updated without affecting Content node,
+     * without changing the version key, When a image node of a content is updated
+     */
+    @Test
+    public void testSystemUpdateExpectOnlyImageNodeToUpdateOnContentImageUpdate() throws Exception {
+        String originalName = "Test Resource Content";
+        String createResourceContentReq = "{\"request\": {\"content\": {\"name\": \""+ originalName +"\",\"code\": \"test.res.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+        String contentId = createContent(createResourceContentReq);
+        uploadContent(contentId, "test2.pdf", "application/pdf");
+        publish(contentId);
+        TimeUnit.SECONDS.sleep(10);
+        update(contentId);
+
+        String liveVersionKey = (String) ((Map<String, Object>) getContent(contentId).getResult().get("content")).get("versionKey");
+        String draftVersionKey = (String) ((Map<String, Object>) getContent(contentId + ".img").getResult().get("content")).get("versionKey");
+
+        String contentImageUpdateName = "Updated Name for Resource Content - Image Node Only";
+        String systemUpdateReqForContentImage = "{\"request\": {\"content\": {\"name\": \"" + contentImageUpdateName + "\"}}}";
+        systemUpdate(contentId + ".img", systemUpdateReqForContentImage);
+
+        Response contentResponse = getContent(contentId);
+        Response contentImageResponse = getContent(contentId + ".img");
+
+        assertEquals(originalName, (String) ((Map<String, Object>) contentResponse.getResult().get("content")).get("name"));
+        assertEquals(contentImageUpdateName, (String) ((Map<String, Object>) contentImageResponse.getResult().get("content")).get("name"));
+        assertEquals(liveVersionKey, (String) ((Map<String, Object>) contentResponse.getResult().get("content")).get("versionKey"));
+        assertEquals(draftVersionKey, (String) ((Map<String, Object>) contentImageResponse.getResult().get("content")).get("versionKey"));
+    }
 
 	//Test case to validate whether lastStatusChangedOn property gets updated or not during System Update.
 	@Test
