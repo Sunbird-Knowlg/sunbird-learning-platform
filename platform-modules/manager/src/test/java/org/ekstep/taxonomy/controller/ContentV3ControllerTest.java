@@ -1694,7 +1694,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		String contentId = createContent(createResourceContentReq);
 		uploadContent(contentId, "test2.pdf", "application/pdf");
 		publish(contentId);
-		TimeUnit.SECONDS.sleep(10);
+		TimeUnit.SECONDS.sleep(20);
 		update(contentId);
 
 		String systemUpdateReqForContent = "{\"request\": {\"content\": {\"status\": \"flagged\"}}}";
