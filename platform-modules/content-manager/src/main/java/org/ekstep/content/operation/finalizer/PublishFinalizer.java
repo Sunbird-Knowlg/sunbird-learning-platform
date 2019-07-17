@@ -11,6 +11,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
@@ -1115,10 +1116,10 @@ public class PublishFinalizer extends BaseFinalizer {
 			}
 		}
 		if (null != node.get(ContentWorkflowPipelineParams.concepts.name())) {
-			List<Map<String, Object>> conceptList = (List<Map<String, Object>>) node.get(ContentWorkflowPipelineParams.concepts.name());
+			List<NodeDTO> conceptList = (List<NodeDTO>) node.get(ContentWorkflowPipelineParams.concepts.name());
 			Set<Object> concepts = new HashSet<Object>();
-			for(Map<String, Object> concept : conceptList) {
-				concepts.add(concept.get("identifier"));
+			for(NodeDTO concept : conceptList) {
+				concepts.add(concept.getIdentifier());
 			}
 			if (null != concepts && !concepts.isEmpty()) {
 				result.put(ContentWorkflowPipelineParams.concepts.name(), concepts);
