@@ -1,12 +1,9 @@
 # Search Service Deployment Tasks.
-
-- name: checking the list of installed services
-  service_facts:
-
-- name: Stop the monit
-  service: name=monit state=stopped
+- name: installing unzip 
   become: yes
-  when: ansible_facts.services.monit is defined
+  apt:
+    name: unzip
+    state: present
 
 - name: Status of the search service
   become: yes
@@ -53,7 +50,7 @@
 - name: Copy search artifact
   become: yes
   become_user: "{{learner_user}}"
-  copy: src="{{ search_artifact_name }}-dist.zip" dest={{ search_root }} mode=755 owner={{ learner_user }} group={{ learner_user }}
+  copy: src=search-manager-1.0-SNAPSHOT-dist.zip dest={{ search_root }} mode=755 owner={{ learner_user }} group={{ learner_user }}
 
 - name: Remove search-service
   become: yes
@@ -70,7 +67,7 @@
     group: "{{ learner_user }}"
     owner: "{{ learner_user }}"
     mode: 755
-
+    
 - name: Change search artifact
   become: yes
   become_user: "{{learner_user}}"
@@ -82,8 +79,3 @@
   command: "{{ search_service_path }}/search-service start"
   async: 20
   poll: 5 
-
-- name: Start the monit
-  service: name=monit state=started
-  become: yes
-  when: ansible_facts.services.monit is defined
