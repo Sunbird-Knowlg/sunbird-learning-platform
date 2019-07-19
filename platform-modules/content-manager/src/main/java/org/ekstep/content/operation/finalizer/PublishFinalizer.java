@@ -441,8 +441,11 @@ public class PublishFinalizer extends BaseFinalizer {
 						TelemetryManager.error("Error! while forming ES document data from nodes, below nodes are ignored: " + errors);
 					if(MapUtils.isNotEmpty(messages)) {
 						try {
+                            System.out.println("Number of units to be synced : " + messages.size());
 							ElasticSearchUtil.bulkIndexWithIndexId(ES_INDEX_NAME, DOCUMENT_TYPE, messages);
+                            System.out.println("UnitIds synced : " + messages.keySet());
 						} catch (Exception e) {
+						    e.printStackTrace();
 							TelemetryManager.error("Elastic Search indexing failed: " + e);
 						}					
 					}
