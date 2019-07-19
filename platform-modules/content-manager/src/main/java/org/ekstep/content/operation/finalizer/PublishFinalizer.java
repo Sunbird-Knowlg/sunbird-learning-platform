@@ -324,8 +324,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		if (StringUtils.equalsIgnoreCase((String) newNode.getMetadata().get("mimeType"),
 				COLLECTION_MIMETYPE)) {
-			Map<String, Object> publishNodeMap = ConvertGraphNode.convertGraphNode(publishedNode, TAXONOMY_ID, definition, null);
-			updateHierarchyMetadata(children, publishNodeMap);
+			updateHierarchyMetadata(children, publishedNode);
 			publishHierarchy(publishedNode, children);
 			syncNodes(children, unitNodes);
 		}
@@ -602,30 +601,30 @@ public class PublishFinalizer extends BaseFinalizer {
 		return hierarchyStore.getHierarchy(identifier);
 	}
 	
-	private void updateHierarchyMetadata(List<Map<String, Object>> children, Map<String, Object> nodeMap) {
+	private void updateHierarchyMetadata(List<Map<String, Object>> children, Node node) {
 		if(CollectionUtils.isNotEmpty(children)) {
 			for(Map<String, Object> child : children) {
 				if(StringUtils.equalsIgnoreCase("Parent", 
 						(String)child.get("visibility"))){
 					//set child metadata -- compatibilityLevel, appIcon, posterImage, lastPublishedOn, pkgVersion, status
-					populatePublishMetadata(child, nodeMap);
-					updateHierarchyMetadata((List<Map<String,Object>>)child.get("children"), nodeMap);
+					populatePublishMetadata(child, node);
+					updateHierarchyMetadata((List<Map<String,Object>>)child.get("children"), node);
 				}
 			}
 		}
 	}
 	
-	private void populatePublishMetadata(Map<String, Object> content, Map<String, Object> nodeMap) {
+	private void populatePublishMetadata(Map<String, Object> content, Node node) {
 		content.put("compatibilityLevel", null != content.get("compatibilityLevel") ? 
 				((Number) content.get("compatibilityLevel")).intValue() : 1);
 		//TODO:  For appIcon, posterImage and screenshot createThumbNail method has to be implemented.
-		content.put(ContentWorkflowPipelineParams.lastPublishedOn.name(), nodeMap.get(ContentWorkflowPipelineParams.lastPublishedOn.name()));
-		content.put(ContentWorkflowPipelineParams.pkgVersion.name(), nodeMap.get(ContentWorkflowPipelineParams.pkgVersion.name()));
+		content.put(ContentWorkflowPipelineParams.lastPublishedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastPublishedOn.name()));
+		content.put(ContentWorkflowPipelineParams.pkgVersion.name(), node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()));
 		content.put(ContentWorkflowPipelineParams.leafNodesCount.name(), getLeafNodeCount(content, 0));
-		content.put(ContentWorkflowPipelineParams.status.name(), nodeMap.get(ContentWorkflowPipelineParams.status.name()));
-		content.put(ContentWorkflowPipelineParams.lastUpdatedOn.name(), nodeMap.get(ContentWorkflowPipelineParams.lastUpdatedOn.name()));
-		content.put(ContentWorkflowPipelineParams.downloadUrl.name(), nodeMap.get(ContentWorkflowPipelineParams.downloadUrl.name()));
-		content.put(ContentWorkflowPipelineParams.variants.name(), nodeMap.get(ContentWorkflowPipelineParams.variants.name()));
+		content.put(ContentWorkflowPipelineParams.status.name(), node.getMetadata().get(ContentWorkflowPipelineParams.status.name()));
+		content.put(ContentWorkflowPipelineParams.lastUpdatedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastUpdatedOn.name()));
+		content.put(ContentWorkflowPipelineParams.downloadUrl.name(), node.getMetadata().get(ContentWorkflowPipelineParams.downloadUrl.name()));
+		content.put(ContentWorkflowPipelineParams.variants.name(), node.getMetadata().get(ContentWorkflowPipelineParams.variants.name()));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -896,8 +895,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		
 		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get("mimeType"),COLLECTION_MIMETYPE)) {
 			DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
-			Map<String, Object> nodeMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-			updateHierarchyMetadata(children, nodeMap);
+			updateHierarchyMetadata(children, node);
 
 			List<String> nodeIds = new ArrayList<>();
 			nodeIds.add(node.getIdentifier());
