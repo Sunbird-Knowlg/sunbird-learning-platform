@@ -3,31 +3,38 @@ package org.sunbird.jobs.samza.task;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.samza.config.Config;
 import org.apache.samza.system.IncomingMessageEnvelope;
-import org.apache.samza.task.InitableTask;
 import org.apache.samza.task.MessageCollector;
-import org.apache.samza.task.StreamTask;
-import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
-//import org.sunbird.common.models.util.LoggerEnum;
-//import org.sunbird.common.models.util.ProjectLogger;
+
 
 import org.ekstep.jobs.samza.service.ISamzaService;
+import org.ekstep.jobs.samza.task.AbstractTask;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.service.CourseBatchUpdaterService;
 
-public class CourseBatchUpdaterTask implements StreamTask, InitableTask {
-    private ISamzaService service;
+public class CourseBatchUpdaterTask extends AbstractTask {
+    private ISamzaService service =  new CourseBatchUpdaterService();
 
     private static JobLogger LOGGER = new JobLogger(CourseBatchUpdaterTask.class);
 
+    public ISamzaService initialize() throws Exception {
+        LOGGER.info("Task initialized");
+        this.jobType = "batch-enrolment-update";
+        this.jobStartMessage = "Started processing of course-batch-updater samza job";
+        this.jobEndMessage = "course-batch-updater job processing complete";
+        this.jobClass = "org.sunbird.jobs.samza.task.CourseBatchUpdaterTask";
+        return service;
+    }
+
     @Override
-    public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator)
-            throws Exception {
-        Map<String, Object> event = getMessage(envelope);
-        service.processMessage(event, null, null);
-        LOGGER.info("CourseBatchUpdaterTask: process: event = " + event);
+    public void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) {
+        try {
+            service.processMessage(message, null, null);
+        } catch (Exception e) {
+            metrics.incErrorCounter();
+            LOGGER.error("Message processing failed", message, e);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -39,12 +46,5 @@ public class CourseBatchUpdaterTask implements StreamTask, InitableTask {
             LOGGER.info("IndexerTask:getMessage: Invalid message = " + envelope.getMessage() + " with error : " + e);
             return new HashMap<String, Object>();
         }
-    }
-
-    @Override
-    public void init(Config config, TaskContext taskContext) throws Exception {
-        LOGGER.info("IndexerTask:init: config = " + config.toString());
-        service = new CourseBatchUpdaterService();
-        service.initialize(config);
     }
 }
