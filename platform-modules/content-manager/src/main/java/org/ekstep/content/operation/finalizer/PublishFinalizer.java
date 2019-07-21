@@ -41,6 +41,7 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.contentstore.VideoStreamingJobRequest;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.CloudStore;
@@ -155,6 +156,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		File packageFile=null;
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		List<String> unitNodes = null;
+		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
 
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -339,48 +341,55 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	private void enrichChildren(List<Map<String, Object>> children, Set<String> collectionResourceChildNodes, Node node) {
-		if(CollectionUtils.isNotEmpty(children)) {
-			List<Map<String, Object>> newChildren = new ArrayList<>(children);
-			if (null!=newChildren && !newChildren.isEmpty()) {
-				for (Map<String, Object> child : newChildren) {
-					if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Parent") &&
-							StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE))
-						enrichChildren((List<Map<String, Object>>)child.get(ContentWorkflowPipelineParams.children.name()), collectionResourceChildNodes, node);
-					if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
-							StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
-						Map<String,Object> collectionHierarchy = getHierarchy((String)child.get(ContentWorkflowPipelineParams.identifier.name()), false);
-						TelemetryManager.log("Collection hierarchy for chilNode : " + child.get(ContentWorkflowPipelineParams.identifier.name()) + " : " + collectionHierarchy);
-						if(MapUtils.isNotEmpty(collectionHierarchy)) {
-							collectionHierarchy.put(ContentWorkflowPipelineParams.index.name(), child.get(ContentWorkflowPipelineParams.index.name()));
-							collectionHierarchy.put(ContentWorkflowPipelineParams.parent.name(), child.get(ContentWorkflowPipelineParams.parent.name()));
-							List<String> childNodes = getList(collectionHierarchy.get(ContentWorkflowPipelineParams.childNodes.name()));
-							if(!CollectionUtils.isEmpty(childNodes)) 
-								collectionResourceChildNodes.addAll(childNodes);
-							if(!MapUtils.isEmpty(collectionHierarchy)) {
-								children.remove(child);
-								children.add(collectionHierarchy);
+		try {
+			if (CollectionUtils.isNotEmpty(children)) {
+				List<Map<String, Object>> newChildren = new ArrayList<>(children);
+				if (null != newChildren && !newChildren.isEmpty()) {
+					for (Map<String, Object> child : newChildren) {
+						if (StringUtils.equalsIgnoreCase((String) child.get(ContentWorkflowPipelineParams.visibility.name()), "Parent") &&
+								StringUtils.equalsIgnoreCase((String) child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE))
+							enrichChildren((List<Map<String, Object>>) child.get(ContentWorkflowPipelineParams.children.name()), collectionResourceChildNodes, node);
+						if (StringUtils.equalsIgnoreCase((String) child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
+								StringUtils.equalsIgnoreCase((String) child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
+							Map<String, Object> collectionHierarchy = getHierarchy((String) child.get(ContentWorkflowPipelineParams.identifier.name()), false);
+							TelemetryManager.log("Collection hierarchy for childNode : " + child.get(ContentWorkflowPipelineParams.identifier.name()) + " : " + collectionHierarchy);
+							if (MapUtils.isNotEmpty(collectionHierarchy)) {
+								collectionHierarchy.put(ContentWorkflowPipelineParams.index.name(), child.get(ContentWorkflowPipelineParams.index.name()));
+								collectionHierarchy.put(ContentWorkflowPipelineParams.parent.name(), child.get(ContentWorkflowPipelineParams.parent.name()));
+								List<String> childNodes = getList(collectionHierarchy.get(ContentWorkflowPipelineParams.childNodes.name()));
+								if (!CollectionUtils.isEmpty(childNodes))
+									collectionResourceChildNodes.addAll(childNodes);
+								if (!MapUtils.isEmpty(collectionHierarchy)) {
+									children.remove(child);
+									children.add(collectionHierarchy);
+								}
 							}
 						}
-					}
-					if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
-							! StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
-						Response readResponse = getDataNode(TAXONOMY_ID, (String) child.get(ContentWorkflowPipelineParams.identifier.name()));
-						children.remove(child);
-						List<String> childNodes = getList(node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name()));
-						if(!checkError(readResponse)){
-							Node resNode = (Node) readResponse.get(GraphDACParams.node.name());
-							if(PUBLISHED_STATUS_LIST.contains(resNode.getMetadata().get(ContentWorkflowPipelineParams.status.name()))) {
-								DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
-								Map<String, Object> resourceNode = ConvertGraphNode.convertGraphNode(resNode, TAXONOMY_ID, definition, null);
-								children.add(resourceNode);
-							} else {
-								childNodes.remove((String) child.get(ContentWorkflowPipelineParams.identifier.name()));
+						if (StringUtils.equalsIgnoreCase((String) child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
+								!StringUtils.equalsIgnoreCase((String) child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
+							Response readResponse = getDataNode(TAXONOMY_ID, (String) child.get(ContentWorkflowPipelineParams.identifier.name()));
+							children.remove(child);
+							List<String> childNodes = getList(node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name()));
+							if (!checkError(readResponse)) {
+								Node resNode = (Node) readResponse.get(GraphDACParams.node.name());
+								if (PUBLISHED_STATUS_LIST.contains(resNode.getMetadata().get(ContentWorkflowPipelineParams.status.name()))) {
+									DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
+
+									String nodeString = mapper.writeValueAsString(ConvertGraphNode.convertGraphNode(resNode, TAXONOMY_ID, definition, null));
+									Map<String, Object> resourceNode = mapper.readValue(nodeString, Map.class);
+									children.add(resourceNode);
+								} else {
+									childNodes.remove((String) child.get(ContentWorkflowPipelineParams.identifier.name()));
+								}
+								node.getMetadata().put(ContentWorkflowPipelineParams.childNodes.name(), childNodes);
 							}
-							node.getMetadata().put(ContentWorkflowPipelineParams.childNodes.name(), childNodes);
 						}
 					}
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ServerException("ERR_INTERNAL_SERVER_ERROR", e.getMessage(), e);
 		}
 	}
 	
@@ -432,8 +441,11 @@ public class PublishFinalizer extends BaseFinalizer {
 						TelemetryManager.error("Error! while forming ES document data from nodes, below nodes are ignored: " + errors);
 					if(MapUtils.isNotEmpty(messages)) {
 						try {
+                            System.out.println("Number of units to be synced : " + messages.size());
 							ElasticSearchUtil.bulkIndexWithIndexId(ES_INDEX_NAME, DOCUMENT_TYPE, messages);
+                            System.out.println("UnitIds synced : " + messages.keySet());
 						} catch (Exception e) {
+						    e.printStackTrace();
 							TelemetryManager.error("Elastic Search indexing failed: " + e);
 						}					
 					}
@@ -885,8 +897,9 @@ public class PublishFinalizer extends BaseFinalizer {
 		nodes.add(node);
 		
 		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get("mimeType"),COLLECTION_MIMETYPE)) {
-			updateHierarchyMetadata(children, node);
 			DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
+			updateHierarchyMetadata(children, node);
+
 			List<String> nodeIds = new ArrayList<>();
 			nodeIds.add(node.getIdentifier());
             updateRootChildrenList(node, children);
@@ -1116,10 +1129,10 @@ public class PublishFinalizer extends BaseFinalizer {
 			}
 		}
 		if (null != node.get(ContentWorkflowPipelineParams.concepts.name())) {
-			List<NodeDTO> conceptList = (List<NodeDTO>) node.get(ContentWorkflowPipelineParams.concepts.name());
+			List<Map<String, Object>> conceptList = (List<Map<String, Object>>) node.get(ContentWorkflowPipelineParams.concepts.name());
 			Set<Object> concepts = new HashSet<Object>();
-			for(NodeDTO concept : conceptList) {
-				concepts.add(concept.getIdentifier());
+			for(Map<String, Object> concept : conceptList) {
+				concepts.add(concept.get(ContentWorkflowPipelineParams.identifier.name()));
 			}
 			if (null != concepts && !concepts.isEmpty()) {
 				result.put(ContentWorkflowPipelineParams.concepts.name(), concepts);
