@@ -843,7 +843,8 @@
           "VSA",
           "SA",
           "LA",
-          "REFERENCE"
+          "REFERENCE",
+          "CuriosityQuestion"
         ],
         "defaultValue": "MCQ",
         "renderingHints": "{'order': 28}",
