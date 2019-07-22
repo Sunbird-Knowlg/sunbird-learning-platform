@@ -3,10 +3,8 @@ package org.ekstep.taxonomy.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 
 import java.io.File;
@@ -1521,31 +1519,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	//Test case for Online Ecar generation in Textbook
 	@Test
 	public void publishTextbookExpectOnlineEcar() throws Exception {
-		//create an asset
-		String createAssetReq = "{\"request\": {\"content\": {\"name\": \"Test Asset for Unit Testing\",\"code\": \"test.asset.1\",\"mimeType\": \"image/jpg\",\"mediaType\":\"image\",\"contentType\":\"Asset\"}}}";
-		String assetId = createContent(createAssetReq);
-		String assetUrl = uploadContent(assetId,"education.jpeg","image/jpeg");
-
-		String createTextbookReq = "{\"request\": {\"content\": {\"name\": \"Test Textbook\",\"code\": \"test.book.1\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBook\",\"appIcon\":\""+assetUrl+"\"}}}";
-		String textbookId = createContent(createTextbookReq);
-
-		String updateHierarchyRequestBody = "{\"request\": {\"data\": {\"nodesModified\": {\"TestBookUnit-01\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_01\",\"description\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}},\"TestBookUnit-02\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_02\",\"description\": \"TTest_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}}},\"hierarchy\": {\"textbookIdentifier\": {\"name\": \"Test Textbook\",\"contentType\": \"TextBook\",\"children\": [\"TestBookUnit-01\",\"TestBookUnit-02\"],\"root\": true},\"TestBookUnit-01\": {\"name\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]},\"TestBookUnit-02\": {\"name\": \"Test_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]}}}}\n" +
-				"}";
-		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("appIconUrl",assetUrl);
-		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("textbookIdentifier",textbookId);
-		updateHierarchy(updateHierarchyRequestBody);
-		publish(textbookId);
-
-		String status = "";
-		Integer counter = 0;
-		while(!"Live".equalsIgnoreCase(status) && counter<10){
-			Response resp = getContent(textbookId);
-			if("OK".equalsIgnoreCase(resp.getResponseCode().toString())){
-				status = (String)((Map<String,Object>)resp.getResult().get("content")).get("status");
-				++counter;
-				delay(20000);
-			}
-		}
+		String textbookId = createAndPublishATextBook();
 		Response response = getContent(textbookId);
 		Map<String,Object> variants = (Map<String,Object>) ((Map<String, Object>)response.getResult().get("content")).get("variants");
 		String onlineEcarUrl = (String) ((Map<String,Object>) variants.get("online")).get("ecarUrl");
@@ -1692,6 +1666,45 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		assertEquals("successful", response.getParams().getStatus());
 		assertEquals(contentId, response.getResult().get("content_id"));
 		Assert.assertNotNull(response.getResult().get("pre_signed_url"));
+	}
+
+	/**
+	 * Test case to validate whether collection hierarchy is updated as part of system update
+	 * for Live and Unlisted Collections
+	 */
+	@Test
+	public void testSystemUpdateExpectHierarchyToUpdateForCollectionTypes() throws Exception {
+		String textBookId = createAndPublishATextBook();
+		String updatedTextBookName = "Updated Text Book Name For System Update Test";
+		String systemUpdateReqForTB = "{\"request\": {\"content\": {\"name\": \"" + updatedTextBookName + "\"}}}";
+		systemUpdate(textBookId, systemUpdateReqForTB);
+
+		HierarchyStore hierarchyStore = new HierarchyStore();
+		Map<String, Object> hierarchy = hierarchyStore.getHierarchy(textBookId);
+		assertEquals(updatedTextBookName, hierarchy.get("name"));
+	}
+
+	/**
+	 * Test case to validate - Status of a Content, which has a image node, cannot be updated using System Update Call.
+	 * Only Image nodes status will be updated in this scenario
+	 */
+	@Test
+	public void testSystemUpdateCannotUpdateStatusOfContentHavingImageNode() throws Exception {
+		String createResourceContentReq = "{\"request\": {\"content\": {\"name\": \"Test Resource Content\",\"code\": \"test.res.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createResourceContentReq);
+		uploadContent(contentId, "test2.pdf", "application/pdf");
+		publish(contentId);
+		TimeUnit.SECONDS.sleep(20);
+		update(contentId);
+
+		String systemUpdateReqForContent = "{\"request\": {\"content\": {\"status\": \"flagged\"}}}";
+		systemUpdate(contentId, systemUpdateReqForContent);
+
+		Response contentResponse = getContent(contentId);
+		Response contentImageResponse = getContent(contentId + ".img");
+
+		assertTrue("live".equalsIgnoreCase((String) ((Map<String, Object>) contentResponse.getResult().get("content")).get("status")));
+		assertTrue("flagged".equalsIgnoreCase((String) ((Map<String, Object>) contentImageResponse.getResult().get("content")).get("status")));
 	}
 
     /**
@@ -1888,5 +1901,34 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	private void validateRetiredCollectionContent(String contentId) throws Exception {
 		validateRetiredNode(contentId);
 		//TODO: Validate Cassandra Record if retired from a live version.
+	}
+
+	private String createAndPublishATextBook() throws Exception {
+		//create an asset
+		String createAssetReq = "{\"request\": {\"content\": {\"name\": \"Test Asset for Unit Testing\",\"code\": \"test.asset.1\",\"mimeType\": \"image/jpg\",\"mediaType\":\"image\",\"contentType\":\"Asset\"}}}";
+		String assetId = createContent(createAssetReq);
+		String assetUrl = uploadContent(assetId,"education.jpeg","image/jpeg");
+
+		String createTextbookReq = "{\"request\": {\"content\": {\"name\": \"Test Textbook\",\"code\": \"test.book.1\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBook\",\"appIcon\":\""+assetUrl+"\"}}}";
+		String textbookId = createContent(createTextbookReq);
+
+		String updateHierarchyRequestBody = "{\"request\": {\"data\": {\"nodesModified\": {\"TestBookUnit-01\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_01\",\"description\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}},\"TestBookUnit-02\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_02\",\"description\": \"TTest_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}}},\"hierarchy\": {\"textbookIdentifier\": {\"name\": \"Test Textbook\",\"contentType\": \"TextBook\",\"children\": [\"TestBookUnit-01\",\"TestBookUnit-02\"],\"root\": true},\"TestBookUnit-01\": {\"name\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]},\"TestBookUnit-02\": {\"name\": \"Test_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]}}}}\n" +
+				"}";
+		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("appIconUrl",assetUrl);
+		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("textbookIdentifier",textbookId);
+		updateHierarchy(updateHierarchyRequestBody);
+		publish(textbookId);
+
+		String status = "";
+		Integer counter = 0;
+		while(!"Live".equalsIgnoreCase(status) && counter<10){
+			Response resp = getContent(textbookId);
+			if("OK".equalsIgnoreCase(resp.getResponseCode().toString())){
+				status = (String)((Map<String,Object>)resp.getResult().get("content")).get("status");
+				++counter;
+				delay(20000);
+			}
+		}
+		return textbookId;
 	}
 }
