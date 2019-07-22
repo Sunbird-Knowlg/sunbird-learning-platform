@@ -171,8 +171,10 @@ public class UpdateHierarchyOperation extends BaseContentManager {
             RelationDefinition> outRelDefMap, String rootId) {
         if(MapUtils.isNotEmpty((Map<String, Object>)nodesModified.get(rootId)) && MapUtils.isNotEmpty((Map<String, Object>) ((Map<String, Object>)nodesModified.get(rootId))
                 .get("metadata"))){
-            updateNodeList(nodeList, rootId, (Map<String, Object>) ((Map<String, Object>)nodesModified.get(rootId))
-                    .get("metadata"));
+        		Map<String, Object> metadate = (Map<String, Object>) ((Map<String, Object>)nodesModified.get(rootId))
+            .get("metadata");
+        		metadate.remove(ContentAPIParams.versionKey.name());
+            updateNodeList(nodeList, rootId, metadate);
         }
         nodesModified.remove(rootId);
         nodesModified.entrySet().forEach(entry -> {

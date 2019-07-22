@@ -3,10 +3,8 @@
  */
 package org.ekstep.learning.framework;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -15,7 +13,7 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.mgr.ConvertGraphNode;
-import org.ekstep.graph.cache.util.RedisStoreUtil;
+import org.ekstep.common.util.FrameworkCache;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
@@ -24,23 +22,18 @@ import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author pradyumna
  *
  */
 public class FrameworkHierarchy extends BaseManager {
-
-	private ObjectMapper mapper = new ObjectMapper();
 
 	protected static final String GRAPH_ID = (Platform.config.hasPath("graphId")) ? Platform.config.getString("graphId")
 			: "domain";
@@ -53,11 +46,6 @@ public class FrameworkHierarchy extends BaseManager {
 			: "framework_hierarchy";
 	private static final String objectType = "Framework";
 	private HierarchyStore hierarchyStore = new HierarchyStore(keyspace, table, objectType, false);
-	private List<String> categoriesToCache = Platform.config.hasPath("framework.categories_cached") ?
-			Platform.config.getStringList("framework.categories_cached"): Arrays.asList("subject", "medium", "gradeLevel", "board");
-	private int cacheTtl = Platform.config.hasPath("framework.cache.ttl") ?
-			Platform.config.getInt("framework.cache.ttl"): 86400;
-	private static final String CACHE_SUFFIX = "_categories";
 
 	/**
 	 * @param id
@@ -69,6 +57,7 @@ public class FrameworkHierarchy extends BaseManager {
 			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + id);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		if (StringUtils.equalsIgnoreCase(node.getObjectType(), "Framework")) {
+			FrameworkCache.delete(id);
 			Map<String, Object> frameworkDocument = new HashMap<>();
 			Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false, true);
 			CategoryCache.setFramework(node.getIdentifier(), frameworkHierarchy);
@@ -83,7 +72,6 @@ public class FrameworkHierarchy extends BaseManager {
 					frameworkDocument.put(field, node.getMetadata().get(field));
 			}
 			hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(),frameworkDocument);
-			cacheFrameworkCategories(id, frameworkDocument);
 		} else {
 			throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "The object with given identifier is not a framework: " + id);
 		}
@@ -206,49 +194,4 @@ public class FrameworkHierarchy extends BaseManager {
 			}
 		});
 	}
-
-
-	private void cacheFrameworkCategories(String id, Map<String, Object> frameworkHierarchy) throws IOException {
-		Map<String, Object> framework = new HashMap<>();
-		framework.putAll(frameworkHierarchy);
-		filterFrameworkCategories(framework);
-		RedisStoreUtil.save(id + CACHE_SUFFIX, mapper.writeValueAsString(framework), cacheTtl);
-	}
-
-
-
-	private void filterFrameworkCategories(Map<String, Object> framework) {
-		List<Map<String, Object>> categories = (List<Map<String, Object>>) framework.get("categories");
-		if (CollectionUtils.isNotEmpty(categories)) {
-			framework.put("categories",
-					categories.stream().filter(p -> categoriesToCache.contains(p.get("code")))
-							.collect(Collectors.toList()));
-			removeAssociations(framework);
-		}
-	}
-
-	private void removeAssociations(Map<String, Object> responseMap) {
-		((List<Map<String, Object>>) responseMap.get("categories")).forEach(category -> {
-			removeTermAssociations((List<Map<String, Object>>) category.get("terms"));
-		});
-	}
-
-	private void removeTermAssociations(List<Map<String, Object>> terms) {
-		if (!CollectionUtils.isEmpty(terms)) {
-			terms.forEach(term -> {
-				if (!CollectionUtils.isEmpty((List<Map<String, Object>>) term.get("associations"))) {
-					term.put("associations",
-							((List<Map<String, Object>>) term.get("associations")).stream().filter(s -> s != null)
-									.filter(p -> categoriesToCache.contains(p.get("category")))
-									.collect(Collectors.toList()));
-					if (CollectionUtils.isEmpty((List<Map<String, Object>>) term.get("associations")))
-						term.remove("associations");
-
-					removeTermAssociations((List<Map<String, Object>>) term.get("children"));
-				}
-			});
-		}
-	}
-
-
 }
