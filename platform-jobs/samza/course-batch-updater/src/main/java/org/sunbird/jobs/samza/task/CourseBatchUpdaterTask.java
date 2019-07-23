@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.samza.system.IncomingMessageEnvelope;
+import org.apache.samza.system.OutgoingMessageEnvelope;
+import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.TaskCoordinator;
 
@@ -11,16 +13,18 @@ import org.apache.samza.task.TaskCoordinator;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.task.AbstractTask;
 import org.ekstep.jobs.samza.util.JobLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.sunbird.jobs.samza.service.CourseBatchUpdaterService;
+import org.sunbird.jobs.samza.util.BatchStatusUtil;
 
-public class CourseBatchUpdaterTask extends AbstractTask {
+public class CourseBatchUpdaterTask extends BaseTask {
     private ISamzaService service =  new CourseBatchUpdaterService();
 
     private static JobLogger LOGGER = new JobLogger(CourseBatchUpdaterTask.class);
 
     public ISamzaService initialize() throws Exception {
         LOGGER.info("Task initialized");
-        this.jobType = "batch-enrolment-update";
+        this.action = "batch-enrolment-update";
         this.jobStartMessage = "Started processing of course-batch-updater samza job";
         this.jobEndMessage = "course-batch-updater job processing complete";
         this.jobClass = "org.sunbird.jobs.samza.task.CourseBatchUpdaterTask";
@@ -30,7 +34,9 @@ public class CourseBatchUpdaterTask extends AbstractTask {
     @Override
     public void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) {
         try {
+            LOGGER.info("Starting to process for mid : " + message.get("mid") + " at :: " + System.currentTimeMillis());
             service.processMessage(message, null, null);
+            LOGGER.info("Successfully completed processing  for mid : " + message.get("mid") + " at :: " + System.currentTimeMillis());
         } catch (Exception e) {
             metrics.incErrorCounter();
             LOGGER.error("Message processing failed", message, e);
@@ -46,5 +52,15 @@ public class CourseBatchUpdaterTask extends AbstractTask {
             LOGGER.info("IndexerTask:getMessage: Invalid message = " + envelope.getMessage() + " with error : " + e);
             return new HashMap<String, Object>();
         }
+    }
+
+
+    @Override
+    public void window(MessageCollector collector, TaskCoordinator coordinator) throws Exception {
+        Map<String, Object> event = metrics.collect();
+        collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", metrics.getTopic()), event));
+        metrics.clear();
+        BatchStatusUtil.updateCourseBatchStatus(0);
+        BatchStatusUtil.updateCourseBatchStatus(1);
     }
 }

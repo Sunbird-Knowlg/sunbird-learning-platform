@@ -109,6 +109,7 @@ public class CourseBatchUpdater {
                 put("contentStatus", contentStatus);
                 put("status", status);
                 put("completionPercentage", ((Number)completionPercentage).intValue());
+                put("progress", size);
             }};
         }
        return null;
