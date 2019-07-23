@@ -11,9 +11,7 @@ import org.apache.samza.task.TaskCoordinator;
 
 
 import org.ekstep.jobs.samza.service.ISamzaService;
-import org.ekstep.jobs.samza.task.AbstractTask;
 import org.ekstep.jobs.samza.util.JobLogger;
-import org.ekstep.telemetry.logger.TelemetryManager;
 import org.sunbird.jobs.samza.service.CourseBatchUpdaterService;
 import org.sunbird.jobs.samza.util.BatchStatusUtil;
 
