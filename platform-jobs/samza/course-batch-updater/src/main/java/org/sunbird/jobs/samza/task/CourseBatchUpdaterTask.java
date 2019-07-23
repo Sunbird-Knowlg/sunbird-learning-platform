@@ -60,7 +60,9 @@ public class CourseBatchUpdaterTask extends BaseTask {
         Map<String, Object> event = metrics.collect();
         collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", metrics.getTopic()), event));
         metrics.clear();
+        LOGGER.info("Batch status update started at : " + System.currentTimeMillis());
         BatchStatusUtil.updateOnGoingBatch();
         BatchStatusUtil.updateCompletedBatch();
+        LOGGER.info("Batch status update completed at : " + System.currentTimeMillis());
     }
 }
