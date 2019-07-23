@@ -29,7 +29,7 @@ public class CourseBatchUpdater {
             ? Platform.config.getString("courses.keyspace.name")
             : "sunbird_courses";
     private String table = "user_courses";
-    private static final String ES_INDEX_NAME = "course-batch";
+    private static final String ES_INDEX_NAME = "user-courses";
     private static final String ES_DOC_TYPE = "_doc";
 
 
