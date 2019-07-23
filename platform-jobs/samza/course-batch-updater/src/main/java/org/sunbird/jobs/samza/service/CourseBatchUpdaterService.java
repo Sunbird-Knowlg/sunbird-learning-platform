@@ -9,6 +9,7 @@ import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
+import org.sunbird.jobs.samza.service.util.CourseBatchUpdater;
 import org.sunbird.jobs.samza.util.CourseBatchParams;
 
 import java.util.Map;
@@ -18,6 +19,7 @@ public class CourseBatchUpdaterService implements ISamzaService {
     private SystemStream systemStream;
     private Config config = null;
     private static int MAXITERTIONCOUNT = 2;
+    private CourseBatchUpdater courseBatchUpdater = null;
 
     @Override
     public void initialize(Config config) throws Exception {
@@ -25,6 +27,7 @@ public class CourseBatchUpdaterService implements ISamzaService {
         JSONUtils.loadProperties(config);
         LOGGER.info("Service config initialized");
         systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
+        courseBatchUpdater = new CourseBatchUpdater();
     }
 
     @Override
@@ -46,6 +49,7 @@ public class CourseBatchUpdaterService implements ISamzaService {
             switch (action) {
                 case "batch-enrolment-update":
                     System.out.println("Enrolment update for " + edata);
+                    courseBatchUpdater.updateBatchStatus(edata);
                     break;
                 default:
                     System.out.println("Invalid action provided: " + message);
