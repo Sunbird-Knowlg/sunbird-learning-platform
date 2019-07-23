@@ -43,13 +43,8 @@ public class CourseBatchUpdater {
         Map<String, Object> content = getContent(courseId);
         List<String> leafNodes = (List<String>) content.get("leafNodes");
         //Compute status
-        Map<String, Object> data = getStatusUpdateData(edata, leafNodes);
-        if(MapUtils.isNotEmpty(data)) {
-            Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
-                put("contentStatus", data.get("contentStatus"));
-                put("status", data.get("status"));
-                put("completionPercentage", data.get("completionPercentage"));
-            }};
+        Map<String, Object> dataToUpdate = getStatusUpdateData(edata, leafNodes);
+        if(MapUtils.isNotEmpty(dataToUpdate)) {
             Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
                 put("batchid", edata.get("batchId"));
                 put("userid", edata.get("userId"));
@@ -57,7 +52,7 @@ public class CourseBatchUpdater {
             //Update cassandra
             SunbirdCassandraUtil.update(keyspace, table, dataToUpdate, dataToSelect);
 
-            dataToUpdate.put("contentStatus", mapper.writeValueAsString(data.get("contentStatus")));
+            dataToUpdate.put("contentStatus", mapper.writeValueAsString(dataToUpdate.get("contentStatus")));
             ESUtil.updateCoureBatch(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
         }
     }
