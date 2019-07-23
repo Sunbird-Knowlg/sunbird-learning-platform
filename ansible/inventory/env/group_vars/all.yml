@@ -75,3 +75,6 @@ snapshot_base_path: compositesearch
 artifact_azure_account_name: "{{azure_account_name}}"
 artifact_azure_account_key: "{{lp_vault_azure_storage_secret}}"
 
+#Learning-Service baseURL
+kp_learning_service_base_url: "http://{{ groups['learning1'][0] }}:8080/learning-service"
+
