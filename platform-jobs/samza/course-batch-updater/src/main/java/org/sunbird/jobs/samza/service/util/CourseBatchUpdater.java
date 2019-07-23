@@ -61,7 +61,7 @@ public class CourseBatchUpdater {
     }
 
     private Map<String,Object> getContent(String courseId) throws Exception {
-       HttpResponse<String> httpResponse = Unirest.get(KP_LEARNING_BASE_URL + "/content/v3/read?fields=leafNodes")
+       HttpResponse<String> httpResponse = Unirest.get(KP_LEARNING_BASE_URL + "/content/v3/read/" + courseId +"?fields=leafNodes")
                .header("Content-Type", "application/json").asString();
        if(200 != httpResponse.getStatus()){
            System.err.println("Error while reading content from KP : " + courseId + " : " + httpResponse.getStatus() + " : " + httpResponse.getBody());
