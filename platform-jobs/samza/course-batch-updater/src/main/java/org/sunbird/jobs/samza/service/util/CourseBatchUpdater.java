@@ -46,8 +46,9 @@ public class CourseBatchUpdater {
         Map<String, Object> data = getStatusUpdateData(edata, leafNodes);
         if(MapUtils.isNotEmpty(data)) {
             Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
-                put("contentStatus", mapper.writeValueAsString(data.get("data")));
+                put("contentStatus", mapper.writeValueAsString(data.get("contentStatus")));
                 put("status", data.get("status"));
+                put("completionPercentage", data.get("completionPercentage"));
             }};
             Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
                 put("batchid", edata.get("batchId"));
@@ -98,11 +99,14 @@ public class CourseBatchUpdater {
                     .map(entry -> entry.getKey()).distinct().collect(Collectors.toList());
 
             int size = CollectionUtils.intersection(completedIds, leafNodes).size();
-            int status = ((size/leafNodes.size()) == 1) ? 2 : 1;
+            double completionPercentage = (((Number)size).doubleValue()/((Number)leafNodes.size()).doubleValue())*100;
+
+            int status = (size == leafNodes.size()) ? 2 : 1;
 
             return new HashMap<String, Object>() {{
-                put("data", contentStatus);
+                put("contentStatus", contentStatus);
                 put("status", status);
+                put("completionPercentage", ((Number)completionPercentage).intValue());
             }};
         }
        return null;
