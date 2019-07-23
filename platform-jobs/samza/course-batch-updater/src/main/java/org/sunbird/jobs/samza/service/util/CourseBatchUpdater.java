@@ -46,7 +46,7 @@ public class CourseBatchUpdater {
         Map<String, Object> data = getStatusUpdateData(edata, leafNodes);
         if(MapUtils.isNotEmpty(data)) {
             Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
-                put("contentStatus", mapper.writeValueAsString(data.get("contentStatus")));
+                put("contentStatus", data.get("contentStatus"));
                 put("status", data.get("status"));
                 put("completionPercentage", data.get("completionPercentage"));
             }};
@@ -56,6 +56,8 @@ public class CourseBatchUpdater {
             }};
             //Update cassandra
             SunbirdCassandraUtil.update(keyspace, table, dataToUpdate, dataToSelect);
+
+            dataToUpdate.put("contentStatus", mapper.writeValueAsString(data.get("contentStatus")));
             ESUtil.updateCoureBatch(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
         }
     }
@@ -87,9 +89,9 @@ public class CourseBatchUpdater {
             }};
             List<Row> rows =  SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
             if(CollectionUtils.isNotEmpty(rows)){
-                String contentStatusString =  rows.get(0).getString("contentStatus");
-                if(StringUtils.isNotBlank(contentStatusString))
-                    contentStatus.putAll(mapper.readValue(contentStatusString, Map.class));
+                Map<String, Integer> contentStatusMap =  rows.get(0).getMap("contentStatus", String.class, Integer.class);
+                if(MapUtils.isNotEmpty(contentStatusMap))
+                    contentStatus.putAll(contentStatusMap);
             }
 
             contentStatus.putAll(contents.stream().collect(Collectors.toMap(c -> (String) c.get("contentId"),c -> c.get("status"))));
