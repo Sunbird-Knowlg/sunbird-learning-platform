@@ -1,13 +1,13 @@
 package org.sunbird.jobs.samza.util;
 
 import com.datastax.driver.core.Row;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.util.JobLogger;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -35,18 +35,19 @@ public class BatchStatusUtil {
             }};
             List<Row> rows = SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
             if(CollectionUtils.isNotEmpty(rows)) {
-                List<String> batchIds = new ArrayList<>();
+                Map<String, String> batchIdCourseIdMap = new HashMap<>();
                 for (Row row : rows) {
+
                     if (StringUtils.isNotBlank(row.getString("startdate"))) {
                         Date startDate = format.parse(row.getString("startdate"));
                         if (currentDate.compareTo(startDate) >= 0) {
-                            batchIds.add(row.getString("batchid"));
+                            batchIdCourseIdMap.put(row.getString("courseid"), row.getString("batchId"));
                         }
 
                     }
                 }
-                updateStatusOfBatch(batchIds, 1);
-                LOGGER.info("BatchIds updated to in-progress : " + batchIds);
+                updateStatusOfBatch(batchIdCourseIdMap, 1);
+                LOGGER.info("CourseIds updated to in-progress : " + batchIdCourseIdMap.keySet());
             } else {
                 LOGGER.info("No batch data to update the status to in-progress");
             }
@@ -64,18 +65,18 @@ public class BatchStatusUtil {
             }};
             List<Row> rows = SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
             if(CollectionUtils.isNotEmpty(rows)) {
-                List<String> batchIds = new ArrayList<>();
+                Map<String, String> batchIdCourseIdMap = new HashMap<>();
                 for (Row row : rows) {
                     if (StringUtils.isNotBlank(row.getString("enddate"))) {
                         Date startDate = format.parse(row.getString("enddate"));
                         if (currentDate.compareTo(startDate) >= 0) {
-                            batchIds.add(row.getString("batchid"));
+                            batchIdCourseIdMap.put(row.getString("courseid"), row.getString("batchId"));
                         }
 
                     }
                 }
-                updateStatusOfBatch(batchIds, 2);
-                LOGGER.info("BatchIds updated to completed : " + batchIds);
+                updateStatusOfBatch(batchIdCourseIdMap, 2);
+                LOGGER.info("CourseIds updated to completed : " + batchIdCourseIdMap.keySet());
             } else {
                 LOGGER.info("No batch data to update the status to completed");
             }
@@ -85,17 +86,18 @@ public class BatchStatusUtil {
 
     }
 
-    private static void updateStatusOfBatch(List<String> batchIds, int status) {
-        if(CollectionUtils.isNotEmpty(batchIds)){
+    private static void updateStatusOfBatch(Map<String, String> batchIdCourseIdMap, int status) {
+        if(MapUtils.isNotEmpty(batchIdCourseIdMap)){
             Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
                 put("status", status);
             }};
-            Map<String, Object> dataToFetch = new HashMap<String, Object>() {{
-                put("batchid", batchIds);
-            }};
-            SunbirdCassandraUtil.update(keyspace, table, dataToUpdate, dataToFetch);
+            for(String courseId: batchIdCourseIdMap.keySet()) {
+                Map<String, Object> dataToFetch = new HashMap<String, Object>() {{
+                    put("courseid", courseId);
+                    put("batchid", batchIdCourseIdMap.get(courseId));
+                }};
+                SunbirdCassandraUtil.update(keyspace, table, dataToUpdate, dataToFetch);
+            }
         }
     }
-
-
 }
