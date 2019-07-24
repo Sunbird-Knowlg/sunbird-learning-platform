@@ -41,13 +41,13 @@ public class BatchStatusUtil {
                     if (StringUtils.isNotBlank(row.getString("startdate"))) {
                         Date startDate = format.parse(row.getString("startdate"));
                         if (currentDate.compareTo(startDate) >= 0) {
-                            batchIdCourseIdMap.put(row.getString("courseid"), row.getString("batchId"));
+                            batchIdCourseIdMap.put(row.getString("batchId"), row.getString("courseId"));
                         }
 
                     }
                 }
                 updateStatusOfBatch(batchIdCourseIdMap, 1);
-                LOGGER.info("CourseIds updated to in-progress : " + batchIdCourseIdMap.keySet());
+                LOGGER.info("BatchIds updated to in-progress : " + batchIdCourseIdMap.keySet());
             } else {
                 LOGGER.info("No batch data to update the status to in-progress");
             }
@@ -70,13 +70,13 @@ public class BatchStatusUtil {
                     if (StringUtils.isNotBlank(row.getString("enddate"))) {
                         Date startDate = format.parse(row.getString("enddate"));
                         if (currentDate.compareTo(startDate) >= 0) {
-                            batchIdCourseIdMap.put(row.getString("courseid"), row.getString("batchId"));
+                            batchIdCourseIdMap.put(row.getString("batchId"), row.getString("courseId"));
                         }
 
                     }
                 }
                 updateStatusOfBatch(batchIdCourseIdMap, 2);
-                LOGGER.info("CourseIds updated to completed : " + batchIdCourseIdMap.keySet());
+                LOGGER.info("BatchIds updated to completed : " + batchIdCourseIdMap.keySet());
             } else {
                 LOGGER.info("No batch data to update the status to completed");
             }
@@ -91,10 +91,10 @@ public class BatchStatusUtil {
             Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
                 put("status", status);
             }};
-            for(String courseId: batchIdCourseIdMap.keySet()) {
+            for(String batchId: batchIdCourseIdMap.keySet()) {
                 Map<String, Object> dataToFetch = new HashMap<String, Object>() {{
-                    put("courseid", courseId);
-                    put("batchid", batchIdCourseIdMap.get(courseId));
+                    put("batchId", batchId);
+                    put("courseId", batchIdCourseIdMap.get(batchId));
                 }};
                 SunbirdCassandraUtil.update(keyspace, table, dataToUpdate, dataToFetch);
             }
