@@ -1885,6 +1885,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	private void retireContent(String contentId) throws Exception {
 		String path = basePath + "/retire/" + contentId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.delete(path));
+		System.out.println("retireContentResponse:"+actions.andReturn().getResponse().getContentAsString());
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
