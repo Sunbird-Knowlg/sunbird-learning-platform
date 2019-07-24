@@ -19,7 +19,9 @@ import org.ekstep.telemetry.TelemetryGenerator;
 import org.ekstep.telemetry.TelemetryParams;
 import org.ekstep.telemetry.handler.Level;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -27,7 +29,7 @@ public abstract class BaseTask implements StreamTask, InitableTask, WindowableTa
     protected JobMetrics metrics;
     private Config config = null;
     private String eventId = "";
-    protected String action = "";
+    protected List<String> action = new ArrayList<>();
     protected String jobStartMessage = "";
     protected String jobEndMessage = "";
     protected String jobClass = "";
@@ -64,8 +66,8 @@ public abstract class BaseTask implements StreamTask, InitableTask, WindowableTa
         String eid = (String) message.get(SamzaCommonParams.eid.name());
         Map<String, Object> edata = (Map<String, Object>) message.getOrDefault(SamzaCommonParams.edata.name(), new HashMap<String,Object>());
         if(StringUtils.equalsIgnoreCase(this.eventId, eid)) {
-            String requestedJobType = (String) edata.get(SamzaCommonParams.action.name());
-            if(StringUtils.equalsIgnoreCase(this.action, requestedJobType)) {
+            String action = (String) edata.get(SamzaCommonParams.action.name());
+            if(this.action.contains(action)) {
                 int currentIteration = (int) edata.get(SamzaCommonParams.iteration.name());
                 preProcess(message, collector, execution, maxIterations, currentIteration);
                 process(message, collector, coordinator);

@@ -1,5 +1,6 @@
 package org.sunbird.jobs.samza.task;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
 
     public ISamzaService initialize() throws Exception {
         LOGGER.info("Task initialized");
-        this.action = "batch-enrolment-update";
+        this.action = Arrays.asList("batch-enrolment-update", "batch-enrolment-sync");
         this.jobStartMessage = "Started processing of course-batch-updater samza job";
         this.jobEndMessage = "course-batch-updater job processing complete";
         this.jobClass = "org.sunbird.jobs.samza.task.CourseBatchUpdaterTask";
@@ -58,9 +59,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
         Map<String, Object> event = metrics.collect();
         collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", metrics.getTopic()), event));
         metrics.clear();
-        LOGGER.info("Batch status update started at : " + System.currentTimeMillis());
         BatchStatusUtil.updateOnGoingBatch();
         BatchStatusUtil.updateCompletedBatch();
-        LOGGER.info("Batch status update completed at : " + System.currentTimeMillis());
     }
 }
