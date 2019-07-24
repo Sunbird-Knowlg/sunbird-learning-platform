@@ -140,4 +140,22 @@ public class CassandraConnector {
 		return null;
 	}
 
+	/**
+	 * Method to test whether connection can be established to Cassandra.
+	 */
+	public static boolean testCassandraConnection() {
+		Session session = null;
+		try {
+			session = getSession();
+			if(null!= session && !session.isClosed()){
+				session.execute("SELECT now() FROM system.local");
+				return true;
+			}else{
+				return false;
+			}
+		}catch(Exception e) {
+			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error! Executing do Establish Connection: "+ e.getMessage(), e);
+		}
+	}
+
 }
