@@ -21,7 +21,7 @@
 		<profile>
 			<id>platform-services</id>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 			<modules>
 				<module>searchIndex-platform</module>
@@ -37,13 +37,12 @@
 		<profile>
 			<id>learning-services</id>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<modules>
 				<module>searchIndex-platform</module>
 				<module>platform-core</module>
 				<module>platform-modules</module>
-				<module>orchestrator</module>
 			</modules>
 		</profile>
 		<profile>

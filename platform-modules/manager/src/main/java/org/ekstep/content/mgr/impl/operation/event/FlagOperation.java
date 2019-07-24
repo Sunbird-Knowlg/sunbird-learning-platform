@@ -64,11 +64,6 @@ public class FlagOperation extends BaseContentManager {
                 DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
                 Node domainObj = ConvertToGraphNode.convertToGraphNode(request, definition, null);
                 Response updateResponse = updateNode(contentId, objectType, domainObj);
-                if (!checkError(updateResponse)) {
-                    metadata.putAll(request);
-                    metadata.put(ContentWorkflowPipelineParams.prevState.name(), status);
-                    //log_content_lifecycle_event
-                }
 
                 RedisStoreUtil.delete(contentId);
                 return updateResponse;
