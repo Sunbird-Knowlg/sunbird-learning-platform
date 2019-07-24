@@ -22,6 +22,9 @@ public class BatchStatusUtil {
     private static final String keyspace = Platform.config.hasPath("courses.keyspace.name")
             ? Platform.config.getString("courses.keyspace.name")
             : "sunbird_courses";
+    private static final String table = Platform.config.hasPath("courses.table.course.batch.name")
+            ? Platform.config.getString("courses.table.course.batch.name")
+            : "course_batch";
 
     public static void updateOnGoingBatch() {
         try {
@@ -30,7 +33,7 @@ public class BatchStatusUtil {
             Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
                 put("status", 0);
             }};
-            List<Row> rows = SunbirdCassandraUtil.read(keyspace, "course-batch", dataToSelect);
+            List<Row> rows = SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
             if(CollectionUtils.isNotEmpty(rows)) {
                 List<String> batchIds = new ArrayList<>();
                 for (Row row : rows) {
@@ -59,7 +62,7 @@ public class BatchStatusUtil {
             Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
                 put("status", 1);
             }};
-            List<Row> rows = SunbirdCassandraUtil.read(keyspace, "course-batch", dataToSelect);
+            List<Row> rows = SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
             if(CollectionUtils.isNotEmpty(rows)) {
                 List<String> batchIds = new ArrayList<>();
                 for (Row row : rows) {
@@ -90,7 +93,7 @@ public class BatchStatusUtil {
             Map<String, Object> dataToFetch = new HashMap<String, Object>() {{
                 put("batchid", batchIds);
             }};
-            SunbirdCassandraUtil.update(keyspace, "course-batch", dataToUpdate, dataToFetch);
+            SunbirdCassandraUtil.update(keyspace, table, dataToUpdate, dataToFetch);
         }
     }
 
