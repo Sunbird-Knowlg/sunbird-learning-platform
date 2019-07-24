@@ -1498,7 +1498,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		String createCollectionReq = "{\"request\":{\"content\":{\"name\":\"Test-G-Dev-01\",\"code\":\"test.book.1\",\"mimeType\":\"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBook\"}}}";
 		String contentId = createContent(createCollectionReq);
 		publish(contentId);
-		waitTillPublish(contentId);
+		delay(3000);
 		retireContent(contentId);
 		validateRetiredCollectionContent(contentId);
 	}
