@@ -9,6 +9,7 @@ import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
+import org.sunbird.jobs.samza.service.util.BatchEnrolmentSync;
 import org.sunbird.jobs.samza.service.util.CourseBatchUpdater;
 import org.sunbird.jobs.samza.util.CourseBatchParams;
 
@@ -20,6 +21,7 @@ public class CourseBatchUpdaterService implements ISamzaService {
     private Config config = null;
     private static int MAXITERTIONCOUNT = 2;
     private CourseBatchUpdater courseBatchUpdater = null;
+    private BatchEnrolmentSync batchEnrolmentSync = null;
 
     @Override
     public void initialize(Config config) throws Exception {
@@ -28,6 +30,7 @@ public class CourseBatchUpdaterService implements ISamzaService {
         LOGGER.info("Service config initialized");
         systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
         courseBatchUpdater = new CourseBatchUpdater();
+        batchEnrolmentSync = new BatchEnrolmentSync();
     }
 
     @Override
@@ -48,8 +51,12 @@ public class CourseBatchUpdaterService implements ISamzaService {
             String action = (String) edata.get("action");
             switch (action) {
                 case "batch-enrolment-update":
-                    System.out.println("Enrolment update for " + edata);
+                    LOGGER.info("Enrolment update for : " + edata);
                     courseBatchUpdater.updateBatchStatus(edata);
+                    break;
+                case "batch-enrolment-sync":
+                    LOGGER.info("Enrolment sync for : " + edata);
+                    batchEnrolmentSync.syncEnrolment(edata);
                     break;
                 default:
                     System.out.println("Invalid action provided: " + message);
