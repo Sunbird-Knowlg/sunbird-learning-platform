@@ -26,13 +26,14 @@ import java.util.stream.Collectors;
 @Component
 public class BatchEnrolmentSyncManager {
 
-    ObjectMapper mapper = new ObjectMapper();
+    private static ObjectMapper mapper = new ObjectMapper();
+    private static int batchSize = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size"): 50;
     Map<String, String> esIndexObjecTypeMap = new HashMap<String, String>() {{
         put("course-batch", "course-batch");
         put("user-courses", "user-courses");
     }};
 
-    Map<String, String> tableObjecTypeMap = new HashMap<String, String>() {{
+    private static Map<String, String> tableObjecTypeMap = new HashMap<String, String>() {{
         put("course-batch", "course_batch");
         put("user-courses", "user_courses");
     }};
@@ -54,12 +55,12 @@ public class BatchEnrolmentSyncManager {
             docids = Arrays.asList("batchId", "userID");
         }
 
-        pushDocsToES(rows, 5, 0, docids, index);
+        pushDocsToES(rows, 0, docids, index);
         //TODO: If resetProgress Push the events to kafka
 
     }
 
-    private void pushDocsToES(List<Row> rows, int batchSize, int count, List<String> docids, String index) throws Exception {
+    private void pushDocsToES(List<Row> rows, int count, List<String> docids, String index) throws Exception {
         long startTime = System.currentTimeMillis();
         long total = ((Number) rows.size()).longValue();
         long current = 0;
