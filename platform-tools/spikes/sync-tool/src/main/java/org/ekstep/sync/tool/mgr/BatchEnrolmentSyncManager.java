@@ -5,12 +5,14 @@ import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.common.Platform;
+import org.ekstep.kafka.KafkaClient;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -37,9 +40,10 @@ public class BatchEnrolmentSyncManager {
         put("course-batch", "course_batch");
         put("user-courses", "user_courses");
     }};
+    private static final String KAFKA_TOPIC = Platform.config.hasPath("courses.topic")? Platform.config.getString("courses.topic"): "local.coursebatch.job.request";
 
     private static final String keyspace = Platform.config.hasPath("courses.keyspace.name") ? Platform.config.getString("courses.keyspace.name"): "sunbird_courses";
-    public void sync(String objectType, String offset, String limit, Boolean resetProgress) throws Exception {
+    public void sync(String objectType, String offset, String limit, String resetProgress) throws Exception {
         String index = esIndexObjecTypeMap.get(objectType);
         ElasticSearchUtil.initialiseESClient(index, Platform.config.getString("search.es_conn_info"));
 
@@ -55,18 +59,69 @@ public class BatchEnrolmentSyncManager {
             docids = Arrays.asList("batchId", "userID");
         }
 
-        pushDocsToES(rows, 0, docids, index);
+        pushDocsToES(rows, docids, index);
         //TODO: If resetProgress Push the events to kafka
+        if(StringUtils.equalsIgnoreCase("user-courses", objectType) && Boolean.valueOf(resetProgress))
+            pushEventsToKafka(rows);
 
     }
 
-    private void pushDocsToES(List<Row> rows, int count, List<String> docids, String index) throws Exception {
+    private void pushEventsToKafka(List<Row> rows) throws Exception {
         long startTime = System.currentTimeMillis();
         long total = ((Number) rows.size()).longValue();
         long current = 0;
-        while (CollectionUtils.isNotEmpty(rows)){
+        for(Row row: rows) {
+            Map<String, Object> rowMap = mapper.readValue(row.getString("[json]"), Map.class);
+            String event = generatekafkaEvent(rowMap);
+            KafkaClient.send(event, KAFKA_TOPIC);
+            current += 1;
+            printProgress(startTime, total, current);
+        }
+
+    }
+
+    private String generatekafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
+        Map<String, Object> event = new HashMap<String, Object>() {{
+            put("eid", "BE_JOB_REQUEST");
+            put("ets", System.currentTimeMillis());
+            put("mid", "LP." + System.currentTimeMillis() +"." + UUID.randomUUID());
+            put("actor", new HashMap<String, Object>(){{
+                put("type", "System");
+                put("id", "Course Batch Updater");
+            }});
+            put("context", new HashMap<String, Object>(){{
+                put("pdata", new HashMap<String, Object>(){{
+                    put("id", "org.sunbird.platform");
+                    put("ver", "1.0");
+                }});
+            }});
+            put("object", new HashMap<String, Object>(){{
+                put("type", "CourseBatchEnrolment");
+                put("id", rowMap.get("batchid") + "_" + rowMap.get("userid"));
+            }});
+            put("edata", new HashMap<String, Object>(){{
+                put("action", "batch-enrolment-sync");
+                put("iteration", 1);
+                put("batchId", rowMap.get("batchid"));
+                put("userId", rowMap.get("userid"));
+                put("courseID", rowMap.get("courseid"));
+                put("reset", Arrays.asList("completionPercentage","status","progress"));
+            }});
+        }};
+
+        return mapper.writeValueAsString(event);
+
+    }
+
+    private void pushDocsToES(List<Row> rows, List<String> docids, String index) throws Exception {
+        List<Row> rowClone = new ArrayList<>();
+        rowClone.addAll(rows);
+        long startTime = System.currentTimeMillis();
+        long total = ((Number) rows.size()).longValue();
+        long current = 0;
+        while (CollectionUtils.isNotEmpty(rowClone)){
             Map<String , Object> esDocs = new HashMap<>();
-            int currentBatchSize = (rows.size() >= batchSize) ? batchSize : rows.size();
+            int currentBatchSize = (rowClone.size() >= batchSize) ? batchSize : rowClone.size();
             List<Row> dbRows = rows.subList(0, currentBatchSize);
 
             for(Row row : dbRows) {
@@ -82,7 +137,7 @@ public class BatchEnrolmentSyncManager {
             current +=dbRows.size();
             printProgress(startTime, total, current);
 
-            rows.subList(0, currentBatchSize).clear();
+            rowClone.subList(0, currentBatchSize).clear();
         }
     }
 

@@ -26,7 +26,7 @@ public class BatchEnrolmentSyncCommand implements CommandMarker {
                           @CliOption(key = {
                                   "limit"}, mandatory = false, help = "limit") final String limit,
                           @CliOption(key = {
-                                  "reset-progress"}, mandatory = false , help = "ignored identifiers to sync") final Boolean resetProgress)
+                                  "reset-progress"}, mandatory = false, unspecifiedDefaultValue="false", help = "ignored identifiers to sync") final String resetProgress)
             throws Exception {
         System.out.println("Fetching data from cassandra for: " + objectType + ".");
         System.out.println("-----------------------------------------");
