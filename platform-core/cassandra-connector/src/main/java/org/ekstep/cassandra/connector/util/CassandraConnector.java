@@ -65,6 +65,7 @@ public class CassandraConnector {
 
 			registerShutdownHook();
 		} catch (Exception e) {
+			e.printStackTrace();
 			TelemetryManager.error("Error! While Loading Cassandra Properties." + e.getMessage(), e);
 		}
 	}
@@ -154,6 +155,7 @@ public class CassandraConnector {
 				return false;
 			}
 		}catch(Exception e) {
+			e.printStackTrace();
 			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error! Executing do Establish Connection: "+ e.getMessage(), e);
 		}
 	}
