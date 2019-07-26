@@ -92,7 +92,6 @@ public abstract class BaseContentManager extends BaseManager {
 
 	protected List<String> finalStatus = Arrays.asList("Flagged", "Live", "Unlisted");
 	protected List<String> reviewStatus = Arrays.asList("Review", "FlagReview");
-	protected List<String> liveStatus = Arrays.asList("Live", "Unlisted");
 
     protected ControllerUtil util = new ControllerUtil();
 
