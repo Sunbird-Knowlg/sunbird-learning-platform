@@ -1,5 +1,6 @@
 package org.sunbird.jobs.samza.service;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.SystemStream;
@@ -13,6 +14,8 @@ import org.sunbird.jobs.samza.service.util.BatchEnrolmentSync;
 import org.sunbird.jobs.samza.service.util.CourseBatchUpdater;
 import org.sunbird.jobs.samza.util.CourseBatchParams;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class CourseBatchUpdaterService implements ISamzaService {
@@ -56,6 +59,11 @@ public class CourseBatchUpdaterService implements ISamzaService {
                     break;
                 case "batch-enrolment-sync":
                     LOGGER.info("Enrolment sync for : " + edata);
+                    List reset =  (List) edata.get("reset");
+                    if (CollectionUtils.isEmpty(reset)) {
+                        reset = new ArrayList();
+                    }
+                    reset.add("contentStatus");
                     batchEnrolmentSync.syncEnrolment(edata);
                     break;
                 default:

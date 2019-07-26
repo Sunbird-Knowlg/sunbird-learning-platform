@@ -61,8 +61,12 @@ public class BatchEnrolmentSyncManager {
 
         pushDocsToES(rows, docids, index);
         //TODO: If resetProgress Push the events to kafka
-        if(StringUtils.equalsIgnoreCase("user-courses", objectType) && Boolean.valueOf(resetProgress))
+        if(StringUtils.equalsIgnoreCase("user-courses", objectType) && Boolean.valueOf(resetProgress)){
+            System.out.println("-----------------------------------------");
+            System.out.println("Pushing the events to kafka");
             pushEventsToKafka(rows);
+            System.out.println("-----------------------------------------");
+        }
 
     }
 
