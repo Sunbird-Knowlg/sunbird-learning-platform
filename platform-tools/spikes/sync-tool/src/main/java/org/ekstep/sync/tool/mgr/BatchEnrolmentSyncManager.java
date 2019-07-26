@@ -14,6 +14,7 @@ import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.common.Platform;
 import org.ekstep.kafka.KafkaClient;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.sync.tool.util.CassandraColumns;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -133,7 +134,15 @@ public class BatchEnrolmentSyncManager {
                 Map<String, Object> docMap = mapper.readValue(docString, Map.class);
                 String docId = docids.stream().map(key -> (String) docMap.get(key.toLowerCase())).collect(Collectors.toList())
                         .stream().collect(Collectors.joining("_"));
-                esDocs.put(docId, docMap);
+
+                Map<String, Object> esDoc = docMap.entrySet().stream()
+                        .collect(Collectors.toMap(entry -> {
+                            String key = CassandraColumns.COLUMNS.get(entry.getKey());
+                            if (StringUtils.isBlank(key))
+                                key = entry.getKey();
+                            return key;
+                        }, entry-> entry.getValue()));
+                esDocs.put(docId, esDoc);
             }
             if(MapUtils.isNotEmpty(esDocs)) {
                 ElasticSearchUtil.bulkIndexWithIndexId(index, "_doc", esDocs);
