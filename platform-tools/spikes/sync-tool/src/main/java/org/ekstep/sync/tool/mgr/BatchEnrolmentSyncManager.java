@@ -57,7 +57,7 @@ public class BatchEnrolmentSyncManager {
         if(StringUtils.equalsIgnoreCase("course-batch", objectType))
             docids = Arrays.asList("batchId");
         if(StringUtils.equalsIgnoreCase("user-courses", objectType)){
-            docids = Arrays.asList("batchId", "userID");
+            docids = Arrays.asList("batchId", "userId");
         }
 
         pushDocsToES(rows, docids, index);
@@ -135,13 +135,15 @@ public class BatchEnrolmentSyncManager {
                 String docId = docids.stream().map(key -> (String) docMap.get(key.toLowerCase())).collect(Collectors.toList())
                         .stream().collect(Collectors.joining("_"));
 
-                Map<String, Object> esDoc = docMap.entrySet().stream()
-                        .collect(Collectors.toMap(entry -> {
-                            String key = CassandraColumns.COLUMNS.get(entry.getKey());
-                            if (StringUtils.isBlank(key))
-                                key = entry.getKey();
-                            return key;
-                        }, entry-> entry.getValue()));
+                System.out.println(docMap);
+                Map<String, Object> esDoc = new HashMap<>();
+                for(String key : docMap.keySet()){
+                    String esKey = CassandraColumns.COLUMNS.get(key);
+                    if (StringUtils.isBlank(esKey))
+                        esKey = key;
+
+                    esDoc.put(esKey, docMap.get(key));
+                }
                 esDocs.put(docId, esDoc);
             }
             if(MapUtils.isNotEmpty(esDocs)) {
