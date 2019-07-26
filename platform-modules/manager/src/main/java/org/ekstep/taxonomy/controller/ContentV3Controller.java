@@ -595,4 +595,28 @@ public class ContentV3Controller extends BaseController {
 
 		}
 	}
+
+	/**
+	 * Controller method to reject content
+	 * @param contentId
+	 * @return
+	 */
+	@RequestMapping(value = "/reject/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> rejectContent(@PathVariable(value = "id") String contentId,
+												  @RequestBody Map<String, Object> requestMap) {
+		String apiId = "ekstep.learning.content.reject";
+		TelemetryManager.log("Content Reject operation for content with identifier : " + contentId);
+		Request request = getRequest(requestMap);
+		Response response;
+		try {
+			Map<String, Object> map = (Map<String,Object>) request.get("content");
+			response = contentManager.rejectContent(contentId, map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager.error("Exception occured while rejecting content : " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+
+		}
+	}
 }
