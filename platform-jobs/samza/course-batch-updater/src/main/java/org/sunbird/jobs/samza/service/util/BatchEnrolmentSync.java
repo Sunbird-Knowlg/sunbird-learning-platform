@@ -22,6 +22,7 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
             ? Platform.config.getString("courses.keyspace.name")
             : "sunbird_courses";
     private String table = "user_courses";
+    private String consumptionTable = "content_consumption";
     private static final String ES_INDEX_NAME = "user-courses";
     private static final String ES_DOC_TYPE = "_doc";
 
@@ -50,6 +51,10 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
                             .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
 
                     SunbirdCassandraUtil.update(keyspace, table, finalDataToUpdate, dataToSelect);
+
+                    if(finalDataToUpdate.keySet().contains("contentStatus"))
+                        finalDataToUpdate.put("contentStatus", mapper.writeValueAsString(dataToUpdate.get("contentStatus")));
+
                     dataToUpdate = finalDataToUpdate;
                 }
                 ESUtil.updateCoureBatch(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
@@ -61,29 +66,34 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
     private Map<String, Object> getStatusUpdateData(Map<String, Object> edata, List<String> leafNodes) throws IOException {
         Map<String, Object> contentStatus = new HashMap<>();
         Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
-            put("batchid", edata.get("batchId"));
             put("userid", edata.get("userId"));
+            put("batchid", edata.get("batchId"));
+            put("contentid", leafNodes);
         }};
-        List<Row> rows = SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
+        List<Row> rows = SunbirdCassandraUtil.read(keyspace, consumptionTable, dataToSelect);
         if (CollectionUtils.isNotEmpty(rows)) {
-            Map<String, Integer> contentStatusMap = rows.get(0).getMap("contentStatus", String.class, Integer.class);
-            if (MapUtils.isNotEmpty(contentStatusMap))
-                contentStatus.putAll(contentStatusMap);
+            for(Row row: rows) {
+                contentStatus.put(row.getString("contentid"), row.getInt("status"));
+            }
         }
 
-        List<String> completedIds = contentStatus.entrySet().stream()
-                .filter(entry -> (2 == ((Number) entry.getValue()).intValue()))
-                .map(entry -> entry.getKey()).distinct().collect(Collectors.toList());
+        if(MapUtils.isNotEmpty(contentStatus)) {
+            List<String> completedIds = contentStatus.entrySet().stream()
+                    .filter(entry -> (2 == ((Number) entry.getValue()).intValue()))
+                    .map(entry -> entry.getKey()).distinct().collect(Collectors.toList());
 
-        int size = CollectionUtils.intersection(completedIds, leafNodes).size();
-        double completionPercentage = (((Number) size).doubleValue() / ((Number) leafNodes.size()).doubleValue()) * 100;
+            int size = CollectionUtils.intersection(completedIds, leafNodes).size();
+            double completionPercentage = (((Number) size).doubleValue() / ((Number) leafNodes.size()).doubleValue()) * 100;
 
-        int status = (size == leafNodes.size()) ? 2 : 1;
+            int status = (size == leafNodes.size()) ? 2 : 1;
 
-        return new HashMap<String, Object>() {{
-            put("status", status);
-            put("completionPercentage", ((Number) completionPercentage).intValue());
-            put("progress", size);
-        }};
+            return new HashMap<String, Object>() {{
+                put("contentStatus", contentStatus);
+                put("status", status);
+                put("completionPercentage", ((Number) completionPercentage).intValue());
+                put("progress", size);
+            }};
+        }
+        return null;
     }
 }
