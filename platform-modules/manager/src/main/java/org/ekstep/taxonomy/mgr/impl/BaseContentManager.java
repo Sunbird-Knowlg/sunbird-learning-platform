@@ -108,8 +108,6 @@ public abstract class BaseContentManager extends BaseManager {
 
     protected static final List<String> SYSTEM_UPDATE_ALLOWED_CONTENT_STATUS = Arrays.asList(TaxonomyAPIParams.Live.name(), TaxonomyAPIParams.Unlisted.name());
 
-    protected static final List<String> FLAGGABLE_STATUS = Arrays.asList(TaxonomyAPIParams.Live.name(), TaxonomyAPIParams.Processing.name(), TaxonomyAPIParams.Flagged.name());
-
 	protected String getId(String identifier) {
 		if (StringUtils.endsWith(identifier, ".img")) {
 			return identifier.replace(".img", "");

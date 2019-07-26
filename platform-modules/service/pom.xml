@@ -57,15 +57,9 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
-			<artifactId>orchestrator-service</artifactId>
+			<artifactId>search-actors</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
-			<exclusions>
-				<exclusion>
-					<groupId>junit</groupId>
-					<artifactId>junit</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 	</dependencies>
 

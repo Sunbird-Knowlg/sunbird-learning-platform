@@ -43,7 +43,6 @@
 				<module>searchIndex-platform</module>
 				<module>platform-core</module>
 				<module>platform-modules</module>
-				<module>orchestrator</module>
 			</modules>
 		</profile>
 		<profile>
