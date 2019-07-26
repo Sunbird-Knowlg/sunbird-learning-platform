@@ -136,7 +136,7 @@ public class BatchEnrolmentSyncManager {
             }
             current +=dbRows.size();
             printProgress(startTime, total, current);
-
+            System.out.println("DocIds synced : " + esDocs.keySet());
             rowClone.subList(0, currentBatchSize).clear();
         }
     }
