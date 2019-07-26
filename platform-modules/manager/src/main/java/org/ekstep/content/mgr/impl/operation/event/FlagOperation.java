@@ -12,6 +12,7 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -21,8 +22,11 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Arrays;
 
 public class FlagOperation extends BaseContentManager {
+
+    protected static final List<String> FLAGGABLE_STATUS = Arrays.asList(TaxonomyAPIParams.Live.name(), TaxonomyAPIParams.Unlisted.name(), TaxonomyAPIParams.Processing.name(), TaxonomyAPIParams.Flagged.name());
 
     public Response flag(String contentId, Map<String, Object> requestMap) throws Exception {
 
