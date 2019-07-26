@@ -49,7 +49,6 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
                     Map<String, Object> finalDataToUpdate = dataToUpdate.entrySet().stream()
                             .filter(entry -> dataToReset.contains(entry.getKey()))
                             .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
-
                     SunbirdCassandraUtil.update(keyspace, table, finalDataToUpdate, dataToSelect);
 
                     if(finalDataToUpdate.keySet().contains("contentStatus"))
