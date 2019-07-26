@@ -122,7 +122,7 @@ public class BatchEnrolmentSyncManager {
         while (CollectionUtils.isNotEmpty(rowClone)){
             Map<String , Object> esDocs = new HashMap<>();
             int currentBatchSize = (rowClone.size() >= batchSize) ? batchSize : rowClone.size();
-            List<Row> dbRows = rows.subList(0, currentBatchSize);
+            List<Row> dbRows = rowClone.subList(0, currentBatchSize);
 
             for(Row row : dbRows) {
                 String docString = row.getString("[json]");
