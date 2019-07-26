@@ -75,10 +75,11 @@ public class CourseBatchUpdaterService implements ISamzaService {
     }
 
     private boolean validateObject(Map<String, Object> edata) {
-        String action = (String) edata.get("action");
-        Integer iteration = (Integer) edata.get(CourseBatchParams.iteration.name());
-        if (StringUtils.equalsIgnoreCase("batch-enrolment-update", action) && (iteration <= getMaxIterations())) {
-            return true;
+        if(MapUtils.isNotEmpty(edata)){
+            Integer iteration = (Integer) edata.get(CourseBatchParams.iteration.name());
+            if ((iteration <= getMaxIterations())) {
+                return true;
+            }
         }
         return false;
     }
