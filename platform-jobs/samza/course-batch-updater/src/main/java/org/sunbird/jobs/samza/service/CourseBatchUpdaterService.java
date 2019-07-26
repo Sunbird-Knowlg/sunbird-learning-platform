@@ -13,6 +13,7 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.service.util.BatchEnrolmentSync;
 import org.sunbird.jobs.samza.service.util.CourseBatchUpdater;
 import org.sunbird.jobs.samza.util.CourseBatchParams;
+import org.apache.commons.collections.MapUtils;
 
 import java.util.ArrayList;
 import java.util.List;
