@@ -52,7 +52,7 @@ public class RejectOperation extends BaseContentManager {
 
     private Map<String,Object> populateNodeMetadata(Map<String, Object> requestMap, Node node) {
         String status = (String) node.getMetadata().get("status");
-        if (Arrays.asList("FlagReview").contains(status))
+        if (StringUtils.equals("FlagReview", status))
             requestMap.put("status", "FlagDraft");
         else
             requestMap.put("status", "Draft");
