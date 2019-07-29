@@ -1273,6 +1273,19 @@
           "indexed": false,
           "draft": false,
           "rangeValidation": true
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "author",
+          "title": "Author",
+          "description": "Content Author",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
         }
       ],
       "inRelations": [],
