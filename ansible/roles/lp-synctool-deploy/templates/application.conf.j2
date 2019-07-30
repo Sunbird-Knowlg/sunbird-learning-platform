@@ -60,3 +60,8 @@ cassandra.lp.connection="{{ lp_cassandra_connection }}"
 #Content relationship properties, to be used for units
 content.relationship.properties="collections,usedByContent,concepts,questions,item_sets,methods,usesContent,children,libraries"
 
+
+cassandra.connection.platform_courses="{{ core_cassandra_connection }}"
+courses.keyspace.name="sunbird_courses"
+courses.topic="{{ env }}.coursebatch.job.request"
+kafka.urls="{{ graphevent_kafka_url }}"
