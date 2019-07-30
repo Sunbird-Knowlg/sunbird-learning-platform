@@ -2,6 +2,7 @@ package org.ekstep.learning.router;
 
 import java.util.concurrent.TimeUnit;
 
+import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
@@ -29,10 +30,10 @@ public class LearningRequestRouterPool {
 	private static int count = 5;
 
 	/** The req timeout. */
-	public static long REQ_TIMEOUT = 30000;
+	public static long REQ_TIMEOUT = Platform.config.hasPath("akka.request_timeout")? (Platform.config.getLong("akka.request_timeout") * 1000): 30000;
 
 	/** The wait timeout. */
-	public static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30, TimeUnit.SECONDS));
+	public static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(REQ_TIMEOUT, TimeUnit.MILLISECONDS));
 
 	/**
 	 * Inits the.

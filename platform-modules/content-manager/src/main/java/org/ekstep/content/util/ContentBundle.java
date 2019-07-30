@@ -298,14 +298,8 @@ public class ContentBundle {
 			header.append("\"ttl\": 24, \"items\": ");
 			TelemetryManager.log("Content Items in Manifest JSON: "+ contents.size());
 
-			// Updating the 'variant' Property
-			TelemetryManager.log("Contents Before Updating for 'variant' Properties : "+ contents);
-
-			TelemetryManager.log("Updating the 'variant' map from JSON string to JSON Object.");
-			contents.stream().forEach(c -> c.put(ContentWorkflowPipelineParams.variants.name(),
-					JSONUtils.convertJSONString((String) c.get(ContentWorkflowPipelineParams.variants.name()))));
-
-			TelemetryManager.log("Contents After Updating for 'variant' Properties : "+ contents);
+			convertStringToMapInMetadata(contents, ContentWorkflowPipelineParams.variants.name());
+			convertStringToMapInMetadata(contents, ContentWorkflowPipelineParams.originData.name());
 
 			// Convert to JSON String
 			String manifestJSON = header + mapper.writeValueAsString(contents) + "}}";
@@ -316,6 +310,20 @@ public class ContentBundle {
 			throw new ServerException(ContentErrorCodeConstants.MANIFEST_FILE_WRITE.name(),
 					ContentErrorMessageConstants.MANIFEST_FILE_WRITE_ERROR + " | [Unable to Write Manifest File.]", e);
 		}
+	}
+
+	private void convertStringToMapInMetadata(List<Map<String, Object>> contents, String metadataName) {
+		TelemetryManager.log("Contents Before Updating for '" + metadataName + "' Properties : "+ contents);
+
+		TelemetryManager.log("Updating the '" + metadataName + "' map from JSON string to JSON Object.");
+		contents.stream().forEach(c -> {
+			Object metadata = c.get(metadataName);
+			if(metadata instanceof String){
+				c.put(metadataName, JSONUtils.convertJSONString((String) metadata));
+			}
+		});
+
+		TelemetryManager.log("Contents After Updating for '" + metadataName + "' Properties : "+ contents);
 	}
 
 	/**
