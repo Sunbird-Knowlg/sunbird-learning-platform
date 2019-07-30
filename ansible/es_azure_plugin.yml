@@ -28,9 +28,9 @@
       with_items:
         - 'cloud.azure.storage.default.account: {{ backup_azure_storage_account_name }}'
         - 'cloud.azure.storage.default.key: {{ backup_azure_storage_access_key }}'
+      when: plugin_output.stdout != "repository-azure"
       no_log: true
   
     - name: restart elasticsearch
       service: name="{{es_instance_name}}_elasticsearch" state=restarted enabled=yes
-
-      
+      when: plugin_output.stdout != "repository-azure"
