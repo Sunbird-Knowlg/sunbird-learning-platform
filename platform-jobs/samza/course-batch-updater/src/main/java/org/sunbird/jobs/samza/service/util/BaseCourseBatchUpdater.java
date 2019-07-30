@@ -5,6 +5,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ServerException;
 
@@ -30,4 +31,15 @@ public class BaseCourseBatchUpdater {
         Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
         return content;
     }
+
+    protected void systemUpdate(String courseId, Request payload) throws Exception {
+        String url = KP_LEARNING_BASE_URL + "/system/v3/content/update/" + courseId;
+        HttpResponse<String> httpResponse = Unirest.patch(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(payload)).asString();
+        Response response = mapper.readValue(httpResponse.getBody(), Response.class);
+        if(200 != response.getResponseCode().code()){
+            System.err.println("Error while reading content from KP : " + courseId + " : " + response.getParams().getStatus() + " : " + response.getResult());
+            throw new ServerException("ERR_COURSE_BATCH_SAMZA", "Error while updating metadata content from KP : " + courseId + " : " + response.getParams().getStatus() + " : " + response.getResult());
+        }
+    }
+
 }
