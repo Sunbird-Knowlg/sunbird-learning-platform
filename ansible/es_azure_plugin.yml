@@ -32,4 +32,3 @@
   
     - name: restart elasticsearch
       service: name="{{es_instance_name}}_elasticsearch" state=restarted enabled=yes
-      when: plugin_output.stdout_lines[0] != "repository-azure"
