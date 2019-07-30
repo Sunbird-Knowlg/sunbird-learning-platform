@@ -20,16 +20,16 @@ node() {
                 jobName = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-1].trim()
                 currentWs = sh(returnStdout: true, script: 'pwd').trim()
                 values.put('currentWs', currentWs)
-//                ansiblePlaybook = "${currentWs}/ansible/es_composite_search_cluster_setup.yml"
-//                ansibleExtraArgs = "--vault-password-file /var/lib/jenkins/secrets/vault-pass"
+                ansiblePlaybook = "${currentWs}/ansible/es_composite_search_cluster_setup.yml"
+                ansibleExtraArgs = "--vault-password-file /var/lib/jenkins/secrets/vault-pass"
                 values.put('currentWs', currentWs)
                 values.put('env', envDir)
                 values.put('module', module)
                 values.put('jobName', jobName)
-//                values.put('ansiblePlaybook', ansiblePlaybook)
-//                values.put('ansibleExtraArgs', ansibleExtraArgs)
-//                println values
-//                ansible_playbook_run(values)
+                values.put('ansiblePlaybook', ansiblePlaybook)
+                values.put('ansibleExtraArgs', ansibleExtraArgs)
+                println values
+                ansible_playbook_run(values)
                 
                 ansiblePlaybook = "${currentWs}/ansible/es_azure_plugin.yml"
                 ansibleExtraArgs = "--vault-password-file /var/lib/jenkins/secrets/vault-pass"
