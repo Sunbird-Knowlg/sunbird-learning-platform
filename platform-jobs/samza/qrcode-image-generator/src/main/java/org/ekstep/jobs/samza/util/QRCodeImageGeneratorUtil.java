@@ -71,6 +71,7 @@ public class QRCodeImageGeneratorUtil {
             }
 
             File finalImageFile = new File(fileName + "." + imageFormat);
+            finalImageFile.createNewFile();
             ImageIO.write(qrImage, imageFormat, finalImageFile);
             fileList.add(finalImageFile);
 
