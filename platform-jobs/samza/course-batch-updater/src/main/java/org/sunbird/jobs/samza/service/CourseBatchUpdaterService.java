@@ -14,6 +14,7 @@ import org.sunbird.jobs.samza.service.util.BatchEnrolmentSync;
 import org.sunbird.jobs.samza.service.util.BatchStatusUpdater;
 import org.sunbird.jobs.samza.service.util.CourseBatchUpdater;
 import org.sunbird.jobs.samza.util.CourseBatchParams;
+import org.apache.commons.collections.MapUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,10 +81,11 @@ public class CourseBatchUpdaterService implements ISamzaService {
     }
 
     private boolean validateObject(Map<String, Object> edata) {
-        String action = (String) edata.get("action");
-        Integer iteration = (Integer) edata.get(CourseBatchParams.iteration.name());
-        if (StringUtils.equalsIgnoreCase("batch-enrolment-update", action) && (iteration <= getMaxIterations())) {
-            return true;
+        if(MapUtils.isNotEmpty(edata)){
+            Integer iteration = (Integer) edata.get(CourseBatchParams.iteration.name());
+            if ((iteration <= getMaxIterations())) {
+                return true;
+            }
         }
         return false;
     }

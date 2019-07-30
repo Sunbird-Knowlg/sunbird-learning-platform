@@ -109,7 +109,7 @@ public class BatchEnrolmentSyncManager {
                 put("iteration", 1);
                 put("batchId", rowMap.get("batchid"));
                 put("userId", rowMap.get("userid"));
-                put("courseID", rowMap.get("courseid"));
+                put("courseId", rowMap.get("courseid"));
                 put("reset", Arrays.asList("completionPercentage","status","progress"));
             }});
         }};
