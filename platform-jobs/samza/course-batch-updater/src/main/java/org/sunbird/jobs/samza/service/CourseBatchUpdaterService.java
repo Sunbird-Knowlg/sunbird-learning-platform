@@ -11,6 +11,7 @@ import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.service.util.BatchEnrolmentSync;
+import org.sunbird.jobs.samza.service.util.BatchStatusUpdater;
 import org.sunbird.jobs.samza.service.util.CourseBatchUpdater;
 import org.sunbird.jobs.samza.util.CourseBatchParams;
 import org.apache.commons.collections.MapUtils;
@@ -26,6 +27,7 @@ public class CourseBatchUpdaterService implements ISamzaService {
     private static int MAXITERTIONCOUNT = 2;
     private CourseBatchUpdater courseBatchUpdater = null;
     private BatchEnrolmentSync batchEnrolmentSync = null;
+    private BatchStatusUpdater batchStatusUpdater = null;
 
     @Override
     public void initialize(Config config) throws Exception {
@@ -66,6 +68,9 @@ public class CourseBatchUpdaterService implements ISamzaService {
                     }
                     reset.add("contentStatus");
                     batchEnrolmentSync.syncEnrolment(edata);
+                    break;
+                case "batch-status-update":
+                    batchStatusUpdater.update(edata);
                     break;
                 default:
                     System.out.println("Invalid action provided: " + message);

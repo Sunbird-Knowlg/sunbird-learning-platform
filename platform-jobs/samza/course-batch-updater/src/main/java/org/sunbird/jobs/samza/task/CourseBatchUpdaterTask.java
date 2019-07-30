@@ -1,20 +1,16 @@
 package org.sunbird.jobs.samza.task;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.samza.system.IncomingMessageEnvelope;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.TaskCoordinator;
-
-
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.service.CourseBatchUpdaterService;
 import org.sunbird.jobs.samza.util.BatchStatusUtil;
+
+import java.util.Arrays;
+import java.util.Map;
 
 public class CourseBatchUpdaterTask extends BaseTask {
     private ISamzaService service =  new CourseBatchUpdaterService();
@@ -23,7 +19,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
 
     public ISamzaService initialize() throws Exception {
         LOGGER.info("Task initialized");
-        this.action = Arrays.asList("batch-enrolment-update", "batch-enrolment-sync");
+        this.action = Arrays.asList("batch-enrolment-update", "batch-enrolment-sync", "batch-status-update");
         this.jobStartMessage = "Started processing of course-batch-updater samza job";
         this.jobEndMessage = "course-batch-updater job processing complete";
         this.jobClass = "org.sunbird.jobs.samza.task.CourseBatchUpdaterTask";
@@ -42,24 +38,13 @@ public class CourseBatchUpdaterTask extends BaseTask {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> getMessage(IncomingMessageEnvelope envelope) {
-        try {
-            return (Map<String, Object>) envelope.getMessage();
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.info("IndexerTask:getMessage: Invalid message = " + envelope.getMessage() + " with error : " + e);
-            return new HashMap<String, Object>();
-        }
-    }
-
-
     @Override
     public void window(MessageCollector collector, TaskCoordinator coordinator) throws Exception {
         Map<String, Object> event = metrics.collect();
         collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", metrics.getTopic()), event));
         metrics.clear();
-        BatchStatusUtil.updateOnGoingBatch();
-        BatchStatusUtil.updateCompletedBatch();
+
+        BatchStatusUtil.updateOnGoingBatch(collector);
+        BatchStatusUtil.updateCompletedBatch(collector);
     }
 }
