@@ -22,10 +22,10 @@ node() {
                 values.put('currentWs', currentWs)
 //                ansiblePlaybook = "${currentWs}/ansible/es_composite_search_cluster_setup.yml"
 //                ansibleExtraArgs = "--vault-password-file /var/lib/jenkins/secrets/vault-pass"
-//                values.put('currentWs', currentWs)
-//                values.put('env', envDir)
-//                values.put('module', module)
-//                values.put('jobName', jobName)
+                values.put('currentWs', currentWs)
+                values.put('env', envDir)
+                values.put('module', module)
+                values.put('jobName', jobName)
 //                values.put('ansiblePlaybook', ansiblePlaybook)
 //                values.put('ansibleExtraArgs', ansibleExtraArgs)
 //                println values
@@ -44,3 +44,4 @@ node() {
         throw err
     }
 }
+
