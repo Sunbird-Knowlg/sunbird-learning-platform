@@ -47,13 +47,14 @@ public class FlagOperation extends BaseContentManager {
             String status = (String) metadata.get(ContentAPIParams.status.name());
             if (FLAGGABLE_STATUS.contains(status)) {
                 Map request = new HashMap();
-                if(StringUtils.isNotBlank(flaggedBy)) {
-                    request.put(GraphDACParams.lastUpdatedBy.name(), flaggedBy);
-                    request.put(ContentAPIParams.flaggedBy.name(), addFlaggedBy(flaggedBy, metadata));
+
+                List<String> flaggedList = addFlaggedBy(flaggedBy, metadata);
+                if (CollectionUtils.isNotEmpty(flaggedList)) {
+                    request.put(GraphDACParams.lastUpdatedBy.name(), flaggedList.get(0));
                 }
-                if(CollectionUtils.isNotEmpty(flags)) {
-                    request.put(ContentAPIParams.flags.name(), flags);
-                }
+                request.put(ContentAPIParams.flaggedBy.name(), flaggedList);
+
+                request.put(ContentAPIParams.flags.name(), flags);
                 request.put(ContentAPIParams.versionKey.name(), versionKey);
                 request.put(ContentAPIParams.status.name(), ContentAPIParams.Flagged.name());
                 request.put(ContentAPIParams.lastFlaggedOn.name(), DateUtils.formatCurrentDate());
@@ -83,11 +84,19 @@ public class FlagOperation extends BaseContentManager {
     }
 
     private List<String> addFlagReasons(List<String> flagReasons, Map<String, Object> metadata) {
-        List<String> existingFlagReasons = (List<String>) metadata.get(ContentWorkflowPipelineParams.flagReasons.name());
-        if (CollectionUtils.isNotEmpty(existingFlagReasons)) {
-            Set<String> flagReasonsSet = new HashSet<>(existingFlagReasons);
-            flagReasonsSet.addAll(flagReasons);
-            return new ArrayList<>(flagReasonsSet);
+        Object existingFlagReasons = metadata.get(ContentWorkflowPipelineParams.flagReasons.name());
+        if (null != existingFlagReasons) {
+            List<String> existingFlagReasonsList = null;
+            if (existingFlagReasons instanceof String[]) {
+                existingFlagReasonsList = Arrays.asList((String[]) existingFlagReasons);
+            } else if (existingFlagReasons instanceof List) {
+                existingFlagReasonsList = (List<String>) existingFlagReasons;
+            }
+            if (CollectionUtils.isNotEmpty(existingFlagReasonsList)) {
+                Set<String> flagReasonsSet = new HashSet<>(existingFlagReasonsList);
+                flagReasonsSet.addAll(flagReasons);
+                return new ArrayList<>(flagReasonsSet);
+            }
         }
         return flagReasons;
     }
@@ -95,11 +104,19 @@ public class FlagOperation extends BaseContentManager {
     private List<String> addFlaggedBy(String flaggedBy, Map<String, Object> metadata) {
         List<String> flaggedByList = new ArrayList();
         flaggedByList.add(flaggedBy);
-        List<String> existingFlaggedBy = (List<String>) metadata.get(ContentAPIParams.flaggedBy.name());
-        if (CollectionUtils.isNotEmpty(existingFlaggedBy)) {
-            Set<String> flaggedBySet = new HashSet<>(existingFlaggedBy);
-            flaggedBySet.addAll(flaggedByList);
-            return new ArrayList<>(flaggedBySet);
+        Object existingFlaggedBy = metadata.get(ContentAPIParams.flaggedBy.name());
+        if (null != existingFlaggedBy) {
+            List<String> existingFlaggedByList = null;
+            if (existingFlaggedBy instanceof String[]) {
+                existingFlaggedByList = Arrays.asList((String[]) existingFlaggedBy);
+            } else if (existingFlaggedBy instanceof List) {
+                existingFlaggedByList = (List<String>) existingFlaggedBy;
+            }
+            if (CollectionUtils.isNotEmpty(existingFlaggedByList)) {
+                Set<String> flaggedBySet = new HashSet<>(existingFlaggedByList);
+                flaggedBySet.addAll(flaggedByList);
+                return new ArrayList<>(flaggedBySet);
+            }
         }
         return flaggedByList;
     }
