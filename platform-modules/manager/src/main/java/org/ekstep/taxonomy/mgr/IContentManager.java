@@ -249,6 +249,21 @@ public interface IContentManager {
      */
     Response acceptFlag(String contentId) throws Exception;
 
+	/**
+	 * @param contentId
+	 * @param requestMap
+	 * @return
+	 * @throws Exception
+	 */
+	Response flag(String contentId, Map<String, Object> requestMap) throws Exception;
+
+	/**
+	 * @param contentId
+	 * @return
+	 * @throws Exception
+	 */
+	Response rejectFlag(String contentId) throws Exception;
+
     Response syncHierarchy(String identifier);
     
     /**
