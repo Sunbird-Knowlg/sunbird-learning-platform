@@ -7,9 +7,9 @@ import org.apache.commons.lang3.StringUtils;
 
 public class DateUtils {
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     public static String format(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         if (null != date) {
             try {
                 return sdf.format(date);
@@ -20,6 +20,7 @@ public class DateUtils {
     }
 
     public static Date parse(String dateStr) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         if (StringUtils.isNotBlank(dateStr)) {
             try {
                 return sdf.parse(dateStr);
