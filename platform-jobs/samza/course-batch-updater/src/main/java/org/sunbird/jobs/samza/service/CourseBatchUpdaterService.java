@@ -37,6 +37,7 @@ public class CourseBatchUpdaterService implements ISamzaService {
         systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
         courseBatchUpdater = new CourseBatchUpdater();
         batchEnrolmentSync = new BatchEnrolmentSync();
+        batchStatusUpdater = new BatchStatusUpdater();
     }
 
     @Override
