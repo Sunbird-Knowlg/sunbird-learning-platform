@@ -144,6 +144,8 @@ public class BatchEnrolmentSyncManager {
 
                     esDoc.put(esKey, docMap.get(key));
                 }
+                esDoc.put("identifier", docId);
+                esDoc.put("id", docId);
                 esDocs.put(docId, esDoc);
             }
             if(MapUtils.isNotEmpty(esDocs)) {
