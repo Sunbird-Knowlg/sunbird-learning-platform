@@ -6,14 +6,14 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.apache.cassandra.db.{Clustering, Mutation}
-import org.apache.cassandra.db.marshal.{CompositeType, MapType}
+import org.apache.cassandra.db.marshal.{AbstractType, CompositeType, ListType, MapType}
 import org.apache.cassandra.db.partitions.Partition
 import org.apache.cassandra.db.rows.{Cell, Unfiltered}
-import org.apache.cassandra.db.marshal.AbstractType
 import org.apache.cassandra.triggers.ITrigger
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
+import scala.collection.mutable.ListBuffer
 
 
 class TransactionEventTrigger extends ITrigger {
@@ -50,12 +50,13 @@ class TransactionEventTrigger extends ITrigger {
             val row = partition.getRow(next.clustering().asInstanceOf[Clustering])
             val cells = row.cells().iterator()
 
+            val listbuffer = ListBuffer[String]()
             val metadata = cells.map(cell => {
                 val columnType = getColumnType(cell)
-                if (columnType.isInstanceOf[Map[Any, Any]])
+                if (columnType.isInstanceOf[MapType[Any, Any]])
                     processMapDataType(cell)
-                else if (columnType.isInstanceOf[List[Any]])
-                    processListDataType(cell)
+                else if (columnType.isInstanceOf[ListType[Any]])
+                    processListDataType(cell, listbuffer)
                 else
                     Map(getColumnName(cell) -> Map("nv" -> processDefaultDataType(cell)))
             }).toList.flatten.toMap
@@ -65,28 +66,24 @@ class TransactionEventTrigger extends ITrigger {
         }).toList.toMap
     }
 
-
     private def processMapDataType(cell: Cell): Map[String, Any] = {
         val mapColumnType = getColumnType(cell).asInstanceOf[MapType[AnyRef, AnyRef]]
         val cellValue = getCellValue(cell)
-        val keysType = mapColumnType.getKeysType
-        val path = cell.path
-        (for(i <- 0 to path.size()) yield {
-            val buffer = path.get(i)
-            val key = keysType.compose(buffer)
-            if (cell.isLive(0)) {
-                Map(key.toString -> cellValue)
-            } else {
-                Map(key.toString -> null)
-            }
-        }).flatten.toMap
+        val key = mapColumnType.getKeysType.compose(cell.path.get(0))
+
+        if(cell.isLive(0))
+            Map(key.toString -> cellValue)
+        else
+            Map(key.toString -> null)
     }
 
 
-    private def processListDataType(cell: Cell): Map[String, Any] = {
+    private def processListDataType(cell: Cell, listBuffer: ListBuffer[String]): Map[String, Any] = {
         val columnName = getColumnName(cell)
+
         if (cell.isLive(0)) {
-            Map(columnName -> List(getCellValue(cell)))
+            listBuffer.add(getCellValue(cell).toString)
+            Map(columnName -> listBuffer)
         } else {
             Map()
         }
