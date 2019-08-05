@@ -56,6 +56,7 @@
 	</profiles>
 	<dependencies>
 	</dependencies>
+	
 	<build>
 		<pluginManagement>
 			<plugins>
