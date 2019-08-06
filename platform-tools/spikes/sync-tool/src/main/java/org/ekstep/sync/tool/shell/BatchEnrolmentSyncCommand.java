@@ -26,11 +26,13 @@ public class BatchEnrolmentSyncCommand implements CommandMarker {
                           @CliOption(key = {
                                   "limit"}, mandatory = false, help = "limit") final String limit,
                           @CliOption(key = {
-                                  "reset-progress"}, mandatory = false, unspecifiedDefaultValue="false", help = "ignored identifiers to sync") final String resetProgress)
+                                  "reset-progress"}, mandatory = false, unspecifiedDefaultValue="false", specifiedDefaultValue="true",  help = "ignored identifiers to sync") final String resetProgress,
+                          @CliOption(key = {
+                                  "ids"}, mandatory = false, help = "batchIds") final String[] batchIds)
             throws Exception {
         System.out.println("Fetching data from cassandra for: " + objectType + ".");
         System.out.println("-----------------------------------------");
-        batchEnrolmentSyncManager.sync(objectType, offset, limit, resetProgress);
+        batchEnrolmentSyncManager.sync(objectType, offset, limit, resetProgress, batchIds);
         System.out.println("-----------------------------------------");
     }
 }
