@@ -48,19 +48,28 @@ class TransactionEventTrigger extends ITrigger {
         partition.unfilteredIterator().map(next => {
             val clusterKeyData: Map[String, Any] = getClusterKeyData(partition, next)
             val row = partition.getRow(next.clustering().asInstanceOf[Clustering])
-            val cells = row.cells().iterator()
 
-            val buffer = ListBuffer[Any]()
-            val metadata = cells.map(cell => {
-                val columnType = getColumnType(cell)
-                if (columnType.isInstanceOf[MapType[Any, Any]])
-                    processMapDataType(cell)
-                else if (columnType.isInstanceOf[ListType[Any]])
-                    processListDataType(cell, buffer)
-                else if (columnType.isInstanceOf[SetType[Any]])
-                    processSetDataType(cell, buffer)
-                else
+            val columnDefinitions = row.columns().iterator()
+            val metadata = columnDefinitions.map(columnDefinition => {
+                val columnType = columnDefinition.`type`
+                if (columnType.isInstanceOf[ListType[Any]]) {
+                    val buffer = ListBuffer[Any]()
+                    val cells = row.cells()
+                    processListDataType(cells, buffer, columnDefinition.toString)
+
+                } else if (columnType.isInstanceOf[SetType[Any]]) {
+                    val buffer = ListBuffer[Any]()
+                    val cells = row.cells()
+                    processSetDataType(cells, buffer, columnDefinition.toString)
+
+                } else if (columnType.isInstanceOf[MapType[Any, Any]]) {
+                    val cells = row.cells()
+                    processMapDataType(cells, columnDefinition.toString)
+
+                } else {
+                    val cell = row.getCell(columnDefinition)
                     Map(getColumnName(cell) -> Map("nv" -> processDefaultDataType(cell)))
+                }
             }).toList.flatten.toMap
             Map("clusteringKeys" -> clusterKeyData, "metadata" -> metadata)
         }).reduce((a,b) => {
@@ -68,33 +77,36 @@ class TransactionEventTrigger extends ITrigger {
         }).toList.toMap
     }
 
-    private def processMapDataType(cell: Cell): Map[String, Any] = {
-        val mapColumnType = getColumnType(cell).asInstanceOf[MapType[AnyRef, AnyRef]]
-        val cellValue = getCellValue(cell)
-        val key = mapColumnType.getKeysType.compose(cell.path.get(0))
+    private def processMapDataType(cells: Iterable[Cell], columnName: String): Map[String, Any] = {
+        val mapdata = cells.toList.filter(cell => getColumnName(cell).toString.equalsIgnoreCase(columnName)).map(cell => {
+            val mapColumnType = getColumnType(cell).asInstanceOf[MapType[AnyRef, AnyRef]]
+            val cellValue = getCellValue(cell)
+            val key = mapColumnType.getKeysType.compose(cell.path.get(0))
 
-        if(cell.isLive(0))
-            Map(key.toString -> cellValue)
-        else
-            Map(key.toString -> null)
+            if(cell.isLive(0))
+                Map(key.toString -> cellValue)
+            else
+                Map(key.toString -> null)
+        }).flatten.toMap
+        Map(columnName -> mapdata)
     }
 
 
-    private def processListDataType(cell: Cell, listBuffer: ListBuffer[Any]): Map[String, Any] = {
-        val columnName = getColumnName(cell)
+    private def processListDataType(cells: Iterable[Cell] ,buffer: ListBuffer[Any], columnName: String): Map[String, Any] = {
 
-        if (cell.isLive(0)) {
-            listBuffer.add(getCellValue(cell))
-            Map(columnName -> listBuffer)
-        } else {
-            Map()
-        }
+        cells.toList.filter(cell => getColumnName(cell).toString.equalsIgnoreCase(columnName)).map(cell => {
+            if (cell.isLive(0) && !buffer.contains(getCellValue(cell))) buffer.add(getCellValue(cell))
+        })
+        Map(columnName -> buffer)
     }
 
-    private def processSetDataType(cell: Cell, buffer:ListBuffer[Any]): Map[String, Any] = {
-        val columnName = getColumnName(cell)
-        val keyTypes = getColumnType(cell).asInstanceOf[SetType[Any]].getElementsType
-        buffer.add(keyTypes.compose(cell.path.get(0)))
+    private def processSetDataType(cells: Iterable[Cell], buffer:ListBuffer[Any], columnName: String): Map[String, Any] = {
+
+        cells.toList.filter(cell => getColumnName(cell).toString.equalsIgnoreCase(columnName)).map(cell => {
+            val keyTypes = getColumnType(cell).asInstanceOf[SetType[Any]].getElementsType
+            val cellValue = keyTypes.compose(cell.path.get(0))
+            if (!buffer.contains(cellValue)) buffer.add(keyTypes.compose(cell.path.get(0)))
+        })
         Map(columnName -> buffer)
 
     }
