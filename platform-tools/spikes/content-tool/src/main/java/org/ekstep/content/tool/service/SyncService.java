@@ -376,6 +376,8 @@ public class SyncService extends BaseService implements ISyncService {
         if(null != metadata.get("pkgVersion"))
             metadata.put("pkgVersion", ((Number) metadata.get("pkgVersion")).doubleValue());
         metadata.remove("collections");
+        metadata.remove("concepts");
+        metadata.remove("children");
         Response response = systemUpdate(id, makeContentRequest(metadata), channel, true);
         if (isSuccess(response)) {
             ShellCommandUtils.print(id + " updating external props of content...");
