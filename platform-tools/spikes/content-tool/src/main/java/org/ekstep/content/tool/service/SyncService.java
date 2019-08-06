@@ -466,7 +466,7 @@ public class SyncService extends BaseService implements ISyncService {
         Map<String, Object> externalRequest = new HashMap<>();
         List<String> externalProps = Arrays.asList(extProps.split(","));
        for(String key : metadata.keySet()) {
-           if (externalProps.contains(key) && null != metadata.get(key) && !StringUtils.equalsIgnoreCase("[]", metadata.get(key)))
+           if (externalProps.contains(key) && null != metadata.get(key) && !StringUtils.equalsIgnoreCase("[]", (String)metadata.get(key)))
                externalRequest.put(key, metadata.get(key));
        }
         return externalRequest;
