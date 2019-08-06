@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
@@ -126,8 +127,15 @@ public class CopyOperation extends BaseContentManager {
         
         List<String> nullPropList = Platform.config.hasPath("learning.content.copy.props_to_remove")
         		? Platform.config.getStringList("learning.content.copy.props_to_remove"): null;
+
+        // TODO: Remove the below loop in 2.3.0
+        List<String> batchCountPropList = metaData.keySet().stream().filter(key -> key.endsWith("_batch_count")).collect(Collectors.toList());
+        if(CollectionUtils.isNotEmpty(batchCountPropList))
+            nullPropList.addAll(batchCountPropList);
+
         if(CollectionUtils.isNotEmpty(nullPropList))
         		nullPropList.forEach(prop -> metaData.remove(prop));
+
         copyNode.setMetadata(metaData);
         copyNode.setGraphId(existingNode.getGraphId());
         copyNode.getMetadata().putAll(requestMap);
