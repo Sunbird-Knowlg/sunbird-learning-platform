@@ -44,13 +44,13 @@ public class BatchEnrolmentSyncManager {
     private static final String KAFKA_TOPIC = Platform.config.hasPath("courses.topic")? Platform.config.getString("courses.topic"): "local.coursebatch.job.request";
 
     private static final String keyspace = Platform.config.hasPath("courses.keyspace.name") ? Platform.config.getString("courses.keyspace.name"): "sunbird_courses";
-    public void sync(String objectType, String offset, String limit, String resetProgress) throws Exception {
+    public void sync(String objectType, String offset, String limit, String resetProgress, String[] batchIds) throws Exception {
         String index = esIndexObjecTypeMap.get(objectType);
         ElasticSearchUtil.initialiseESClient(index, Platform.config.getString("search.es_conn_info"));
 
         //FetchData from cassandra
         int lmt = (StringUtils.isNotBlank(limit)) ? Integer.parseInt(limit) : 0;
-        List<Row> rows = read(tableObjecTypeMap.get(objectType), lmt);
+        List<Row> rows = read(tableObjecTypeMap.get(objectType), lmt, batchIds);
         System.out.println("Number of rows to be synced : " + rows.size());
         //Prepare ES Docs
         List<String> docids = new ArrayList<>();
@@ -158,9 +158,14 @@ public class BatchEnrolmentSyncManager {
         }
     }
 
-    private static List<Row> read(String table, int limit) {
+    private static List<Row> read(String table, int limit, String[] batchIds) {
         Session session = CassandraConnector.getSession("platform-courses");
-        Select selectQuery = QueryBuilder.select().json().all().from(keyspace, table);
+        Select.Where selectQuery = null;
+        if(null != batchIds && batchIds.length > 0 && StringUtils.equalsIgnoreCase("user_courses", table)){
+            selectQuery = QueryBuilder.select().json().all().from(keyspace, table).where(QueryBuilder.in("batchid", batchIds));
+        } else{
+            selectQuery = QueryBuilder.select().json().all().from(keyspace, table).where();
+        }
         if(limit != 0)
             selectQuery.limit(limit);
         ResultSet results = session.execute(selectQuery);
