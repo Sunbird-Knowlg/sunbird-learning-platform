@@ -21,6 +21,7 @@ class TransactionEventTrigger extends ITrigger {
     private val OPERATION_TYPE = "operationType"
     private val UPDATE_ROW = "UPSERT"
     private val DELETE_ROW = "DELETE"
+    private val KEY_NV = "nv"
 
     val logger = LoggerFactory.getLogger("org.sunbird.cassandra.triggers")
     @transient val mapper = new ObjectMapper();
@@ -63,7 +64,7 @@ class TransactionEventTrigger extends ITrigger {
 
                 } else {
                     val cell = row.getCell(columnDefinition)
-                    Map(getColumnName(cell) -> Map("nv" -> processDefaultDataType(cell)))
+                    processDefaultDataType(cell)
                 }
             }).toList.flatten.toMap
             Map("clusteringKeys" -> clusterKeyData, "metadata" -> metadata)
@@ -83,7 +84,7 @@ class TransactionEventTrigger extends ITrigger {
             else
                 Map(key.toString -> null)
         }).flatten.toMap
-        Map(columnName -> mapdata)
+        Map(columnName -> Map(KEY_NV -> mapdata))
     }
 
 
@@ -93,7 +94,7 @@ class TransactionEventTrigger extends ITrigger {
         cells.toList.filter(cell => getColumnName(cell).toString.equalsIgnoreCase(columnName)).map(cell => {
             if (cell.isLive(0) && !buffer.contains(getCellValue(cell))) buffer.add(getCellValue(cell))
         })
-        Map(columnName -> buffer)
+        Map(columnName -> Map(KEY_NV -> buffer))
     }
 
     private def processSetDataType(cells: Iterable[Cell], columnName: String): Map[String, Any] = {
@@ -104,14 +105,15 @@ class TransactionEventTrigger extends ITrigger {
             val cellValue = keyTypes.compose(cell.path.get(0))
             if (cell.isLive(0) && !buffer.contains(cellValue)) buffer.add(keyTypes.compose(cell.path.get(0)))
         })
-        Map(columnName -> buffer)
+        Map(columnName -> Map(KEY_NV -> buffer))
 
     }
 
-    private def processDefaultDataType(cell: Cell): String = {
+    private def processDefaultDataType(cell: Cell): Map[String, Any] = {
         if (cell.isLive(0))
-            getCellValue(cell).toString
-        else null
+            Map(getColumnName(cell) -> Map(KEY_NV -> getCellValue(cell).toString))
+        else
+            Map(getColumnName(cell) -> Map(KEY_NV -> null))
     }
 
     protected def getPartitionKeyData(partition: Partition): Map[String, Any] = {
