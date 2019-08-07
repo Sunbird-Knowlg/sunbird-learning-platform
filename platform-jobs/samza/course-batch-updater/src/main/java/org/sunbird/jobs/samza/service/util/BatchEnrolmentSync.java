@@ -10,6 +10,8 @@ import org.sunbird.jobs.samza.util.ESUtil;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,8 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
                     Map<String, Object> finalDataToUpdate = dataToUpdate.entrySet().stream()
                             .filter(entry -> dataToReset.contains(entry.getKey()))
                             .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+                    if(null != finalDataToUpdate.get("status") && (2 == ((Number)finalDataToUpdate.get("status")).intValue()))
+                        finalDataToUpdate.put("completedOn", new Timestamp(new Date().getTime()));
                     SunbirdCassandraUtil.update(keyspace, table, finalDataToUpdate, dataToSelect);
 
                     if(finalDataToUpdate.keySet().contains("contentStatus"))
