@@ -17,8 +17,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class RejectOperation extends BaseContentManager {
+/**
+ * @Author: Rhea Fernandes
+ */
 
+public class RejectOperation extends BaseContentManager {
 
     public Response rejectContent(String contentId, Map<String, Object> requestMap) {
         if (StringUtils.isBlank(contentId) || StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
@@ -65,6 +68,4 @@ public class RejectOperation extends BaseContentManager {
         requestMap.put("publishComment", null);
         return requestMap;
     }
-
-
 }
