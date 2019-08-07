@@ -15,10 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -28,6 +30,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.UnzipUtility;
@@ -37,8 +40,11 @@ import org.ekstep.content.common.EcarPackageType;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.common.JSONUtils;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import static java.util.stream.Collectors.toList;
@@ -51,10 +57,9 @@ public class ContentBundle {
 	/** The logger. */
 
 	/** The mapper. */
-	private ObjectMapper mapper = new ObjectMapper();
-
-	/** The Constant URL_FIELD. */
-	protected static final String URL_FIELD = "URL";
+	private static ObjectMapper mapper = new ObjectMapper();
+	public final String TAXONOMY_ID = "domain";
+	public final ControllerUtil util = new ControllerUtil();
 
 	/** The Constant BUNDLE_PATH. */
 	protected static final String BUNDLE_PATH = "/tmp";
@@ -70,7 +75,9 @@ public class ContentBundle {
 	private static final String WEB_URL_MIMETYPE = "text/x-url";
 	
 	private static final List<String> EXCLUDE_ECAR_METADATA_FIELDS=Arrays.asList("screenshots","posterImage");
-	
+	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
+
+
 	/**
 	 * Creates the content manifest data.
 	 *
@@ -183,8 +190,10 @@ public class ContentBundle {
 	 * @return the string[]
 	 */
 	public String[] createContentBundle(List<Map<String, Object>> contents, String fileName, String version,
-			Map<Object, List<String>> downloadUrls, String contentId) {
-		String bundleFileName = BUNDLE_PATH + File.separator + fileName;
+										Map<Object, List<String>> downloadUrls, Node node,
+										List<Map<String, Object>> children) {
+		String contentId = node.getIdentifier();
+        String bundleFileName = BUNDLE_PATH + File.separator + fileName;
 		String bundlePath = BUNDLE_PATH + File.separator + System.currentTimeMillis() + "_temp";
 		List<File> downloadedFiles = getContentBundle(downloadUrls, bundlePath);
 		try {
@@ -194,6 +203,13 @@ public class ContentBundle {
 			if (null != downloadedFiles) {
 				if (null != manifestFile)
 					downloadedFiles.add(manifestFile);
+				//Adding Hierarchy into hierarchy.json file
+				if (StringUtils.isNotBlank((String) node.getMetadata().get("mimeType")) &&
+						StringUtils.equalsIgnoreCase((String) node.getMetadata().get("mimeType"), COLLECTION_MIMETYPE)) {
+					File hierarchyFile = createHierarchyFile(bundlePath, node, children);
+					if (null != hierarchyFile)
+						downloadedFiles.add(hierarchyFile);
+				}
 				try {
 					File contentBundle = createBundle(downloadedFiles, bundleFileName);
 					String folderName = S3PropertyReader.getProperty(ECAR_FOLDER);
@@ -282,14 +298,8 @@ public class ContentBundle {
 			header.append("\"ttl\": 24, \"items\": ");
 			TelemetryManager.log("Content Items in Manifest JSON: "+ contents.size());
 
-			// Updating the 'variant' Property
-			TelemetryManager.log("Contents Before Updating for 'variant' Properties : "+ contents);
-
-			TelemetryManager.log("Updating the 'variant' map from JSON string to JSON Object.");
-			contents.stream().forEach(c -> c.put(ContentWorkflowPipelineParams.variants.name(),
-					JSONUtils.convertJSONString((String) c.get(ContentWorkflowPipelineParams.variants.name()))));
-
-			TelemetryManager.log("Contents After Updating for 'variant' Properties : "+ contents);
+			convertStringToMapInMetadata(contents, ContentWorkflowPipelineParams.variants.name());
+			convertStringToMapInMetadata(contents, ContentWorkflowPipelineParams.originData.name());
 
 			// Convert to JSON String
 			String manifestJSON = header + mapper.writeValueAsString(contents) + "}}";
@@ -300,6 +310,20 @@ public class ContentBundle {
 			throw new ServerException(ContentErrorCodeConstants.MANIFEST_FILE_WRITE.name(),
 					ContentErrorMessageConstants.MANIFEST_FILE_WRITE_ERROR + " | [Unable to Write Manifest File.]", e);
 		}
+	}
+
+	private void convertStringToMapInMetadata(List<Map<String, Object>> contents, String metadataName) {
+		TelemetryManager.log("Contents Before Updating for '" + metadataName + "' Properties : "+ contents);
+
+		TelemetryManager.log("Updating the '" + metadataName + "' map from JSON string to JSON Object.");
+		contents.stream().forEach(c -> {
+			Object metadata = c.get(metadataName);
+			if(metadata instanceof String){
+				c.put(metadataName, JSONUtils.convertJSONString((String) metadata));
+			}
+		});
+
+		TelemetryManager.log("Contents After Updating for '" + metadataName + "' Properties : "+ contents);
 	}
 
 	/**
@@ -433,7 +457,8 @@ public class ContentBundle {
 			for (File file : files) {
 				if (null != file) {
 					String fileName = null;
-					if (file.getName().toLowerCase().endsWith("manifest.json")) {
+					if (file.getName().toLowerCase().endsWith(ContentConfigurationConstants.CONTENT_BUNDLE_MANIFEST_FILE_NAME)
+							|| file.getName().equalsIgnoreCase(ContentConfigurationConstants.CONTENT_BUNDLE_HIERARCHY_FILE_NAME)) {
 						fileName = file.getName();
 					} else if (file.getParentFile().getName().toLowerCase().endsWith("screenshots")) {
 						fileName = file.getParent()
@@ -542,4 +567,55 @@ public class ContentBundle {
 		return list;
 	}
 
+	public  File createHierarchyFile(String bundlePath, Node node, List<Map<String, Object>> children) throws Exception {
+		String contentId = node.getIdentifier();
+		File hierarchyFile = null;
+		if (node == null || StringUtils.isBlank(bundlePath)) {
+			TelemetryManager.error("Hierarchy File creation failed for identifier : " +contentId);
+			return hierarchyFile;
+		}
+		Map<String, Object> hierarchyMap = getContentMap(node, children);
+		if (MapUtils.isNotEmpty(hierarchyMap)) {
+			hierarchyFile = new File(bundlePath + File.separator + ContentConfigurationConstants.CONTENT_BUNDLE_HIERARCHY_FILE_NAME);
+			if (hierarchyFile == null) {
+				TelemetryManager.error("Hierarchy File creation failed for identifier : " + contentId);
+				return hierarchyFile;
+			}
+			String header = getHeaderForHierarchy("1.0", null);
+			String hierarchyJSON = mapper.writeValueAsString(hierarchyMap);
+			hierarchyJSON = header + hierarchyJSON + "}";
+			FileUtils.writeStringToFile(hierarchyFile, hierarchyJSON);
+			TelemetryManager.log("Hierarchy JSON Written for identifier : " +contentId);
+		} else {
+			TelemetryManager.log("Hierarchy JSON can't be created for identifier : " +contentId);
+		}
+		return hierarchyFile;
+	}
+
+	public  Map<String, Object> getContentMap(Node node, List<Map<String, Object>> childrenList) {
+		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
+		Map<String, Object> collectionHierarchy = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+		if (CollectionUtils.isNotEmpty(childrenList))
+			collectionHierarchy.put("children", childrenList);
+		collectionHierarchy.put("identifier", node.getIdentifier());
+		collectionHierarchy.put("objectType", node.getObjectType());
+		return collectionHierarchy;
+	}
+
+	public String getHeaderForHierarchy(String hierarchyVersion, String expiresOn) {
+		if (StringUtils.isBlank(hierarchyVersion))
+			hierarchyVersion = ContentConfigurationConstants.DEFAULT_CONTENT_HIERARCHY_VERSION;
+		TelemetryManager.log("Hierarchy Header Version: " + hierarchyVersion);
+		StringBuilder header = new StringBuilder();
+		header.append("{ \"id\": \"ekstep.content.hierarchy\", \"ver\": \"").append(hierarchyVersion);
+		header.append("\", \"ts\": \"").append(getResponseTimestamp()).append("\", \"params\": { \"resmsgid\": \"");
+		header.append(getUUID()).append("\"");
+		if (StringUtils.isNotBlank(expiresOn))
+			header.append(", \"expires\": \"").append(expiresOn).append("\" }, ");
+		else
+			header.append(" }, ");
+
+		header.append(" \"content\": ");
+		return header.toString();
+	}
 }

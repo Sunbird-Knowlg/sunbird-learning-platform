@@ -115,4 +115,20 @@ public class SyncShellCommands implements CommandMarker {
 		LocalDateTime end = LocalDateTime.now();
 		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
 	}
+
+	@CliCommand(value = "syncleafnodesbyids", help = "Refresh leafNodes by Id(s) for Collection MimeTypes")
+	public void syncLeafNodesByIds(
+			@CliOption(key = {"id","ids"}, mandatory = true, help = "Unique Id of node object") final String[] ids) throws Exception {
+		long startTime = System.currentTimeMillis();
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		LocalDateTime start = LocalDateTime.now();
+
+		syncManager.syncLeafNodesByIds(new ArrayList<>(Arrays.asList(ids)));
+
+		long endTime = System.currentTimeMillis();
+		long exeTime = endTime - startTime;
+		System.out.println("Total time of execution: " + exeTime + "ms");
+		LocalDateTime end = LocalDateTime.now();
+		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
+	}
 }

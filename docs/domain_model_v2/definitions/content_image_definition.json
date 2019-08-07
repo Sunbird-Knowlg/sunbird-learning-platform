@@ -920,7 +920,7 @@
 					],
 					"category": "Ownership",
 					"displayProperty": "Editable",
-					"defaultValue": "",
+					"defaultValue": "Creative Commons Attribution (CC BY)",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
@@ -1094,7 +1094,14 @@
 						"CourseUnit",
 						"TextBookUnit",
 						"TeachingMethod",
-						"PedagogyFlow"
+						"PedagogyFlow",
+						"FocusSpot",
+                        "LearningOutcomeDefinition",
+                        "PracticeQuestionSet",
+                        "CuriosityQuestionSet",
+                        "MarkingSchemeRubric",
+                        "ExplanationResource",
+                        "ExperientialResource"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -1766,18 +1773,6 @@
 					"indexed": true
 				},
 				{
-					"propertyName": "udpdater",
-					"title": "Name of the user who updated Content last",
-					"description": "",
-					"category": "Lifecycle",
-					"dataType": "Text",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "{'order': 21}",
-					"indexed": true
-				},
-				{
 					"propertyName": "reviewer",
 					"title": "Name of the user who did the final review and published the content",
 					"description": "",
@@ -1891,6 +1886,18 @@
 					"description": "Origin",
 					"category": "Lifecycle",
 					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Readonly",
+					"defaultValue": "",
+					"renderingHints": "{'order': 24}",
+					"indexed": true
+				},
+				{
+					"propertyName": "originData",
+					"title": "Origin Data",
+					"description": "Origin Content metadata",
+					"category": "Lifecycle",
+					"dataType": "JSON",
 					"required": false,
 					"displayProperty": "Readonly",
 					"defaultValue": "",
@@ -2856,7 +2863,80 @@
 					"renderingHints": "",
 					"indexed": true,
 					"draft": false
-				}
+				},
+				{
+					"required": false,
+					"dataType": "Number",
+					"propertyName": "totalCompressedSize",
+					"title": "Download File Size (in bytes)",
+					"description": "Download File Size (in bytes)",
+					"category": "Technical",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+                    "required": false,
+                    "dataType": "Text",
+                    "propertyName": "programId",
+                    "title": "ProgramId",
+                    "description": "Id of the Program",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                },
+				{
+					"required": false,
+					"dataType": "List",
+					"propertyName": "leafNodes",
+					"title": "leafNodes",
+					"description": "Unique leafNodes attached to collection mimeTypes",
+					"category": "general",
+					"displayProperty": "Editable",
+					"range": null,
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+					"indexed": true,
+					"draft": false,
+					"rangeValidation": true
+				},
+				{
+                    "required": false,
+                    "dataType": "Number",
+                    "propertyName": "editorVersion",
+                    "title": "Editor Version",
+                    "description": "Version of the Editor",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                },
+                {
+                    "required": false,
+                    "dataType": "Text",
+                    "propertyName": "textBookUnitIdentifier",
+                    "title": "TextBook Unit Identifier",
+                    "description": "TextBook Unit Identifier",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                }
 			],
 			"inRelations": [
 				{
@@ -3074,6 +3154,7 @@
 				"versionCheckMode": "STRICT",
 				"allowupdate_status": false,
 				"allowupdate_framework": true,
+				"allowupdate_mimeType": false,
 				"fields": [
 					"identifier",
 					"name",
@@ -3157,7 +3238,12 @@
 					"s3Key",
 					"consumerId",
 					"organisation",
-					"migratedUrl"
+					"migratedUrl",
+					"totalCompressedSize",
+					"programId",
+					"leafNodes",
+					"origin",
+					"originData"
 				]
 			}
 		}

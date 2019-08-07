@@ -32,7 +32,7 @@ public class CopyContentV3APITests extends BaseTest{
 	String jsonCreateValidTextBookUnit = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_Unit" + rn+ "\", \"mediaType\": \"content\",\"visibility\": \"Parent\",\"name\": \"LP_NFT_Unit_"+ rn+ "\",\"contentType\": \"TextBookUnit\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"tags\":[\"LP_functionalTest\"]}}}";
 	String jsonCreateValidTextBook = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_TBook" + rn+ "\", \"mediaType\": \"content\",\"name\": \"LP_NFT_TBook_"+ rn+ "\",\"contentType\": \"TextBook\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"tags\":[\"LP_functionalTest\"]}}}";
 	String jsonUpdateMetadata = "{\"request\":{\"content\":{\"versionKey\":\"version_key\",\"name\":\"updatedContentName\"}}}";
-	String jsonCopyContent = "{\"request\":{\"content\":{\"createdBy\":\"Test\",\"createdFor\":[\"Test\"],\"organization\":[\"Test\"]}}}";
+	String jsonCopyContent = "{\"request\":{\"content\":{\"createdBy\":\"Test\",\"createdFor\":[\"Test\"],\"organisation\":[\"Test\"]}}}";
 	
 	static ClassLoader classLoader = ContentPublishWorkflowTests.class.getClassLoader();
 	static URL url = classLoader.getResource("DownloadedFiles");

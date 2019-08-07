@@ -1,8 +1,5 @@
 package org.ekstep.jobs.samza.task;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.samza.config.Config;
@@ -22,8 +19,11 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.SamzaCommonParams;
 import org.ekstep.learning.util.ControllerUtil;
 
+import java.util.HashMap;
+import java.util.Map;
 
-public class CompositeSearchIndexerTask implements StreamTask, InitableTask, WindowableTask {
+
+public class CompositeSearchIndexerTask extends BaseTask {
 	
 	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexerTask.class);
 	private ControllerUtil controllerUtil = new ControllerUtil();

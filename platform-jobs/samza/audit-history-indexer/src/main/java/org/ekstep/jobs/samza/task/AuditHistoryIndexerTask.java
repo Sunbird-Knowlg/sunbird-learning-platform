@@ -18,7 +18,7 @@ import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 
-public class AuditHistoryIndexerTask implements StreamTask, InitableTask, WindowableTask {
+public class AuditHistoryIndexerTask extends BaseTask {
 
 	private static JobLogger LOGGER = new JobLogger(AuditHistoryIndexerTask.class);
 

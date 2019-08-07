@@ -24,7 +24,6 @@ import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.sync.tool.util.ElasticSearchConnector;
 import org.ekstep.sync.tool.util.GraphUtil;
 import org.ekstep.sync.tool.util.SyncMessageGenerator;
-import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -32,8 +31,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -56,6 +57,8 @@ public class CassandraESSyncManager {
     private static List<String> nestedFields = Platform.config.getStringList("nested.fields");
     private List<String> relationshipProperties = Platform.config.hasPath("content.relationship.properties") ?
             Arrays.asList(Platform.config.getString("content.relationship.properties").split(",")) : Collections.emptyList();
+
+    private static final String CACHE_PREFIX = "hierarchy_";
 
 
     @PostConstruct
@@ -107,10 +110,10 @@ public class CassandraESSyncManager {
                     hierarchyStore.deleteHierarchy(collectionUnitIds);
 
                     //Clear TextBook from Redis Cache
-                    RedisStoreUtil.delete("hierarchy_" + resourceId);
+                    RedisStoreUtil.delete(CACHE_PREFIX + resourceId);
 
                     //Clear TextBookUnits from Redis Cache
-                    collectionUnitIds.forEach(id -> RedisStoreUtil.delete("hierarchy_" + id));
+                    collectionUnitIds.forEach(id -> RedisStoreUtil.delete(CACHE_PREFIX + id));
 
                     //print success message
                     printMessages("success", collectionUnitIds, resourceId);
@@ -129,10 +132,10 @@ public class CassandraESSyncManager {
 
     private void updateLeafNodeCount(Map<String, Object> hierarchy, String resourceId) throws Exception {
             //Update Collection leafNodesCount in the hierarchy
-            int collectionLeafNodesCount = getLeafNodesCount(hierarchy, 0);
+            int collectionLeafNodesCount = getLeafNodesCount(hierarchy);
             hierarchy.put("leafNodesCount", collectionLeafNodesCount);
             // Update RootNode in Neo4j
-            updateTextBookNode(resourceId, collectionLeafNodesCount);
+            updateTextBookNode(resourceId, "leafNodesCount", collectionLeafNodesCount);
 
             //Update leafNodesCount of children in the hierarchy
             updateLeafNodesCountInHierarchyMetadata((List<Map<String, Object>>) hierarchy.get("children"));
@@ -358,7 +361,7 @@ public class CassandraESSyncManager {
                 if(StringUtils.equalsIgnoreCase("Parent",
                         (String)child.get("visibility"))){
                     //set child metadata -- leafNodesCount
-                    child.put("leafNodesCount", getLeafNodesCount(child, 0));
+                    child.put("leafNodesCount", getLeafNodesCount(child));
                     updateLeafNodesCountInHierarchyMetadata((List<Map<String,Object>>)child.get("children"));
                 }
             }
@@ -366,36 +369,81 @@ public class CassandraESSyncManager {
     }
 
     @SuppressWarnings("unchecked")
-    private Integer getLeafNodesCount(Map<String, Object> data, int leafCount) {
-        List<Object> children = (List<Object>) data.get("children");
-        if (null != children && !children.isEmpty()) {
-            for (Object child : children) {
-                Map<String, Object> childMap = (Map<String, Object>) child;
-                int lc = 0;
-                lc = getLeafNodesCount(childMap, lc);
-                leafCount = leafCount + lc;
-            }
-        } else {
-            if (!COLLECTION_MIMETYPE.equals(data.get("mimeType")))
-                leafCount++;
-        }
-        return leafCount;
+    private Integer getLeafNodesCount(Map<String, Object> data) {
+        Set<String> leafNodeIds = new HashSet<>();
+        getLeafNodesIds(data, leafNodeIds);
+        return leafNodeIds.size();
     }
 
 
-    private void updateTextBookNode(String id, int collectionLeafNodesCount) throws Exception {
+    private void updateTextBookNode(String id,String propName, Object propValue) throws Exception {
         DefinitionDTO definition =util.getDefinition("domain", "Content");
         Node node = util.getNode("domain", id);
         Map<String, Object> map = new HashMap<String, Object>() {{
-            put("leafNodesCount", collectionLeafNodesCount);
+            put(propName, propValue);
             put("versionKey", graphPassportKey);
         }};
         Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
         domainObj.setGraphId("domain");
         domainObj.setObjectType("Content");
         domainObj.setIdentifier(id);
-        Response response = util.updateNode(domainObj);
-        if(util.checkError(response))
-            throw new ServerException("Error while updating RootNode" , response.getParams().getErrmsg() + " :: " + response.getResult());
+        Response response = util.updateNodeWithoutValidation(domainObj) ;
+        if(util.checkError(response)){
+            System.out.println("Status :::::::" + response.getParams().getStatus());
+            System.out.println(mapper.writeValueAsString(response));
+            throw new ServerException("Error while updating RootNode" , response.getParams().getErr() + " :: "+ response.getParams().getErrmsg() + " :: " + response.getResult());
+        }
+
     }
+
+    public void syncLeafNodesByIds(List<String> rootIds) {
+        if(CollectionUtils.isNotEmpty(rootIds)) {
+            rootIds.forEach(collectionId->{
+                Boolean flag = updateLeafNodeIds(collectionId);
+                System.out.println("Collection id : " + collectionId + " Sync status : " + flag);
+            });
+        }
+    }
+
+    private Boolean updateLeafNodeIds(String collectionId) {
+        try {
+            Map<String, Object> hierarchy = getTextbookHierarchy(collectionId);
+            if(MapUtils.isNotEmpty(hierarchy)){
+                RedisStoreUtil.delete(collectionId);
+                RedisStoreUtil.delete(CACHE_PREFIX + collectionId);
+
+                Set<String> leafNodeIds = new HashSet<>();
+                getLeafNodesIds(hierarchy, leafNodeIds);
+                if(CollectionUtils.isNotEmpty(leafNodeIds)) {
+                    System.out.println("LeafNodes are :" + leafNodeIds);
+                    List<String> leafNodes = new ArrayList<>(leafNodeIds);
+                    updateTextBookNode(collectionId, "leafNodes", leafNodes);
+                    hierarchy.put("leafNodes", leafNodes);
+                    hierarchyStore.saveOrUpdateHierarchy(collectionId, hierarchy);
+                    return true;
+                } else {
+                    System.out.println("Collection id : " + collectionId + " is skipped as there are no leafNodes");
+                }
+            } else {
+                System.out.println(collectionId + " is not a type of Collection or it is not live.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private void getLeafNodesIds(Map<String, Object> data, Set<String> leafNodeIds) {
+        List<Map<String,Object>> children = (List<Map<String,Object>>)data.get("children");
+        if(CollectionUtils.isNotEmpty(children)) {
+            for(Map<String, Object> child : children) {
+                getLeafNodesIds(child, leafNodeIds);
+            }
+        } else {
+            if (!StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) data.get("mimeType"))) {
+                leafNodeIds.add((String) data.get("identifier"));
+            }
+        }
+    }
+
 }

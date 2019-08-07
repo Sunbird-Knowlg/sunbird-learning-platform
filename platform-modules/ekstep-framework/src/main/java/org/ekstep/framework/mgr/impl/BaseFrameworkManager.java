@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import akka.pattern.Patterns;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,8 +60,8 @@ public class BaseFrameworkManager extends BaseManager {
 	private static final List<String> LANGUAGE_CODES = (Platform.config.hasPath("language.graph_ids"))
 			? Platform.config.getStringList("language.graph_ids")
 			: null;
-
 	protected ObjectMapper mapper = new ObjectMapper();
+
 
 	protected Response create(Map<String, Object> request, String objectType) {
 		if (request.containsKey("translations"))
@@ -89,11 +90,12 @@ public class BaseFrameworkManager extends BaseManager {
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
 		Map<String, Object> responseMap = ConvertGraphNode.convertGraphNode(node, GRAPH_ID, definition, null);
+		ConvertGraphNode.filterNodeRelationships(responseMap, definition);
 		response.put(responseObject, responseMap);
 		response.setParams(getSucessStatus());
 		return response;
 	}
-
+	
 	protected Response update(String identifier, String objectType, Map<String, Object> map) {
 		if (map.containsKey("translations"))
 			validateTranslation(map);
@@ -638,7 +640,7 @@ public class BaseFrameworkManager extends BaseManager {
 	}
 
 
-	protected void filterFrameworkCategories(Map<String, Object> framework, List<String> categoryNames) {
+	protected void filterFrameworkCategories(Map<String, Object> framework, List<String> categoryNames) throws JsonProcessingException {
 		List<Map<String, Object>> categories = (List<Map<String, Object>>) framework.get("categories");
 		if (CollectionUtils.isNotEmpty(categories) && CollectionUtils.isNotEmpty(categoryNames)) {
 			framework.put("categories",
@@ -647,5 +649,7 @@ public class BaseFrameworkManager extends BaseManager {
 			removeAssociations(framework, categoryNames);
 		}
 	}
+
+
 
 }

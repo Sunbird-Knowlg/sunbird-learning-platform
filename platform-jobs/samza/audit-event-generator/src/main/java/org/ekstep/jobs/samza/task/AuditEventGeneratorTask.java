@@ -22,7 +22,7 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.SamzaCommonParams;
 import org.ekstep.learning.util.ControllerUtil;
 
-public class AuditEventGeneratorTask implements StreamTask, InitableTask, WindowableTask{
+public class AuditEventGeneratorTask extends BaseTask {
 
 	private static JobLogger LOGGER = new JobLogger(AuditEventGeneratorTask.class);
 

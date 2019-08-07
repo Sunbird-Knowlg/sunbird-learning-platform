@@ -14,10 +14,6 @@ learner_user: learning
 learner_group: learning
 learner_user_home: "/home/{{ learner_user }}"
 
-#artifact upload
-artifact_azure_account_name: "{{lp_artifact_azure_account_name}}"
-artifact_azure_account_key: "{{lp_vault_artifact_azure_account_key}}"
-
 ## Common variables for LP
 # these  variables can be defined as {{instance}}_*
 content_keyspace_name: "{{instance}}_content_store"
@@ -34,7 +30,7 @@ search_service_endpoint: "{{ekstep_domain_name}}/api/search/v2/search"
 
 
 ## learning service variables
-plugin_media_base_url: "{{ekstep_domain_name}}"
+plugin_media_base_url: "{{proto}}://{{domain_name}}"  # Plugin should be doanloaded from sunbird. Commenting the ekstep url : "{{ekstep_domain_name}}"
 content_media_base_url: "{{proto}}://{{domain_name}}"      # content_media_base_url
 dial_service_search_url: "{{ekstep_domain_name}}/api/dialcode/v3/search"   # dial_service_search_url
 resourcemanager: "{{ groups['yarn-master'][0] }}"
@@ -78,3 +74,8 @@ snapshot_base_path: compositesearch
 #artfiact upload download
 artifact_azure_account_name: "{{azure_account_name}}"
 artifact_azure_account_key: "{{lp_vault_azure_storage_secret}}"
+
+#Learning-Service baseURL
+kp_learning_service_base_url: "http://{{ groups['learning1'][0] }}:8080/learning-service"
+sunbird_platform_installation: "{{ sunbird_installation }}"
+
