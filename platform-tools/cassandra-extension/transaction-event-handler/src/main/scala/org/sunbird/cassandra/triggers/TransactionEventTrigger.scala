@@ -1,12 +1,13 @@
 package org.sunbird.cassandra.triggers
 
+import java.nio.charset.StandardCharsets
 import java.util
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.apache.cassandra.db.{Clustering, Mutation}
-import org.apache.cassandra.db.marshal.{AbstractType, CompositeType, ListType, MapType, SetType}
+import org.apache.cassandra.db.marshal.{AbstractType, ByteType, BytesType, CompositeType, ListType, MapType, SetType}
 import org.apache.cassandra.db.partitions.Partition
 import org.apache.cassandra.db.rows.{Cell, Unfiltered}
 import org.apache.cassandra.triggers.ITrigger
@@ -62,9 +63,14 @@ class TransactionEventTrigger extends ITrigger {
                 } else if (columnType.isInstanceOf[MapType[Any, Any]]) {
                     processMapDataType(row.cells, columnDefinition.toString)
 
-                } else {
+                } else if(columnType.isInstanceOf[BytesType]){
                     val cell = row.getCell(columnDefinition)
-                    processDefaultDataType(cell)
+                    processBlobDataType(cell)
+
+                } else {
+                  val cell = row.getCell(columnDefinition);
+                  processDefaultDataType(cell)
+
                 }
             }).toList.flatten.toMap
             Map("clusteringKeys" -> clusterKeyData, "metadata" -> metadata)
@@ -107,6 +113,16 @@ class TransactionEventTrigger extends ITrigger {
         })
         Map(columnName -> Map(KEY_NV -> buffer))
 
+    }
+
+    private def processBlobDataType(cell: Cell): Map[String, Any] = {
+      if(cell.isLive(0)){
+        val blob = cell.value.array()
+        val blobAstext = new String(blob, StandardCharsets.UTF_8)
+        Map(getColumnName(cell) -> Map(KEY_NV -> blobAstext))
+      } else {
+        Map(getColumnName(cell) -> Map(KEY_NV -> null))
+      }
     }
 
     private def processDefaultDataType(cell: Cell): Map[String, Any] = {
