@@ -55,7 +55,7 @@ public class PublishManager extends BaseManager {
 			if (Platform.config.hasPath("content.publish_task.enabled")) {
 				if (Platform.config.getBoolean("content.publish_task.enabled")) {
 					TelemetryManager.info("Publish task execution starting for content Id: " + contentId);
-					executor.submit(new PublishTask(contentId, parameterMap));
+					executor.submit(new PublishTask(parameterMap));
 				}
 			}
 		}

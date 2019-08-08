@@ -21,11 +21,11 @@ import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
-import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
+import com.rits.cloning.Cloner;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -39,8 +39,6 @@ public class PublishPipelineService implements ISamzaService {
 	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
 	private ControllerUtil util = new ControllerUtil();
-
-	private HierarchyStore hierarchyStore = null;
 
 	private Config config = null;
 
@@ -66,7 +64,6 @@ public class PublishPipelineService implements ISamzaService {
 		LOGGER.info("Akka actors initialized");
 		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
 		LOGGER.info("Stream initialized for Failed Events");
-		hierarchyStore = new HierarchyStore();
 	}
 
 	@Override
@@ -206,6 +203,8 @@ public class PublishPipelineService implements ISamzaService {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(),
 					ContentErrorMessageConstants.INVALID_CONTENT
 							+ " | ['null' or Invalid Content Node (Object). Async Publish Operation Failed.]");
+		Cloner cloner = new Cloner();
+		Node cloneNode = cloner.deepClone(node);
 		String nodeId = node.getIdentifier().replace(".img", "");
 		LOGGER.info("Publish processing start for node: " + nodeId);
 		String basePath = PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location"));
@@ -224,9 +223,9 @@ public class PublishPipelineService implements ISamzaService {
 					"Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
 							+ nodeId + "]",
 					e.getMessage());
-			node.getMetadata().put(PublishPipelineParams.publishError.name(), e.getMessage());
-			node.getMetadata().put(PublishPipelineParams.status.name(), PublishPipelineParams.Failed.name());
-			util.updateNode(node);
+			cloneNode.getMetadata().put(PublishPipelineParams.publishError.name(), e.getMessage());
+			cloneNode.getMetadata().put(PublishPipelineParams.status.name(), PublishPipelineParams.Failed.name());
+			util.updateNode(cloneNode);
 		} finally {
 			try {
 				FileUtils.deleteDirectory(new File(basePath.replace(nodeId, "")));
