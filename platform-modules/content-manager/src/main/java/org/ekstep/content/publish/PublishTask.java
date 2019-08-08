@@ -7,24 +7,21 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import java.util.Arrays;
+import com.rits.cloning.Cloner;
+
 import java.util.Map;
 
 public class PublishTask implements Runnable {
 
-	private String contentId;
 	private Map<String, Object> parameterMap;
 	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 	/** The SimpleDateformatter. */
 	private ControllerUtil util = new ControllerUtil();
-	private HierarchyStore hierarchyStore = new HierarchyStore();
 
-	public PublishTask(String contentId, Map<String, Object> parameterMap) {
-		this.contentId = contentId;
+	public PublishTask(Map<String, Object> parameterMap) {
 		this.parameterMap = parameterMap;
 	}
 
@@ -51,20 +48,24 @@ public class PublishTask implements Runnable {
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(), ContentErrorMessageConstants.INVALID_CONTENT
 					+ " | ['null' or Invalid Content Node (Object). Async Publish Operation Failed.]");
+		Cloner cloner = new Cloner();
+		Node cloneNode = cloner.deepClone(node);
 		String nodeId = node.getIdentifier().replace(".img", "");
 		TelemetryManager.info("Publish processing start for node: "+ nodeId);
+		String basePath = PublishManager.getBasePath(nodeId, null);
+		TelemetryManager.info("Base path to store files: " + basePath);
 		try {
 			setContentBody(node, mimeType);
 			this.parameterMap.put(ContentWorkflowPipelineParams.node.name(), node);
 			this.parameterMap.put(ContentWorkflowPipelineParams.ecmlType.name(), PublishManager.isECMLContent(mimeType));
-			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId, null), nodeId);
+			InitializePipeline pipeline = new InitializePipeline(basePath, nodeId);
 			pipeline.init(ContentWorkflowPipelineParams.publish.name(), this.parameterMap);
 		} catch (Exception e) {
 			TelemetryManager.error("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: " + nodeId
 					+ "]", e);
-			node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
-			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Failed.name());
-			util.updateNode(node);
+			cloneNode.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
+			cloneNode.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Failed.name());
+			util.updateNode(cloneNode);
 		}
 	}
 
