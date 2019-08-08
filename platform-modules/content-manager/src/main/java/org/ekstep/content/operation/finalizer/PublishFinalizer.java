@@ -623,7 +623,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		//TODO:  For appIcon, posterImage and screenshot createThumbNail method has to be implemented.
 		content.put(ContentWorkflowPipelineParams.lastPublishedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastPublishedOn.name()));
 		content.put(ContentWorkflowPipelineParams.pkgVersion.name(), node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()));
-		content.put(ContentWorkflowPipelineParams.leafNodesCount.name(), getLeafNodeCount(content, 0));
+		content.put(ContentWorkflowPipelineParams.leafNodesCount.name(), getLeafNodeCount(content));
 		content.put(ContentWorkflowPipelineParams.status.name(), node.getMetadata().get(ContentWorkflowPipelineParams.status.name()));
 		content.put(ContentWorkflowPipelineParams.lastUpdatedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastUpdatedOn.name()));
 		content.put(ContentWorkflowPipelineParams.downloadUrl.name(), node.getMetadata().get(ContentWorkflowPipelineParams.downloadUrl.name()));
@@ -631,20 +631,10 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Integer getLeafNodeCount(Map<String, Object> data, int leafCount) {
-		List<Object> children = (List<Object>) data.get("children");
-		if (null != children && !children.isEmpty()) {
-			for (Object child : children) {
-				Map<String, Object> childMap = (Map<String, Object>) child;
-				int lc = 0;
-				lc = getLeafNodeCount(childMap, lc);
-				leafCount = leafCount + lc;
-			}
-		} else {
-			if (!COLLECTION_MIMETYPE.equals(data.get(ContentAPIParams.mimeType.name())))
-				leafCount++;
-		}
-		return leafCount;
+	private Integer getLeafNodeCount(Map<String, Object> data) {
+	    Set<String> leafNodeIds = new HashSet<>();
+	    getLeafNodesIds(data, leafNodeIds);
+	    return leafNodeIds.size();
 	}
 
 	private double getTotalCompressedSize(Map<String, Object> data, double totalCompressed) {
@@ -1057,8 +1047,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		return leafNodes;
 	}
-	
-	
+
 	private Map<String, Object> processChildren(Node node, List<Map<String, Object>> children) {
 		Map<String, Object> dataMap = new HashMap<>();
 		processChildren(children, dataMap);
@@ -1081,14 +1070,15 @@ public class PublishFinalizer extends BaseFinalizer {
 			Map<String, Object> content = getContentMap(node, children);
 			if(MapUtils.isEmpty(content))
 				return;
-			int leafCount = 0;
-			leafCount = getLeafNodeCount(content, leafCount);
+			int leafCount = getLeafNodeCount(content);
 			double totalCompressedSize = 0.0;
 			totalCompressedSize = getTotalCompressedSize(content, totalCompressedSize);
 			content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
 			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
 			content.put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
 			node.getMetadata().put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
+			updateLeafNodeIds(node, content);
+
 
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
@@ -1111,7 +1101,15 @@ public class PublishFinalizer extends BaseFinalizer {
 			node.getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
 		}
 	}
-	
+
+	private void updateLeafNodeIds(Node node, Map<String, Object> content) {
+        Set<String> leafNodeIds = new HashSet<>();
+        getLeafNodesIds(content, leafNodeIds);
+		if(CollectionUtils.isNotEmpty(leafNodeIds)){
+			node.getMetadata().put(ContentAPIParams.leafNodes.name(), new ArrayList<>(leafNodeIds));
+		}
+	}
+
 	private String convertToString(Object obj) throws Exception {
 		return mapper.writeValueAsString(obj);
 	}
@@ -1278,4 +1276,17 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		return list;
 	}
+
+    private void getLeafNodesIds(Map<String, Object> data, Set<String> leafNodeIds) {
+        List<Map<String,Object>> children = (List<Map<String,Object>>)data.get("children");
+        if(CollectionUtils.isNotEmpty(children)) {
+            for(Map<String, Object> child : children) {
+                getLeafNodesIds(child, leafNodeIds);
+            }
+        } else {
+            if (!StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) data.get(ContentAPIParams.mimeType.name()))) {
+                leafNodeIds.add((String) data.get(ContentAPIParams.identifier.name()));
+            }
+        }
+    }
 }

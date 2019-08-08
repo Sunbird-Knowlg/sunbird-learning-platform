@@ -35,6 +35,17 @@
 			</modules>
 		</profile>
 		<profile>
+			<id>learning-services</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<modules>
+				<module>searchIndex-platform</module>
+				<module>platform-core</module>
+				<module>platform-modules</module>
+			</modules>
+		</profile>
+		<profile>
 			<id>samza-jobs</id>
 			<modules>
 				<module>platform-core</module>

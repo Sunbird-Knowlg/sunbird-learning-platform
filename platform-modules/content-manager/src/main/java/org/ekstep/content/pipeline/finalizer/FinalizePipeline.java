@@ -34,7 +34,7 @@ public class FinalizePipeline extends BasePipeline {
 	 * FinalizePipeLine()
 	 * sets the basePath and contentId
 	 *  
-	 * @param BasePath the basePath
+	 * @param basePath the basePath
 	 * @param contentId the contentId
 	 * checks if the basePath is valid else throws ClientException
 	 * checks if the ContentId is not null else throws ClientException
@@ -54,7 +54,7 @@ public class FinalizePipeline extends BasePipeline {
 	 * finalyze() which marks the begin of the FinalyzerPipeline
 	 *
 	 * @param operation the Operation
-	 * @param Map the parameterMap
+	 * @param parameterMap the parameterMap
 	 * checks if operation or parameterMap is empty throws ClientException
 	 * else based on the OPERATION(upload, publish or bundle) calls the  
 	 * respective ContentOperationFinalizers
@@ -65,46 +65,50 @@ public class FinalizePipeline extends BasePipeline {
 		if (StringUtils.isBlank(operation))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid Operation.]");
-		if (null != parameterMap && !StringUtils.isBlank(operation)) {
-			TelemetryManager.log("Performing Operation: " + operation);
-			switch (operation) {
-				case "upload":
-				case "UPLOAD": {
+		try{
+			if (null != parameterMap && !StringUtils.isBlank(operation)) {
+				TelemetryManager.log("Performing Operation: " + operation);
+				switch (operation) {
+					case "upload":
+					case "UPLOAD": {
 						UploadFinalizer uploadFinalizer = new UploadFinalizer(basePath, contentId);
 						response = uploadFinalizer.finalize(parameterMap);
 					}
 					break;
-					
-				case "publish":
-				case "PUBLISH": {
+
+					case "publish":
+					case "PUBLISH": {
 						PublishFinalizer publishFinalizer = new PublishFinalizer(basePath, contentId);
 						response = publishFinalizer.finalize(parameterMap);
 					}
 					break;
-					
-				case "bundle":
-				case "BUNDLE": {
+
+					case "bundle":
+					case "BUNDLE": {
 						BundleFinalizer bundleFinalizer = new BundleFinalizer(basePath, contentId);
 						response = bundleFinalizer.finalize(parameterMap);
 					}
 					break;
-					
-				case "review":
-				case "REVIEW": {
+
+					case "review":
+					case "REVIEW": {
 						ReviewFinalizer reviewFinalizer = new ReviewFinalizer(basePath, contentId);
 						response = reviewFinalizer.finalize(parameterMap);
 					}
-					break;	
-					
-				default:
-					TelemetryManager.log("Invalid Operation: " + operation);
 					break;
+
+					default:
+						TelemetryManager.log("Invalid Operation: " + operation);
+						break;
+				}
 			}
-		}
-		try {
-			FileUtils.deleteDirectory(new File(basePath));
-		} catch (Exception e) {
-			TelemetryManager.error("Error deleting directory: " + basePath, e);
+		} finally {
+			String path = StringUtils.replace(basePath, "/" + contentId, "");
+			try {
+				FileUtils.deleteDirectory(new File(path));
+			} catch (Exception e) {
+				TelemetryManager.error("Error deleting directory: " + path, e);
+			}
 		}
 		return response;
 	}

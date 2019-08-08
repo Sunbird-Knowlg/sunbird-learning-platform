@@ -1,5 +1,6 @@
 package org.ekstep.content.mgr.impl.operation.plugin;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
@@ -57,7 +59,7 @@ public class CopyOperation extends BaseContentManager {
             throw new ClientException("ERR_INVALID_REQUEST", "Please provide valid request");
 
         validateOrThrowExceptionForEmptyKeys(requestMap, "Content", Arrays.asList("createdBy", "createdFor",
-                "organization", "framework"));
+                "organisation", "framework"));
 
         Node node = getContentNode(TAXONOMY_ID, contentId, mode);
         List<String> notCoppiedContent = null;
@@ -109,15 +111,38 @@ public class CopyOperation extends BaseContentManager {
     private Node copyMetdata(Node existingNode, Map<String, Object> requestMap) {
         String newId = Identifier.getIdentifier(existingNode.getGraphId(), Identifier.getUniqueIdFromTimestamp());
         Node copyNode = new Node(newId, existingNode.getNodeType(), existingNode.getObjectType());
+        
         Map<String, Object> metaData = new HashMap<>();
         metaData.putAll(existingNode.getMetadata());
-        List<String> nullPropList = Platform.config.getStringList("learning.content.copy.props_to_remove");
-        nullPropList.forEach(prop -> metaData.remove(prop));
+        
+        Map<String, Object> originData = new HashMap<>();
+        
+        List<String> originNodeMetadataList = Platform.config.hasPath("learning.content.copy.origin_data")
+        		? Platform.config.getStringList("learning.content.copy.origin_data") : null;
+        if(CollectionUtils.isNotEmpty(originNodeMetadataList))
+	        	originNodeMetadataList.forEach(meta -> {
+	        		if(metaData.containsKey(meta))
+	        			originData.put(meta, metaData.get(meta));
+	        		});
+        
+        List<String> nullPropList = Platform.config.hasPath("learning.content.copy.props_to_remove")
+        		? Platform.config.getStringList("learning.content.copy.props_to_remove"): null;
+
+        // TODO: Remove the below loop in 2.3.0
+        List<String> batchCountPropList = metaData.keySet().stream().filter(key -> key.endsWith("_batch_count")).collect(Collectors.toList());
+        if(CollectionUtils.isNotEmpty(batchCountPropList))
+            nullPropList.addAll(batchCountPropList);
+
+        if(CollectionUtils.isNotEmpty(nullPropList))
+        		nullPropList.forEach(prop -> metaData.remove(prop));
+
         copyNode.setMetadata(metaData);
         copyNode.setGraphId(existingNode.getGraphId());
         copyNode.getMetadata().putAll(requestMap);
         copyNode.getMetadata().put("status", "Draft");
         copyNode.getMetadata().put("origin", existingNode.getIdentifier());
+        if(MapUtils.isNotEmpty(originData))
+        		copyNode.getMetadata().put("originData", originData);
 
         List<Relation> existingNodeOutRelations = existingNode.getOutRelations();
         List<Relation> copiedNodeOutRelations = new ArrayList<>();

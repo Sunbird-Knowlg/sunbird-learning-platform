@@ -920,7 +920,7 @@
 					],
 					"category": "Ownership",
 					"displayProperty": "Editable",
-					"defaultValue": "",
+					"defaultValue": "Creative Commons Attribution (CC BY)",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
@@ -1098,7 +1098,7 @@
 						"FocusSpot",
                         "LearningOutcomeDefinition",
                         "PracticeQuestionSet",
-                        "CuriosityQuestions",
+                        "CuriosityQuestionSet",
                         "MarkingSchemeRubric",
                         "ExplanationResource",
                         "ExperientialResource"
@@ -1886,6 +1886,18 @@
 					"description": "Origin",
 					"category": "Lifecycle",
 					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Readonly",
+					"defaultValue": "",
+					"renderingHints": "{'order': 24}",
+					"indexed": true
+				},
+				{
+					"propertyName": "originData",
+					"title": "Origin Data",
+					"description": "Origin Content metadata",
+					"category": "Lifecycle",
+					"dataType": "JSON",
 					"required": false,
 					"displayProperty": "Readonly",
 					"defaultValue": "",
@@ -2879,6 +2891,51 @@
                     "indexed": true,
                     "draft": false,
                     "rangeValidation": true
+                },
+				{
+					"required": false,
+					"dataType": "List",
+					"propertyName": "leafNodes",
+					"title": "leafNodes",
+					"description": "Unique leafNodes attached to collection mimeTypes",
+					"category": "general",
+					"displayProperty": "Editable",
+					"range": null,
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+					"indexed": true,
+					"draft": false,
+					"rangeValidation": true
+				},
+				{
+                    "required": false,
+                    "dataType": "Number",
+                    "propertyName": "editorVersion",
+                    "title": "Editor Version",
+                    "description": "Version of the Editor",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                },
+                {
+                    "required": false,
+                    "dataType": "Text",
+                    "propertyName": "textBookUnitIdentifier",
+                    "title": "TextBook Unit Identifier",
+                    "description": "TextBook Unit Identifier",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
                 }
 			],
 			"inRelations": [
@@ -3182,7 +3239,11 @@
 					"consumerId",
 					"organisation",
 					"migratedUrl",
-					"totalCompressedSize"
+					"totalCompressedSize",
+					"programId",
+					"leafNodes",
+					"origin",
+					"originData"
 				]
 			}
 		}

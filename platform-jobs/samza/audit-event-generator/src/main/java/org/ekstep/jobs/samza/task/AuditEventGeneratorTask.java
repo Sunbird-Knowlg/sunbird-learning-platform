@@ -58,7 +58,6 @@ public class AuditEventGeneratorTask extends BaseTask {
 				}
 			} else {
 				auditEventGenerator.processMessage(outgoingMap, metrics, collector);
-				setMetricsOffset(getSystemStreamPartition(envelope), getOffset(envelope), metrics);
 			}
 		} catch (Exception e) {
 			metrics.incErrorCounter();

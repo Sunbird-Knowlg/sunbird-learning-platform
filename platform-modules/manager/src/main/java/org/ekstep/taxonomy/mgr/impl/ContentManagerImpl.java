@@ -154,6 +154,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@Override
 	public Response acceptFlag(String contentId) { return this.contentEventManager.acceptFlag(contentId); }
 
+	@Override
+	public Response flag(String contentId, Map<String, Object> requestMap) throws Exception {
+		return this.contentEventManager.flag(contentId, requestMap);
+	}
+
+	@Override
+	public Response rejectFlag(String contentId) throws Exception {
+		return this.contentEventManager.rejectFlag(contentId);
+	}
 
     @Override
     public Response syncHierarchy(String identifier) {

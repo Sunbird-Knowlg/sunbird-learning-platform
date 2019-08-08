@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rits.cloning.Cloner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -31,6 +32,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.model.node.MetadataDefinition;
+import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
@@ -104,6 +106,8 @@ public abstract class BaseContentManager extends BaseManager {
 
     protected static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
 
+    protected static final List<String> SYSTEM_UPDATE_ALLOWED_CONTENT_STATUS = Arrays.asList(TaxonomyAPIParams.Live.name(), TaxonomyAPIParams.Unlisted.name());
+
 	protected String getId(String identifier) {
 		if (StringUtils.endsWith(identifier, ".img")) {
 			return identifier.replace(".img", "");
@@ -113,7 +117,7 @@ public abstract class BaseContentManager extends BaseManager {
 	
 	protected String getImageId(String identifier) {
 		String imageId = "";
-		if (StringUtils.isNotBlank(identifier))
+		if (StringUtils.isNotBlank(identifier) && !StringUtils.endsWithIgnoreCase(identifier,".img"))
 			imageId = identifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
 		return imageId;
 	}
@@ -303,51 +307,172 @@ public abstract class BaseContentManager extends BaseManager {
         }
     }
 
-    public Response updateAllContents(String originalId, Map<String, Object> map) throws Exception {
-        if (null == map)
+    public Response updateAllContents(String originalId, Map<String, Object> inputMap) throws Exception {
+        if (MapUtils.isEmpty(inputMap))
             return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
-        DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+        //Clear redis cache before updates
+        clearRedisCache(originalId);
 
-        Map<String, Object> externalProps = new HashMap<>();
-        List<String> externalPropsList = getExternalPropsList(definition);
-        if (null != externalPropsList && !externalPropsList.isEmpty()) {
-            for (String prop : externalPropsList) {
-                if (null != map.get(prop))
-                    externalProps.put(prop, map.get(prop));
-                if (equalsIgnoreCase(ContentAPIParams.screenshots.name(), prop) && null != map.get(prop)) {
-                    map.put(prop, null);
-                } else {
-                    map.remove(prop);
+        //Check whether the node exists in graph db
+        Response originalNodeResponse = getDataNode(TAXONOMY_ID, originalId);
+        if (checkError(originalNodeResponse)) {
+            return originalNodeResponse;
+        }
+        Map resultMap = originalNodeResponse.getResult();
+        Node node = (Node) resultMap.get(ContentAPIParams.node.name());
+        Map currentMetadata = node.getMetadata();
+
+        if (originalId.endsWith(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+            return updateContent(CONTENT_IMAGE_OBJECT_TYPE, originalId, inputMap, currentMetadata);
+        } else {
+            //Backup input data to update image node
+            Cloner cloner = new Cloner();
+            Map<String, Object> backUpInputMap = cloner.deepClone(inputMap);
+
+            //Check whether image node exists
+            Response imageNodeResponse = getDataNode(TAXONOMY_ID, originalId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
+            boolean isImageNodeExists = !checkError(imageNodeResponse);
+
+            //Status of Content Node(if it has image node) should not be updated
+            if(isImageNodeExists) {
+                inputMap.remove(TaxonomyAPIParams.status.name());
+            }
+            if(MapUtils.isEmpty(inputMap) && !isImageNodeExists) {
+                return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request. Cannot update status of Live Node.", ResponseCode.CLIENT_ERROR);
+            }
+
+            //Update Content Node
+            Response updateResponse = null;
+            if(MapUtils.isNotEmpty(inputMap)) {
+                updateResponse = updateContent(CONTENT_OBJECT_TYPE, originalId, inputMap, currentMetadata);
+                if (checkError(updateResponse)) {
+                    return updateResponse;
                 }
+            }
 
+            //Update Content Image Node
+            if (isImageNodeExists) {
+                Map imageResultMap = imageNodeResponse.getResult();
+                Node imageNode = (Node) imageResultMap.get(ContentAPIParams.node.name());
+                Map currentImageMetadata = imageNode.getMetadata();
+                Response imageUpdateResponse = updateContent(CONTENT_IMAGE_OBJECT_TYPE, originalId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, backUpInputMap, currentImageMetadata);
+                if(checkError(imageUpdateResponse) || null == updateResponse)
+                    return imageUpdateResponse;
+            }
+            return updateResponse;
+        }
+    }
+
+    private Response updateContent(String objectType, String objectId, Map<String, Object> changedData, Map currentMetadata) throws Exception {
+
+	    boolean isImageNode = false;
+	    if(objectId.endsWith(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+	        isImageNode = true;
+            //Image node cannot be made Live or Unlisted using system call
+            String inputStatus = (String) changedData.get(ContentAPIParams.status.name());
+            if(SYSTEM_UPDATE_ALLOWED_CONTENT_STATUS.contains(inputStatus)) {
+                changedData.remove(inputStatus);
+            }
+            if(MapUtils.isEmpty(changedData)) {
+                return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request. Cannot update status of Image Node to Live.", ResponseCode.CLIENT_ERROR);
             }
         }
+        //Get configured definition
+        DefinitionDTO definition = getDefinition(TAXONOMY_ID, objectType);
 
-        String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
-        map.put("versionKey", graphPassportKey);
-        Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
-        Response updateResponse = updateNode(originalId, CONTENT_OBJECT_TYPE, domainObj);
+        setPassportKey(changedData);
+
+        removeRelationsFromData(definition, changedData);
+
+        //Prepare Node Object to be updated
+        Node domainObj = ConvertToGraphNode.convertToGraphNode(changedData, definition, null);
+
+        //Get node data for cassandra hierarchy update
+        //Map<String, Object> nodeWithoutRelations = ConvertGraphNode.convertGraphNodeWithoutRelations(domainObj, TAXONOMY_ID, definition, null);
+
+        //Update graph node
+        Response updateResponse = updateNode(objectId, objectType, domainObj);
+
+        //Return error response in case of update failure
         if (checkError(updateResponse))
             return updateResponse;
-        updateResponse.put(GraphDACParams.node_id.name(), originalId);
 
-        Response getNodeResponse = getDataNode(TAXONOMY_ID, originalId + ".img");
-        if(!checkError(getNodeResponse)){
-            Node imgDomainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
-            updateNode(originalId + ".img", CONTENT_IMAGE_OBJECT_TYPE, imgDomainObj);
+        //Add node_id in case of successful update
+        updateResponse.put(GraphDACParams.node_id.name(), objectId);
+
+        //Update external properties in Cassandra
+        Map<String, Object> externalProps = extractExternalProps(changedData, definition);
+        if (MapUtils.isNotEmpty(externalProps)) {
+            Response updateExtPropResponse = updateContentProperties(objectId, externalProps);
+            if (checkError(updateExtPropResponse))
+                return updateExtPropResponse;
         }
 
-        if (null != externalProps && !externalProps.isEmpty()) {
-            Response externalPropsResponse = updateContentProperties(originalId, externalProps);
-            if (checkError(externalPropsResponse))
-                return externalPropsResponse;
+        //Update hierarchy in Cassandra for Live/Unlisted Collections
+        String status = isBlank((String) changedData.get(TaxonomyAPIParams.status.name())) ?
+                (String) currentMetadata.get(TaxonomyAPIParams.status.name()) :
+                (String) changedData.get(TaxonomyAPIParams.status.name());
+        String mimeType = (String) currentMetadata.get(TaxonomyAPIParams.mimeType.name());
+        if (equalsIgnoreCase(mimeType, COLLECTION_MIME_TYPE) && !isImageNode &&
+                SYSTEM_UPDATE_ALLOWED_CONTENT_STATUS.contains(status)) {
+            Response collectionHierarchyResponse = getCollectionHierarchy(objectId);
+            if(!checkError(collectionHierarchyResponse)) {
+                Map<String, Object> currentHierarchy = (Map<String, Object>) collectionHierarchyResponse.getResult().get(ContentAPIParams.hierarchy.name());
+                if (MapUtils.isNotEmpty(currentHierarchy)) {
+                    //Remove version key from data
+                    changedData.remove(ContentAPIParams.versionKey.name());
+
+                    //update currentHierarchy in Cassandra
+                    changedData.keySet().forEach(key -> currentHierarchy.put(key, changedData.get(key)));
+                    //nodeWithoutRelations.keySet().forEach(key -> currentHierarchy.put(key, nodeWithoutRelations.get(key)));
+                    Response updateHierarchyResponse = updateCollectionHierarchy(objectId, currentHierarchy);
+                    if (checkError(updateHierarchyResponse))
+                        return updateHierarchyResponse;
+                }
+            }
         }
-        if (StringUtils.equalsIgnoreCase(COLLECTION_MIME_TYPE, domainObj.getMetadata().get("mimeType").toString())) {
-            RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + originalId);
-        }
-        RedisStoreUtil.delete(originalId);
         return updateResponse;
+
+    }
+
+    private void clearRedisCache(String originalId) {
+        RedisStoreUtil.delete(originalId);
+        RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + originalId);
+    }
+
+    private void setPassportKey(Map<String, Object> changedData) {
+        //Add passport key to update without changing the version key
+        String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+        changedData.put(ContentAPIParams.versionKey.name(), graphPassportKey);
+    }
+
+    private void removeRelationsFromData(DefinitionDTO definition, Map<String, Object> changedData) {
+        //Get in-relation and out-relation titles
+        List<String> relationTitles = new ArrayList<>();
+        List<RelationDefinition> relations = new ArrayList<>();
+        relations.addAll(definition.getInRelations());
+        relations.addAll(definition.getOutRelations());
+        relations.forEach(relation -> relationTitles.add(relation.getTitle()));
+
+        //Relation fields should not be updated as part of system update call
+        relationTitles.forEach(title -> changedData.remove(title));
+    }
+
+    private Map<String, Object> extractExternalProps(Map<String, Object> data, DefinitionDTO definition) {
+        //Extract external properties from request to update Cassandra db
+        Map<String, Object> externalProps = new HashMap<>();
+        List<String> externalPropsList = getExternalPropsList(definition);
+        externalPropsList.forEach(prop -> {
+            if (null != data.get(prop))
+                externalProps.put(prop, data.get(prop));
+            if (equalsIgnoreCase(ContentAPIParams.screenshots.name(), prop) && null != data.get(prop)) {
+                data.put(prop, null);
+            } else {
+                data.remove(prop);
+            }
+        });
+        return externalProps;
     }
 
     protected Node getNodeForOperation(String contentId, String operation) {
