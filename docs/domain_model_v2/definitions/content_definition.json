@@ -2847,7 +2847,7 @@
                 },
                 {
                     "required": false,
-                    "dataType": "Text",
+                    "dataType": "List",
                     "propertyName": "unitIdentifiers",
                     "title": "Collection Unit Identifier",
                     "description": "Collection Unit Identifier for which this resource going to link.",
