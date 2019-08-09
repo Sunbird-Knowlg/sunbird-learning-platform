@@ -89,11 +89,6 @@
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-orm</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>unit-tests</artifactId>
 			<version>1.0-SNAPSHOT</version>
@@ -120,46 +115,6 @@
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
 			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>${hibernate.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>jaxen</artifactId>
-					<groupId>jaxen</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>stax-api</artifactId>
-					<groupId>stax</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>xpp3</artifactId>
-					<groupId>xpp3</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>xsdlib</artifactId>
-					<groupId>msv</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>pull-parser</artifactId>
-					<groupId>pull-parser</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>relaxngDatatype</artifactId>
-					<groupId>msv</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jaxme-api</artifactId>
-					<groupId>jaxme</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-envers</artifactId>
-			<version>${hibernate.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.genericdao</groupId>
