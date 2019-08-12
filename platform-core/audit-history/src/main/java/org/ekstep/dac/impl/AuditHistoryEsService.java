@@ -26,7 +26,6 @@ import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -71,7 +70,6 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 * java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
-	@Transactional
 	public Response saveAuditHistoryLog(Request request) {
 	
 		AuditHistoryRecord auditRecord = (AuditHistoryRecord) request.get(CommonDACParams.audit_history_record.name());
@@ -96,7 +94,6 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 * #getAuditHistoryLog(java.lang.String, java.lang.String, java.io.File,
 	 * java.lang.String)
 	 */
-	@Transactional
 	public Response getAuditHistoryLog(Request request, String versionId) {
 		String start_date = (String) request.get(CommonDACParams.start_date.name());
 		String end_date = (String) request.get(CommonDACParams.end_date.name());
@@ -122,7 +119,6 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 * #getAuditHistoryLogByObjectType(java.lang.String, java.lang.String,
 	 * java.io.File, java.lang.String)
 	 */
-	@Transactional
 	public Response getAuditHistoryLogByObjectType(Request request, String versionId) {
 		String graphId = (String) request.get(CommonDACParams.graph_id.name());
 		String objectType = (String) request.get(CommonDACParams.object_type.name());
@@ -150,7 +146,6 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 * #getAuditHistoryLogByObjectId(java.lang.String, java.lang.String,
 	 * java.io.File, java.lang.String)
 	 */
-	@Transactional
 	public Response getAuditHistoryLogByObjectId(Request request, String versionId) {
 		String graphId = (String) request.get(CommonDACParams.graph_id.name());
 		String objectId = (String) request.get(CommonDACParams.object_id.name());
@@ -177,7 +172,6 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 * #getAuditLogRecordByAuditId(java.lang.String, java.lang.String,
 	 * java.io.File, java.lang.String)
 	 */
-	@Transactional
 	public Response getAuditLogRecordById(Request request) {
 		String objectId = (String) request.get(CommonDACParams.object_id.name());
 		String start_date = (String) request.get(CommonDACParams.time_stamp.name());
@@ -201,7 +195,6 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 * #deletEeDate(java.lang.String, java.lang.String,
 	 * java.io.File, java.lang.String)
 	 */
-	@Transactional
 	public Response deleteEsData(Request request) {
 		TelemetryManager.log("getting request to delete audit history records from ES", request.getRequest());
 		String timeStamp = (String) request.get(CommonDACParams.time_stamp.name());

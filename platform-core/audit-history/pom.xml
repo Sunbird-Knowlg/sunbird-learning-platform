@@ -7,50 +7,13 @@
 		<version>1.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>platform-dac</artifactId>
+	<artifactId>audit-history</artifactId>
 	<packaging>jar</packaging>
-	<name>Platform DAC</name>
-	
-	<profiles>
-		<profile>
-			<id>development</id>
-			<activation>
-				<!-- <activeByDefault>true</activeByDefault> -->
-				<property>
-					<name>environment.type</name>
-					<value>dev</value>
-				</property>
-			</activation>
-			<build>
-				<resources>
-					<resource>
-						<directory>src/main/resources</directory>
-						<filtering>true</filtering>
-					</resource>
-				</resources>
-			</build>
-			<properties>
-				<db.driverClassName>com.mysql.jdbc.Driver</db.driverClassName>
-				<db.url>jdbc:mysql://localhost:3306/ekstep</db.url>
-				<db.username>root</db.username>
-				<db.password>c4n0pu5</db.password>
-				<db.initialSize>2</db.initialSize>
-				<db.maxActive>10</db.maxActive>
-				<db.validationQuery>select 1</db.validationQuery>
-				<hibernate.dialect>org.hibernate.dialect.MySQL5Dialect</hibernate.dialect>
-				<hibernate.show_sql>true</hibernate.show_sql>
-				<hibernate.query.substitutions>true 1, false 0</hibernate.query.substitutions>
-				<hibernate.hbm2ddl.auto>none</hibernate.hbm2ddl.auto>
-				<hibernate.default_schema>ekstep</hibernate.default_schema>
-				<hibernate.packagesToScan>org.ekstep</hibernate.packagesToScan>
-				<hibernate.jdbc.batch_size>3</hibernate.jdbc.batch_size>
-			</properties>
-		</profile>
-	</profiles>
+	<name>Platform Audit History</name>
+
 
 	<properties>
 		<spring.version>4.2.4.RELEASE</spring.version>
-		<hibernate.version>4.1.4.Final</hibernate.version>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
@@ -89,11 +52,6 @@
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-orm</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>unit-tests</artifactId>
 			<version>1.0-SNAPSHOT</version>
@@ -120,46 +78,6 @@
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
 			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>${hibernate.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>jaxen</artifactId>
-					<groupId>jaxen</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>stax-api</artifactId>
-					<groupId>stax</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>xpp3</artifactId>
-					<groupId>xpp3</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>xsdlib</artifactId>
-					<groupId>msv</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>pull-parser</artifactId>
-					<groupId>pull-parser</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>relaxngDatatype</artifactId>
-					<groupId>msv</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jaxme-api</artifactId>
-					<groupId>jaxme</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-envers</artifactId>
-			<version>${hibernate.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.genericdao</groupId>

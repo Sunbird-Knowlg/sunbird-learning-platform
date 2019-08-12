@@ -9,14 +9,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.cassandra.store.CassandraStore;
 import org.ekstep.common.Platform;
-import org.ekstep.common.exception.ResourceNotFoundException;
-import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
