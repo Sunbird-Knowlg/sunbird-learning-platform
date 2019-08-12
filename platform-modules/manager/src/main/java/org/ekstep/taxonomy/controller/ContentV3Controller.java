@@ -655,7 +655,7 @@ public class ContentV3Controller extends BaseController {
 	public ResponseEntity<Response> rejectContent(@PathVariable(value = "id") String contentId,
 												  @RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.content.reject";
-		TelemetryManager.log("Content Reject operation for content with identifier : " + contentId);
+		TelemetryManager.log("Content Review Reject operation for identifier : " + contentId);
 		Request request = getRequest(requestMap);
 		Response response;
 		try {

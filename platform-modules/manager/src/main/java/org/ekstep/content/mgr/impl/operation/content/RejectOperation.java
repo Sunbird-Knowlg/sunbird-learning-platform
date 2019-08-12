@@ -14,6 +14,7 @@ import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ import java.util.Map;
 public class RejectOperation extends BaseContentManager {
 
     public Response rejectContent(String contentId, Map<String, Object> requestMap) {
+        requestMap = (requestMap == null) ? new HashMap<String, Object>() : requestMap;
         if (StringUtils.isBlank(contentId) || StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
             throw new ClientException(ContentErrorCodes.ERR_INVALID_CONTENT_ID.name(),
                     "Please provide valid content identifier");
