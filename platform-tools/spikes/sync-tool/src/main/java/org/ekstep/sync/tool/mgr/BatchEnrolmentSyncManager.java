@@ -46,7 +46,7 @@ public class BatchEnrolmentSyncManager {
     private static final String keyspace = Platform.config.hasPath("courses.keyspace.name") ? Platform.config.getString("courses.keyspace.name"): "sunbird_courses";
     public void sync(String objectType, String offset, String limit, String resetProgress, String[] batchIds) throws Exception {
         String index = esIndexObjecTypeMap.get(objectType);
-        ElasticSearchUtil.initialiseESClient(index, Platform.config.getString("search.es_conn_info"));
+        ElasticSearchUtil.initialiseESClient(index, Platform.config.getString("search.lms_es_conn_info"));
 
         //FetchData from cassandra
         int lmt = (StringUtils.isNotBlank(limit)) ? Integer.parseInt(limit) : 0;
