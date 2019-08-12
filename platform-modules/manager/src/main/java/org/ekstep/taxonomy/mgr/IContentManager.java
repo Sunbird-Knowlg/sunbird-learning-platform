@@ -249,6 +249,21 @@ public interface IContentManager {
      */
     Response acceptFlag(String contentId) throws Exception;
 
+	/**
+	 * @param contentId
+	 * @param requestMap
+	 * @return
+	 * @throws Exception
+	 */
+	Response flag(String contentId, Map<String, Object> requestMap) throws Exception;
+
+	/**
+	 * @param contentId
+	 * @return
+	 * @throws Exception
+	 */
+	Response rejectFlag(String contentId) throws Exception;
+
     Response syncHierarchy(String identifier);
     
     /**
@@ -296,15 +311,4 @@ public interface IContentManager {
 	 * @throws Exception
 	 */
 	Response discardContent(String contentId) throws Exception;
-
-	/**
-	 * This method is used for rejecting content which is sent for review, if it doesn't fit into
-	 * the standards set by the organisation. (Reasons of rejecting the content as well as comments
-	 * can be sent back)
-	 * @param contentId
-	 * @return
-	 * @throws Exception
-	 */
-	Response rejectContent(String contentId, Map<String, Object> requestMap) throws Exception;
-
 }

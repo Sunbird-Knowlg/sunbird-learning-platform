@@ -69,7 +69,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 
 	private static String script_1 = "CREATE KEYSPACE IF NOT EXISTS content_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
 	private static String script_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data (content_id text, last_updated_on timestamp,body blob,oldBody blob,stageIcons blob,PRIMARY KEY (content_id));";
-	private static String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"testUser\",\"createdFor\": [\"Ekstep\"],\"organization\": [\"ekstep\"],\"description\":\"copy content\",\"framework\":\"NCF\"}}}";
+	private static String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"testUser\",\"createdFor\": [\"Ekstep\"],\"organisation\": [\"ekstep\"],\"description\":\"copy content\",\"framework\":\"NCF\"}}}";
 	private static String topic = Platform.config.getString("kafka.topics.instruction");
 	private static String channelId = "in.ekstep";
 
@@ -103,7 +103,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 
 	public static void createDocumentContent() throws Exception {
 		for (int i = 1; i <= 2; i++) {
-			String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"testcontent\",\"mimeType\":\"application/pdf\"}";
+			String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"testcontent\",\"mimeType\":\"application/pdf\",\"creator\": \"ContentCreator\", \"author\": \"ContentAuthor\", \"license\": \"Creative Commons Attribution (CC BY)\", \"copyright\": \"copyright - Content qoned by\", \"organisation\": [\"Content_Creator_Organisation\"], \"attributions\":[\"Content_Attributions1\", \"Content_Attributions2\"]}";
 			Map<String, Object> documentContentMap = mapper.readValue(createDocumentContent,
 					new TypeReference<Map<String, Object>>() {
 					});
@@ -180,6 +180,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
         System.out.println("Original CreatedOn : " + createdOn);
         System.out.println("Copied  CreatedOn : " + createdOnCopy);
 		Assert.assertNotEquals(createdOn, createdOnCopy);
+		Assert.assertNotNull(((Map<String, Object>) readCopyResp.getResult().get("content")).get("originData"));
 	}
 
 	/*
@@ -189,7 +190,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 	@Test
 	public void copyContentTest_02() throws Exception {
 		String reqPath = basePath + "copy/" + contentId;
-		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"\",\"createdFor\": [\"Ekstep\"],\"organization\": [\"ekstep\"],\"description\":\"copy content\",\"framework\":\"NCF\"}}}";
+		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"\",\"createdFor\": [\"Ekstep\"],\"organisation\": [\"ekstep\"],\"description\":\"copy content\",\"framework\":\"NCF\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(reqPath).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(copyContentReq));
 		Response resp = getResponse(actions);
@@ -207,7 +208,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 	@Test
 	public void copyContentTest_03() throws Exception {
 		String reqPath = basePath + "copy/" + contentId;
-		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"\testUser\",\"createdFor\": [],\"organization\": [\"ekstep\"],\"description\":\"copy content\"}}}";
+		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"\testUser\",\"createdFor\": [],\"organisation\": [\"ekstep\"],\"description\":\"copy content\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(reqPath).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(copyContentReq));
 		System.out.println("Response::" + actions.andReturn().getResponse().getContentAsString());
@@ -218,14 +219,14 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 	}
 
 	/*
-	 * Copy Content with Invalid Organization Value
+	 * Copy Content with Invalid Organisation Value
 	 * 
 	 */
 	@Ignore
 	@Test
 	public void copyContentTest_04() throws Exception {
 		String reqPath = basePath + "copy/" + contentId;
-		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"\testUser\",\"createdFor\": [\"Ekstep\"],\"organization\": [],\"description\":\"copy content\"}}}";
+		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"\testUser\",\"createdFor\": [\"Ekstep\"],\"organisation\": [],\"description\":\"copy content\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(reqPath).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(copyContentReq));
 		Response resp = getResponse(actions);
@@ -290,7 +291,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 		publishContent(contentId, false);
 		delay();
 		String reqPath = basePath + "copy/" + contentId;
-		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"testUser\",\"createdFor\": [\"Ekstep\"],\"organization\": [\"ekstep\"],\"description\":\"copy content\"}}}";
+		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"testUser\",\"createdFor\": [\"Ekstep\"],\"organisation\": [\"ekstep\"],\"description\":\"copy content\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(reqPath).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(copyContentReq));
 		Response resp = getResponse(actions);
@@ -312,7 +313,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 		publishContent(contentId, true);
 		delay();
 		String reqPath = basePath + "copy/" + contentId;
-		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"testUser\",\"createdFor\": [\"Ekstep\"],\"organization\": [\"ekstep\"],\"description\":\"copy content\"}}}";
+		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"testUser\",\"createdFor\": [\"Ekstep\"],\"organisation\": [\"ekstep\"],\"description\":\"copy content\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(reqPath).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(copyContentReq));
 		Response resp = getResponse(actions);
@@ -345,7 +346,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 
 		reqPath = basePath + "copy/" + identifier;
-		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"testUser\",\"createdFor\": [\"Ekstep\"],\"organization\": [\"ekstep\"],\"description\":\"copy content\"}}}";
+		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"testUser\",\"createdFor\": [\"Ekstep\"],\"organisation\": [\"ekstep\"],\"description\":\"copy content\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(reqPath).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(copyContentReq));
 		resp = getResponse(actions);

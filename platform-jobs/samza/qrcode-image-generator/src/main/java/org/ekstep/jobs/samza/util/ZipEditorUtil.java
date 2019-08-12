@@ -12,6 +12,7 @@ public class ZipEditorUtil {
 
     public static File zipFiles(List<File> files, String zipName) throws IOException {
         File zipFile = new File(zipName + ".zip");
+        zipFile.createNewFile();
         FileOutputStream fos = new FileOutputStream(zipFile);
         ZipOutputStream zos = new ZipOutputStream(fos);
         for (File file : files) {

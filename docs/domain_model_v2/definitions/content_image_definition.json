@@ -920,7 +920,7 @@
 					],
 					"category": "Ownership",
 					"displayProperty": "Editable",
-					"defaultValue": "",
+					"defaultValue": "Creative Commons Attribution (CC BY)",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
@@ -1098,7 +1098,7 @@
 						"FocusSpot",
                         "LearningOutcomeDefinition",
                         "PracticeQuestionSet",
-                        "CuriosityQuestions",
+                        "CuriosityQuestionSet",
                         "MarkingSchemeRubric",
                         "ExplanationResource",
                         "ExperientialResource"
@@ -1893,6 +1893,18 @@
 					"indexed": true
 				},
 				{
+					"propertyName": "originData",
+					"title": "Origin Data",
+					"description": "Origin Content metadata",
+					"category": "Lifecycle",
+					"dataType": "JSON",
+					"required": false,
+					"displayProperty": "Readonly",
+					"defaultValue": "",
+					"renderingHints": "{'order': 24}",
+					"indexed": true
+				},
+				{
 					"propertyName": "versionCreatedBy",
 					"title": "Version Created By",
 					"description": "Version Created By",
@@ -2650,18 +2662,6 @@
 					"indexed": true
 				},
 				{
-					"propertyName": "showNotification",
-					"title": "showNotification",
-					"description": "R1.15",
-					"category": "Technical",
-					"dataType": "Boolean",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
 					"propertyName": "mimeTypesCount",
 					"title": "mimeTypesCount",
 					"description": "R1.15",
@@ -2777,58 +2777,6 @@
 				{
 					"required": false,
 					"dataType": "Text",
-					"propertyName": "languageCode",
-					"title": "Language Code",
-					"description": "R-1.15",
-					"category": "Technical",
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true,
-					"draft": false
-				},
-				{
-					"required": false,
-					"dataType": "Text",
-					"propertyName": "processingError",
-					"title": "Processing Error",
-					"description": "R-1.15_Processing Error While Publish Operation",
-					"category": "Technical",
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true,
-					"draft": false
-				},
-				{
-					"required": false,
-					"dataType": "Text",
-					"propertyName": "attribution",
-					"title": "Attribution",
-					"description": "R-1.15_Attribution/Credits",
-					"category": "Ownership",
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true,
-					"draft": false
-				},
-				{
-					"required": false,
-					"dataType": "Text",
-					"propertyName": "creatorInfo",
-					"title": "CreatorInfo",
-					"description": "R-1.15_creatorInfo",
-					"category": "General",
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true,
-					"draft": false
-				},
-				{
-					"required": false,
-					"dataType": "Text",
 					"propertyName": "migratedUrl",
 					"title": "Drive Url",
 					"description": "This Url has to be migrated",
@@ -2836,19 +2784,6 @@
 					"displayProperty": "Editable",
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
-					"indexed": true,
-					"draft": false
-				},
-				{
-					"required": false,
-					"dataType": "Text",
-					"propertyName": "baseUrl",
-					"title": "Base Url of Instanse",
-					"description": "R-1.15_baseUrl-VR",
-					"category": "General",
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
 					"indexed": true,
 					"draft": false
 				},
@@ -2894,7 +2829,52 @@
 					"indexed": true,
 					"draft": false,
 					"rangeValidation": true
-				}
+				},
+				{
+                    "required": false,
+                    "dataType": "Number",
+                    "propertyName": "editorVersion",
+                    "title": "Editor Version",
+                    "description": "Version of the Editor",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                },
+                {
+                    "required": false,
+                    "dataType": "Text",
+                    "propertyName": "unitIdentifiers",
+                    "title": "Collection Unit Identifier",
+                    "description": "Collection Unit Identifier for which this resource going to link.",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                },
+                {
+                    "required": false,
+                    "dataType": "List",
+                    "propertyName": "questionCategories",
+                    "title": "Question - Categories",
+                    "description": "The categories of questions included in content.",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                }
 			],
 			"inRelations": [
 				{
@@ -3197,7 +3177,11 @@
 					"consumerId",
 					"organisation",
 					"migratedUrl",
-					"totalCompressedSize"
+					"totalCompressedSize",
+					"programId",
+					"leafNodes",
+					"origin",
+					"originData"
 				]
 			}
 		}

@@ -31,7 +31,8 @@ import java.util.ArrayList;
 
 public class QRCodeImageGeneratorUtil {
 
-    static QRCodeWriter qrCodeWriter = new QRCodeWriter();
+    private static QRCodeWriter qrCodeWriter = new QRCodeWriter();
+    private static Map<String, Font> fontStore = new HashMap();
 
     public static List<File> createQRImages(QRCodeGenerationRequest qrGenRequest, Config appConfig, String container, String path) throws WriterException, IOException, NotFoundException, FontFormatException {
 
@@ -70,6 +71,7 @@ public class QRCodeImageGeneratorUtil {
             }
 
             File finalImageFile = new File(fileName + "." + imageFormat);
+            finalImageFile.createNewFile();
             ImageIO.write(qrImage, imageFormat, finalImageFile);
             fileList.add(finalImageFile);
 
@@ -224,10 +226,7 @@ public class QRCodeImageGeneratorUtil {
 
         BufferedImage image = new BufferedImage(1, 1, getImageType(colorModel));
 
-        //Font basicFont = new Font(fontName, Font.BOLD, fontSize);
-        String fontFile = "/"+fontName+".ttf";
-        InputStream fontStream = QRCodeImageGeneratorUtil.class.getResourceAsStream(fontFile);
-        Font basicFont = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+        Font basicFont = getFontFromStore(fontName);
 
         Map<TextAttribute, Object> attributes = new HashMap<TextAttribute, Object>();
         attributes.put(TextAttribute.TRACKING, tracking);
@@ -267,5 +266,19 @@ public class QRCodeImageGeneratorUtil {
         } else {
             return BufferedImage.TYPE_BYTE_GRAY;
         }
+    }
+
+    private static Font loadFontStore(String fontName) throws IOException, FontFormatException {
+        //load the packaged font file from the root dir
+        String fontFile = "/"+fontName+".ttf";
+        InputStream fontStream = QRCodeImageGeneratorUtil.class.getResourceAsStream(fontFile);
+        Font basicFont = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+        fontStore.put(fontName, basicFont);
+
+        return basicFont;
+    }
+
+    private static Font getFontFromStore(String fontName) throws IOException, FontFormatException {
+        return null != fontStore.get(fontName) ? fontStore.get(fontName) : loadFontStore(fontName);
     }
 }

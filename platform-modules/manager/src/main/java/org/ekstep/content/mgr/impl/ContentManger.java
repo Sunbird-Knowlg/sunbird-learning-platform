@@ -4,7 +4,6 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.content.mgr.impl.operation.content.CreateOperation;
 import org.ekstep.content.mgr.impl.operation.content.DiscardOperation;
 import org.ekstep.content.mgr.impl.operation.content.FindOperation;
-import org.ekstep.content.mgr.impl.operation.content.RejectOperation;
 import org.ekstep.content.mgr.impl.operation.content.RetireOperation;
 import org.ekstep.content.mgr.impl.operation.content.UpdateOperation;
 
@@ -18,7 +17,6 @@ public class ContentManger {
     private final UpdateOperation updateOperation = new UpdateOperation();
     private final RetireOperation retireOperation = new RetireOperation();
     private final DiscardOperation discardOperation = new DiscardOperation();
-    private final RejectOperation rejectOperation = new RejectOperation();
 
     public Response create(Map<String, Object> map, String channelId) throws Exception {
         return this.createOperation.create(map, channelId);
@@ -46,17 +44,6 @@ public class ContentManger {
      */
     public Response discard(String contentId) throws Exception {
         return this.discardOperation.discard(contentId);
-    }
-
-    /**
-     * Reject operations
-     *
-     * @param contentId
-     * @return
-     * @throws Exception
-     */
-    public Response reject(String contentId, Map<String, Object> requestMap) throws Exception {
-        return this.rejectOperation.rejectContent(contentId, requestMap);
     }
 
 }

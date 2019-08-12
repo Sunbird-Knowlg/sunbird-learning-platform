@@ -3,10 +3,8 @@ package org.ekstep.taxonomy.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 
 import java.io.File;
@@ -19,6 +17,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.graph.model.cache.CategoryCache;
@@ -1455,7 +1454,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		uploadContent(contentId, "test2.pdf","application/pdf");
 		delay(5000);
 		publish(contentId);
-		delay(25000);
+		waitTillPublish(contentId);
 		update(contentId);
 		retireContent(contentId);
 		validateRetiredNode(contentId);
@@ -1471,105 +1470,6 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		review(contentId);
 		retireContent(contentId);
 		validateRetiredNode(contentId);
-	}
-
-	@Test
-	public void rejectReviewedDocumentContent() throws Exception {
-		String createDocumentContentRequestBody = "{\"request\": {\"content\": {\"name\": \"Text Book 1\",\"code\": \"test.book.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
-		String contentId = createContent(createDocumentContentRequestBody);
-		uploadContent(contentId, "test2.pdf","application/pdf");
-		review(contentId);
-		Response response = rejectValidContent(contentId,
-				"{\n" +
-						"\"request\": {\n" +
-						"\t\"content\": {\n" +
-						"\t\t\"rejectReasons\":[\"VALID REJECT REASON\"],\n" +
-						"\t\t\"rejectComment\": \"Valid Reject Comment\"\n" +
-						"   }\n" +
-						" }\n" +
-						"}");
-		validateRejectedNode(contentId, true);
-	}
-
-	@Test
-	public void rejectReviewedDocumentContentInvalidReasonFormat() throws Exception {
-		String createDocumentContentRequestBody = "{\"request\": {\"content\": {\"name\": \"Text Book 1\",\"code\": \"test.book.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
-		String contentId = createContent(createDocumentContentRequestBody);
-		uploadContent(contentId, "test2.pdf","application/pdf");
-		review(contentId);
-		Response response = rejectInvalidContent(contentId,
-				"{\n" +
-						"\"request\": {\n" +
-						"\t\"content\": {\n" +
-						"\t\t\"rejectReasons\":\"VALID REJECT REASON\",\n" +
-						"\t\t\"rejectComment\": \"Valid Reject Comment\"\n" +
-						"   }\n" +
-						" }\n" +
-						"}");
-	}
-
-	@Test
-	public void rejectDraftDocumentContent() throws Exception {
-		String createDocumentContentRequestBody = "{\"request\": {\"content\": {\"name\": \"Text Book 1\",\"code\": \"test.book.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
-		String contentId = createContent(createDocumentContentRequestBody);
-		uploadContent(contentId, "test2.pdf","application/pdf");
-		Response response = rejectInvalidContent(contentId,
-				"{\n" +
-						"\"request\": {\n" +
-						"\t\"content\": {\n" +
-						"   }\n" +
-						" }\n" +
-						"}");
-		System.out.println(response.getParams().getErrmsg());
-	}
-
-	@Test
-	public void rejectValidTextbookExpect200() throws Exception {
-		//create an asset
-		String createAssetReq = "{\"request\": {\"content\": {\"name\": \"Test Asset for Unit Testing\",\"code\": \"test.asset.1\",\"mimeType\": \"image/jpg\",\"mediaType\":\"image\",\"contentType\":\"Asset\"}}}";
-		String assetId = createContent(createAssetReq);
-		String assetUrl = uploadContent(assetId,"education.jpeg","image/jpeg");
-
-		String createTextbookReq = "{\"request\": {\"content\": {\"name\": \"Test Textbook\",\"code\": \"test.book.1\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBook\",\"appIcon\":\""+assetUrl+"\"}}}";
-		String textbookId = createContent(createTextbookReq);
-
-		String updateHierarchyRequestBody = "{\"request\": {\"data\": {\"nodesModified\": {\"TestBookUnit-01\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_01\",\"description\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}},\"TestBookUnit-02\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_02\",\"description\": \"TTest_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}}},\"hierarchy\": {\"textbookIdentifier\": {\"name\": \"Test Textbook\",\"contentType\": \"TextBook\",\"children\": [\"TestBookUnit-01\",\"TestBookUnit-02\"],\"root\": true},\"TestBookUnit-01\": {\"name\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]},\"TestBookUnit-02\": {\"name\": \"Test_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]}}}}\n" +
-				"}";
-		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("appIconUrl",assetUrl);
-		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("textbookIdentifier",textbookId);
-		updateHierarchy(updateHierarchyRequestBody);
-		review(textbookId);
-		rejectValidContent(textbookId,
-				"{\n" +
-						"\"request\": {\n" +
-						"\t\"content\": {\n" +
-						"   }\n" +
-						" }\n" +
-						"}");
-		validateRejectedNode(contentId, false);
-	}
-	@Test
-	public void rejectInvalidTextbookExpect200() throws Exception {
-		//create an asset
-		String createAssetReq = "{\"request\": {\"content\": {\"name\": \"Test Asset for Unit Testing\",\"code\": \"test.asset.1\",\"mimeType\": \"image/jpg\",\"mediaType\":\"image\",\"contentType\":\"Asset\"}}}";
-		String assetId = createContent(createAssetReq);
-		String assetUrl = uploadContent(assetId,"education.jpeg","image/jpeg");
-
-		String createTextbookReq = "{\"request\": {\"content\": {\"name\": \"Test Textbook\",\"code\": \"test.book.1\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBook\",\"appIcon\":\""+assetUrl+"\"}}}";
-		String textbookId = createContent(createTextbookReq);
-
-		String updateHierarchyRequestBody = "{\"request\": {\"data\": {\"nodesModified\": {\"TestBookUnit-01\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_01\",\"description\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}},\"TestBookUnit-02\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_02\",\"description\": \"TTest_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}}},\"hierarchy\": {\"textbookIdentifier\": {\"name\": \"Test Textbook\",\"contentType\": \"TextBook\",\"children\": [\"TestBookUnit-01\",\"TestBookUnit-02\"],\"root\": true},\"TestBookUnit-01\": {\"name\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]},\"TestBookUnit-02\": {\"name\": \"Test_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]}}}}\n" +
-				"}";
-		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("appIconUrl",assetUrl);
-		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("textbookIdentifier",textbookId);
-		updateHierarchy(updateHierarchyRequestBody);
-		rejectInvalidContent(textbookId,
-				"{\n" +
-						"\"request\": {\n" +
-						"\t\"content\": {\n" +
-						"   }\n" +
-						" }\n" +
-						"}");
 	}
 
 	@Test
@@ -1611,7 +1511,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		String updateHierarchyReq = "{\"request\":{\"data\":{\"nodesModified\":{\"TestBookUnit-01\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_01\",\"description\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}},\"TestBookUnit-01-01\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_01_01\",\"description\":\"TTest_Collection_TextBookUnit_01_01\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}},\"TestBookUnit-02\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_02\",\"description\":\"TTest_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}},\"TestBookUnit-02-01\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_02_01\",\"description\":\"TTest_Collection_TextBookUnit_02_01\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}}},\"hierarchy\":{\"tbId\":{\"name\":\"Test TextBook\",\"contentType\":\"Collection\",\"children\":[\"TestBookUnit-01\",\"TestBookUnit-02\"],\"root\":true},\"TestBookUnit-01\":{\"name\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"children\":[\"TestBookUnit-01-01\"],\"root\":false},\"TestBookUnit-02\":{\"name\":\"Test_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"children\":[\"TestBookUnit-02-01\"],\"root\":false}},\"lastUpdatedBy\":\"ecff2373-6c52-4956-b103-a9741eae16f0\"}}}".replace("tbId",contentId);
 		updateHierarchy(updateHierarchyReq);
 		publish(contentId);
-		delay(30000);
+		waitTillPublish(contentId);
 		retireContent(contentId);
 		validateRetiredCollectionContent(contentId);
 	}
@@ -1619,31 +1519,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	//Test case for Online Ecar generation in Textbook
 	@Test
 	public void publishTextbookExpectOnlineEcar() throws Exception {
-		//create an asset
-		String createAssetReq = "{\"request\": {\"content\": {\"name\": \"Test Asset for Unit Testing\",\"code\": \"test.asset.1\",\"mimeType\": \"image/jpg\",\"mediaType\":\"image\",\"contentType\":\"Asset\"}}}";
-		String assetId = createContent(createAssetReq);
-		String assetUrl = uploadContent(assetId,"education.jpeg","image/jpeg");
-
-		String createTextbookReq = "{\"request\": {\"content\": {\"name\": \"Test Textbook\",\"code\": \"test.book.1\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBook\",\"appIcon\":\""+assetUrl+"\"}}}";
-		String textbookId = createContent(createTextbookReq);
-
-		String updateHierarchyRequestBody = "{\"request\": {\"data\": {\"nodesModified\": {\"TestBookUnit-01\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_01\",\"description\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}},\"TestBookUnit-02\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_02\",\"description\": \"TTest_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}}},\"hierarchy\": {\"textbookIdentifier\": {\"name\": \"Test Textbook\",\"contentType\": \"TextBook\",\"children\": [\"TestBookUnit-01\",\"TestBookUnit-02\"],\"root\": true},\"TestBookUnit-01\": {\"name\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]},\"TestBookUnit-02\": {\"name\": \"Test_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]}}}}\n" +
-				"}";
-		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("appIconUrl",assetUrl);
-		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("textbookIdentifier",textbookId);
-		updateHierarchy(updateHierarchyRequestBody);
-		publish(textbookId);
-
-		String status = "";
-		Integer counter = 0;
-		while(!"Live".equalsIgnoreCase(status) && counter<10){
-			Response resp = getContent(textbookId);
-			if("OK".equalsIgnoreCase(resp.getResponseCode().toString())){
-				status = (String)((Map<String,Object>)resp.getResult().get("content")).get("status");
-				++counter;
-				delay(20000);
-			}
-		}
+		String textbookId = createAndPublishATextBook();
 		Response response = getContent(textbookId);
 		Map<String,Object> variants = (Map<String,Object>) ((Map<String, Object>)response.getResult().get("content")).get("variants");
 		String onlineEcarUrl = (String) ((Map<String,Object>) variants.get("online")).get("ecarUrl");
@@ -1792,6 +1668,92 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		Assert.assertNotNull(response.getResult().get("pre_signed_url"));
 	}
 
+	/**
+	 * Test case to validate whether collection hierarchy is updated as part of system update
+	 * for Live and Unlisted Collections
+	 */
+	@Test
+	public void testSystemUpdateExpectHierarchyToUpdateForCollectionTypes() throws Exception {
+		String textBookId = createAndPublishATextBook();
+		String updatedTextBookName = "Updated Text Book Name For System Update Test";
+		String systemUpdateReqForTB = "{\"request\": {\"content\": {\"name\": \"" + updatedTextBookName + "\"}}}";
+		systemUpdate(textBookId, systemUpdateReqForTB);
+
+		HierarchyStore hierarchyStore = new HierarchyStore();
+		Map<String, Object> hierarchy = hierarchyStore.getHierarchy(textBookId);
+		assertEquals(updatedTextBookName, hierarchy.get("name"));
+	}
+
+	/**
+	 * Test case to validate - Status of a Content, which has a image node, cannot be updated using System Update Call.
+	 * Only Image nodes status will be updated in this scenario
+	 */
+	@Test
+	public void testSystemUpdateCannotUpdateStatusOfContentHavingImageNode() throws Exception {
+		String contentId = createAndPublishAContent();
+		update(contentId);
+
+		String systemUpdateReqForContent = "{\"request\": {\"content\": {\"status\": \"flagged\"}}}";
+		systemUpdate(contentId, systemUpdateReqForContent);
+
+		Response contentResponse = getContent(contentId);
+		Response contentImageResponse = getContent(contentId + ".img");
+
+		assertTrue("live".equalsIgnoreCase((String) ((Map<String, Object>) contentResponse.getResult().get("content")).get("status")));
+		assertTrue("flagged".equalsIgnoreCase((String) ((Map<String, Object>) contentImageResponse.getResult().get("content")).get("status")));
+	}
+
+    /**
+     * Test case to validate whether both Content and ContentImage nodes are getting updated,
+     * without changing the version key, when a published content having image node is updated.
+     */
+    @Test
+    public void testSystemUpdateExpectContentAndImageNodesToUpdateOnContentUpdate() throws Exception {
+        String contentId = createAndPublishAContent();
+        update(contentId);
+
+        String liveVersionKey = (String) ((Map<String, Object>) getContent(contentId).getResult().get("content")).get("versionKey");
+        String draftVersionKey = (String) ((Map<String, Object>) getContent(contentId + ".img").getResult().get("content")).get("versionKey");
+
+        String contentUpdateName = "Updated Name for Resource Content";
+        String systemUpdateReqForContent = "{\"request\": {\"content\": {\"name\": \"" + contentUpdateName + "\"}}}";
+        systemUpdate(contentId, systemUpdateReqForContent);
+
+        Response contentResponse = getContent(contentId);
+        Response contentImageResponse = getContent(contentId + ".img");
+
+        assertEquals(contentUpdateName, (String) ((Map<String, Object>) contentResponse.getResult().get("content")).get("name"));
+        assertEquals(contentUpdateName, (String) ((Map<String, Object>) contentImageResponse.getResult().get("content")).get("name"));
+        assertEquals(liveVersionKey, (String) ((Map<String, Object>) contentResponse.getResult().get("content")).get("versionKey"));
+        assertEquals(draftVersionKey, (String) ((Map<String, Object>) contentImageResponse.getResult().get("content")).get("versionKey"));
+    }
+
+    /**
+     * Test case to validate whether only ContentImage node is getting updated without affecting Content node,
+     * without changing the version key, When a image node of a content is updated
+     */
+    @Test
+    public void testSystemUpdateExpectOnlyImageNodeToUpdateOnContentImageUpdate() throws Exception {
+        String originalName = "Test Resource Content";
+        String contentId = createAndPublishAContent(originalName);
+        update(contentId);
+
+        String liveVersionKey = (String) ((Map<String, Object>) getContent(contentId).getResult().get("content")).get("versionKey");
+        String draftVersionKey = (String) ((Map<String, Object>) getContent(contentId + ".img").getResult().get("content")).get("versionKey");
+
+        String contentImageUpdateName = "Updated Name for Resource Content - Image Node Only";
+        String systemUpdateReqForContentImage = "{\"request\": {\"content\": {\"name\": \"" + contentImageUpdateName + "\"}}}";
+        systemUpdate(contentId + ".img", systemUpdateReqForContentImage);
+
+        Response contentResponse = getContent(contentId);
+        Response contentImageResponse = getContent(contentId + ".img");
+
+        assertEquals(originalName, (String) ((Map<String, Object>) contentResponse.getResult().get("content")).get("name"));
+        assertEquals(contentImageUpdateName, (String) ((Map<String, Object>) contentImageResponse.getResult().get("content")).get("name"));
+        assertEquals(liveVersionKey, (String) ((Map<String, Object>) contentResponse.getResult().get("content")).get("versionKey"));
+        assertEquals(draftVersionKey, (String) ((Map<String, Object>) contentImageResponse.getResult().get("content")).get("versionKey"));
+    }
+
 	//Test case to validate whether lastStatusChangedOn property gets updated or not during System Update.
 	@Test
 	public void testSystemUpdateExpectNoChangeInLastStatusChangedOn() throws Exception {
@@ -1839,6 +1801,72 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 
 	}
 
+	/**
+	 * Test case to validate flag content
+	 */
+	@Test
+	public void testFlagContentExpectFlagSuccess() throws Exception {
+		String contentId = createAndPublishAContent();
+
+		Response flagResponse = flag(contentId);
+		assertTrue(ResponseCode.OK.code() == flagResponse.getResponseCode().code());
+
+		Response readResponse = getContent(contentId);
+		assertTrue("flagged".equalsIgnoreCase((String) ((Map<String, Object>) readResponse.getResult().get("content")).get("status")));
+	}
+
+	/**
+	 * Test case to validate failure scenarios of flag content
+	 */
+	@Test
+	public void testFlagContentFailureScenarios() throws Exception {
+		String createResourceContentReq = "{\"request\": {\"content\": {\"name\": \"Test Resource Content\",\"code\": \"test.res.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createResourceContentReq);
+
+		Response flagResponseContentNotFound = flag(contentId + "xxx", "versionKey");
+		Response flagResponseContentNotPublished = flag(contentId);
+
+		assertTrue(ResponseCode.RESOURCE_NOT_FOUND.code() == flagResponseContentNotFound.getResponseCode().code());
+		assertTrue(ResponseCode.CLIENT_ERROR.code() == flagResponseContentNotPublished.getResponseCode().code());
+		assertTrue("ERR_CONTENT_NOT_FLAGGABLE".equalsIgnoreCase(flagResponseContentNotPublished.getParams().getErr()));
+	}
+
+	/**
+	 * Test case to validate reject flag content
+	 */
+	@Test
+	public void testRejectFlagContentExpectRejectFlagSuccess() throws Exception {
+		String contentId = createAndPublishAContent();
+
+		Response flagResponse = flag(contentId);
+		assertTrue(ResponseCode.OK.code() == flagResponse.getResponseCode().code());
+
+		Response readResponse = getContent(contentId);
+		assertTrue("flagged".equalsIgnoreCase((String) ((Map<String, Object>) readResponse.getResult().get("content")).get("status")));
+
+		Response rejectFlagResponse = rejectFlag(contentId);
+		assertTrue(ResponseCode.OK.code() == rejectFlagResponse.getResponseCode().code());
+
+		readResponse = getContent(contentId);
+		assertTrue("live".equalsIgnoreCase((String) ((Map<String, Object>) readResponse.getResult().get("content")).get("status")));
+	}
+
+	/**
+	 * Test case to validate reject flag content failure scenarios
+	 */
+	@Test
+	public void testRejectFlagContentFailureScenarios() throws Exception {
+		String contentId = createAndPublishAContent();
+
+		Response rejectFlagResponseContentNotFound = rejectFlag(contentId + "xxx");
+		Response rejectFlagResponseContentNotFlagged = rejectFlag(contentId);
+
+		assertTrue(ResponseCode.RESOURCE_NOT_FOUND.code() == rejectFlagResponseContentNotFound.getResponseCode().code());
+		assertTrue(ResponseCode.CLIENT_ERROR.code() == rejectFlagResponseContentNotFlagged.getResponseCode().code());
+		assertTrue("ERR_CONTENT_NOT_FLAGGED".equalsIgnoreCase(rejectFlagResponseContentNotFlagged.getParams().getErr()));
+	}
+
+
 	private String createContent(String requestBody) throws Exception {
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
@@ -1857,37 +1885,13 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	private void retireContent(String contentId) throws Exception {
 		String path = basePath + "/retire/" + contentId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.delete(path));
+		System.out.println("retireContentResponse:"+actions.andReturn().getResponse().getContentAsString());
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
-
-	private Response rejectValidContent(String contentId, String requestBody) throws Exception {
-		String path = basePath + "/reject/" + contentId;
-		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
-				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(requestBody));
-		assertEquals(200, actions.andReturn().getResponse().getStatus());
-		return  getResponse(actions);
-	}
-
-	private Response rejectInvalidContent(String contentId, String requestBody) throws Exception {
-		String path = basePath + "/reject/" + contentId;
-		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
-				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(requestBody));
-		assertEquals(400, actions.andReturn().getResponse().getStatus());
-		return  getResponse(actions);
-	}
-
 
 	private void validateRetiredNode(String contentId) throws Exception {
 		Response response = getContent(contentId);
 		assertEquals("Retired", ((Map<String, Object>) response.get("content")).get("status"));
-	}
-	private void validateRejectedNode(String contentId, Boolean rejectReasons) throws Exception {
-		Response response = getContent(contentId);
-		assertEquals("Draft", ((Map<String, Object>) response.get("content")).get("status"));
-		if(rejectReasons) {
-			assertNotNull(((Map<String, Object>) response.get("content")).get("rejectReasons"));
-			assertNotNull(((Map<String, Object>) response.get("content")).get("rejectComment"));
-		}
 	}
 
 	private String uploadContent(String contentId, String fileName, String contentType) throws Exception {
@@ -1949,8 +1953,88 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
+	private Response flag(String contentId) throws Exception {
+		String versionKey = (String) ((Map<String, Object>)getContent(contentId).getResult().get("content")).get("versionKey");
+		return flag(contentId, versionKey);
+	}
+
+	private Response flag(String contentId, String versionKey) throws Exception {
+		String path = basePath + "/flag/" + contentId;
+		String flagReqBody = "{ \"request\": { \"flagReasons\": [ \"Copyright Violation\" ], \"flaggedBy\": \"user\", \"versionKey\": \"" + versionKey + "\" } }";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("user-id", "ilimi").content(flagReqBody));
+		return getResponse(actions);
+	}
+
+	private Response rejectFlag(String contentId) throws Exception {
+		String path = basePath + "/flag/reject/" + contentId;
+		String rejectFlagReqBody = "{ \"request\": { } }";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("user-id", "ilimi").content(rejectFlagReqBody));
+		return getResponse(actions);
+	}
+
+	private Response acceptFlag(String contentId) throws Exception {
+		String versionKey = (String) ((Map<String, Object>)getContent(contentId).getResult().get("content")).get("versionKey");
+		return acceptFlag(contentId, versionKey);
+	}
+
+	private Response acceptFlag(String contentId, String versionKey) throws Exception {
+		String path = basePath + "/flag/accept/" + contentId;
+		String acceptFlagReqBody = "{ \"request\": { \"versionKey\":\"" + versionKey + "\" } }";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("user-id", "ilimi").content(acceptFlagReqBody));
+		return getResponse(actions);
+	}
+
 	private void validateRetiredCollectionContent(String contentId) throws Exception {
 		validateRetiredNode(contentId);
 		//TODO: Validate Cassandra Record if retired from a live version.
+	}
+
+	private String createAndPublishATextBook() throws Exception {
+		//create an asset
+		String createAssetReq = "{\"request\": {\"content\": {\"name\": \"Test Asset for Unit Testing\",\"code\": \"test.asset.1\",\"mimeType\": \"image/jpg\",\"mediaType\":\"image\",\"contentType\":\"Asset\"}}}";
+		String assetId = createContent(createAssetReq);
+		String assetUrl = uploadContent(assetId,"education.jpeg","image/jpeg");
+
+		String createTextbookReq = "{\"request\": {\"content\": {\"name\": \"Test Textbook\",\"code\": \"test.book.1\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBook\",\"appIcon\":\""+assetUrl+"\"}}}";
+		String textbookId = createContent(createTextbookReq);
+
+		String updateHierarchyRequestBody = "{\"request\": {\"data\": {\"nodesModified\": {\"TestBookUnit-01\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_01\",\"description\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}},\"TestBookUnit-02\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_02\",\"description\": \"TTest_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}}},\"hierarchy\": {\"textbookIdentifier\": {\"name\": \"Test Textbook\",\"contentType\": \"TextBook\",\"children\": [\"TestBookUnit-01\",\"TestBookUnit-02\"],\"root\": true},\"TestBookUnit-01\": {\"name\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]},\"TestBookUnit-02\": {\"name\": \"Test_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]}}}}\n" +
+				"}";
+		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("appIconUrl",assetUrl);
+		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("textbookIdentifier",textbookId);
+		updateHierarchy(updateHierarchyRequestBody);
+		publish(textbookId);
+		waitTillPublish(textbookId);
+
+		return textbookId;
+	}
+
+	private String createAndPublishAContent() throws Exception {
+		return createAndPublishAContent("Test Resource Content");
+	}
+
+	private String createAndPublishAContent(String contentName) throws Exception {
+		String createResourceContentReq = "{\"request\": {\"content\": {\"name\": \"" + contentName + "\",\"code\": \"test.res.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createResourceContentReq);
+		uploadContent(contentId, "test2.pdf", "application/pdf");
+		publish(contentId);
+		waitTillPublish(contentId);
+		return contentId;
+	}
+
+	private void waitTillPublish(String contentId) throws Exception {
+		String status = "";
+		Integer counter = 0;
+		while(!"Live".equalsIgnoreCase(status) && counter<10){
+			Response resp = getContent(contentId);
+			if("OK".equalsIgnoreCase(resp.getResponseCode().toString())){
+				status = (String)((Map<String,Object>)resp.getResult().get("content")).get("status");
+				++counter;
+				delay(20000);
+			}
+		}
 	}
 }
