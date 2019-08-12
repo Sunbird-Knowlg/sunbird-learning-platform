@@ -203,5 +203,16 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	public Response discardContent(String contentId) throws Exception {
 		return this.contentManger.discard(contentId);
 	}
+	/**
+	 * Implementation for {@link IContentManager#rejectContent(String, Map)}
+	 * @param contentId
+	 * @param requestMap
+	 * @return
+	 * @throws Exception
+	 */
+	@Override
+	public Response rejectContent(String contentId, Map<String, Object> requestMap) throws Exception {
+		return this.contentManger.reject(contentId, requestMap);
+	}
 
 }
