@@ -56,6 +56,7 @@ kafka_brokers: "{{groups['processing-cluster-kafka']|join(':9092,')}}:9092"
 zookeepers: "{{groups['processing-cluster-zookeepers']|join(':2181,')}}:2181"
 audit_es_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
 search_es_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
+search_lms_es_host: "{{ groups['core-es']|join(':9200,')}}:9200"
 
 azure_account_key: "{{lp_vault_azure_storage_secret}}"
 azure_storage_secret: "{{lp_vault_azure_storage_secret}}"
