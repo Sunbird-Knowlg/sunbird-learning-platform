@@ -68,4 +68,5 @@ public class RejectOperation extends BaseContentManager {
         requestMap.put("publishComment", null);
         return requestMap;
     }
+
 }
