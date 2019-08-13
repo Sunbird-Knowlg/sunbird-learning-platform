@@ -21,11 +21,14 @@ import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
+import org.ekstep.kafka.KafkaClient;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.rits.cloning.Cloner;
+import org.ekstep.telemetry.util.LogTelemetryEventUtil;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -92,6 +95,7 @@ public class PublishPipelineService implements ISamzaService {
 						LOGGER.info(
 								"Node fetched for publish and content enrichment operation : " + node.getIdentifier());
 						prePublishUpdate(edata, node);
+
 						processJob(edata, nodeId, metrics);
 					}
 				} else {
@@ -138,6 +142,7 @@ public class PublishPipelineService implements ISamzaService {
 			metrics.incSuccessCounter();
 			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.SUCCESS.name());
 			LOGGER.debug("Node publish operation :: SUCCESS :: For NodeId :: " + node.getIdentifier());
+			pushInstructionEvent(node);
 		} else {
 			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.FAILED.name());
 			LOGGER.debug("Node publish operation :: FAILED :: For NodeId :: " + node.getIdentifier());
@@ -252,5 +257,52 @@ public class PublishPipelineService implements ISamzaService {
                 return true;
         }
         return false;
-    }	
+    }
+
+	private void pushInstructionEvent(Node node) throws Exception{
+		Map<String,Object> actor = new HashMap<String,Object>();
+		Map<String,Object> context = new HashMap<String,Object>();
+		Map<String,Object> object = new HashMap<String,Object>();
+		Map<String,Object> edata = new HashMap<String,Object>();
+
+		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier());
+		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+		String topic = Platform.config.hasPath("post_publish_event_topic") ? Platform.config.getString("post_publish_event_topic"): "post.publish.request";
+		if(StringUtils.isBlank(beJobRequestEvent)) {
+			TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + beJobRequestEvent);
+			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+		}
+		if(StringUtils.isNotBlank(topic)) {
+			KafkaClient.send(beJobRequestEvent, topic);
+		} else {
+			TelemetryManager.error("Invalid topic id. # topic : " + topic);
+			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Invalid topic id.");
+		}
+	}
+	private void generateInstructionEventMetadata(Map<String,Object> actor, Map<String,Object> context,
+												  Map<String,Object> object, Map<String,Object> edata, Map<String, Object> metadata, String contentId) {
+		actor.put("id", "Post Publish Processor");
+		actor.put("type", "System");
+		context.put("channel", metadata.get("channel"));
+		Map<String, Object> pdata = new HashMap<>();
+		pdata.put("id", "org.ekstep.platform");
+		pdata.put("ver", "1.0");
+		context.put("pdata", pdata);
+		if (Platform.config.hasPath("cloud_storage.env")) {
+			String env = Platform.config.getString("cloud_storage.env");
+			context.put("env", env);
+		}
+
+		object.put("id", contentId);
+		object.put("ver", metadata.get("versionKey"));
+
+		Map<String, Object> instructionEventMetadata = new HashMap<>();
+		instructionEventMetadata.put("pkgVersion", metadata.get("pkgVersion"));
+		instructionEventMetadata.put("mimeType", metadata.get("mimeType"));
+		instructionEventMetadata.put("lastPublishedBy", metadata.get("lastPublishedBy"));
+
+		edata.put("action", "generate-dialCodes");
+		edata.put("contentType", metadata.get("contentType"));
+		edata.put("id", contentId);
+	}
 }
