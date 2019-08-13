@@ -267,7 +267,7 @@ public class PublishPipelineService implements ISamzaService {
 
 		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier());
 		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
-		String topic = Platform.config.hasPath("post_publish_event_topic") ? Platform.config.getString("post_publish_event_topic"): "post.publish.request";
+		String topic = Platform.config.hasPath("post.publish.event.topic") ? Platform.config.getString("post.publish.event.topic"): "post.publish.request";
 		if(StringUtils.isBlank(beJobRequestEvent)) {
 			TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + beJobRequestEvent);
 			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
