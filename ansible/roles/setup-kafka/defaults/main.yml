@@ -77,17 +77,10 @@ processing_kafka_topics:
   - name: telemetry.indexer.failed
     num_of_partitions: 1
     replication_factor: 1
-<<<<<<< HEAD
-  - name: coursebatch.job.request
-    num_of_partitions: 1
-  - name: user.cert.raw
-    num_of_partitions: 2
-=======
   - name: user.cert.raw
     num_of_partitions: 2
   - name: coursebatch.job.request
     num_of_partitions: 1
->>>>>>> a313d88d01e2cec8b6a9971b6ce5d66495743773
     replication_factor: 1
 
 processing_kafka_overriden_topics:
