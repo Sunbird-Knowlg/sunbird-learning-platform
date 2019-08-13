@@ -10,11 +10,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
+import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.mgr.HealthCheckManager;
-import org.ekstep.orchestrator.dac.service.IOrchestratorDataService;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,9 +21,6 @@ public class LearningHealthCheckManager extends HealthCheckManager {
 
 	
 	private static final int MAX_THREAD_NUM = 10;
-
-	@Autowired
-	private IOrchestratorDataService orchestratorService;
 
 	@Override
 	public Response getAllServiceHealth() throws Exception {
@@ -88,7 +84,7 @@ public class LearningHealthCheckManager extends HealthCheckManager {
 		check.put("name", "cassandra db");
 		
 		try {
-			boolean status = orchestratorService.doConnectionEstablish();
+			boolean status = CassandraConnector.testCassandraConnection();
 			check.put("healthy", status);
 			if(!status) {
 				check.put("err", "404"); // error code, if any

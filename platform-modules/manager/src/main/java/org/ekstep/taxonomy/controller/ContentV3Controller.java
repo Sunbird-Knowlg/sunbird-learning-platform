@@ -576,6 +576,55 @@ public class ContentV3Controller extends BaseController {
 	}
 
 	/**
+	 * API to Reject a Flag in content workflow
+	 *
+	 * @param contentId
+	 *            The Flagged Content Id whose flag needs to be rejected.
+	 * @return The Response entity with Content Id and Version Key in its Result
+	 *         Set.
+	 */
+	@RequestMapping(value="/flag/reject/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> rejectFlag(@PathVariable(value = "id") String contentId){
+		String apiId = "ekstep.learning.content.rejectFlag";
+		TelemetryManager.log("Reject flagged content | Content Id : " + contentId);
+		Response response;
+		try {
+			response = contentManager.rejectFlag(contentId);
+			return getResponseEntity(response, apiId, null);
+		} catch(Exception e) {
+			TelemetryManager.error("Exception occured while Rejecting Flagged Content: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
+	 * API to Flag a content in content workflow
+	 *
+	 * @param contentId
+	 *            The Content Id which needs to be flagged.
+	 * @return The Response entity with Content Id and Version Key in its Result
+	 *         Set.
+	 */
+	@RequestMapping(value="/flag/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> flag(@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> map){
+		String apiId = "ekstep.learning.content.flag";
+		TelemetryManager.log("Flag content | Content Id : " + contentId);
+		Response response;
+		try {
+			Request request = getRequest(map);
+			Map<String, Object> requestMap = request.getRequest();
+			response = contentManager.flag(contentId, requestMap);
+			return getResponseEntity(response, apiId, null);
+		} catch(Exception e) {
+			TelemetryManager.error("Exception occured while Flagging Content: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
 	 * Controller method to discard all the changes made by the user, which is in draft state
 	 * @param contentId
 	 * @return
@@ -591,6 +640,30 @@ public class ContentV3Controller extends BaseController {
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception occured while Discarding Content : " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+
+		}
+	}
+
+	/**
+	 * Controller method to reject content
+	 * @param contentId
+	 * @return
+	 */
+	@RequestMapping(value = "/reject/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> rejectContent(@PathVariable(value = "id") String contentId,
+												  @RequestBody Map<String, Object> requestMap) {
+		String apiId = "ekstep.learning.content.reject";
+		TelemetryManager.log("Content Review Reject operation for identifier : " + contentId);
+		Request request = getRequest(requestMap);
+		Response response;
+		try {
+			Map<String, Object> map = (Map<String,Object>) request.get("content");
+			response = contentManager.rejectContent(contentId, map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager.error("Exception occured while rejecting content : " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 
 		}
