@@ -9,7 +9,8 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.sunbird.jobs.samza.util.ESUtil;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
-import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         }
     }
 
-    private Map<String,Object> getStatusUpdateData(Map<String, Object> edata, List<String> leafNodes) throws IOException {
+    private Map<String,Object> getStatusUpdateData(Map<String, Object> edata, List<String> leafNodes) {
         List<Map<String, Object>> contents = (List<Map<String, Object>>) edata.get("contents");
         if(CollectionUtils.isNotEmpty(contents)) {
             Map<String, Object> contentStatus = new HashMap<>();
@@ -85,9 +86,13 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 put("status", status);
                 put("completionPercentage", ((Number)completionPercentage).intValue());
                 put("progress", size);
+                if(status == 2)
+                    put("completedOn", new Timestamp(new Date().getTime()));
             }};
         }
         return null;
     }
+
+
 
 }
