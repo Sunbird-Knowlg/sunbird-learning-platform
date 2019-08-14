@@ -3,6 +3,7 @@ package org.ekstep.jobs.samza.service;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
+import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
@@ -21,7 +22,6 @@ import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
-import org.ekstep.kafka.KafkaClient;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
@@ -48,6 +48,7 @@ public class PublishPipelineService implements ISamzaService {
 	private static int MAXITERTIONCOUNT = 2;
 
 	private SystemStream systemStream = null;
+	private SystemStream postPublishStream = null;
 	
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 	
@@ -67,6 +68,9 @@ public class PublishPipelineService implements ISamzaService {
 		LOGGER.info("Akka actors initialized");
 		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
 		LOGGER.info("Stream initialized for Failed Events");
+		postPublishStream = new SystemStream("kafka", config.get("post.publish.event.topic"));
+		LOGGER.info("Stream initialized for Post Publish Events");
+
 	}
 
 	@Override
@@ -96,7 +100,7 @@ public class PublishPipelineService implements ISamzaService {
 								"Node fetched for publish and content enrichment operation : " + node.getIdentifier());
 						prePublishUpdate(edata, node);
 
-						processJob(edata, nodeId, metrics);
+						processJob(edata, nodeId, metrics, collector);
 					}
 				} else {
 					metrics.incSkippedCounter();
@@ -133,7 +137,7 @@ public class PublishPipelineService implements ISamzaService {
 		return (objPkgVersion <= eventPkgVersion);
 	}
 
-	private void processJob(Map<String, Object> edata, String contentId, JobMetrics metrics) throws Exception {
+	private void processJob(Map<String, Object> edata, String contentId, JobMetrics metrics, MessageCollector collector) throws Exception {
 
 		Node node = getNode(contentId);
 		String publishType = (String) edata.get(PublishPipelineParams.publish_type.name());
@@ -142,7 +146,7 @@ public class PublishPipelineService implements ISamzaService {
 			metrics.incSuccessCounter();
 			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.SUCCESS.name());
 			LOGGER.debug("Node publish operation :: SUCCESS :: For NodeId :: " + node.getIdentifier());
-			pushInstructionEvent(node);
+			pushInstructionEvent(node, collector);
 		} else {
 			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.FAILED.name());
 			LOGGER.debug("Node publish operation :: FAILED :: For NodeId :: " + node.getIdentifier());
@@ -259,26 +263,22 @@ public class PublishPipelineService implements ISamzaService {
         return false;
     }
 
-	private void pushInstructionEvent(Node node) throws Exception{
+	private void pushInstructionEvent(Node node, MessageCollector collector) throws Exception{
 		Map<String,Object> actor = new HashMap<String,Object>();
 		Map<String,Object> context = new HashMap<String,Object>();
 		Map<String,Object> object = new HashMap<String,Object>();
 		Map<String,Object> edata = new HashMap<String,Object>();
 
 		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier());
-		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
-		String topic = Platform.config.hasPath("post.publish.event.topic") ? Platform.config.getString("post.publish.event.topic"): "post.publish.request";
-		if(StringUtils.isBlank(beJobRequestEvent)) {
-			TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + beJobRequestEvent);
+		String postPublishEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+		if(StringUtils.isBlank(postPublishEvent)) {
+			TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + postPublishEvent);
 			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
 		}
-		if(StringUtils.isNotBlank(topic)) {
-			KafkaClient.send(beJobRequestEvent, topic);
-		} else {
-			TelemetryManager.error("Invalid topic id. # topic : " + topic);
-			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Invalid topic id.");
-		}
+		collector.send(new OutgoingMessageEnvelope(postPublishStream, postPublishEvent));
+		LOGGER.info("Event sent to post publish event topic");
 	}
+
 	private void generateInstructionEventMetadata(Map<String,Object> actor, Map<String,Object> context,
 												  Map<String,Object> object, Map<String,Object> edata, Map<String, Object> metadata, String contentId) {
 		actor.put("id", "Post Publish Processor");
