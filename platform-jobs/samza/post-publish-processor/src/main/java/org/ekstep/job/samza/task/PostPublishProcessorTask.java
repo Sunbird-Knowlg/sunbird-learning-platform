@@ -37,7 +37,6 @@ public class PostPublishProcessorTask extends AbstractTask {
             long endTime = System.currentTimeMillis();
             LOGGER.info("Total execution time taken to complete post-publish-processor operation :: " + (endTime - startTime));
         } catch (Exception e) {
-            metrics.incErrorCounter();
             LOGGER.error("Message processing failed", message, e);
         }
     }

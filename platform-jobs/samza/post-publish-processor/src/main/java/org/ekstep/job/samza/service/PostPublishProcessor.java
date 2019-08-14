@@ -89,6 +89,7 @@ public class PostPublishProcessor implements ISamzaService {
                 } else {
                     LOGGER.info("Event Skipped. Target Object (" + nodeId + ") metadata is null.");
                 }
+                break;
             }
 
             default: {
@@ -111,10 +112,7 @@ public class PostPublishProcessor implements ISamzaService {
         String action = (String) edata.get("action");
         Integer iteration = (Integer) edata.get(SamzaCommonParams.iteration.name());
         String contentType = (String) edata.get("contentType");
-        if (ACTIONS.contains(action) && iteration <= MAX_ITERATION_COUNT && CONTENT_TYPES.contains(contentType))
-            return true;
-
-        return false;
+        return (ACTIONS.contains(action) && iteration <= MAX_ITERATION_COUNT && CONTENT_TYPES.contains(contentType));
     }
 
 }

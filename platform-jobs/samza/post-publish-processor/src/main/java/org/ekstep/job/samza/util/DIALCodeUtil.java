@@ -10,6 +10,7 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.jobs.samza.util.JobLogger;
+import org.ekstep.jobs.samza.util.SamzaCommonParams;
 import org.ekstep.learning.util.ControllerUtil;
 
 import java.util.ArrayList;
@@ -46,7 +47,15 @@ public class DIALCodeUtil {
         // get 0th index dialcode from reserved dials
         String dial = reservedDials.entrySet().stream().filter(entry -> entry.getValue() == 0).map(entry -> entry.getKey()).findFirst().get();
         updateNode(node, dial);
-        //TODO: Generate DIAL Image Here.
+        String channel = (String) node.getMetadata().get(PostPublishParams.channel.name());
+        //Generate DIAL Image and upload it to cloud storage
+        String qrImageUrl = QRImageUtil.getQRImageUrl(node, dial, channel);
+        // Insert QR Image Record into Cassandra DB
+        if(StringUtils.isNotBlank(qrImageUrl)){
+            QRImageUtil.createQRImageRecord(channel, dial, qrImageUrl);
+        }else{
+            LOGGER.info("DIAL Code Image Url is Null for" + node.getIdentifier() + " | So Skipping Cassandra DB Update.");
+        }
     }
 
     /**

@@ -29,6 +29,7 @@
 		<module>collection-migration</module>
 		<module>distribution</module>
         <module>post-publish-processor</module>
+        <module>qr-image-generator</module>
     </modules>
 
 	<build>
