@@ -301,7 +301,7 @@ public class PublishPipelineService implements ISamzaService {
 		instructionEventMetadata.put("mimeType", metadata.get("mimeType"));
 		instructionEventMetadata.put("lastPublishedBy", metadata.get("lastPublishedBy"));
 
-		edata.put("action", "generate-dialCodes");
+		edata.put("action", "link-dialcode");
 		edata.put("contentType", metadata.get("contentType"));
 		edata.put("id", contentId);
 	}
