@@ -414,16 +414,12 @@ public class CassandraESSyncManager {
 
                 Set<String> leafNodeIds = new HashSet<>();
                 getLeafNodesIds(hierarchy, leafNodeIds);
-                if(CollectionUtils.isNotEmpty(leafNodeIds)) {
-                    System.out.println("LeafNodes are :" + leafNodeIds);
-                    List<String> leafNodes = new ArrayList<>(leafNodeIds);
-                    updateTextBookNode(collectionId, "leafNodes", leafNodes);
-                    hierarchy.put("leafNodes", leafNodes);
-                    hierarchyStore.saveOrUpdateHierarchy(collectionId, hierarchy);
-                    return true;
-                } else {
-                    System.out.println("Collection id : " + collectionId + " is skipped as there are no leafNodes");
-                }
+                System.out.println("LeafNodes are :" + leafNodeIds);
+                List<String> leafNodes = new ArrayList<>(leafNodeIds);
+                updateTextBookNode(collectionId, "leafNodes", leafNodes);
+                hierarchy.put("leafNodes", leafNodes);
+                hierarchyStore.saveOrUpdateHierarchy(collectionId, hierarchy);
+                return true;
             } else {
                 System.out.println(collectionId + " is not a type of Collection or it is not live.");
             }
