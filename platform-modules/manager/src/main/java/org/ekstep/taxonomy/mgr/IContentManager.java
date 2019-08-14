@@ -311,4 +311,15 @@ public interface IContentManager {
 	 * @throws Exception
 	 */
 	Response discardContent(String contentId) throws Exception;
+
+	/**
+	 * This method is used for rejecting content which is sent for review, if it doesn't fit into
+	 * the standards set by the organisation. (Reasons of rejecting the content as well as comments
+	 * can be sent back)
+	 * @param contentId
+	 * @return
+	 * @throws Exception
+	 */
+	Response rejectContent(String contentId, Map<String, Object> requestMap) throws Exception;
+
 }
