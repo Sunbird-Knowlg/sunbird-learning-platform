@@ -35,15 +35,15 @@ public class CertificateGenerator {
         for(Row row: rows) {
             List<Map> certificates = row.getList(CourseCertificateParams.certificates.name(), Map.class);
             if(CollectionUtils.isNotEmpty(certificates) && (Boolean) edata.get(CourseCertificateParams.reIssue.name())) {
-                issueCertificate(courseId, certificateName, batchId, userId,  true);
+                issueCertificate(courseId, certificateName, batchId, userId,dataToFetch,  true);
             } else if(CollectionUtils.isEmpty(certificates)) {
-                issueCertificate(courseId, certificateName, batchId, userId, false);
+                issueCertificate(courseId, certificateName, batchId, userId,dataToFetch, false);
             }
         }
 
     }
 
-    private void issueCertificate(String courseId, String certificateName,String batchId, String userId, boolean reIssue) {
+    private void issueCertificate(String courseId, String certificateName,String batchId, String userId, Map<String, Object> dataToSelect,  boolean reIssue) {
         // get Course metadata from KP
         Response courseMetadata = util.getDataNode("domain", courseId);
         String courseName = (String) courseMetadata.get("name");
@@ -55,10 +55,17 @@ public class CertificateGenerator {
         // Prepare cert-service request.
         Map<String, Object> certServiceRequest = prepareCertServiceRequest(courseName, certificateName, batchId, userId, name);
 
+
         Response response = new Response();
 
+        // Save certificate to user_courses table cassandra
+        List<Map<String, Object>> certificates = new ArrayList<>();
+        Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
+            put(CourseCertificateParams.certificates.name(), certificates);
+        }};
+        SunbirdCassandraUtil.update(KEYSPACE, USER_COURSES_TABLE, dataToUpdate, dataToSelect);
 
-
+        // Notification API
 
     }
 
