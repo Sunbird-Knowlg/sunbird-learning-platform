@@ -30,15 +30,11 @@ public class PostPublishProcessor implements ISamzaService {
 
     private static JobLogger LOGGER = new JobLogger(PostPublishProcessor.class);
     private Config config = null;
-    private static final List<String> ACTIONS = Platform.config.hasPath("post_publish_processor.actions") ?
-            Arrays.asList(Platform.config.getString("post_publish_processor.actions").split(",")) : Collections.emptyList();
-    private static final List<String> CONTENT_TYPES = Platform.config.hasPath("post_publish_processor.contentTypes") ?
-            Arrays.asList(Platform.config.getString("post_publish_processor.contentTypes").split(",")) : Collections.emptyList();
-    private static final Integer MAX_ITERATION_COUNT = (Platform.config.hasPath("event.max.iteration.count")) ?
-            Platform.config.getInt("event.max.iteration.count") : 1;
+    private List<String> ACTIONS = null;
+    private List<String> CONTENT_TYPES = null;
+    private Integer MAX_ITERATION_COUNT = null;
     private ControllerUtil util = new ControllerUtil();
     private DIALCodeUtil dialUtil = null;
-
 
     /**
      * @param config
@@ -49,9 +45,16 @@ public class PostPublishProcessor implements ISamzaService {
         this.config = config;
         JSONUtils.loadProperties(config);
         LOGGER.info("Service config initialized");
+        ACTIONS = Platform.config.hasPath("post_publish_processor.actions") ?
+                Arrays.asList(Platform.config.getString("post_publish_processor.actions").split(",")) : Collections.emptyList();
+        CONTENT_TYPES = Platform.config.hasPath("post_publish_processor.contentTypes") ?
+                Arrays.asList(Platform.config.getString("post_publish_processor.contentTypes").split(",")) : Collections.emptyList();
+        MAX_ITERATION_COUNT = (Platform.config.hasPath("max.iteration.count.samza.job")) ?
+                Platform.config.getInt("max.iteration.count.samza.job") : 1;
         LearningRequestRouterPool.init();
         LOGGER.info("Learning Actor System initialized");
         dialUtil = new DIALCodeUtil();
+        LOGGER.info("DIAL Util initialized");
     }
 
     /**
@@ -77,7 +80,7 @@ public class PostPublishProcessor implements ISamzaService {
         }
 
         switch (((String) edata.get("action")).toLowerCase()) {
-            case "dialcode_link": {
+            case "link-dialcode": {
                 String nodeId = (String) object.get("id");
                 Node node = util.getNode(SamzaCommonParams.domain.name(), nodeId);
                 if (null != node && MapUtils.isNotEmpty(node.getMetadata())) {

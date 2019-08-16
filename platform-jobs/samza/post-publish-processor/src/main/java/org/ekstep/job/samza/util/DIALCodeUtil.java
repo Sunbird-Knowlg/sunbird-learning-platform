@@ -2,16 +2,22 @@ package org.ekstep.job.samza.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,7 +32,7 @@ import java.util.stream.Collectors;
  */
 public class DIALCodeUtil {
 
-    private static final String RESERVE_DIAL_API_URL = Platform.config.hasPath("reserve_dial_api.url")? Platform.config.getString("reserve_dial_api.url") : "/content/v3/dialcode/reserve/";
+    private static final String RESERVE_DIAL_API_URL = Platform.config.hasPath("reserve_dial_api.url") ? Platform.config.getString("reserve_dial_api.url") : "/content/v3/dialcode/reserve/";
     private static final String KP_LEARNING_BASE_URL = Platform.config.hasPath("kp.learning_service.base_url")
             ? Platform.config.getString("kp.learning_service.base_url") : "http://localhost:8080/learning-service";
     private static final String PASSPORT_KEY = Platform.config.getString("graph.passport.key.base");
@@ -50,9 +56,9 @@ public class DIALCodeUtil {
         //Generate DIAL Image and upload it to cloud storage
         String qrImageUrl = QRImageUtil.getQRImageUrl(node, dial, channel);
         // Insert QR Image Record into Cassandra DB
-        if(StringUtils.isNotBlank(qrImageUrl)){
+        if (StringUtils.isNotBlank(qrImageUrl)) {
             QRImageUtil.createQRImageRecord(channel, dial, qrImageUrl);
-        }else{
+        } else {
             LOGGER.info("DIAL Code Image Url is Null for" + node.getIdentifier() + " | So Skipping Cassandra DB Update.");
         }
     }
@@ -113,9 +119,12 @@ public class DIALCodeUtil {
 
             Map<String, String> headerParam = new HashMap<String, String>() {{
                 put("X-Channel-Id", (String) node.getMetadata().get(PostPublishParams.channel.name()));
+                put("Content-Type", "application/json");
             }};
-
-            Response response = HttpRestUtil.makePostRequest(KP_LEARNING_BASE_URL + RESERVE_DIAL_API_URL + node.getIdentifier(), request, headerParam);
+            HttpResponse<String> httpResponse = Unirest.post(KP_LEARNING_BASE_URL + RESERVE_DIAL_API_URL + node.getIdentifier())
+                    .headers(headerParam)
+                    .body(objectMapper.writeValueAsString(request)).asString();
+            Response response = getResponse(httpResponse);
             if (response.getResponseCode() == ResponseCode.OK) {
                 if (MapUtils.isNotEmpty(response.getResult()))
                     reservedDials = (Map<String, Integer>) response.getResult().get(PostPublishParams.reservedDialcodes.name());
@@ -131,7 +140,6 @@ public class DIALCodeUtil {
     }
 
     /**
-     *
      * @param node
      * @param dial
      */
@@ -143,5 +151,22 @@ public class DIALCodeUtil {
             LOGGER.info("DIAL Code Linked Successfully for Node : " + node.getIdentifier() + " | DIAL Code is: " + dial);
         else
             LOGGER.info("DIAL Code Link (Node Update) Failed for Node : " + node.getIdentifier() + " | DIAL Code is: " + dial);
+    }
+
+    private static Response getResponse(HttpResponse<String> response) {
+        String body = null;
+        Response resp = new Response();
+        try {
+            body = response.getBody();
+            if (StringUtils.isNotBlank(body))
+                resp = objectMapper.readValue(body, Response.class);
+        } catch (UnsupportedEncodingException e) {
+            TelemetryManager.info("UnsupportedEncodingException:::::" + e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
+        } catch (Exception e) {
+            TelemetryManager.info("Exception:::::" + e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
+        }
+        return resp;
     }
 }
