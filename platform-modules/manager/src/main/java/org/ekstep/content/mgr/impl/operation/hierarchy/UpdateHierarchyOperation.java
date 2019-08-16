@@ -171,11 +171,22 @@ public class UpdateHierarchyOperation extends BaseContentManager {
             RelationDefinition> outRelDefMap, String rootId) {
         if(MapUtils.isNotEmpty((Map<String, Object>)nodesModified.get(rootId)) && MapUtils.isNotEmpty((Map<String, Object>) ((Map<String, Object>)nodesModified.get(rootId))
                 .get("metadata"))){
-        		Map<String, Object> metadate = (Map<String, Object>) ((Map<String, Object>)nodesModified.get(rootId))
+        		Map<String, Object> metadata = (Map<String, Object>) ((Map<String, Object>)nodesModified.get(rootId))
             .get("metadata");
-        		metadate.remove(ContentAPIParams.versionKey.name());
-            updateNodeList(nodeList, rootId, metadate);
-        }
+        		metadata.remove(ContentAPIParams.versionKey.name());
+        		try {
+                Node node = getTempNode(nodeList, rootId);
+                if(null != node) {
+                		Node domainNode = ConvertToGraphNode.convertToGraphNode(metadata, definition, node);
+                		nodeList.remove(node);
+                		nodeList.add(domainNode);
+                }
+	            
+            } catch (Exception e) {
+                TelemetryManager.error("Node conversion failed for content:: " + rootId , e);
+                throw new ClientException("ERR_NODE_CONVERSION_FAILED", "Node conversion failed for content:: " + rootId);
+            }
+        	}
         nodesModified.remove(rootId);
         nodesModified.entrySet().forEach(entry -> {
             Map<String, Object> map = (Map<String, Object>) entry.getValue();
