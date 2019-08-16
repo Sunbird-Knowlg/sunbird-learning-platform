@@ -268,19 +268,30 @@ public class PublishPipelineService implements ISamzaService {
 		Map<String,Object> context = new HashMap<String,Object>();
 		Map<String,Object> object = new HashMap<String,Object>();
 		Map<String,Object> edata = new HashMap<String,Object>();
+		String mimeType = (String) node.getMetadata().get("mimeType");
+		if(StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
+			generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(),"link-dialcode");
+			String linkDialcode = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+			if (StringUtils.isBlank(linkDialcode)) {
+				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + linkDialcode);
+				throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+			}
+			collector.send(new OutgoingMessageEnvelope(postPublishStream, linkDialcode));
 
-		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier());
-		String postPublishEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
-		if(StringUtils.isBlank(postPublishEvent)) {
-			TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + postPublishEvent);
-			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+			generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(),"coursebatch-sync");
+			String courseBatchSync = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+			if (StringUtils.isBlank(courseBatchSync)) {
+				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + courseBatchSync);
+				throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+			}
+			collector.send(new OutgoingMessageEnvelope(postPublishStream, courseBatchSync));
+
+			LOGGER.info("Event sent to post publish event topic");
 		}
-		collector.send(new OutgoingMessageEnvelope(postPublishStream, postPublishEvent));
-		LOGGER.info("Event sent to post publish event topic");
 	}
 
 	private void generateInstructionEventMetadata(Map<String,Object> actor, Map<String,Object> context,
-												  Map<String,Object> object, Map<String,Object> edata, Map<String, Object> metadata, String contentId) {
+												  Map<String,Object> object, Map<String,Object> edata, Map<String, Object> metadata, String contentId, String action) {
 		actor.put("id", "Post Publish Processor");
 		actor.put("type", "System");
 		context.put("channel", metadata.get("channel"));
@@ -301,7 +312,7 @@ public class PublishPipelineService implements ISamzaService {
 		instructionEventMetadata.put("mimeType", metadata.get("mimeType"));
 		instructionEventMetadata.put("lastPublishedBy", metadata.get("lastPublishedBy"));
 
-		edata.put("action", "link-dialcode");
+		edata.put("action", action);
 		edata.put("contentType", metadata.get("contentType"));
 		edata.put("id", contentId);
 	}
