@@ -37,7 +37,7 @@ public class PostPublishProcessor implements ISamzaService {
     private static final Integer MAX_ITERATION_COUNT = (Platform.config.hasPath("event.max.iteration.count")) ?
             Platform.config.getInt("event.max.iteration.count") : 1;
     private ControllerUtil util = new ControllerUtil();
-    private DIALCodeUtil dialUtil = new DIALCodeUtil();
+    private DIALCodeUtil dialUtil = null;
 
 
     /**
@@ -51,6 +51,7 @@ public class PostPublishProcessor implements ISamzaService {
         LOGGER.info("Service config initialized");
         LearningRequestRouterPool.init();
         LOGGER.info("Learning Actor System initialized");
+        dialUtil = new DIALCodeUtil();
     }
 
     /**

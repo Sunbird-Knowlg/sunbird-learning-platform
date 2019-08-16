@@ -14,17 +14,6 @@
     <dependencies>
         <dependency>
             <groupId>org.ekstep</groupId>
-            <artifactId>platform-dac</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>log4j-1.2-api</artifactId>
-                    <groupId>org.apache.logging.log4j</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.ekstep</groupId>
             <artifactId>samza-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
@@ -32,6 +21,12 @@
             <groupId>org.ekstep</groupId>
             <artifactId>qr-image-generator</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-lang3</artifactId>
+                    <groupId>org.apache.commons</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.ekstep</groupId>

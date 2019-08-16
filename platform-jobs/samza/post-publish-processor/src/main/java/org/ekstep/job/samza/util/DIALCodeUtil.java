@@ -10,7 +10,6 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.jobs.samza.util.JobLogger;
-import org.ekstep.jobs.samza.util.SamzaCommonParams;
 import org.ekstep.learning.util.ControllerUtil;
 
 import java.util.ArrayList;
@@ -27,8 +26,8 @@ import java.util.stream.Collectors;
  */
 public class DIALCodeUtil {
 
-    private static final String RESERVE_DIAL_API_URL = Platform.config.getString("reserve_dial_api.url");
-    protected static final String KP_LEARNING_BASE_URL = Platform.config.hasPath("kp.learning_service.base_url")
+    private static final String RESERVE_DIAL_API_URL = Platform.config.hasPath("reserve_dial_api.url")? Platform.config.getString("reserve_dial_api.url") : "/content/v3/dialcode/reserve/";
+    private static final String KP_LEARNING_BASE_URL = Platform.config.hasPath("kp.learning_service.base_url")
             ? Platform.config.getString("kp.learning_service.base_url") : "http://localhost:8080/learning-service";
     private static final String PASSPORT_KEY = Platform.config.getString("graph.passport.key.base");
 
