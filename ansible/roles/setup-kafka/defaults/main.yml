@@ -154,5 +154,5 @@ processing_kafka_overriden_topics:
     retention_time: 1209600000 
     replication_factor: 1
   - name: content.postpublish.request
-  retention_time: 1209600000
-  replication_factor: 1
+    retention_time: 1209600000
+    replication_factor: 1
