@@ -37,8 +37,7 @@ public class BatchSyncUtil {
 
     public void syncCourseBatch(String courseId, MessageCollector collector) {
         //Get Coursebatch from course_batch table using courseId
-        List<Row> courseBatchRows = SunbirdCassandraUtil.read(keyspace, "course_batch",
-                new HashMap<String, Object>(){{put("courseid", courseId);}});
+        List<Row> courseBatchRows = readbatch("couse-batch", courseId);
 
         //For each batch exists. fetch enrollment from user_courses table and push the message to kafka
         for(Row row: courseBatchRows) {
@@ -70,6 +69,18 @@ public class BatchSyncUtil {
             selectQuery = QueryBuilder.select().json().all().from(keyspace, table).where(QueryBuilder.in("batchid", batchIds));
         } else{
             selectQuery = QueryBuilder.select().json().all().from(keyspace, table).where();
+        }
+        ResultSet results = session.execute(selectQuery);
+        return results.all();
+    }
+
+    private static List<Row> readbatch(String table, String courseId) {
+        Session session = CassandraConnector.getSession("sunbird");
+        Select.Where selectQuery = null;
+        if(StringUtils.isNotBlank(courseId)){
+            selectQuery = QueryBuilder.select().all().from(keyspace, table).where(QueryBuilder.eq("courseid", courseId));
+        } else{
+            selectQuery = QueryBuilder.select().all().from(keyspace, table).where();
         }
         ResultSet results = session.execute(selectQuery);
         return results.all();
