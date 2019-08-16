@@ -101,7 +101,9 @@ public class PostPublishProcessor implements ISamzaService {
 
             case "coursebatch-sync" : {
                 String nodeId = (String) object.get("id");
+                LOGGER.info("Started Syncing the courseBatch enrollment for : " + nodeId);
                 batchSyncUtil.syncCourseBatch(nodeId, collector);
+                LOGGER.info("Synced the courseBatch enrollment for : " + nodeId);
                 break;
             }
 
