@@ -2,6 +2,7 @@ package org.ekstep.job.samza.util;
 
 import com.datastax.driver.core.Session;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
+import org.ekstep.common.Platform;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.util.CloudStore;
@@ -15,12 +16,14 @@ public class QRImageUtil {
 
     private static QRImageRequest qrImageRequest = new QRImageRequest();
     private static JobLogger LOGGER = new JobLogger(QRImageUtil.class);
+    private static String DIAL_BASE_URL = Platform.config.hasPath("dial.base.url") ?
+           Platform.config.getString("dial.base.url"):"https://dev.sunbirded.org/dial/";
 
     public static String getQRImageUrl(Node node, String dial, String channel) {
         String[] urlArray = null;
         try {
             //create a qr image
-            String dialUrl = "https://diksha.gov.in/dial/" + dial;
+            String dialUrl = DIAL_BASE_URL + dial;
             qrImageRequest.setFileName("0_" + dial);
             qrImageRequest.setText(dial);
             qrImageRequest.setData(Arrays.asList(dialUrl));
