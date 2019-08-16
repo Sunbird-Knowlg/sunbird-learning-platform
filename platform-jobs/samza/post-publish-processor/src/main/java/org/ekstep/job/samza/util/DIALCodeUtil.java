@@ -55,7 +55,7 @@ public class DIALCodeUtil {
         String channel = (String) node.getMetadata().get(PostPublishParams.channel.name());
         //Generate DIAL Image and upload it to cloud storage
         String qrImageUrl = QRImageUtil.getQRImageUrl(node, dial, channel);
-        LOGGER.info("DIAL Code Image Url generated & uploaded successfully for " + node.getIdentifier());
+        LOGGER.info("DIAL Code Image Url generated & uploaded successfully for " + node.getIdentifier() + " | Image Url is :" + qrImageUrl);
         // Insert QR Image Record into Cassandra DB
         if (StringUtils.isNotBlank(qrImageUrl)) {
             QRImageUtil.createQRImageRecord(channel, dial, qrImageUrl);

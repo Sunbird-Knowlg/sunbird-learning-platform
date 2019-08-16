@@ -31,10 +31,11 @@ public class QRImageUtil {
             //upload the qr image and return the url.
             if (null != file) {
                 urlArray = CloudStore.uploadFile(channel, file, false);
+                LOGGER.info("Dial Image File Uploaded for " + node.getIdentifier() + " |Url Array is: " + urlArray);
             } else {
                 LOGGER.info("Got Null Dial Image File Object for " + node.getIdentifier() + " |So Skipping upload of dial image.");
             }
-            return (null != urlArray) ? urlArray[0] : null;
+            return (null != urlArray) ? urlArray[1] : null;
         } catch (Exception e) {
             LOGGER.info("Exception Occurred While generating dial image for " + node.getIdentifier() + " | Exception is: " + e);
         }
