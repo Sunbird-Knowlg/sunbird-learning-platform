@@ -1,5 +1,8 @@
 package org.ekstep.jobs.samza.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
@@ -24,6 +27,7 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.telemetry.dto.TelemetryBJREvent;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.rits.cloning.Cloner;
@@ -51,6 +55,8 @@ public class PublishPipelineService implements ISamzaService {
 	private SystemStream postPublishStream = null;
 	
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+	private static ObjectMapper mapper = new ObjectMapper();
 	
 	protected int getMaxIterations() {
 		if (Platform.config.hasPath("max.iteration.count.samza.job"))
@@ -264,34 +270,33 @@ public class PublishPipelineService implements ISamzaService {
     }
 
 	private void pushInstructionEvent(Node node, MessageCollector collector) throws Exception{
-		Map<String,Object> actor = new HashMap<String,Object>();
-		Map<String,Object> context = new HashMap<String,Object>();
-		Map<String,Object> object = new HashMap<String,Object>();
-		Map<String,Object> edata = new HashMap<String,Object>();
+		Map<String, Object> actor = new HashMap<String, Object>();
+		Map<String, Object> context = new HashMap<String, Object>();
+		Map<String, Object> object = new HashMap<String, Object>();
+		Map<String, Object> edata = new HashMap<String, Object>();
 		String mimeType = (String) node.getMetadata().get("mimeType");
-		if(StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
-			generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(),"link-dialcode");
-			String linkDialcode = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
-			if (StringUtils.isBlank(linkDialcode)) {
-				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + linkDialcode);
+		if (StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
+			Map<String, Object> linkDialcodeEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
+
+			if (MapUtils.isEmpty(linkDialcodeEvent)) {
+				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + linkDialcodeEvent);
 				throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
 			}
-			collector.send(new OutgoingMessageEnvelope(postPublishStream, linkDialcode));
+			collector.send(new OutgoingMessageEnvelope(postPublishStream, linkDialcodeEvent));
 
-			generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(),"coursebatch-sync");
-			String courseBatchSync = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
-			if (StringUtils.isBlank(courseBatchSync)) {
-				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + courseBatchSync);
+			Map<String, Object> courseBatchSyncEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "coursebatch-sync");
+			if (MapUtils.isEmpty(courseBatchSyncEvent)) {
+				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + courseBatchSyncEvent);
 				throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
 			}
-			collector.send(new OutgoingMessageEnvelope(postPublishStream, courseBatchSync));
-
+			collector.send(new OutgoingMessageEnvelope(postPublishStream, courseBatchSyncEvent));
 			LOGGER.info("Event sent to post publish event topic");
 		}
 	}
 
-	private void generateInstructionEventMetadata(Map<String,Object> actor, Map<String,Object> context,
-												  Map<String,Object> object, Map<String,Object> edata, Map<String, Object> metadata, String contentId, String action) {
+	private Map<String, Object> generateInstructionEventMetadata(Map<String, Object> actor, Map<String, Object> context,
+																 Map<String, Object> object, Map<String, Object> edata, Map<String, Object> metadata, String contentId, String action) {
+		TelemetryBJREvent te = new TelemetryBJREvent();
 		actor.put("id", "Post Publish Processor");
 		actor.put("type", "System");
 		context.put("channel", metadata.get("channel"));
@@ -315,5 +320,24 @@ public class PublishPipelineService implements ISamzaService {
 		edata.put("action", action);
 		edata.put("contentType", metadata.get("contentType"));
 		edata.put("id", contentId);
+		// generate event structure
+		long unixTime = System.currentTimeMillis();
+		String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();
+		edata.put("iteration", 1);
+		te.setEid("BE_JOB_REQUEST");
+		te.setEts(unixTime);
+		te.setMid(mid);
+		te.setActor(actor);
+		te.setContext(context);
+		te.setObject(object);
+		te.setEdata(edata);
+		Map<String, Object> event = null;
+		try {
+			event = mapper.convertValue(te, new TypeReference<Map<String, Object>>() {
+			});
+		} catch (Exception e) {
+			TelemetryManager.error("Error Generating BE_JOB_REQUEST event: " + e.getMessage(), e);
+		}
+		return event;
 	}
 }
