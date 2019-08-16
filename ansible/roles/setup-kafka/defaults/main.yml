@@ -79,6 +79,8 @@ processing_kafka_topics:
     replication_factor: 1
   - name: user.cert.raw
     num_of_partitions: 2
+  - name: coursebatch.job.request
+    num_of_partitions: 1
     replication_factor: 1
 
 processing_kafka_overriden_topics:
@@ -148,4 +150,6 @@ processing_kafka_overriden_topics:
     replication_factor: 1
   - name: user.cert.raw
     retention_time: 1296000000
+  - name: coursebatch.job.request
+    retention_time: 1209600000 
     replication_factor: 1

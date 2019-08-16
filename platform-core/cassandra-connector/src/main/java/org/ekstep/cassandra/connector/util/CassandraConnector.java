@@ -77,12 +77,11 @@ public class CassandraConnector {
 	 */
 	private static List<String> getConnectionInfo(String sessionKey) {
 		List<String> connectionInfo = null;
-		if (sessionKey.equalsIgnoreCase("lp")) {
-			connectionInfo = Arrays.asList(Platform.config.getString("cassandra.lp.connection").split(","));
-		} else if (sessionKey.equalsIgnoreCase("lpa")) {
-			connectionInfo = Arrays.asList(Platform.config.getString("cassandra.lpa.connection").split(","));
-		} else if (sessionKey.equalsIgnoreCase("sunbird")) {
-			connectionInfo = Arrays.asList(Platform.config.getString("cassandra.sunbird.connection").split(","));
+		switch (sessionKey) {
+			case "lp": connectionInfo = Arrays.asList(Platform.config.getString("cassandra.lp.connection").split(","));break;
+			case "lpa": connectionInfo = Arrays.asList(Platform.config.getString("cassandra.lpa.connection").split(","));break;
+			case "sunbird": connectionInfo = Arrays.asList(Platform.config.getString("cassandra.sunbird.connection").split(","));break;
+			case "platform-courses": connectionInfo = Arrays.asList(Platform.config.getString("cassandra.connection.platform_courses").split(","));break;
 		}
 		if (null == connectionInfo || connectionInfo.isEmpty())
 			connectionInfo = new ArrayList<>(Arrays.asList("localhost:9042"));
