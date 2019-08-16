@@ -45,6 +45,7 @@ public class BatchSyncUtil {
             List<Row> userCoursesRows = read("user_courses", Arrays.asList(row.getString("batchid")));
             pushEventsToKafka(userCoursesRows, collector);
         }
+        LOGGER.info("Pushed the events to sync courseBatch enrollment for : " + courseId);
     }
 
 
@@ -54,8 +55,6 @@ public class BatchSyncUtil {
                 Map<String, Object> rowMap = mapper.readValue(row.getString("[json]"), Map.class);
                 Map<String, Object> event = generatekafkaEvent(rowMap);
                 collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", KAFKA_TOPIC), event));
-            } catch (JsonParseException e) {
-                e.printStackTrace();
             } catch (Exception e) {
                 LOGGER.error("Error while pushing the event for course batch enrollment sync", e);
             }
