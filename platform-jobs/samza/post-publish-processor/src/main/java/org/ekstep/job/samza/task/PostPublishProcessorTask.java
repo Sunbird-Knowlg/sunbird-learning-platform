@@ -32,6 +32,7 @@ public class PostPublishProcessorTask extends AbstractTask {
     @Override
     public void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
         try {
+            LOGGER.info("Starting Task Process for post-publish-processor operation.");
             long startTime = System.currentTimeMillis();
             service.processMessage(message, metrics, collector);
             long endTime = System.currentTimeMillis();
