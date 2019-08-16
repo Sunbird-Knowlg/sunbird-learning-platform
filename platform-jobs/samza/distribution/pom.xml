@@ -71,6 +71,13 @@
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>merge-user-courses</artifactId>
+			<version>0.0.1</version>
+			<type>tar.gz</type>
+			<classifier>distribution</classifier>
+		</dependency>
 	</dependencies>
     <build>
         <plugins>

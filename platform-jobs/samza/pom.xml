@@ -30,6 +30,7 @@
 		<module>collection-migration</module>
 		<module>distribution</module>
         <module>course-batch-updater</module>
+		<module>merge-user-courses</module>
     </modules>
 
 	<build>
