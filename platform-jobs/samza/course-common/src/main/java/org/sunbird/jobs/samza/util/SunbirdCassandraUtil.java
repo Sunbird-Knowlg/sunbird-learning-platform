@@ -18,11 +18,7 @@ import java.util.Map;
 
 public class SunbirdCassandraUtil {
 
-    private static Map<String, String> COLUMN_MAPPING;
-
-    static {
-        COLUMN_MAPPING = SunbirdCassandraColumnMapper.getColumnMapping();
-    }
+    private static Map<String, String> COLUMN_MAPPING = SunbirdCassandraColumnMapper.getColumnMapping();;
 
     public static void update(String keyspace, String table, Map<String, Object> propertiesToUpdate, Map<String, Object> propertiesToSelect) {
         Session session = CassandraConnector.getSession("platform-courses");
