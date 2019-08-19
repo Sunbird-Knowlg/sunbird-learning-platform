@@ -18,6 +18,8 @@ public class QRImageUtil {
     private static JobLogger LOGGER = new JobLogger(QRImageUtil.class);
     private static String DIAL_BASE_URL = Platform.config.hasPath("dial.base.url") ?
            Platform.config.getString("dial.base.url"):"https://dev.sunbirded.org/dial/";
+    private static String DIAL_KEYSPACE_NAME = "dialcodes";
+    private static String DIAL_TABLE_NAME = "dialcode_images";
 
     public static String getQRImageUrl(Node node, String dial, String channel) {
         String[] urlArray = null;
@@ -44,8 +46,8 @@ public class QRImageUtil {
 
     public static void createQRImageRecord(String channel, String dial, String imageUrl) {
         String fileName = "0_" + dial;
-        String query = "insert into dialcodes.dialcode_images(filename, channel, dialcode, publisher, status, url)" +
-                "values ('" + fileName + "', '" + channel + "', '" + dial + "', null, 2, '" + imageUrl + "')";
+        String query = "insert into " + DIAL_KEYSPACE_NAME + "." + DIAL_TABLE_NAME + "(filename, channel, dialcode, publisher, status, url,created_on, config)" +
+                "values ('" + fileName + "', '" + channel + "', '" + dial + "', null, 2, '" + imageUrl + "',toTimestamp(now()), null)";
         Session session = CassandraConnector.getSession("sunbird");
         session.execute(query);
     }
