@@ -37,7 +37,7 @@ public class BatchSyncUtil {
 
     public void syncCourseBatch(String courseId, MessageCollector collector) {
         //Get Coursebatch from course_batch table using courseId
-        List<Row> courseBatchRows = readbatch("couse-batch", courseId);
+        List<Row> courseBatchRows = readbatch("couse_batch", courseId);
 
         //For each batch exists. fetch enrollment from user_courses table and push the message to kafka
         for(Row row: courseBatchRows) {
