@@ -26,7 +26,7 @@ public class MergeUserCoursesTask extends BaseTask {
     @Override
     public ISamzaService initialize() throws Exception {
         LOGGER.info("MergeUserCoursesTask:initialize: Task initialized");
-        this.action = Arrays.asList("merge-user-courses");
+        this.action = Arrays.asList("merge-user-courses-and-cert");
         this.jobStartMessage = "Started processing of merge-user-courses samza job";
         this.jobEndMessage = "merge-user-courses job processing complete";
         this.jobClass = "org.sunbird.jobs.samza.task.MergeUserCoursesTask";

@@ -18,6 +18,12 @@ import java.util.Map;
 
 public class SunbirdCassandraUtil {
 
+    private static Map<String, String> COLUMN_MAPPING;
+
+    static {
+        COLUMN_MAPPING = SunbirdCassandraColumnMapper.getColumnMapping();
+    }
+
     public static void update(String keyspace, String table, Map<String, Object> propertiesToUpdate, Map<String, Object> propertiesToSelect) {
         Session session = CassandraConnector.getSession("platform-courses");
         Update.Where updateQuery = QueryBuilder.update(keyspace, table).where();
@@ -50,7 +56,7 @@ public class SunbirdCassandraUtil {
         if (CollectionUtils.isNotEmpty(rows)) {
             for (Row row : rows) {
                 Map<String, Object> rowMap = new HashMap<String, Object>();
-                row.getColumnDefinitions().forEach(column -> rowMap.put(column.getName(), row.getObject(column.getName())));
+                row.getColumnDefinitions().forEach(column -> rowMap.put(COLUMN_MAPPING.get(column.getName()), row.getObject(column.getName())));
                 response.add(rowMap);
             }
         }

@@ -233,7 +233,9 @@ public class MergeUserCoursesService implements ISamzaService {
     private List<BatchEnrollmentSyncModel> getBatchDetailsOfUser(String userId) throws Exception {
         List<BatchEnrollmentSyncModel> objects = new ArrayList<>();
         Map<String, Object> searchQuery = new HashMap<>();
-        searchQuery.put(MergeUserCoursesParams.userId.name(), userId);
+        List<String> userIdList = new ArrayList<>();
+        userIdList.add(userId);
+        searchQuery.put(MergeUserCoursesParams.userId.name(), userIdList);
         List<Map> documents = ElasticSearchUtil.textSearchReturningId(searchQuery, USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE);
         if (CollectionUtils.isNotEmpty(documents)) {
             documents.forEach(doc -> {
