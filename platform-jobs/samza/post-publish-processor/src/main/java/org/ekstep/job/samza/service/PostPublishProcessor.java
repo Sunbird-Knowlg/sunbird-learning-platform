@@ -7,6 +7,7 @@ import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.job.samza.util.BatchSyncUtil;
 import org.ekstep.job.samza.util.DIALCodeUtil;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
@@ -35,6 +36,7 @@ public class PostPublishProcessor implements ISamzaService {
     private Integer MAX_ITERATION_COUNT = null;
     private ControllerUtil util = new ControllerUtil();
     private DIALCodeUtil dialUtil = null;
+    private BatchSyncUtil batchSyncUtil = null;
 
     /**
      * @param config
@@ -54,6 +56,7 @@ public class PostPublishProcessor implements ISamzaService {
         LearningRequestRouterPool.init();
         LOGGER.info("Learning Actor System initialized");
         dialUtil = new DIALCodeUtil();
+        batchSyncUtil = new BatchSyncUtil();
         LOGGER.info("DIAL Util initialized");
     }
 
@@ -93,6 +96,14 @@ public class PostPublishProcessor implements ISamzaService {
                 } else {
                     LOGGER.info("Event Skipped. Target Object (" + nodeId + ") metadata is null.");
                 }
+                break;
+            }
+
+            case "coursebatch-sync" : {
+                String nodeId = (String) object.get("id");
+                LOGGER.info("Started Syncing the courseBatch enrollment for : " + nodeId);
+                batchSyncUtil.syncCourseBatch(nodeId, collector);
+                LOGGER.info("Synced the courseBatch enrollment for : " + nodeId);
                 break;
             }
 

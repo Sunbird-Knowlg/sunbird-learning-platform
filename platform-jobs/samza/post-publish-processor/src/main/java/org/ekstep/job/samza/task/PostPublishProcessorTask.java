@@ -27,7 +27,7 @@ public class PostPublishProcessorTask extends BaseTask {
     public ISamzaService initialize() throws Exception {
         LOGGER.info("post-publish-processor Task initialized!");
         service = new PostPublishProcessor();
-        this.action = Arrays.asList("link-dialcode");
+        this.action = Arrays.asList("link-dialcode", "coursebatch-sync");
         LOGGER.info("Available Actions : " + this.action);
         this.jobStartMessage = "Started processing of post-publish-processor samza job.";
         this.jobEndMessage = "Completed processing of post-publish-processor samza job.";
