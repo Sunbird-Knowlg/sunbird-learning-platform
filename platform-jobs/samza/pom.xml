@@ -20,6 +20,7 @@
 	<description>This Project Contains all the backend jobs, they may be the Pipeline Consumers.</description>
 	<modules>
 		<module>common</module>
+		<module>course-common</module>
 		<module>audit-history-indexer</module>
 	    <module>audit-event-generator</module>
 		<module>composite-search-indexer</module>
@@ -29,6 +30,9 @@
 		<module>collection-migration</module>
 		<module>distribution</module>
         <module>course-batch-updater</module>
+        <module>post-publish-processor</module>
+        <module>qr-image-generator</module>
+		<module>merge-user-courses</module>
     </modules>
 
 	<build>

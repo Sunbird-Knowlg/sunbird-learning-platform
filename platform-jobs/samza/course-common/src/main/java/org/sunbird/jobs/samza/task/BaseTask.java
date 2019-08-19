@@ -34,10 +34,10 @@ public abstract class BaseTask implements StreamTask, InitableTask, WindowableTa
     protected String jobEndMessage = "";
     protected String jobClass = "";
 
-    private static String mid = "LP."+ UUID.randomUUID();
-    private static String startJobEventId = "JOB_START";
-    private static String endJobEventId = "JOB_END";
-    private static int MAXITERTIONCOUNT= 2;
+    protected static String mid = "LP."+ UUID.randomUUID();
+    protected static String startJobEventId = "JOB_START";
+    protected static String endJobEventId = "JOB_END";
+    protected static int MAXITERTIONCOUNT= 2;
 
     @Override
     public void init(Config config, TaskContext context) throws Exception {

@@ -80,6 +80,9 @@ processing_kafka_topics:
   - name: coursebatch.job.request
     num_of_partitions: 1
     replication_factor: 1
+  - name: content.postpublish.request  
+    num_of_partitions: 1
+    replication_factor: 1
 
 processing_kafka_overriden_topics:
   - name: telemetry.raw
@@ -148,4 +151,7 @@ processing_kafka_overriden_topics:
     replication_factor: 1
   - name: coursebatch.job.request
     retention_time: 1209600000 
+    replication_factor: 1
+  - name: content.postpublish.request
+    retention_time: 1209600000
     replication_factor: 1
