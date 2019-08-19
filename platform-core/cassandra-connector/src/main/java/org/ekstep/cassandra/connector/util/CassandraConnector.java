@@ -65,6 +65,7 @@ public class CassandraConnector {
 
 			registerShutdownHook();
 		} catch (Exception e) {
+			e.printStackTrace();
 			TelemetryManager.error("Error! While Loading Cassandra Properties." + e.getMessage(), e);
 		}
 	}
@@ -137,6 +138,25 @@ public class CassandraConnector {
 		if (StringUtils.isNotBlank(consistencyLevel))
 			return ConsistencyLevel.valueOf(consistencyLevel.toUpperCase());
 		return null;
+	}
+
+	/**
+	 * Method to test whether connection can be established to Cassandra.
+	 */
+	public static boolean testCassandraConnection() {
+		Session session = null;
+		try {
+			session = getSession();
+			if(null!= session && !session.isClosed()){
+				session.execute("SELECT now() FROM system.local");
+				return true;
+			}else{
+				return false;
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error! Executing do Establish Connection: "+ e.getMessage(), e);
+		}
 	}
 
 }

@@ -33,6 +33,8 @@ public class QRCodeImageGeneratorService implements ISamzaService {
 
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
+        List<File> availableImages = new ArrayList<File>();
+        File zipFile = null;
 	    try{
             LOGGER.info("QRCodeImageGeneratorService:processMessage: Processing request: "+message);
             LOGGER.info("QRCodeImageGeneratorService:processMessage: Starting message processing at "+System.currentTimeMillis());
@@ -54,7 +56,6 @@ public class QRCodeImageGeneratorService implements ISamzaService {
             Map<String, Object> config = (Map<String, Object>) message.get(QRCodeImageGeneratorParams.config.name());
             String imageFormat = (String) config.get(QRCodeImageGeneratorParams.imageFormat.name());
 
-            List<File> availableImages = new ArrayList<File>();
             List<String> dataList = new ArrayList<String>();
             List<String> textList = new ArrayList<String>();
             List<String> fileNameList = new ArrayList<String>();
@@ -66,6 +67,7 @@ public class QRCodeImageGeneratorService implements ISamzaService {
                         downloadUrl = (String) dialCode.get(QRCodeImageGeneratorParams.location.name());
                         String fileName = (String) dialCode.get(QRCodeImageGeneratorParams.id.name());
                         File fileToSave = new File(fileName+"."+imageFormat);
+                        fileToSave.createNewFile();
                         CloudStorageUtil.downloadFile(downloadUrl, fileToSave);
                         availableImages.add(fileToSave);
                         continue;
@@ -94,20 +96,25 @@ public class QRCodeImageGeneratorService implements ISamzaService {
             List<File> generatedImages = QRCodeImageGeneratorUtil.createQRImages(qrGenRequest, appConfig, container, path);
 
             availableImages.addAll(generatedImages);
-            File zipFile = ZipEditorUtil.zipFiles(availableImages, zipFileName);
+            zipFile = ZipEditorUtil.zipFiles(availableImages, zipFileName);
 
             String zipDownloadUrl = CloudStorageUtil.uploadFile(container, path, zipFile, false);
             QRCodeCassandraConnector.updateDownloadZIPUrl(processId, zipDownloadUrl);
 
-            zipFile.deleteOnExit();
-            for(File imageFile : availableImages) {
-                imageFile.deleteOnExit();
-            }
             LOGGER.info("QRCodeImageGeneratorService:processMessage: Message processed successfully at "+System.currentTimeMillis());
         } catch (Exception e) {
             QRCodeCassandraConnector.updateFailure((String) message.get(QRCodeImageGeneratorParams.processId.name()),
                     e.getMessage());
             throw e;
+        } finally {
+            if(null != zipFile) {
+                zipFile.delete();
+            }
+            for(File imageFile : availableImages) {
+                if(null != imageFile) {
+                    imageFile.delete();
+                }
+            }
         }
 	}
 

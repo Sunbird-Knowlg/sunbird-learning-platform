@@ -53,9 +53,11 @@ public class LocalCacheUpdater {
             // actor call, scheduled every 1 minute
             makeLearningRequest(getRequest(consumer));
         } catch (Exception ex) {
+            ex.printStackTrace();
             TelemetryManager.error("Exception Occured While Subscribing to kafka topic : " + TOPIC_ID + ". Exception is : " + ex);
         } finally {
-            consumer.close();
+            if (null != consumer)
+                consumer.close();
         }
     }
 
