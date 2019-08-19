@@ -1105,9 +1105,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	private void updateLeafNodeIds(Node node, Map<String, Object> content) {
         Set<String> leafNodeIds = new HashSet<>();
         getLeafNodesIds(content, leafNodeIds);
-		if(CollectionUtils.isNotEmpty(leafNodeIds)){
-			node.getMetadata().put(ContentAPIParams.leafNodes.name(), new ArrayList<>(leafNodeIds));
-		}
+        node.getMetadata().put(ContentAPIParams.leafNodes.name(), new ArrayList<>(leafNodeIds));
 	}
 
 	private String convertToString(Object obj) throws Exception {
