@@ -105,7 +105,7 @@ public class DIALCodeUtil {
      * @return
      */
     private Map<String, Integer> reserveDialCodes(Node node) {
-        Map<String, Integer> reservedDials = null;
+        Map<String, Integer> reservedDials = new HashMap<String, Integer>();
         try {
             Map<String, Object> request = new HashMap<String, Object>() {{
                 put(PostPublishParams.request.name(), new HashMap<String, Object>() {{
@@ -133,7 +133,7 @@ public class DIALCodeUtil {
                 else
                     LOGGER.info("Empty Result Received While Reserving DialCode for " + node.getIdentifier());
             } else {
-                LOGGER.info("Error Response Received While Reserving DialCode for " + node.getIdentifier() + " | Error Response is :" + response);
+                LOGGER.info("Error Response Received While Reserving DialCode for " + node.getIdentifier() + " | Error Response Code is :" + response.getResponseCode() + "| Error Result : " + response.getResult());
             }
         } catch (Exception e) {
             LOGGER.info("Exception Occurred While Reserving DialCode for " + node.getIdentifier() + " | Exception is :" + e);
