@@ -1,0 +1,394 @@
+2019-08-20 23:46:54 Native [INFO] Could not load JNR C Library, native system calls through this library will not be available (set this logger level to DEBUG to see the full stack trace).
+2019-08-20 23:46:54 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-20 23:46:55 NettyUtil [INFO] Did not find Netty's native epoll transport in the classpath, defaulting to NIO.
+2019-08-20 23:46:58 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-20 23:46:58 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-20 23:47:01 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-20 23:47:02 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-20 23:47:02 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-20 23:51:42 Native [INFO] Could not load JNR C Library, native system calls through this library will not be available (set this logger level to DEBUG to see the full stack trace).
+2019-08-20 23:51:42 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-20 23:51:43 NettyUtil [INFO] Did not find Netty's native epoll transport in the classpath, defaulting to NIO.
+2019-08-20 23:51:44 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-20 23:51:44 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-20 23:51:45 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-20 23:51:45 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-20 23:51:45 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-20 23:53:51 Native [INFO] Could not load JNR C Library, native system calls through this library will not be available (set this logger level to DEBUG to see the full stack trace).
+2019-08-20 23:53:51 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-20 23:53:53 NettyUtil [INFO] Did not find Netty's native epoll transport in the classpath, defaulting to NIO.
+2019-08-20 23:53:55 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-20 23:53:55 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-20 23:53:56 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-20 23:53:56 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-20 23:53:56 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-20 23:56:40 CertificateGenerator [ERROR] Message: Error while generating the certificate for user 874ed8a5-782e-4f6c-8f36-e0288455901e with batch: 0125450863553740809
+java.lang.NullPointerException
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator.prepareCertServiceRequest(CertificateGenerator.java:142)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.sunbird.jobs.samza.service.CertificateGeneratorTest.testGenerateCertificate(CertificateGeneratorTest.java:31)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:68)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.runTestMethod(PowerMockJUnit44RunnerDelegateImpl.java:326)
+	at org.junit.internal.runners.MethodRoadie$2.run(MethodRoadie.java:89)
+	at org.junit.internal.runners.MethodRoadie.runBeforesThenTestThenAfters(MethodRoadie.java:97)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.executeTest(PowerMockJUnit44RunnerDelegateImpl.java:310)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.executeTestInSuper(PowerMockJUnit47RunnerDelegateImpl.java:131)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.access$100(PowerMockJUnit47RunnerDelegateImpl.java:59)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner$TestExecutorStatement.evaluate(PowerMockJUnit47RunnerDelegateImpl.java:147)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.evaluateStatement(PowerMockJUnit47RunnerDelegateImpl.java:107)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.executeTest(PowerMockJUnit47RunnerDelegateImpl.java:82)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.runBeforesThenTestThenAfters(PowerMockJUnit44RunnerDelegateImpl.java:298)
+	at org.junit.internal.runners.MethodRoadie.runTest(MethodRoadie.java:87)
+	at org.junit.internal.runners.MethodRoadie.run(MethodRoadie.java:50)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.invokeTestMethod(PowerMockJUnit44RunnerDelegateImpl.java:218)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.runMethods(PowerMockJUnit44RunnerDelegateImpl.java:160)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$1.run(PowerMockJUnit44RunnerDelegateImpl.java:134)
+	at org.junit.internal.runners.ClassRoadie.runUnprotected(ClassRoadie.java:34)
+	at org.junit.internal.runners.ClassRoadie.runProtected(ClassRoadie.java:44)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.run(PowerMockJUnit44RunnerDelegateImpl.java:136)
+	at org.powermock.modules.junit4.common.internal.impl.JUnit4TestSuiteChunkerImpl.run(JUnit4TestSuiteChunkerImpl.java:121)
+	at org.powermock.modules.junit4.common.internal.impl.AbstractCommonPowerMockRunner.run(AbstractCommonPowerMockRunner.java:57)
+	at org.powermock.modules.junit4.PowerMockRunner.run(PowerMockRunner.java:59)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2019-08-20 23:58:22 Native [INFO] Could not load JNR C Library, native system calls through this library will not be available (set this logger level to DEBUG to see the full stack trace).
+2019-08-20 23:58:22 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-20 23:58:24 NettyUtil [INFO] Did not find Netty's native epoll transport in the classpath, defaulting to NIO.
+2019-08-20 23:58:25 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-20 23:58:25 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-20 23:58:26 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-20 23:58:26 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-20 23:58:26 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:02:42 CertificateGenerator [ERROR] Message: Error while generating the certificate for user 874ed8a5-782e-4f6c-8f36-e0288455901e with batch: 0125450863553740809
+java.lang.NullPointerException
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator.prepareCertServiceRequest(CertificateGenerator.java:142)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.sunbird.jobs.samza.service.CertificateGeneratorTest.testGenerateCertificate(CertificateGeneratorTest.java:31)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:68)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.runTestMethod(PowerMockJUnit44RunnerDelegateImpl.java:326)
+	at org.junit.internal.runners.MethodRoadie$2.run(MethodRoadie.java:89)
+	at org.junit.internal.runners.MethodRoadie.runBeforesThenTestThenAfters(MethodRoadie.java:97)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.executeTest(PowerMockJUnit44RunnerDelegateImpl.java:310)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.executeTestInSuper(PowerMockJUnit47RunnerDelegateImpl.java:131)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.access$100(PowerMockJUnit47RunnerDelegateImpl.java:59)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner$TestExecutorStatement.evaluate(PowerMockJUnit47RunnerDelegateImpl.java:147)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.evaluateStatement(PowerMockJUnit47RunnerDelegateImpl.java:107)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.executeTest(PowerMockJUnit47RunnerDelegateImpl.java:82)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.runBeforesThenTestThenAfters(PowerMockJUnit44RunnerDelegateImpl.java:298)
+	at org.junit.internal.runners.MethodRoadie.runTest(MethodRoadie.java:87)
+	at org.junit.internal.runners.MethodRoadie.run(MethodRoadie.java:50)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.invokeTestMethod(PowerMockJUnit44RunnerDelegateImpl.java:218)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.runMethods(PowerMockJUnit44RunnerDelegateImpl.java:160)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$1.run(PowerMockJUnit44RunnerDelegateImpl.java:134)
+	at org.junit.internal.runners.ClassRoadie.runUnprotected(ClassRoadie.java:34)
+	at org.junit.internal.runners.ClassRoadie.runProtected(ClassRoadie.java:44)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.run(PowerMockJUnit44RunnerDelegateImpl.java:136)
+	at org.powermock.modules.junit4.common.internal.impl.JUnit4TestSuiteChunkerImpl.run(JUnit4TestSuiteChunkerImpl.java:121)
+	at org.powermock.modules.junit4.common.internal.impl.AbstractCommonPowerMockRunner.run(AbstractCommonPowerMockRunner.java:57)
+	at org.powermock.modules.junit4.PowerMockRunner.run(PowerMockRunner.java:59)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2019-08-21 00:04:07 Native [INFO] Could not load JNR C Library, native system calls through this library will not be available (set this logger level to DEBUG to see the full stack trace).
+2019-08-21 00:04:07 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 00:04:09 NettyUtil [INFO] Did not find Netty's native epoll transport in the classpath, defaulting to NIO.
+2019-08-21 00:04:11 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 00:04:11 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:04:12 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 00:04:12 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 00:04:12 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:05:23 CertificateGenerator [ERROR] Message: Error while searching for user : 874ed8a5-782e-4f6c-8f36-e0288455901e
+java.lang.ClassCastException: java.util.ArrayList cannot be cast to java.util.Map
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator.getUserDetails(CertificateGenerator.java:194)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.powermock.api.mockito.internal.invocation.MockitoMethodInvocationControl$MockedRealMethod.invoke(MockitoMethodInvocationControl.java:340)
+	at org.mockito.internal.invocation.realmethod.CleanTraceRealMethod.invoke(CleanTraceRealMethod.java:30)
+	at org.mockito.internal.invocation.InvocationImpl.callRealMethod(InvocationImpl.java:112)
+	at org.mockito.internal.stubbing.answers.CallsRealMethods.answer(CallsRealMethods.java:41)
+	at org.mockito.internal.handler.MockHandlerImpl.handle(MockHandlerImpl.java:93)
+	at org.powermock.api.mockito.internal.invocation.MockitoMethodInvocationControl.performIntercept(MockitoMethodInvocationControl.java:244)
+	at org.powermock.api.mockito.internal.invocation.MockitoMethodInvocationControl.invoke(MockitoMethodInvocationControl.java:196)
+	at org.powermock.core.MockGateway.doMethodCall(MockGateway.java:182)
+	at org.powermock.core.MockGateway.doMethodCall(MockGateway.java:164)
+	at org.powermock.core.MockGateway.methodCall(MockGateway.java:134)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator.getUserDetails(CertificateGenerator.java)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator.issueCertificate(CertificateGenerator.java:83)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.powermock.api.mockito.internal.invocation.MockitoMethodInvocationControl$MockedRealMethod.invoke(MockitoMethodInvocationControl.java:340)
+	at org.mockito.internal.invocation.realmethod.CleanTraceRealMethod.invoke(CleanTraceRealMethod.java:30)
+	at org.mockito.internal.invocation.InvocationImpl.callRealMethod(InvocationImpl.java:112)
+	at org.mockito.internal.stubbing.answers.CallsRealMethods.answer(CallsRealMethods.java:41)
+	at org.mockito.internal.handler.MockHandlerImpl.handle(MockHandlerImpl.java:93)
+	at org.powermock.api.mockito.internal.invocation.MockitoMethodInvocationControl.performIntercept(MockitoMethodInvocationControl.java:244)
+	at org.powermock.api.mockito.internal.invocation.MockitoMethodInvocationControl.invoke(MockitoMethodInvocationControl.java:196)
+	at org.powermock.core.MockGateway.doMethodCall(MockGateway.java:182)
+	at org.powermock.core.MockGateway.doMethodCall(MockGateway.java:164)
+	at org.powermock.core.MockGateway.methodCall(MockGateway.java:134)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator.issueCertificate(CertificateGenerator.java)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator.generate(CertificateGenerator.java:69)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator$$EnhancerByMockitoWithCGLIB$$a82a4882.CGLIB$generate$0(<generated>)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator$$EnhancerByMockitoWithCGLIB$$a82a4882$$FastClassByMockitoWithCGLIB$$32870d02.invoke(<generated>)
+	at org.mockito.cglib.proxy.MethodProxy.invokeSuper(MethodProxy.java:216)
+	at org.powermock.api.mockito.repackaged.DelegatingMockitoMethodProxy.invokeSuper(DelegatingMockitoMethodProxy.java:20)
+	at org.mockito.internal.invocation.realmethod.DefaultRealMethod.invoke(DefaultRealMethod.java:21)
+	at org.mockito.internal.invocation.realmethod.CleanTraceRealMethod.invoke(CleanTraceRealMethod.java:30)
+	at org.mockito.internal.invocation.InvocationImpl.callRealMethod(InvocationImpl.java:112)
+	at org.mockito.internal.stubbing.answers.CallsRealMethods.answer(CallsRealMethods.java:41)
+	at org.mockito.internal.handler.MockHandlerImpl.handle(MockHandlerImpl.java:93)
+	at org.mockito.internal.handler.NullResultGuardian.handle(NullResultGuardian.java:29)
+	at org.mockito.internal.handler.InvocationNotifierHandler.handle(InvocationNotifierHandler.java:38)
+	at org.powermock.api.mockito.repackaged.MethodInterceptorFilter.intercept(MethodInterceptorFilter.java:60)
+	at org.powermock.api.mockito.internal.mockcreation.PowerMockMethodInterceptorFilter.intercept(PowerMockMethodInterceptorFilter.java:20)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator$$EnhancerByMockitoWithCGLIB$$a82a4882.generate(<generated>)
+	at org.sunbird.jobs.samza.service.CertificateGeneratorTest.testGenerateCertificate(CertificateGeneratorTest.java:31)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:68)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.runTestMethod(PowerMockJUnit44RunnerDelegateImpl.java:326)
+	at org.junit.internal.runners.MethodRoadie$2.run(MethodRoadie.java:89)
+	at org.junit.internal.runners.MethodRoadie.runBeforesThenTestThenAfters(MethodRoadie.java:97)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.executeTest(PowerMockJUnit44RunnerDelegateImpl.java:310)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.executeTestInSuper(PowerMockJUnit47RunnerDelegateImpl.java:131)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.access$100(PowerMockJUnit47RunnerDelegateImpl.java:59)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner$TestExecutorStatement.evaluate(PowerMockJUnit47RunnerDelegateImpl.java:147)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.evaluateStatement(PowerMockJUnit47RunnerDelegateImpl.java:107)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.executeTest(PowerMockJUnit47RunnerDelegateImpl.java:82)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.runBeforesThenTestThenAfters(PowerMockJUnit44RunnerDelegateImpl.java:298)
+	at org.junit.internal.runners.MethodRoadie.runTest(MethodRoadie.java:87)
+	at org.junit.internal.runners.MethodRoadie.run(MethodRoadie.java:50)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.invokeTestMethod(PowerMockJUnit44RunnerDelegateImpl.java:218)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.runMethods(PowerMockJUnit44RunnerDelegateImpl.java:160)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$1.run(PowerMockJUnit44RunnerDelegateImpl.java:134)
+	at org.junit.internal.runners.ClassRoadie.runUnprotected(ClassRoadie.java:34)
+	at org.junit.internal.runners.ClassRoadie.runProtected(ClassRoadie.java:44)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.run(PowerMockJUnit44RunnerDelegateImpl.java:136)
+	at org.powermock.modules.junit4.common.internal.impl.JUnit4TestSuiteChunkerImpl.run(JUnit4TestSuiteChunkerImpl.java:121)
+	at org.powermock.modules.junit4.common.internal.impl.AbstractCommonPowerMockRunner.run(AbstractCommonPowerMockRunner.java:57)
+	at org.powermock.modules.junit4.PowerMockRunner.run(PowerMockRunner.java:59)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2019-08-21 00:05:23 CertificateGenerator [ERROR] Message: Error while generating the certificate for user 874ed8a5-782e-4f6c-8f36-e0288455901e with batch: 0125450863553740809
+java.lang.NullPointerException
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator.prepareCertServiceRequest(CertificateGenerator.java:141)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.sunbird.jobs.samza.service.CertificateGeneratorTest.testGenerateCertificate(CertificateGeneratorTest.java:31)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:68)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.runTestMethod(PowerMockJUnit44RunnerDelegateImpl.java:326)
+	at org.junit.internal.runners.MethodRoadie$2.run(MethodRoadie.java:89)
+	at org.junit.internal.runners.MethodRoadie.runBeforesThenTestThenAfters(MethodRoadie.java:97)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.executeTest(PowerMockJUnit44RunnerDelegateImpl.java:310)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.executeTestInSuper(PowerMockJUnit47RunnerDelegateImpl.java:131)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.access$100(PowerMockJUnit47RunnerDelegateImpl.java:59)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner$TestExecutorStatement.evaluate(PowerMockJUnit47RunnerDelegateImpl.java:147)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.evaluateStatement(PowerMockJUnit47RunnerDelegateImpl.java:107)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.executeTest(PowerMockJUnit47RunnerDelegateImpl.java:82)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.runBeforesThenTestThenAfters(PowerMockJUnit44RunnerDelegateImpl.java:298)
+	at org.junit.internal.runners.MethodRoadie.runTest(MethodRoadie.java:87)
+	at org.junit.internal.runners.MethodRoadie.run(MethodRoadie.java:50)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.invokeTestMethod(PowerMockJUnit44RunnerDelegateImpl.java:218)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.runMethods(PowerMockJUnit44RunnerDelegateImpl.java:160)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$1.run(PowerMockJUnit44RunnerDelegateImpl.java:134)
+	at org.junit.internal.runners.ClassRoadie.runUnprotected(ClassRoadie.java:34)
+	at org.junit.internal.runners.ClassRoadie.runProtected(ClassRoadie.java:44)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.run(PowerMockJUnit44RunnerDelegateImpl.java:136)
+	at org.powermock.modules.junit4.common.internal.impl.JUnit4TestSuiteChunkerImpl.run(JUnit4TestSuiteChunkerImpl.java:121)
+	at org.powermock.modules.junit4.common.internal.impl.AbstractCommonPowerMockRunner.run(AbstractCommonPowerMockRunner.java:57)
+	at org.powermock.modules.junit4.PowerMockRunner.run(PowerMockRunner.java:59)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2019-08-21 00:06:32 Native [INFO] Could not load JNR C Library, native system calls through this library will not be available (set this logger level to DEBUG to see the full stack trace).
+2019-08-21 00:06:32 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 00:06:34 NettyUtil [INFO] Did not find Netty's native epoll transport in the classpath, defaulting to NIO.
+2019-08-21 00:06:36 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 00:06:36 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:06:36 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 00:06:37 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 00:06:37 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:07:26 ResponseProcessCookies [WARN] Invalid cookie header: "Set-Cookie: PLAY_FLASH=; Max-Age=-86400; Expires=Mon, 19 Aug 2019 18:37:26 GMT; Path=/; HTTPOnly". Invalid 'expires' attribute: Mon, 19 Aug 2019 18:37:26 GMT
+2019-08-21 00:08:32 Native [INFO] Could not load JNR C Library, native system calls through this library will not be available (set this logger level to DEBUG to see the full stack trace).
+2019-08-21 00:08:32 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 00:08:33 NettyUtil [INFO] Did not find Netty's native epoll transport in the classpath, defaulting to NIO.
+2019-08-21 00:08:35 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 00:08:35 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:08:35 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 00:08:35 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 00:08:35 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:09:24 ResponseProcessCookies [WARN] Invalid cookie header: "Set-Cookie: PLAY_FLASH=; Max-Age=-86400; Expires=Mon, 19 Aug 2019 18:39:24 GMT; Path=/; HTTPOnly". Invalid 'expires' attribute: Mon, 19 Aug 2019 18:39:24 GMT
+2019-08-21 00:10:15 Native [INFO] Could not load JNR C Library, native system calls through this library will not be available (set this logger level to DEBUG to see the full stack trace).
+2019-08-21 00:10:15 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 00:10:16 NettyUtil [INFO] Did not find Netty's native epoll transport in the classpath, defaulting to NIO.
+2019-08-21 00:10:17 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 00:10:17 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:10:17 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 00:10:17 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 00:10:17 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:10:29 ResponseProcessCookies [WARN] Invalid cookie header: "Set-Cookie: PLAY_FLASH=; Max-Age=-86400; Expires=Mon, 19 Aug 2019 18:40:29 GMT; Path=/; HTTPOnly". Invalid 'expires' attribute: Mon, 19 Aug 2019 18:40:29 GMT
+2019-08-21 00:44:45 Native [INFO] Could not load JNR C Library, native system calls through this library will not be available (set this logger level to DEBUG to see the full stack trace).
+2019-08-21 00:44:45 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 00:44:48 NettyUtil [INFO] Did not find Netty's native epoll transport in the classpath, defaulting to NIO.
+2019-08-21 00:44:52 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 00:44:52 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:44:52 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 00:44:52 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 00:44:52 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:45:10 ResponseProcessCookies [WARN] Invalid cookie header: "Set-Cookie: PLAY_FLASH=; Max-Age=-86400; Expires=Mon, 19 Aug 2019 19:15:10 GMT; Path=/; HTTPOnly". Invalid 'expires' attribute: Mon, 19 Aug 2019 19:15:10 GMT
+2019-08-21 00:51:13 Native [INFO] Could not load JNR C Library, native system calls through this library will not be available (set this logger level to DEBUG to see the full stack trace).
+2019-08-21 00:51:13 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 00:51:14 NettyUtil [INFO] Did not find Netty's native epoll transport in the classpath, defaulting to NIO.
+2019-08-21 00:51:15 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 00:51:15 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:51:15 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 00:51:16 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 00:51:16 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:51:30 ResponseProcessCookies [WARN] Invalid cookie header: "Set-Cookie: PLAY_FLASH=; Max-Age=-86400; Expires=Mon, 19 Aug 2019 19:21:30 GMT; Path=/; HTTPOnly". Invalid 'expires' attribute: Mon, 19 Aug 2019 19:21:30 GMT
+2019-08-21 00:52:35 CertificateGenerator [ERROR] Message: Error while generating the certificate for user 874ed8a5-782e-4f6c-8f36-e0288455901e with batch: 0125450863553740809
+java.lang.NullPointerException
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator$3.<init>(CertificateGenerator.java:113)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator.generateCertificate(CertificateGenerator.java:111)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.powermock.api.mockito.internal.invocation.MockitoMethodInvocationControl$MockedRealMethod.invoke(MockitoMethodInvocationControl.java:340)
+	at org.mockito.internal.invocation.realmethod.CleanTraceRealMethod.invoke(CleanTraceRealMethod.java:30)
+	at org.mockito.internal.invocation.InvocationImpl.callRealMethod(InvocationImpl.java:112)
+	at org.mockito.internal.stubbing.answers.CallsRealMethods.answer(CallsRealMethods.java:41)
+	at org.mockito.internal.handler.MockHandlerImpl.handle(MockHandlerImpl.java:93)
+	at org.powermock.api.mockito.internal.invocation.MockitoMethodInvocationControl.performIntercept(MockitoMethodInvocationControl.java:244)
+	at org.powermock.api.mockito.internal.invocation.MockitoMethodInvocationControl.invoke(MockitoMethodInvocationControl.java:196)
+	at org.powermock.core.MockGateway.doMethodCall(MockGateway.java:182)
+	at org.powermock.core.MockGateway.doMethodCall(MockGateway.java:164)
+	at org.powermock.core.MockGateway.methodCall(MockGateway.java:134)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator.generateCertificate(CertificateGenerator.java)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator.issueCertificate(CertificateGenerator.java:86)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.powermock.api.mockito.internal.invocation.MockitoMethodInvocationControl$MockedRealMethod.invoke(MockitoMethodInvocationControl.java:340)
+	at org.mockito.internal.invocation.realmethod.CleanTraceRealMethod.invoke(CleanTraceRealMethod.java:30)
+	at org.mockito.internal.invocation.InvocationImpl.callRealMethod(InvocationImpl.java:112)
+	at org.mockito.internal.stubbing.answers.CallsRealMethods.answer(CallsRealMethods.java:41)
+	at org.mockito.internal.handler.MockHandlerImpl.handle(MockHandlerImpl.java:93)
+	at org.powermock.api.mockito.internal.invocation.MockitoMethodInvocationControl.performIntercept(MockitoMethodInvocationControl.java:244)
+	at org.powermock.api.mockito.internal.invocation.MockitoMethodInvocationControl.invoke(MockitoMethodInvocationControl.java:196)
+	at org.powermock.core.MockGateway.doMethodCall(MockGateway.java:182)
+	at org.powermock.core.MockGateway.doMethodCall(MockGateway.java:164)
+	at org.powermock.core.MockGateway.methodCall(MockGateway.java:134)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator.issueCertificate(CertificateGenerator.java)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator.generate(CertificateGenerator.java:70)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator$$EnhancerByMockitoWithCGLIB$$19754b0d.CGLIB$generate$0(<generated>)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator$$EnhancerByMockitoWithCGLIB$$19754b0d$$FastClassByMockitoWithCGLIB$$f351ac46.invoke(<generated>)
+	at org.mockito.cglib.proxy.MethodProxy.invokeSuper(MethodProxy.java:216)
+	at org.powermock.api.mockito.repackaged.DelegatingMockitoMethodProxy.invokeSuper(DelegatingMockitoMethodProxy.java:20)
+	at org.mockito.internal.invocation.realmethod.DefaultRealMethod.invoke(DefaultRealMethod.java:21)
+	at org.mockito.internal.invocation.realmethod.CleanTraceRealMethod.invoke(CleanTraceRealMethod.java:30)
+	at org.mockito.internal.invocation.InvocationImpl.callRealMethod(InvocationImpl.java:112)
+	at org.mockito.internal.stubbing.answers.CallsRealMethods.answer(CallsRealMethods.java:41)
+	at org.mockito.internal.handler.MockHandlerImpl.handle(MockHandlerImpl.java:93)
+	at org.mockito.internal.handler.NullResultGuardian.handle(NullResultGuardian.java:29)
+	at org.mockito.internal.handler.InvocationNotifierHandler.handle(InvocationNotifierHandler.java:38)
+	at org.powermock.api.mockito.repackaged.MethodInterceptorFilter.intercept(MethodInterceptorFilter.java:60)
+	at org.powermock.api.mockito.internal.mockcreation.PowerMockMethodInterceptorFilter.intercept(PowerMockMethodInterceptorFilter.java:20)
+	at org.sunbird.jobs.samza.service.util.CertificateGenerator$$EnhancerByMockitoWithCGLIB$$19754b0d.generate(<generated>)
+	at org.sunbird.jobs.samza.service.CertificateGeneratorTest.testGenerateCertificate(CertificateGeneratorTest.java:31)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:68)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.runTestMethod(PowerMockJUnit44RunnerDelegateImpl.java:326)
+	at org.junit.internal.runners.MethodRoadie$2.run(MethodRoadie.java:89)
+	at org.junit.internal.runners.MethodRoadie.runBeforesThenTestThenAfters(MethodRoadie.java:97)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.executeTest(PowerMockJUnit44RunnerDelegateImpl.java:310)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.executeTestInSuper(PowerMockJUnit47RunnerDelegateImpl.java:131)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.access$100(PowerMockJUnit47RunnerDelegateImpl.java:59)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner$TestExecutorStatement.evaluate(PowerMockJUnit47RunnerDelegateImpl.java:147)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.evaluateStatement(PowerMockJUnit47RunnerDelegateImpl.java:107)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.executeTest(PowerMockJUnit47RunnerDelegateImpl.java:82)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.runBeforesThenTestThenAfters(PowerMockJUnit44RunnerDelegateImpl.java:298)
+	at org.junit.internal.runners.MethodRoadie.runTest(MethodRoadie.java:87)
+	at org.junit.internal.runners.MethodRoadie.run(MethodRoadie.java:50)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.invokeTestMethod(PowerMockJUnit44RunnerDelegateImpl.java:218)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.runMethods(PowerMockJUnit44RunnerDelegateImpl.java:160)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$1.run(PowerMockJUnit44RunnerDelegateImpl.java:134)
+	at org.junit.internal.runners.ClassRoadie.runUnprotected(ClassRoadie.java:34)
+	at org.junit.internal.runners.ClassRoadie.runProtected(ClassRoadie.java:44)
+	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.run(PowerMockJUnit44RunnerDelegateImpl.java:136)
+	at org.powermock.modules.junit4.common.internal.impl.JUnit4TestSuiteChunkerImpl.run(JUnit4TestSuiteChunkerImpl.java:121)
+	at org.powermock.modules.junit4.common.internal.impl.AbstractCommonPowerMockRunner.run(AbstractCommonPowerMockRunner.java:57)
+	at org.powermock.modules.junit4.PowerMockRunner.run(PowerMockRunner.java:59)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2019-08-21 00:55:21 Native [INFO] Could not load JNR C Library, native system calls through this library will not be available (set this logger level to DEBUG to see the full stack trace).
+2019-08-21 00:55:21 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 00:55:21 NettyUtil [INFO] Did not find Netty's native epoll transport in the classpath, defaulting to NIO.
+2019-08-21 00:55:23 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 00:55:23 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:55:23 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 00:55:23 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 00:55:23 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 00:55:37 ResponseProcessCookies [WARN] Invalid cookie header: "Set-Cookie: PLAY_FLASH=; Max-Age=-86400; Expires=Mon, 19 Aug 2019 19:25:36 GMT; Path=/; HTTPOnly". Invalid 'expires' attribute: Mon, 19 Aug 2019 19:25:36 GMT
+2019-08-21 01:04:52 Native [INFO] Could not load JNR C Library, native system calls through this library will not be available (set this logger level to DEBUG to see the full stack trace).
+2019-08-21 01:04:52 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 01:04:53 NettyUtil [INFO] Did not find Netty's native epoll transport in the classpath, defaulting to NIO.
+2019-08-21 01:04:54 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 01:04:54 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 01:04:54 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 01:04:54 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 01:04:54 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 01:05:04 ResponseProcessCookies [WARN] Invalid cookie header: "Set-Cookie: PLAY_FLASH=; Max-Age=-86400; Expires=Mon, 19 Aug 2019 19:35:04 GMT; Path=/; HTTPOnly". Invalid 'expires' attribute: Mon, 19 Aug 2019 19:35:04 GMT
+2019-08-21 01:12:07 Native [INFO] Could not load JNR C Library, native system calls through this library will not be available (set this logger level to DEBUG to see the full stack trace).
+2019-08-21 01:12:07 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 01:12:07 NettyUtil [INFO] Did not find Netty's native epoll transport in the classpath, defaulting to NIO.
+2019-08-21 01:12:09 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 01:12:09 Cluster [INFO] New Cassandra host localhost/127.0.0.1:9042 added
+2019-08-21 01:12:09 ClockFactory [INFO] Using java.lang.System clock to generate timestamps.
+2019-08-21 01:12:10 DCAwareRoundRobinPolicy [INFO] Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2019-08-21 01:12:10 Cluster [INFO] New Cassandra host /11.2.3.64:9042 added
+2019-08-21 01:12:10 Cluster [INFO] New Cassandra host /11.2.3.63:9042 added
+2019-08-21 01:12:10 Cluster [INFO] New Cassandra host /11.2.3.66:9042 added
+2019-08-21 01:12:26 ResponseProcessCookies [WARN] Invalid cookie header: "Set-Cookie: PLAY_FLASH=; Max-Age=-86400; Expires=Mon, 19 Aug 2019 19:42:26 GMT; Path=/; HTTPOnly". Invalid 'expires' attribute: Mon, 19 Aug 2019 19:42:26 GMT

@@ -1,4 +1,4 @@
-package org.sunbird.job.samza.task;
+package org.sunbird.jobs.samza.task;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;

@@ -1,4 +1,4 @@
-package org.sunbird.job.samza.task;
+package org.sunbird.jobs.samza.task;
 /**
  * @author Pradyumna
  */
