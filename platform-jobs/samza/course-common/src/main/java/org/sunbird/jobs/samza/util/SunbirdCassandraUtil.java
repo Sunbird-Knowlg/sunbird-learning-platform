@@ -9,6 +9,7 @@ import com.datastax.driver.core.querybuilder.Update;
 import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.Delete;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 
 import java.util.ArrayList;
@@ -18,13 +19,15 @@ import java.util.Map;
 
 public class SunbirdCassandraUtil {
 
+    private static Map<String, String> COLUMN_MAPPING = SunbirdCassandraColumnMapper.getColumnMapping();
+
     public static void update(String keyspace, String table, Map<String, Object> propertiesToUpdate, Map<String, Object> propertiesToSelect) {
         Session session = CassandraConnector.getSession("platform-courses");
         Update.Where updateQuery = QueryBuilder.update(keyspace, table).where();
         propertiesToUpdate.entrySet().forEach(entry -> updateQuery.with(QueryBuilder.set(entry.getKey(), entry.getValue())));
         propertiesToSelect.entrySet().forEach(entry -> {
-            if(entry.getValue() instanceof List)
-                updateQuery.and(QueryBuilder.in(entry.getKey(), (List)entry.getValue()));
+            if (entry.getValue() instanceof List)
+                updateQuery.and(QueryBuilder.in(entry.getKey(), (List) entry.getValue()));
             else
                 updateQuery.and(QueryBuilder.eq(entry.getKey(), entry.getValue()));
         });
@@ -35,8 +38,8 @@ public class SunbirdCassandraUtil {
         Session session = CassandraConnector.getSession("platform-courses");
         Select.Where selectQuery = QueryBuilder.select().all().from(keyspace, table).where();
         propertiesToSelect.entrySet().forEach(entry -> {
-            if(entry.getValue() instanceof List)
-                selectQuery.and(QueryBuilder.in(entry.getKey(), (List)entry.getValue()));
+            if (entry.getValue() instanceof List)
+                selectQuery.and(QueryBuilder.in(entry.getKey(), (List) entry.getValue()));
             else
                 selectQuery.and(QueryBuilder.eq(entry.getKey(), entry.getValue()));
         });
@@ -44,13 +47,13 @@ public class SunbirdCassandraUtil {
         return results.all();
     }
 
-    public static List<Map<String,Object>> readAsListOfMap(String keyspace, String table, Map<String, Object> propertiesToSelect) {
+    public static List<Map<String, Object>> readAsListOfMap(String keyspace, String table, Map<String, Object> propertiesToSelect) {
         List<Row> rows = read(keyspace, table, convertKeyCase(propertiesToSelect));
         List<Map<String, Object>> response = new ArrayList<Map<String, Object>>();
         if (CollectionUtils.isNotEmpty(rows)) {
             for (Row row : rows) {
                 Map<String, Object> rowMap = new HashMap<String, Object>();
-                row.getColumnDefinitions().forEach(column -> rowMap.put(column.getName(), row.getObject(column.getName())));
+                row.getColumnDefinitions().forEach(column -> rowMap.put(COLUMN_MAPPING.get(column.getName()), row.getObject(column.getName())));
                 response.add(rowMap);
             }
         }
@@ -75,9 +78,13 @@ public class SunbirdCassandraUtil {
 
     private static Map<String, Object> convertKeyCase(Map<String, Object> properties) {
         Map<String, Object> keyLowerCaseMap = new HashMap<>();
-        properties.entrySet().forEach(entry -> {
-            keyLowerCaseMap.put(entry.getKey().toLowerCase(), entry.getValue());
-        });
+        if (MapUtils.isNotEmpty(properties)) {
+            properties.entrySet().forEach(entry -> {
+                if (null != entry && null != entry.getKey()) {
+                    keyLowerCaseMap.put(entry.getKey().toLowerCase(), entry.getValue());
+                }
+            });
+        }
         return keyLowerCaseMap;
     }
 

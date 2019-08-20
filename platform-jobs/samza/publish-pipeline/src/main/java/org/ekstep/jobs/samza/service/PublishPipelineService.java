@@ -31,8 +31,6 @@ import org.ekstep.telemetry.dto.TelemetryBJREvent;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.rits.cloning.Cloner;
-import org.ekstep.telemetry.util.LogTelemetryEventUtil;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -76,7 +74,6 @@ public class PublishPipelineService implements ISamzaService {
 		LOGGER.info("Stream initialized for Failed Events");
 		postPublishStream = new SystemStream("kafka", config.get("post.publish.event.topic"));
 		LOGGER.info("Stream initialized for Post Publish Events");
-
 	}
 
 	@Override

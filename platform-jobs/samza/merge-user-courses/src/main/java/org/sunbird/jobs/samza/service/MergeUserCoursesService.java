@@ -21,6 +21,8 @@ import org.sunbird.jobs.samza.model.BatchEnrollmentSyncModel;
 import org.sunbird.jobs.samza.util.MergeUserCoursesParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,6 +52,11 @@ public class MergeUserCoursesService implements ISamzaService {
 
     private static final String COURSE_BATCH_UPDATER_KAFKA_TOPIC = Platform.config.hasPath("course.batch.updater.kafka.topic") ?
             Platform.config.getString("course.batch.updater.kafka.topic") : "local.coursebatch.job.request";
+
+    private static final String COURSE_DATE_FORMAT = Platform.config.hasPath("course.date.format") ?
+            Platform.config.getString("course.date.format") : "yyyy-MM-dd HH:mm:ss:SSSZ";
+
+    private static SimpleDateFormat DateFormatter = new SimpleDateFormat(COURSE_DATE_FORMAT);
 
     protected int getMaxIterations() {
         if (Platform.config.hasPath("max.iteration.count.samza.job"))
@@ -185,11 +192,7 @@ public class MergeUserCoursesService implements ISamzaService {
                     matchingRecord = contentConsumption;
                     matchingRecord.put(MergeUserCoursesParams.userId.name(), toUserId);
                 } else {
-                    int fromStatus = (int) contentConsumption.get(MergeUserCoursesParams.status.name());
-                    int toStatus = (int) matchingRecord.get(MergeUserCoursesParams.status.name());
-                    if (fromStatus > toStatus) {
-                        matchingRecord.put(MergeUserCoursesParams.status.name(), fromStatus);
-                    }
+                    mergeContentConsumptionRecord(contentConsumption, matchingRecord);
                 }
                 SunbirdCassandraUtil.upsert(KEYSPACE, CONTENT_CONSUMPTION_TABLE, matchingRecord);
             }
@@ -199,6 +202,97 @@ public class MergeUserCoursesService implements ISamzaService {
             key.put(MergeUserCoursesParams.userId.name(), fromUserId);
             SunbirdCassandraUtil.delete(KEYSPACE, CONTENT_CONSUMPTION_TABLE, key);
         }
+    }
+
+    private void mergeContentConsumptionRecord(Map<String, Object> oldRecord, Map<String, Object> newRecord) {
+        /*
+         * for status, progress, datetime, lastaccesstime, lastcompletedtime, lastupdatedtime fields,
+         * max value should be considered
+         * for completedcount, viewcount fields, sum of both records should be considered
+         * */
+        newRecord.put(MergeUserCoursesParams.status.name(), getUpdatedValue("Integer", "Max",
+                MergeUserCoursesParams.status.name(), oldRecord, newRecord));
+        newRecord.put(MergeUserCoursesParams.progress.name(), getUpdatedValue("Integer", "Max",
+                MergeUserCoursesParams.progress.name(), oldRecord, newRecord));
+        newRecord.put(MergeUserCoursesParams.viewCount.name(), getUpdatedValue("Integer", "Sum",
+                MergeUserCoursesParams.viewCount.name(), oldRecord, newRecord));
+        newRecord.put(MergeUserCoursesParams.completedCount.name(), getUpdatedValue("Integer", "Sum",
+                MergeUserCoursesParams.completedCount.name(), oldRecord, newRecord));
+
+        newRecord.put(MergeUserCoursesParams.dateTime.name(), getUpdatedValue("Date", "Max",
+                MergeUserCoursesParams.dateTime.name(), oldRecord, newRecord));
+        newRecord.put(MergeUserCoursesParams.lastAccessTime.name(), getUpdatedValue("DateString", "Max",
+                MergeUserCoursesParams.lastAccessTime.name(), oldRecord, newRecord));
+        newRecord.put(MergeUserCoursesParams.lastCompletedTime.name(), getUpdatedValue("DateString", "Max",
+                MergeUserCoursesParams.lastCompletedTime.name(), oldRecord, newRecord));
+        newRecord.put(MergeUserCoursesParams.lastUpdatedTime.name(), getUpdatedValue("DateString", "Max",
+                MergeUserCoursesParams.lastUpdatedTime.name(), oldRecord, newRecord));
+    }
+
+    private Object getUpdatedValue(String dataType, String operation, String fieldName, Map<String, Object> oldRecord, Map<String, Object> newRecord) {
+        if (null == oldRecord.get(fieldName)) {
+            return newRecord.get(fieldName);
+        }
+        if (null == newRecord.get(fieldName)) {
+            return oldRecord.get(fieldName);
+        }
+        switch (dataType) {
+            case "Integer":
+                if (oldRecord.get(fieldName) instanceof Integer &&
+                        newRecord.get(fieldName) instanceof Integer) {
+                    int val1 = (int) oldRecord.get(fieldName);
+                    int val2 = (int) newRecord.get(fieldName);
+                    if (StringUtils.equalsIgnoreCase("Sum", operation)) {
+                        return val1 + val2;
+                    } else if (StringUtils.equalsIgnoreCase("Max", operation)) {
+                        return val1 > val2 ? val1 : val2;
+                    }
+                }
+                break;
+            case "DateString":
+                if (oldRecord.get(fieldName) instanceof String &&
+                        newRecord.get(fieldName) instanceof String) {
+                    String dateStr1 = (String) oldRecord.get(fieldName);
+                    String dateStr2 = (String) newRecord.get(fieldName);
+                    Date date1;
+                    Date date2;
+                    try {
+                        date1 = DateFormatter.parse(dateStr1);
+                    } catch (ParseException pe) {
+                        LOGGER.info("MergeUserCoursesService:getUpdatedValue: Date Parsing failed for field:" + fieldName + " value:" + dateStr1);
+                        return dateStr2;
+                    }
+                    try {
+                        date2 = DateFormatter.parse(dateStr2);
+                    } catch (ParseException pe) {
+                        LOGGER.info("MergeUserCoursesService:getUpdatedValue: Date Parsing failed for field:" + fieldName + " value:" + dateStr2);
+                        return dateStr1;
+                    }
+                    if (StringUtils.equalsIgnoreCase("Max", operation)) {
+                        if (date1.after(date2)) {
+                            return dateStr1;
+                        } else {
+                            return dateStr2;
+                        }
+                    }
+                }
+                break;
+            case "Date":
+                if (oldRecord.get(fieldName) instanceof Date &&
+                        newRecord.get(fieldName) instanceof Date) {
+                    Date date1 = (Date) oldRecord.get(fieldName);
+                    Date date2 = (Date) newRecord.get(fieldName);
+                    if (StringUtils.equalsIgnoreCase("Max", operation)) {
+                        if (date1.after(date2)) {
+                            return date1;
+                        } else {
+                            return date2;
+                        }
+                    }
+                }
+                break;
+        }
+        return newRecord.get(fieldName);
     }
 
     private Map<String, Object> getMatchingRecord(Map<String, Object> contentConsumption, List<Map<String, Object>> toContentConsumptionList) {
@@ -233,7 +327,9 @@ public class MergeUserCoursesService implements ISamzaService {
     private List<BatchEnrollmentSyncModel> getBatchDetailsOfUser(String userId) throws Exception {
         List<BatchEnrollmentSyncModel> objects = new ArrayList<>();
         Map<String, Object> searchQuery = new HashMap<>();
-        searchQuery.put(MergeUserCoursesParams.userId.name(), userId);
+        List<String> userIdList = new ArrayList<>();
+        userIdList.add(userId);
+        searchQuery.put(MergeUserCoursesParams.userId.name(), userIdList);
         List<Map> documents = ElasticSearchUtil.textSearchReturningId(searchQuery, USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE);
         if (CollectionUtils.isNotEmpty(documents)) {
             documents.forEach(doc -> {
