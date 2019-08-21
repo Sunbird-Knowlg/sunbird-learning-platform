@@ -167,6 +167,7 @@ public class MergeUserCoursesService implements ISamzaService {
             for (String batchId : batchIdsToBeMigrated) {
                 Map<String, Object> userCourse = getUserCourse(batchId, fromUserId);
                 userCourse.put(MergeUserCoursesParams.userId.name(), toUserId);
+                LOGGER.info("MergeUserCoursesService:mergeUserBatches: Merging batch:" + batchId + " updated record:" + userCourse);
                 SunbirdCassandraUtil.upsert(KEYSPACE, USER_COURSES_TABLE, userCourse);
 
                 String documentJson = ElasticSearchUtil.getDocumentAsStringById(USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE,
