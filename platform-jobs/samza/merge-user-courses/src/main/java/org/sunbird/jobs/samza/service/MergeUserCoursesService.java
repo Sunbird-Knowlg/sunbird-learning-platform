@@ -166,18 +166,20 @@ public class MergeUserCoursesService implements ISamzaService {
         if (CollectionUtils.isNotEmpty(batchIdsToBeMigrated)) {
             for (String batchId : batchIdsToBeMigrated) {
                 Map<String, Object> userCourse = getUserCourse(batchId, fromUserId);
-                userCourse.put(MergeUserCoursesParams.userId.name(), toUserId);
-                LOGGER.info("MergeUserCoursesService:mergeUserBatches: Merging batch:" + batchId + " updated record:" + userCourse);
-                SunbirdCassandraUtil.upsert(KEYSPACE, USER_COURSES_TABLE, userCourse);
+                if(MapUtils.isNotEmpty(userCourse)) {
+                    userCourse.put(MergeUserCoursesParams.userId.name(), toUserId);
+                    LOGGER.info("MergeUserCoursesService:mergeUserBatches: Merging batch:" + batchId + " updated record:" + userCourse);
+                    SunbirdCassandraUtil.upsert(KEYSPACE, USER_COURSES_TABLE, userCourse);
 
-                String documentJson = ElasticSearchUtil.getDocumentAsStringById(USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE,
-                        batchId + UNDERSCORE + fromUserId);
-                Map<String, Object> userCourseDoc = mapper.readValue(documentJson, Map.class);
-                userCourseDoc.put(MergeUserCoursesParams.userId.name(), toUserId);
-                userCourseDoc.put(MergeUserCoursesParams.id.name(), batchId + UNDERSCORE + toUserId);
-                userCourseDoc.put(MergeUserCoursesParams.identifier.name(), batchId + UNDERSCORE + toUserId);
-                ElasticSearchUtil.addDocumentWithId(USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE,
-                        batchId + UNDERSCORE + toUserId, mapper.writeValueAsString(userCourseDoc));
+                    String documentJson = ElasticSearchUtil.getDocumentAsStringById(USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE,
+                            batchId + UNDERSCORE + fromUserId);
+                    Map<String, Object> userCourseDoc = mapper.readValue(documentJson, Map.class);
+                    userCourseDoc.put(MergeUserCoursesParams.userId.name(), toUserId);
+                    userCourseDoc.put(MergeUserCoursesParams.id.name(), batchId + UNDERSCORE + toUserId);
+                    userCourseDoc.put(MergeUserCoursesParams.identifier.name(), batchId + UNDERSCORE + toUserId);
+                    ElasticSearchUtil.addDocumentWithId(USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE,
+                            batchId + UNDERSCORE + toUserId, mapper.writeValueAsString(userCourseDoc));
+                }
             }
         }
 
