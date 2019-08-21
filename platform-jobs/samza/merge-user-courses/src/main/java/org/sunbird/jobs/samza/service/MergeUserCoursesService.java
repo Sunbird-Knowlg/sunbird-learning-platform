@@ -145,8 +145,20 @@ public class MergeUserCoursesService implements ISamzaService {
         List<BatchEnrollmentSyncModel> fromBatches = getBatchDetailsOfUser(fromUserId);
         List<BatchEnrollmentSyncModel> toBatches = getBatchDetailsOfUser(toUserId);
 
-        List<String> fromBatchIds = fromBatches.stream().map(entry -> entry.getBatchId()).collect(Collectors.toList());
-        List<String> toBatchIds = toBatches.stream().map(entry -> entry.getBatchId()).collect(Collectors.toList());
+        List<String> fromBatchIds = new ArrayList<>();
+        List<String> toBatchIds = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(fromBatches)) {
+            for (BatchEnrollmentSyncModel fromBatch : fromBatches) {
+                if (StringUtils.isNotBlank(fromBatch.getBatchId()))
+                    fromBatchIds.add(fromBatch.getBatchId());
+            }
+        }
+        if (CollectionUtils.isNotEmpty(toBatches)) {
+            for (BatchEnrollmentSyncModel toBatch : toBatches) {
+                if (StringUtils.isNotBlank(toBatch.getBatchId()))
+                    toBatchIds.add(toBatch.getBatchId());
+            }
+        }
 
         List<String> batchIdsToBeMigrated = (List<String>) CollectionUtils.subtract(fromBatchIds, toBatchIds);
 
