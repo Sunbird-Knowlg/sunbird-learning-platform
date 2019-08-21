@@ -60,18 +60,22 @@ public class CertificateGeneratorService implements ISamzaService {
             LOGGER.info("Ignoring the message because it is not valid for course-certificate-generator.");
             return;
         }
-
-        String objectId = (String) object.get(CourseCertificateParams.id.name());
-        if (StringUtils.isNotBlank(objectId)) {
-            String action = (String) edata.get("action");
-            switch (action) {
-                case "generate-course-certificate" :
-                    LOGGER.info("Certificate generation process started ");
-                    certificateGenerator.generate(edata);
-                    LOGGER.info("Certificate is generated");
-                    break;
+        try {
+            String objectId = (String) object.get(CourseCertificateParams.id.name());
+            if (StringUtils.isNotBlank(objectId)) {
+                String action = (String) edata.get("action");
+                switch (action) {
+                    case "generate-course-certificate" :
+                        LOGGER.info("Certificate generation process started ");
+                        certificateGenerator.generate(edata);
+                        LOGGER.info("Certificate is generated");
+                        break;
+                }
             }
+        } catch(Exception e) {
+            LOGGER.error("Error while serving the event : "  + message, e);
         }
+
     }
 
     private boolean validEdata(Map<String, Object> edata) {
