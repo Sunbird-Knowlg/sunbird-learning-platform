@@ -55,7 +55,7 @@ public class CertificateGenerator {
         String batchId = (String) edata.get("batchId");
         String userId = (String) edata.get("userId");
         String courseId = (String) edata.get("courseId");
-        String certificateName = (String) edata.get("certificateName");
+        String certificateName = (String) edata.get("certificate");
         boolean reIssue = (null != edata.get(CourseCertificateParams.reIssue.name()))
                 ? (Boolean) edata.get(CourseCertificateParams.reIssue.name()): false;
 
