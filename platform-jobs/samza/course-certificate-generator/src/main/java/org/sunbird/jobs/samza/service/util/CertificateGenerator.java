@@ -134,7 +134,7 @@ public class CertificateGenerator {
                     }
                 }});
 
-                if(CollectionUtils.isNotEmpty(certificates)) {
+                if(CollectionUtils.isNotEmpty(updatedCerts)) {
                     Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
                         put(CourseCertificateParams.certificates.name(), updatedCerts);
                     }};
