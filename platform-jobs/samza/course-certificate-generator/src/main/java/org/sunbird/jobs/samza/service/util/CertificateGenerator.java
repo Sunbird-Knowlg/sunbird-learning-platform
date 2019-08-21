@@ -18,7 +18,6 @@ import org.sunbird.jobs.samza.util.CourseCertificateParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -39,7 +38,8 @@ public class CertificateGenerator {
     private static final String USER_COURSES_TABLE = "user_courses";
     protected static final String KP_LEARNING_BASE_URL = Platform.config.hasPath("kp.learning_service.base_url")
             ? Platform.config.getString("kp.learning_service.base_url"): "http://localhost:8080/learning-service";
-    private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSSZ");
+    private SimpleDateFormat formatter = null;
+    private SimpleDateFormat dateFormatter = null;
     private static final String ES_INDEX_NAME = "user-courses";
     private static final String ES_DOC_TYPE = "_doc";
 
@@ -47,6 +47,8 @@ public class CertificateGenerator {
 
     public CertificateGenerator() {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
+        formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSSZ");
+        dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
     }
 
     public void generate(Map<String, Object> edata) {
@@ -54,6 +56,8 @@ public class CertificateGenerator {
         String userId = (String) edata.get("userId");
         String courseId = (String) edata.get("courseId");
         String certificateName = (String) edata.get("certificateName");
+        boolean reIssue = (null != edata.get(CourseCertificateParams.reIssue.name()))
+                ? (Boolean) edata.get(CourseCertificateParams.reIssue.name()): false;
 
         Map<String, Object> dataToFetch = new HashMap<String, Object>() {{
             put(CourseCertificateParams.batchId.name(), batchId);
@@ -64,33 +68,38 @@ public class CertificateGenerator {
 
         for(Row row: rows) {
             List<Map<String, String>> certificates = row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class));
-            if(CollectionUtils.isNotEmpty(certificates) && (Boolean) edata.get(CourseCertificateParams.reIssue.name())) {
-                issueCertificate(courseId, certificateName, batchId, userId,dataToFetch,  true);
+            Date issuedOn = row.getTimestamp("completedOn");
+            if(CollectionUtils.isNotEmpty(certificates) && reIssue) {
+                issueCertificate(certificates, courseId, certificateName, batchId, userId, issuedOn,  true);
             } else if(CollectionUtils.isEmpty(certificates)) {
-                issueCertificate(courseId, certificateName, batchId, userId,dataToFetch, false);
+                certificates = new ArrayList<>();
+                issueCertificate(certificates, courseId, certificateName, batchId, userId, issuedOn,  false);
             }
         }
 
     }
 
-    private void issueCertificate(String courseId, String certificateName,String batchId, String userId, Map<String, Object> dataToSelect,  boolean reIssue) {
+    private void issueCertificate(List<Map<String, String>> certificates, String courseId, String certificateName, String batchId, String userId, Date issuedOn, boolean reIssue) {
         // get Course metadata from KP
         Map<String, Object> courseMetadata = getContent(courseId,null);
         if(MapUtils.isNotEmpty(courseMetadata)){
             String courseName = (String) courseMetadata.get("name");
-            Map<String, Object> certTemplate= (Map<String, Object>) courseMetadata.get("certTemplate");
+            List<Map<String, Object>> certTemplates= (List<Map<String, Object>>) courseMetadata.get("certTemplate");
+            Map<String, Object> certTemplate = new HashMap<>();
+            if(CollectionUtils.isNotEmpty(certTemplates)) {
+                certTemplate = certTemplates.stream().filter(t -> StringUtils.equalsIgnoreCase(certificateName, (String) t.get("name"))).findFirst().get();
+            }
+
             if(MapUtils.isNotEmpty(certTemplate)) {
                 //Get Username from user get by Id.
                 Map<String, Object> userResponse = getUserDetails(userId); // call user Service
                 // Save certificate to user_courses table cassandra
-                List<Map<String, Object>> certificates = generateCertificate(courseId, courseName, certificateName, batchId, userId, userResponse, certTemplate);;
-                if(CollectionUtils.isNotEmpty(certificates)) {
-                    Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
-                        put(CourseCertificateParams.certificates.name(), certificates);
-                    }};
-                    SunbirdCassandraUtil.update(KEYSPACE, USER_COURSES_TABLE, dataToUpdate, dataToSelect);
-                    updatedES(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
+                if(MapUtils.isNotEmpty(userResponse)){
+                    generateCertificate(certificates, courseId, courseName, certificateName, batchId, userId, userResponse, certTemplate, issuedOn, reIssue);
+                } else {
+                    LOGGER.info("No User details fetched  for userid: " + userId + " : " + userResponse);
                 }
+
             } else {
                 LOGGER.info("No certificate template to generate certificates for: " + courseId);
             }
@@ -99,34 +108,55 @@ public class CertificateGenerator {
         }
     }
 
-    private List<Map<String, Object>> generateCertificate(String courseId, String courseName, String certificateName, String batchId, String userId, Map<String, Object> userResponse, Map<String, Object> certTemplate) {
-        List<Map<String, Object>> certificates = new ArrayList<>();
+    private void generateCertificate(List<Map<String, String>> certificates, String courseId, String courseName, String certificateName, String batchId, String userId, Map<String, Object> userResponse,
+                                     Map<String, Object> certTemplate, Date issuedOn, boolean reIssue) {
         try{
-            Map<String, Object> certServiceRequest = prepareCertServiceRequest(courseName, certificateName, batchId, userId, userResponse, certTemplate);
-            String url = CERT_SERVICE_URL + "/cert/v1/certs/generate";
+            String oldId = null;
+            if(reIssue) {
+                oldId = certificates.stream().filter(cert -> StringUtils.equalsIgnoreCase(certificateName, cert.get("name"))).map(cert -> {return  cert.get("id");}).findFirst().orElse("");
+            }
+            Map<String, Object> certServiceRequest = prepareCertServiceRequest(courseName, certificateName, batchId, userId, userResponse, certTemplate, issuedOn);
+            String url = CERT_SERVICE_URL + "/v1/certs/generate";
             HttpResponse<String> httpResponse = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(certServiceRequest)).asString();
             if(200 == httpResponse.getStatus()) {
                 Response response = mapper.readValue(httpResponse.getBody(), Response.class);
+                List<Map<String, String>> updatedCerts = certificates.stream().filter(cert -> !StringUtils.equalsIgnoreCase(certificateName, cert.get("name"))).collect(Collectors.toList());
+
                 Map<String, Object> certificate = ((List<Map<String, Object>>)response.get("response")).get(0);
-                certificates.add(new HashMap<String, Object>(){{
+                updatedCerts.add(new HashMap<String, String>(){{
                     put(CourseCertificateParams.name.name(), certificateName);
-                    put(CourseCertificateParams.id.name(), certificate.get(CourseCertificateParams.id.name()));
-                    put(CourseCertificateParams.url.name(), certificate.get(CourseCertificateParams.pdfUrl.name()));
-                    put(CourseCertificateParams.token.name(), certificate.get(CourseCertificateParams.accessCode.name()));
-                    put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(new Date()));
+                    put(CourseCertificateParams.id.name(), (String) certificate.get(CourseCertificateParams.id.name()));
+                    put(CourseCertificateParams.url.name(), (String) certificate.get(CourseCertificateParams.pdfUrl.name()));
+                    put(CourseCertificateParams.token.name(), (String) certificate.get(CourseCertificateParams.accessCode.name()));
+                    put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(issuedOn));
+                    if(reIssue){
+                        put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(new Date()));
+                    }
                 }});
 
-                addCertificateToUser(certificate, courseId, batchId);
+                if(CollectionUtils.isNotEmpty(certificates)) {
+                    Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
+                        put(CourseCertificateParams.certificates.name(), updatedCerts);
+                    }};
+                    Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
+                        put(CourseCertificateParams.batchId.name(), batchId);
+                        put(CourseCertificateParams.userId.name(), userId);
+                    }};
+                    SunbirdCassandraUtil.update(KEYSPACE, USER_COURSES_TABLE, dataToUpdate, dataToSelect);
+                    updatedES(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
+                }
+                if(addCertificateToUser(certificate, courseId, batchId, oldId)) {
+                    notifyUser(userId, certTemplate, courseName, userResponse, issuedOn);
+                }
             }
         } catch (Exception e) {
             LOGGER.error("Error while generating the certificate for user " + userId +" with batch: " + batchId, e);
         }
-        return certificates;
     }
 
-    private void addCertificateToUser(Map<String, Object> certificate, String courseId, String batchId) {
+    private boolean addCertificateToUser(Map<String, Object> certificate, String courseId, String batchId, String oldId) {
         try{
-            String url = LEARNER_SERVICE_PRIVATE_URL + "/user/v1/certs/add";
+            String url = LEARNER_SERVICE_PRIVATE_URL + "/private/user/v1/certs/add";
             Request request = new Request();
             request.put(CourseCertificateParams.userId.name(), certificate.get(CourseCertificateParams.recipientId.name()));
             request.put(CourseCertificateParams.accessCode.name(), certificate.get(CourseCertificateParams.accessCode.name()));
@@ -136,14 +166,40 @@ public class CertificateGenerator {
             request.put("pdfURL", certificate.get(CourseCertificateParams.pdfUrl.name()));
             request.put(CourseCertificateParams.courseId.name(), courseId);
             request.put(CourseCertificateParams.batchId.name(), batchId);
-            Unirest.post(url).body(mapper.writeValueAsString(request)).asString();
+            if(StringUtils.isNotBlank(oldId))
+                request.put(CourseCertificateParams.oldId.name(), oldId);
+            HttpResponse<String> response = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
+            return (200 == response.getStatus());
         } catch(Exception e) {
             LOGGER.error("Error while adding the certificate to user: " + certificate, e);
         }
-
+        return false;
     }
 
-    private Map<String,Object> prepareCertServiceRequest(String courseName, String certificateName, String batchId, String userId, Map<String, Object> userResponse, Map<String, Object> certTemplate) {
+    private boolean notifyUser(String userId, Map<String, Object> certTemplate, String courseName, Map<String, Object> userResponse, Date issuedOn) {
+        try {
+            if(MapUtils.isNotEmpty((Map) certTemplate.get("notifyTemplate"))) {
+                Map<String, Object> notifyTemplate = (Map<String, Object>) certTemplate.get("notifyTemplate");
+                String url = LEARNER_SERVICE_PRIVATE_URL + "/v1/notification/email";
+                Request request = new Request();
+                notifyTemplate.entrySet().forEach(entry -> request.put(entry.getKey(), entry.getValue()));
+                request.put("firstName", (String) userResponse.get("firstName"));
+                request.put("TraningName", courseName);
+                request.put("heldDate", dateFormatter.format(issuedOn));
+                request.put("recipientUserIds", Arrays.asList(userId));
+                request.put("body", "email body");
+
+                HttpResponse<String> response = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
+                return (200 == response.getStatus());
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("Error while sending notification to user : " + userId, e);
+        }
+        return false;
+    }
+
+    private Map<String,Object> prepareCertServiceRequest(String courseName, String certificateName, String batchId, String userId, Map<String, Object> userResponse, Map<String, Object> certTemplate, Date issuedOn) {
         String recipientName = (String) userResponse.get("firstName") + " " + (String) userResponse.get("lastName");
         String rootOrgId = (String) userResponse.get("rootOrgId");
         Map<String, Object> request = new HashMap<String, Object>() {{
@@ -161,7 +217,7 @@ public class CertificateGenerator {
                    put(CourseCertificateParams.signatoryList.name(), getSignatoryList(certTemplate));
                    put(CourseCertificateParams.htmlTemplate.name(), certTemplate.get(CourseCertificateParams.htmlTemplate.name()));
                    put(CourseCertificateParams.tag.name(), batchId);
-                   put(CourseCertificateParams.issuedDate.name(), LocalDate.now().toString());
+                   put(CourseCertificateParams.issuedDate.name(), dateFormatter.format(issuedOn));
                    put(CourseCertificateParams.orgId.name(), rootOrgId);
                }});
            }});
@@ -193,7 +249,7 @@ public class CertificateGenerator {
 
     private Map<String,Object> getUserDetails(String userId) {
         try{
-            String url = LEARNER_SERVICE_PRIVATE_URL + "/user/v1/search";
+            String url = LEARNER_SERVICE_PRIVATE_URL + "/private/user/v1/search";
             String userSearchRequest = prepareUserSearchRequest(userId);
             HttpResponse<String> httpResponse = Unirest.post(url).header("Content-Type", "application/json").body(userSearchRequest).asString();
             if(200 == httpResponse.getStatus()) {

@@ -23,9 +23,9 @@ public class CertificateGeneratorTest {
         Map<String, Object> request = new HashMap<>();
         request.put("action", "generate-course-certificate");
         request.put("iteration", 1);
-        request.put("batchId", "0125450863553740809");
-        request.put("userId", "874ed8a5-782e-4f6c-8f36-e0288455901e");
-        request.put("courseId", "do_1125098016170639361238");
+        request.put("batchId", "0128318484998225920");
+        request.put("userId", "95e4942d-cbe8-477d-aebd-ad8e6de4bfc8");
+        request.put("courseId", "do_11283183576849612818");
         request.put("certificateName","100PercentCompletionCertificate");
 
         generator.generate(request);
