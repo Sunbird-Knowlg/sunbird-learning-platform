@@ -166,7 +166,7 @@ public class MergeUserCoursesService implements ISamzaService {
         if (CollectionUtils.isNotEmpty(batchIdsToBeMigrated)) {
             for (String batchId : batchIdsToBeMigrated) {
                 Map<String, Object> userCourse = getUserCourse(batchId, fromUserId);
-                if(MapUtils.isNotEmpty(userCourse)) {
+                if (MapUtils.isNotEmpty(userCourse)) {
                     userCourse.put(MergeUserCoursesParams.userId.name(), toUserId);
                     LOGGER.info("MergeUserCoursesService:mergeUserBatches: Merging batch:" + batchId + " updated record:" + userCourse);
                     SunbirdCassandraUtil.upsert(KEYSPACE, USER_COURSES_TABLE, userCourse);
@@ -179,6 +179,8 @@ public class MergeUserCoursesService implements ISamzaService {
                     userCourseDoc.put(MergeUserCoursesParams.identifier.name(), batchId + UNDERSCORE + toUserId);
                     ElasticSearchUtil.addDocumentWithId(USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE,
                             batchId + UNDERSCORE + toUserId, mapper.writeValueAsString(userCourseDoc));
+                } else {
+                    LOGGER.info("MergeUserCoursesService:mergeUserBatches: user_courses record with batchId:" + batchId + " userId:" + fromUserId + " found in ES but not in Cassandra");
                 }
             }
         }
