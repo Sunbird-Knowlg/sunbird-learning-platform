@@ -117,11 +117,6 @@ public abstract class BaseTask implements StreamTask, InitableTask, WindowableTa
 
                 pushEvent(jobEndEvent, collector, this.config.get("kafka.topics.backend.telemetry"));
             }
-            String eventExecutionStatus = (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.status.name());
-            if(StringUtils.equalsIgnoreCase(eventExecutionStatus, SamzaCommonParams.FAILED.name()) && iterationCount < maxIterationCount) {
-                ((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).put(SamzaCommonParams.iteration.name(), iterationCount+1);
-                collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), this.config.get("kafka.topics.failed")), message));
-            }
         }catch(Exception e) {
             e.printStackTrace();
         }
