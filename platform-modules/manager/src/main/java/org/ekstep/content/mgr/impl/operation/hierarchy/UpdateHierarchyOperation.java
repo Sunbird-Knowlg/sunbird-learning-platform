@@ -173,8 +173,8 @@ public class UpdateHierarchyOperation extends BaseContentManager {
                 .get("metadata"))){
         		Map<String, Object> metadata = (Map<String, Object>) ((Map<String, Object>)nodesModified.get(rootId))
             .get("metadata");
-        		metadate.remove(ContentAPIParams.versionKey.name());
-                updateNodeList(nodeList, rootId, metadate);
+        		metadata.remove(ContentAPIParams.versionKey.name());
+                updateNodeList(nodeList, rootId, metadata);
         }
         nodesModified.remove(rootId);
         nodesModified.entrySet().forEach(entry -> {
