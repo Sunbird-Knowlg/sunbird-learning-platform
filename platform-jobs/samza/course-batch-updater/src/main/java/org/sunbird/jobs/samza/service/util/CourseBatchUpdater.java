@@ -40,25 +40,16 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             LOGGER.info("Content does not have leafNodes : " + courseId);
         } else {
             //Compute status
-            Map<String, Object> dataToUpdate = getStatusUpdateData(edata, leafNodes);
-            if(MapUtils.isNotEmpty(dataToUpdate)) {
-                Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
-                    put("batchid", edata.get("batchId"));
-                    put("userid", edata.get("userId"));
-                }};
-                //Update cassandra
-                SunbirdCassandraUtil.update(keyspace, table, dataToUpdate, dataToSelect);
-
-                dataToUpdate.put("contentStatus", mapper.writeValueAsString(dataToUpdate.get("contentStatus")));
-                ESUtil.updateCoureBatch(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
-            }
+            updateData(edata, leafNodes);
         }
     }
 
-    private Map<String,Object> getStatusUpdateData(Map<String, Object> edata, List<String> leafNodes) {
+    private void updateData(Map<String, Object> edata, List<String> leafNodes) throws Exception {
         List<Map<String, Object>> contents = (List<Map<String, Object>>) edata.get("contents");
         if(CollectionUtils.isNotEmpty(contents)) {
             Map<String, Object> contentStatus = new HashMap<>();
+            String lastReadContent = null;
+            int lastReadContentStatus = 0;
             Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
                 put("batchid", edata.get("batchId"));
                 put("userid", edata.get("userId"));
@@ -66,6 +57,8 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             List<Row> rows =  SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
             if(CollectionUtils.isNotEmpty(rows)){
                 Map<String, Integer> contentStatusMap =  rows.get(0).getMap("contentStatus", String.class, Integer.class);
+                lastReadContent = rows.get(0).getString("lastreadcontentid");
+                lastReadContentStatus = rows.get(0).getInt("lastreadcontentstatus");
                 if(MapUtils.isNotEmpty(contentStatusMap))
                     contentStatus.putAll(contentStatusMap);
             }
@@ -81,7 +74,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
 
             int status = (size == leafNodes.size()) ? 2 : 1;
 
-            return new HashMap<String, Object>() {{
+            Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
                 put("contentStatus", contentStatus);
                 put("status", status);
                 put("completionPercentage", ((Number)completionPercentage).intValue());
@@ -89,10 +82,16 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 if(status == 2)
                     put("completedOn", new Timestamp(new Date().getTime()));
             }};
+
+            if(MapUtils.isNotEmpty(dataToUpdate)) {
+                //Update cassandra
+                SunbirdCassandraUtil.update(keyspace, table, dataToUpdate, dataToSelect);
+                dataToUpdate.put("contentStatus", mapper.writeValueAsString(dataToUpdate.get("contentStatus")));
+                dataToUpdate.put("lastReadContentId", lastReadContent);
+                dataToUpdate.put("lastReadContentStatus", lastReadContentStatus);
+                ESUtil.updateCoureBatch(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
+            }
         }
-        return null;
     }
-
-
 
 }
