@@ -35,28 +35,14 @@ public class MergeUserCoursesService implements ISamzaService {
     private static final String ACTION = "merge-user-courses-and-cert";
     private static int MAXITERTIONCOUNT = 2;
 
-    private static final String KEYSPACE = Platform.config.hasPath("courses.keyspace.name") ?
-            Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
-
-    private static final String CONTENT_CONSUMPTION_TABLE = Platform.config.hasPath("content.consumption.table") ?
-            Platform.config.getString("content.consumption.table") : "content_consumption";
-
-    private static final String USER_COURSES_TABLE = Platform.config.hasPath("user.courses.table") ?
-            Platform.config.getString("user.courses.table") : "user_courses";
-
-    private static final String USER_COURSE_ES_INDEX = Platform.config.hasPath("user.courses.es.index") ?
-            Platform.config.getString("user.courses.es.index") : "user-courses";
-
-    private static final String USER_COURSE_ES_TYPE = Platform.config.hasPath("user.courses.es.type") ?
-            Platform.config.getString("user.courses.es.type") : "_doc";
-
-    private static final String COURSE_BATCH_UPDATER_KAFKA_TOPIC = Platform.config.hasPath("course.batch.updater.kafka.topic") ?
-            Platform.config.getString("course.batch.updater.kafka.topic") : "local.coursebatch.job.request";
-
-    private static final String COURSE_DATE_FORMAT = Platform.config.hasPath("course.date.format") ?
-            Platform.config.getString("course.date.format") : "yyyy-MM-dd HH:mm:ss:SSSZ";
-
-    private static SimpleDateFormat DateFormatter = new SimpleDateFormat(COURSE_DATE_FORMAT);
+    private static String KEYSPACE;
+    private static String CONTENT_CONSUMPTION_TABLE;
+    private static String USER_COURSES_TABLE;
+    private static String USER_COURSE_ES_INDEX;
+    private static String USER_COURSE_ES_TYPE;
+    private static String COURSE_BATCH_UPDATER_KAFKA_TOPIC;
+    private static String COURSE_DATE_FORMAT;
+    private static SimpleDateFormat DateFormatter;
 
     protected int getMaxIterations() {
         if (Platform.config.hasPath("max.iteration.count.samza.job"))
@@ -74,10 +60,35 @@ public class MergeUserCoursesService implements ISamzaService {
         return false;
     }
 
+    private static void initializeConfigurations() {
+        KEYSPACE = Platform.config.hasPath("courses.keyspace.name") ?
+                Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
+
+        CONTENT_CONSUMPTION_TABLE = Platform.config.hasPath("content.consumption.table") ?
+                Platform.config.getString("content.consumption.table") : "content_consumption";
+
+        USER_COURSES_TABLE = Platform.config.hasPath("user.courses.table") ?
+                Platform.config.getString("user.courses.table") : "user_courses";
+
+        USER_COURSE_ES_INDEX = Platform.config.hasPath("user.courses.es.index") ?
+                Platform.config.getString("user.courses.es.index") : "user-courses";
+
+        USER_COURSE_ES_TYPE = Platform.config.hasPath("user.courses.es.type") ?
+                Platform.config.getString("user.courses.es.type") : "_doc";
+
+        COURSE_BATCH_UPDATER_KAFKA_TOPIC = Platform.config.getString("course.batch.updater.kafka.topic");
+
+        COURSE_DATE_FORMAT = Platform.config.hasPath("course.date.format") ?
+                Platform.config.getString("course.date.format") : "yyyy-MM-dd HH:mm:ss:SSSZ";
+
+        DateFormatter = new SimpleDateFormat(COURSE_DATE_FORMAT);
+    }
+
     @Override
     public void initialize(Config config) throws Exception {
         this.config = config;
         JSONUtils.loadProperties(config);
+        initializeConfigurations();
         LOGGER.info("MergeUserCoursesService:initialize: Service config initialized");
         ElasticSearchUtil.initialiseESClient(USER_COURSE_ES_INDEX, Platform.config.getString("search.es_conn_info"));
         LOGGER.info("MergeUserCoursesService:initialize: ESClient initialized for index:" + USER_COURSE_ES_INDEX);
