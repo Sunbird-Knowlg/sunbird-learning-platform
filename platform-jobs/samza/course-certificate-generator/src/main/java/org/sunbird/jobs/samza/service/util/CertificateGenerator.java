@@ -218,6 +218,7 @@ public class CertificateGenerator {
                    put(CourseCertificateParams.htmlTemplate.name(), certTemplate.get(CourseCertificateParams.htmlTemplate.name()));
                    put(CourseCertificateParams.tag.name(), batchId);
                    put(CourseCertificateParams.issuedDate.name(), dateFormatter.format(issuedOn));
+                   put(CourseCertificateParams.keys.name(), certTemplate.get(CourseCertificateParams.keys.name()));
                    put(CourseCertificateParams.orgId.name(), rootOrgId);
                }});
            }});
