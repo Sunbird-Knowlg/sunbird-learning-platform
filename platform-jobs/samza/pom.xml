@@ -30,9 +30,9 @@
 		<module>collection-migration</module>
 		<module>distribution</module>
         <module>course-batch-updater</module>
-        <!--<module>post-publish-processor</module>-->
+        <module>post-publish-processor</module>
         <module>qr-image-generator</module>
-		<!--<module>merge-user-courses</module>-->
+		<module>merge-user-courses</module>
     </modules>
 
 	<build>
