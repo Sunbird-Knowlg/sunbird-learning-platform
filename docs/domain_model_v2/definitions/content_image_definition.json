@@ -2878,7 +2878,7 @@
 				{
 					"required": false,
 					"dataType": "JSON",
-					"propertyName": "plugin",
+					"propertyName": "plugins",
 					"title": "Plugin",
 					"description": "Plugins associated with the content",
 					"category": "General",
@@ -3194,7 +3194,7 @@
 					"leafNodes",
 					"origin",
 					"originData",
-					"plugin"
+					"plugins"
 				]
 			}
 		}
