@@ -2874,7 +2874,19 @@
                     "indexed": true,
                     "draft": false,
                     "rangeValidation": true
-                }
+                },
+				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "plugins",
+					"title": "Plugin",
+					"description": "Plugins associated with the content",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+					"indexed": true
+				}
 			],
 			"inRelations": [
 				{
@@ -3181,7 +3193,8 @@
 					"programId",
 					"leafNodes",
 					"origin",
-					"originData"
+					"originData",
+					"plugins"
 				]
 			}
 		}
