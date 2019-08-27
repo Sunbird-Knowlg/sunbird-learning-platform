@@ -81,7 +81,14 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>merge-user-courses</artifactId>
-			<version>0.0.4</version>
+			<version>0.0.9</version>
+			<type>tar.gz</type>
+			<classifier>distribution</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>course-certificate-generator</artifactId>
+			<version>0.0.6</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
