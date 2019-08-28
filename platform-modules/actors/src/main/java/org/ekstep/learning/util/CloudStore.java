@@ -37,8 +37,7 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 			String storageKey = "";
 			String storageSecret = "";
 			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret));
-		}
-		else {
+		}else {
 			throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while initialising cloud storage");
 		}
 	}
@@ -52,10 +51,9 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 			return Platform.config.getString("azure_storage_container");
 		}else if(StringUtils.equalsIgnoreCase(cloudStoreType, "aws")) {
 			return S3PropertyReader.getProperty("aws_storage_container");
-		} else if(StringUtils.equalsIgnoreCase(cloudStoreType, "file")){
+		}else if(StringUtils.equalsIgnoreCase(cloudStoreType, "file")){
 			return "/data";
-		}
-		else {
+		} else {
 			throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while getting container name");
 		}
 	}
