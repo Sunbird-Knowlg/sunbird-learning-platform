@@ -5,10 +5,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.YouTubeUrlUtil;
 import org.ekstep.content.util.AssetEnrichmentEnums;
 import org.ekstep.content.util.OptimizerUtil;
+import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -20,10 +22,17 @@ import java.util.List;
 import java.util.Map;
 
 public class AssetEnrichmentFinalizer extends BaseFinalizer {
-//    private static final String tempFileLocation = Platform.config.hasPath("asset.tmp.file.location") ? Platform.config.getString("asset.tmp.file.location") : "data/tmp";
+    private static final String tempFileLocation = Platform.config.hasPath("asset.tmp.file.location") ? Platform.config.getString("asset.tmp.file.location") : "data/tmp/upload";
 
 
     public void enrichAssets(Node node, File file) {
+        if(StringUtils.contains(node.getIdentifier(),".img")) {
+            Response response = getDataNode("domain", node.getIdentifier().replace(".img", ""));
+            if (checkError(response))
+                throw new ResourceNotFoundException("ERR_FRAMEWORK_NOT_FOUND",
+                        "Framework Not Found With Id : " + node.getIdentifier().replace(".img", ""));
+            node = (Node) response.get(GraphDACParams.node.name());
+        }
         if ((null != node) && (node.getObjectType().equalsIgnoreCase(AssetEnrichmentEnums.content.name()))) {
             getMediaEnrichmentMap(node, file).get((String) node.getMetadata().get("mediaType")).run();
         } else
@@ -38,7 +47,7 @@ public class AssetEnrichmentFinalizer extends BaseFinalizer {
     }
 
     private void imageEnrichment(Node node) {
-        String identifier = node.getIdentifier().replace(".img", "");
+        String identifier = node.getIdentifier();
         try {
             TelemetryManager.info("Processing image enrichment for node:" + identifier);
             Map<String, String> variantsMap = OptimizerUtil.optimizeImage(identifier, node);
@@ -46,14 +55,12 @@ public class AssetEnrichmentFinalizer extends BaseFinalizer {
                 variantsMap = new HashMap<String, String>();
             if (StringUtils.isBlank(variantsMap.get(AssetEnrichmentEnums.medium.name()))) {
                 String downloadUrl = (String) node.getMetadata().get(AssetEnrichmentEnums.downloadUrl.name());
-                if (StringUtils.isNotBlank(downloadUrl)) {
+                if (StringUtils.isNotBlank(downloadUrl))
                     variantsMap.put(AssetEnrichmentEnums.medium.name(), downloadUrl);
-                }
             }
             processImage(variantsMap, node);
         } catch (Exception e) {
-            TelemetryManager.error(
-                    "Something Went Wrong While Performing Asset Enrichment operation. | [Content Id: "
+            TelemetryManager.error("Something Went Wrong While Performing Asset Enrichment operation. | [Content Id: "
                             + identifier + "]", e);
             node.getMetadata().put(AssetEnrichmentEnums.processingError.name(), e.getMessage());
             node.getMetadata().put(AssetEnrichmentEnums.status.name(), AssetEnrichmentEnums.Failed.name());
@@ -68,7 +75,7 @@ public class AssetEnrichmentFinalizer extends BaseFinalizer {
     }
 
     private void processImage(Map<String, String> variantsMap, Node node) {
-        String identifier = node.getIdentifier().replace(".img", "");
+        String identifier = node.getIdentifier();
         TelemetryManager.info("Image " + identifier + " channel:" + node.getMetadata().get("channel"));
         TelemetryManager.info("Image " + identifier + " appId:" + node.getMetadata().get("appId"));
         TelemetryManager.info("Image " + identifier + " consumerId:" + node.getMetadata().get("consumerId"));
@@ -83,7 +90,7 @@ public class AssetEnrichmentFinalizer extends BaseFinalizer {
 
 
     private void videoEnrichment(Node node) {
-        String identifier = node.getIdentifier().replace(".img", "");
+        String identifier = node.getIdentifier();
         String videoUrl = (String) node.getMetadata().get(AssetEnrichmentEnums.artifactUrl.name());
         try {
             if (StringUtils.isBlank(videoUrl)) {
@@ -106,7 +113,7 @@ public class AssetEnrichmentFinalizer extends BaseFinalizer {
     }
 
     private void processVideo(Node node, String videoUrl) throws Exception {
-        String identifier = node.getIdentifier().replace(".img", "");
+        String identifier = node.getIdentifier();
         if (StringUtils.equalsIgnoreCase("video/x-youtube", (String) node.getMetadata().get(AssetEnrichmentEnums.mimeType.name()))) {
             Map<String, Object> data = YouTubeUrlUtil.getVideoInfo(videoUrl, "snippet,contentDetails", "thumbnail", "duration");
             if (MapUtils.isNotEmpty(data)) {
@@ -117,10 +124,7 @@ public class AssetEnrichmentFinalizer extends BaseFinalizer {
             }
         } else {
             File videoFile = org.apache.commons.io.FileUtils.toFile(new URL(videoUrl));
-            String absolutePath = videoFile.getAbsolutePath();
-            String folderPath = absolutePath.
-                    substring(0, absolutePath.lastIndexOf(File.separator));
-            OptimizerUtil.videoEnrichment(node, folderPath, videoFile);
+            OptimizerUtil.videoEnrichment(node, tempFileLocation, videoFile);
         }
         node.getMetadata().put(AssetEnrichmentEnums.status.name(), AssetEnrichmentEnums.Live.name());
         Response res = updateNode(node);
@@ -136,6 +140,7 @@ public class AssetEnrichmentFinalizer extends BaseFinalizer {
                 Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Arrays.asList("video/mp4");
         if (streamableMimeType.contains((String) node.getMetadata().get(AssetEnrichmentEnums.mimeType.name()))) {
             node.getMetadata().put(AssetEnrichmentEnums.streamingUrl.name(), videoUrl);
+            updateNode(node);
         }
     }
 
