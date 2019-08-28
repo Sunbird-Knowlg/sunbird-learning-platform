@@ -163,9 +163,8 @@ public class AssessmentStore {
 			StringBuilder updateFields = new StringBuilder();
 			for (String property : properties) {
 				if (StringUtils.isBlank(property))
-					if (StringUtils.isBlank(property))
-						throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_NAME.name(),
-								"Invalid property name. Please specify a valid property name");
+					throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_NAME.name(),
+							"Invalid property name. Please specify a valid property name");
 				updateFields.append(property.toLowerCase().trim()).append(" = textAsBlob(?), ");
 			}
 			sb.append(StringUtils.removeEnd(updateFields.toString(), ", "));

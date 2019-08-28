@@ -69,7 +69,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response createAssessmentItem(String taxonomyId, Request request) {
-//		String body = "";
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
@@ -101,7 +100,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		Response validateRes = new Response();
 		List<String> assessmentErrors = new ArrayList<String>();
 		Map<String, Object> externalProps = handleExternalProperties(item.getMetadata());
-//		body = (String) item.getMetadata().remove("body");
 		if (!skipValidation) {
 			Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
 			validateReq.put(GraphDACParams.node.name(), item);
@@ -132,16 +130,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 			if (MapUtils.isNotEmpty(externalProps)) {
 				assessmentStore.updateContentProperties(contentId, externalProps);
 			}
-//			if (StringUtils.isNotBlank(body)) {
-//				String questionId = createRes.get("node_id").toString();
-//				try {
-//					assessmentStore.save(questionId, body);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//					throw new ServerException(AssessmentErrorCodes.ERR_ASSESSMENT_SAVE_BODY.name(),
-//							"Something Went Wrong While Processing Your Request", e);
-//				}
-//			}
 			return createRes;
 		}
 	}
@@ -150,7 +138,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 	@Override
 	public Response updateAssessmentItem(String id, String taxonomyId, Request request) {
 		Node item = null;
-//		String assessmentBody = "";
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
@@ -181,10 +168,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				item.getMetadata().put("framework", getDefaultFramework());
 		}
 		Map<String, Object> externalProps = handleExternalProperties(item.getMetadata());
-
-//		assessmentBody = (String) item.getMetadata().get("body");
-//		if (StringUtils.isNotBlank(assessmentBody))
-//			item.getMetadata().put("body", null);
 		
 		if(item.getMetadata().containsKey("level"))
 			item.getMetadata().remove("level");
@@ -226,14 +209,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 					if (MapUtils.isNotEmpty(externalProps)) {
 						assessmentStore.updateContentProperties(contentId, externalProps);
 					}
-//					if (StringUtils.isNotBlank(assessmentBody)) {
-//						try {
-//							assessmentStore.update(id, assessmentBody);
-//						} catch (Exception e) {
-//							throw new ServerException(AssessmentErrorCodes.ERR_ASSESSMENT_SAVE_BODY.name(),
-//									"Something Went Wrong While Processing Your Request");
-//						}
-//					}
 				}
 				return updateRes;
 			}
@@ -787,6 +762,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 					.map(prop -> prop.getPropertyName().trim()).collect(Collectors.toList());
 		return externalProperties;
 	}
+
 	protected DefinitionDTO getDefinition(String graphId, String objectType) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 				GraphDACParams.object_type.name(), objectType);
@@ -797,6 +773,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		}
 		return null;
 	}
+
 	protected Map<String,Object> handleExternalProperties(Map<String, Object> metadata) {
 		List<String> externalPropsList = getItemExternalPropsList();
 		Map<String, Object> externalProps = externalPropsList.stream().filter(prop -> null != metadata.get(prop))
