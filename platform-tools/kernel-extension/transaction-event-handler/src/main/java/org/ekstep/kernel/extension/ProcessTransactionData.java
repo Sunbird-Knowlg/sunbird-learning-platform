@@ -40,6 +40,7 @@ public class ProcessTransactionData {
 			List<Map<String, Object>> kafkaMessages = getMessageObj(data);
 			if (kafkaMessages != null && !kafkaMessages.isEmpty()) {
 				LogAsyncGraphEvent.pushMessageToLogger(kafkaMessages);
+				ESSync.pushDataToES(kafkaMessages, graphDb);
 			}
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);
