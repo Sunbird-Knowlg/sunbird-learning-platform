@@ -8,9 +8,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Slug;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -37,6 +40,12 @@ public class HttpDownloadUtility {
 		InputStream inputStream = null;
 		FileOutputStream outputStream = null;
 		try {
+			if(StringUtils.contains(fileURL,"file:/" )) {
+				File dest = new File(saveDir + File.separator + fileURL.split("/")[fileURL.split("/").length - 1]);
+				FileUtils.copyURLToFile(new URL(fileURL),dest);
+				if(dest.exists())
+					return dest;
+			}
 			URL url = new URL(fileURL);
 			httpConn = (HttpURLConnection) url.openConnection();
 			int responseCode = httpConn.getResponseCode();
