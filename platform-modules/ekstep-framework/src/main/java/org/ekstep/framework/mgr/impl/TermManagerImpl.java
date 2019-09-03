@@ -187,8 +187,8 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	public void validateRequest(String scope, String categoryId) {
 		Boolean valid = false;
 		if (StringUtils.isNotBlank(scope) && StringUtils.isNotBlank(categoryId)
-				&& !StringUtils.equalsIgnoreCase(categoryId, "_")
-				&& !StringUtils.equalsIgnoreCase(categoryId, scope + "_")) {
+				&& !StringUtils.equals(categoryId, "_")
+				&& !StringUtils.equals(categoryId, scope + "_")) {
 			Response categoryResp = getDataNode(GRAPH_ID, categoryId);
 			if (!checkError(categoryResp)) {
 				Node node = (Node) categoryResp.get(GraphDACParams.node.name());
