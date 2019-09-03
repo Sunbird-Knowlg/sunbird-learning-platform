@@ -54,8 +54,8 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
         // SystemUpdate batch count
         Request request = new Request();
         request.put("content", new HashMap<String, Object>() {{
-            put("c_" + installation + "_open_batch_count".toLowerCase(), openBatchCount[0]);
-            put("c_" + installation + "_private_batch_count".toLowerCase(), privateBatchCount[0]);
+            put("c_" + installation.toLowerCase() + "_open_batch_count".toLowerCase(), openBatchCount[0]);
+            put("c_" + installation.toLowerCase() + "_private_batch_count".toLowerCase(), privateBatchCount[0]);
         }});
         systemUpdate(courseId, request);
     }

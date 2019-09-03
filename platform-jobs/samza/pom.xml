@@ -33,6 +33,7 @@
         <module>post-publish-processor</module>
         <module>qr-image-generator</module>
 		<module>merge-user-courses</module>
+		<module>course-certificate-generator</module>
     </modules>
 
 	<build>
