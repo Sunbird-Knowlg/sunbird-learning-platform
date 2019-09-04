@@ -67,7 +67,9 @@ public class QRCodeImageGeneratorService implements ISamzaService {
                         downloadUrl = (String) dialCode.get(QRCodeImageGeneratorParams.location.name());
                         String fileName = (String) dialCode.get(QRCodeImageGeneratorParams.id.name());
                         File fileToSave = new File(fileName+"."+imageFormat);
+                        LOGGER.info("QRCodeImageGeneratorService:processMessage: creating file - " + fileToSave.getAbsolutePath());
                         fileToSave.createNewFile();
+                        LOGGER.info("QRCodeImageGeneratorService:processMessage: created file - " + fileToSave.getAbsolutePath());
                         CloudStorageUtil.downloadFile(downloadUrl, fileToSave);
                         availableImages.add(fileToSave);
                         continue;
