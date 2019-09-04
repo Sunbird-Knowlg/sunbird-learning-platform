@@ -54,6 +54,7 @@ public class QRCodeImageGeneratorUtil {
         int borderSize = qrGenRequest.getImageBorderSize();
         int qrMarginBottom = qrGenRequest.getQrCodeMarginBottom();
         int imageMargin = qrGenRequest.getImageMargin();
+        String tempFilePath = qrGenRequest.getTempFilePath();
 
         for (int i = 0; i < dataList.size(); i++) {
             String data = dataList.get(i);
@@ -71,7 +72,7 @@ public class QRCodeImageGeneratorUtil {
                 drawBorder(qrImage, borderSize, imageMargin);
             }
 
-            File finalImageFile = new File(fileName + "." + imageFormat);
+            File finalImageFile = new File(tempFilePath + File.separator + fileName + "." + imageFormat);
             LOGGER.info("QRCodeImageGeneratorUtil:createQRImages: creating file - " + finalImageFile.getAbsolutePath());
             finalImageFile.createNewFile();
             LOGGER.info("QRCodeImageGeneratorUtil:createQRImages: created file - " + finalImageFile.getAbsolutePath());

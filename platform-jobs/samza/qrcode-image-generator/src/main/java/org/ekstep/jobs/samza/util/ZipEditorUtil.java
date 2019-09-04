@@ -12,8 +12,8 @@ public class ZipEditorUtil {
 
     private static JobLogger LOGGER = new JobLogger(ZipEditorUtil.class);
 
-    public static File zipFiles(List<File> files, String zipName) throws IOException {
-        File zipFile = new File(zipName + ".zip");
+    public static File zipFiles(List<File> files, String zipName, String basePath) throws IOException {
+        File zipFile = new File(basePath + File.separator + zipName + ".zip");
         LOGGER.info("ZipEditorUtil:zipFiles: creating file - " + zipFile.getAbsolutePath());
         zipFile.createNewFile();
         LOGGER.info("ZipEditorUtil:zipFiles: created file - " + zipFile.getAbsolutePath());

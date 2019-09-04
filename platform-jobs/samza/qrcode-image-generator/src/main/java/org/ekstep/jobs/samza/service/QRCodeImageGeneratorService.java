@@ -60,13 +60,14 @@ public class QRCodeImageGeneratorService implements ISamzaService {
             List<String> textList = new ArrayList<String>();
             List<String> fileNameList = new ArrayList<String>();
             String downloadUrl = null;
+            String tempFilePath = appConfig.getOrDefault(QRCodeImageGeneratorParams.lp_tempfile_location.name(), "/tmp");
 
             for(Map<String, Object> dialCode : dialCodes) {
                 if(dialCode.containsKey(QRCodeImageGeneratorParams.location.name())) {
                     try {
                         downloadUrl = (String) dialCode.get(QRCodeImageGeneratorParams.location.name());
                         String fileName = (String) dialCode.get(QRCodeImageGeneratorParams.id.name());
-                        File fileToSave = new File(fileName+"."+imageFormat);
+                        File fileToSave = new File(tempFilePath + File.separator + fileName+"."+imageFormat);
                         LOGGER.info("QRCodeImageGeneratorService:processMessage: creating file - " + fileToSave.getAbsolutePath());
                         fileToSave.createNewFile();
                         LOGGER.info("QRCodeImageGeneratorService:processMessage: created file - " + fileToSave.getAbsolutePath());
@@ -98,7 +99,7 @@ public class QRCodeImageGeneratorService implements ISamzaService {
             List<File> generatedImages = QRCodeImageGeneratorUtil.createQRImages(qrGenRequest, appConfig, container, path);
 
             availableImages.addAll(generatedImages);
-            zipFile = ZipEditorUtil.zipFiles(availableImages, zipFileName);
+            zipFile = ZipEditorUtil.zipFiles(availableImages, zipFileName, tempFilePath);
 
             String zipDownloadUrl = CloudStorageUtil.uploadFile(container, path, zipFile, false);
             QRCodeCassandraConnector.updateDownloadZIPUrl(processId, zipDownloadUrl);
@@ -144,6 +145,7 @@ public class QRCodeImageGeneratorService implements ISamzaService {
         } else {
             qrGenRequest.setImageMargin(appConfig.getInt(QRCodeImageGeneratorParams.qr_image_margin.name()));
         }
+        qrGenRequest.setTempFilePath(appConfig.getOrDefault(QRCodeImageGeneratorParams.lp_tempfile_location.name(), "/tmp"));
 		return qrGenRequest;
 	}
 }
