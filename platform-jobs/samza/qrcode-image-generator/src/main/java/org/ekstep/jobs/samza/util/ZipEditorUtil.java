@@ -10,9 +10,13 @@ import java.util.List;
 
 public class ZipEditorUtil {
 
-    public static File zipFiles(List<File> files, String zipName) throws IOException {
-        File zipFile = new File(zipName + ".zip");
+    private static JobLogger LOGGER = new JobLogger(ZipEditorUtil.class);
+
+    public static File zipFiles(List<File> files, String zipName, String basePath) throws IOException {
+        File zipFile = new File(basePath + File.separator + zipName + ".zip");
+        LOGGER.info("ZipEditorUtil:zipFiles: creating file - " + zipFile.getAbsolutePath());
         zipFile.createNewFile();
+        LOGGER.info("ZipEditorUtil:zipFiles: created file - " + zipFile.getAbsolutePath());
         FileOutputStream fos = new FileOutputStream(zipFile);
         ZipOutputStream zos = new ZipOutputStream(fos);
         for (File file : files) {
