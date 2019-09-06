@@ -18,6 +18,11 @@ public class QRCodeGenerationRequest {
     private String fileFormat;
     private int qrCodeMarginBottom;
     private int imageMargin;
+    private String tempFilePath;
+
+    public String getTempFilePath() { return tempFilePath; }
+
+    public void setTempFilePath(String tempFilePath) { this.tempFilePath = tempFilePath; }
 
     public int getImageMargin() { return imageMargin; }
 

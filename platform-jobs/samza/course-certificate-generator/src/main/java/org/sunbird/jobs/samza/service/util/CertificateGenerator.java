@@ -2,6 +2,8 @@ package org.sunbird.jobs.samza.service.util;
 
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.TypeTokens;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -33,6 +35,7 @@ public class CertificateGenerator {
     private static final String CERT_SERVICE_URL = Platform.config.hasPath("cert_service.base_url")
             ? Platform.config.getString("cert_service.base_url"): "http://localhost:9000";
     protected static ObjectMapper mapper = new ObjectMapper();
+
     private static final String KEYSPACE = Platform.config.hasPath("courses.keyspace.name")
             ? Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
     private static final String USER_COURSES_TABLE = "user_courses";
@@ -48,7 +51,9 @@ public class CertificateGenerator {
     public CertificateGenerator() {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
         formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSSZ");
-        dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
+        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     public void generate(Map<String, Object> edata) {
@@ -200,7 +205,7 @@ public class CertificateGenerator {
     }
 
     private Map<String,Object> prepareCertServiceRequest(String courseName, String certificateName, String batchId, String userId, Map<String, Object> userResponse, Map<String, Object> certTemplate, Date issuedOn) {
-        String recipientName = (String) userResponse.get("firstName") + " " + (String) userResponse.get("lastName");
+        String recipientName = getRecipientName(userResponse);
         String rootOrgId = (String) userResponse.get("rootOrgId");
         Map<String, Object> request = new HashMap<String, Object>() {{
            put(CourseCertificateParams.request.name(), new HashMap<String, Object>() {{
@@ -225,6 +230,16 @@ public class CertificateGenerator {
         }};
 
         return request;
+    }
+
+    private String getRecipientName(Map<String, Object> userResponse) {
+        String firstName = (StringUtils.isNotBlank((String) userResponse.get("firstName"))
+                && (!StringUtils.equalsIgnoreCase("null", (String) userResponse.get("firstName"))))
+                ? (String) userResponse.get("firstName") : "";
+        String lastName = (StringUtils.isNotBlank((String) userResponse.get("lastName"))
+                && (!StringUtils.equalsIgnoreCase("null", (String) userResponse.get("lastName"))))
+                ? (String) userResponse.get("lastName") : "";
+        return StringUtils.trimToEmpty(firstName + " " + lastName);
     }
 
     private Map<String,Object> getContent(String courseId, String fields) {
