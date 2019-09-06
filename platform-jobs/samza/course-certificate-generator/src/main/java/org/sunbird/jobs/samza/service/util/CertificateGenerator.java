@@ -51,7 +51,7 @@ public class CertificateGenerator {
     public CertificateGenerator() {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
         formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSSZ");
-        dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
         mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
