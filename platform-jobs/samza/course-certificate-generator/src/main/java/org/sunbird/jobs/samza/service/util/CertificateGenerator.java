@@ -200,7 +200,9 @@ public class CertificateGenerator {
     }
 
     private Map<String,Object> prepareCertServiceRequest(String courseName, String certificateName, String batchId, String userId, Map<String, Object> userResponse, Map<String, Object> certTemplate, Date issuedOn) {
-        String recipientName = (String) userResponse.get("firstName") + " " + (String) userResponse.get("lastName");
+        String firstName = (StringUtils.isNotBlank((String) userResponse.get("firstName"))) ? (String) userResponse.get("firstName") : "";
+        String lastName = (StringUtils.isNotBlank((String) userResponse.get("lastName"))) ? (String) userResponse.get("lastName"): "";
+        String recipientName = StringUtils.trimToEmpty(firstName + " " + lastName);
         String rootOrgId = (String) userResponse.get("rootOrgId");
         Map<String, Object> request = new HashMap<String, Object>() {{
            put(CourseCertificateParams.request.name(), new HashMap<String, Object>() {{
