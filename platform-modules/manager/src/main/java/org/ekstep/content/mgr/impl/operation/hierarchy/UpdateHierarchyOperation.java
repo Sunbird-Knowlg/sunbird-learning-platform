@@ -79,6 +79,7 @@ public class UpdateHierarchyOperation extends BaseContentManager {
             put(ContentAPIParams.children.name(), children);
         }};
 
+        //Adding to remove outrelation while updating node in update hierarchy
         Node node = getTempNode(nodeList, rootId);
         node.setOutRelations(null);
         Response rootNodeResponse = updateDataNode(node);
