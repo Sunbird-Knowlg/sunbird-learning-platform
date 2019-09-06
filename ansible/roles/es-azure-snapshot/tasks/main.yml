@@ -22,6 +22,8 @@
   uri:
     url: "http://{{ es_snapshot_host }}:9200/_snapshot/azurebackup/_all"
     method: GET
+  async: 600
+  poll: 10
 
 - name: Print status of current snapshot
   uri:
