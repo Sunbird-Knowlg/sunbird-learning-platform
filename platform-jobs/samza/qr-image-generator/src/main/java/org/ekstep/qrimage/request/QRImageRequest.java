@@ -3,10 +3,18 @@ package org.ekstep.qrimage.request;
 import java.util.List;
 
 public class QRImageRequest {
+
     private List<String> data;
     private String text;
     private String fileName;
     private QRImageConfig config;
+    private String tempFileLocation;
+
+    public QRImageRequest(){}
+
+    public QRImageRequest(String tempFileLocation) {
+        this.tempFileLocation = tempFileLocation;
+    }
 
     public List<String> getData() {
         return data;
@@ -40,4 +48,7 @@ public class QRImageRequest {
         this.config = config;
     }
 
+    public String getTempFileLocation() {
+        return this.tempFileLocation;
+    }
 }
