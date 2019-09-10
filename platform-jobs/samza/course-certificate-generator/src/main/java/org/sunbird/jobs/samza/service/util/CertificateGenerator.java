@@ -199,7 +199,7 @@ public class CertificateGenerator {
                 } catch (Exception e) {
                     LOGGER.error("Error while sending email notification to user : " + userId, e);
                 }
-                if(userResponse.containsKey("maskedPhone") && StringUtils.isNotEmpty((String)userResponse.containsKey("maskedPhone"))) {
+                if(userResponse.containsKey("maskedPhone") && StringUtils.isNotEmpty((String)userResponse.get("maskedPhone")) && !"null".equalsIgnoreCase((String)userResponse.get("maskedPhone"))) {
                 	request.put("mode", "sms");
                 	String smsBody = Platform.config.getString("notification.sms.body").replaceAll("@@TRAINING_NAME@@", courseName).replaceAll("@@HELD_DATE@@", dateFormatter.format(issuedOn));
                 	request.put("body", smsBody);
