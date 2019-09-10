@@ -129,7 +129,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		} else {
 			String contentId = (String) createRes.get(GraphDACParams.node_id.name());
 			if (MapUtils.isNotEmpty(externalProps)) {
-				assessmentStore.updateContentProperties(contentId, externalProps);
+				assessmentStore.updateAssessmentProperties(contentId, externalProps);
 			}
 			return createRes;
 		}
@@ -208,7 +208,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				} else {
 					String contentId = (String) updateRes.get(GraphDACParams.node_id.name());
 					if (MapUtils.isNotEmpty(externalProps)) {
-						assessmentStore.updateContentProperties(contentId, externalProps);
+						assessmentStore.updateAssessmentProperties(contentId, externalProps);
 					}
 				}
 				return updateRes;
@@ -295,7 +295,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 					.filter(prop -> externalProps.contains(prop))
 					.collect(Collectors.toList());
 			if (CollectionUtils.isNotEmpty(externalPropsFromRequest))
-				externalPropMap = assessmentStore.getContentProperties(questionId, externalPropsFromRequest);
+				externalPropMap = assessmentStore.getAssessmentProperties(questionId, externalPropsFromRequest);
 		}
 
 		if (null != node) {

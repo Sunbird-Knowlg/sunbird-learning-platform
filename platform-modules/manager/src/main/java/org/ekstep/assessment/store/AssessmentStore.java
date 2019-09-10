@@ -65,8 +65,8 @@ public class AssessmentStore {
 		return bodyData;
 	}
 
-	public Map<String, Object> getContentProperties(String questionId, List<String> properties) {
-		TelemetryManager.log("GetContentProperties | Content: " + questionId + " | Properties: " + properties);
+	public Map<String, Object> getAssessmentProperties(String questionId, List<String> properties) {
+		TelemetryManager.log("GetAssessmentProperties | Question: " + questionId + " | Properties: " + properties);
 		Session session = CassandraConnector.getSession();
 		String query = getSelectQuery(properties);
 		if (StringUtils.isBlank(query))
@@ -90,7 +90,7 @@ public class AssessmentStore {
 		} catch (Exception e) {
 			TelemetryManager.error("Error! Executing get content property: " + e.getMessage(), e);
 			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
-					"Error fetching property from Content Store.");
+					"Error fetching property from Assessment Store.");
 		}
 		return null;
 	}
@@ -103,8 +103,8 @@ public class AssessmentStore {
 		executeQuery(query, objects);
 	}
 
-	public void updateContentProperties(String contentId, Map<String, Object> map) {
-		TelemetryManager.log("UpdateContentProperties | Content: " + contentId + " | Properties: " + map);
+	public void updateAssessmentProperties(String questionId, Map<String, Object> map) {
+		TelemetryManager.log("UpdateAssessmentProperties | Question: " + questionId + " | Properties: " + map);
 		Session session = CassandraConnector.getSession();
 		if (null == map || map.isEmpty())
 			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_VALUES.name(),
@@ -126,14 +126,14 @@ public class AssessmentStore {
 				values[i] = value;
 				i += 1;
 			}
-			values[i] = contentId;
+			values[i] = questionId;
 			BoundStatement bound = ps.bind(values);
 
 			session.execute(bound);
 		} catch (Exception e) {
 			TelemetryManager.error("Error! Executing update content property: " + e.getMessage(), e);
 			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
-					"Error updating property in Content Store.");
+					"Error updating property in Assesment Store.");
 		}
 	}
 
