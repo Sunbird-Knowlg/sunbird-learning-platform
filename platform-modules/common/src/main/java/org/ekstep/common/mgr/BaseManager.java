@@ -22,6 +22,7 @@ import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
+
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
@@ -29,6 +30,7 @@ import akka.dispatch.Futures;
 import akka.pattern.Patterns;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+
 
 public abstract class BaseManager {
 
@@ -42,7 +44,8 @@ public abstract class BaseManager {
 
 	protected static final int DEFAULT_TTL = 24;
 	protected static final int DEFAULT_LIMIT = 50;
-	
+	protected static final String TAXONOMY_ID = "domain";
+
 	public Response getDataNode(String taxonomyId, String id) {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), id);
@@ -318,5 +321,4 @@ public abstract class BaseManager {
 	protected boolean isEmptyOrNull(Object... o) {
 		return RequestValidatorUtil.isEmptyOrNull(o);
 	}
-
 }
