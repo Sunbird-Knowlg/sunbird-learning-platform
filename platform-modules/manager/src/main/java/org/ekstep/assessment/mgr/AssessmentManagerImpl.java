@@ -748,7 +748,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 	 * @return
 	 */
 	protected List<String> getItemExternalPropsList() {
-		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+		DefinitionDTO definition = getDefinition(TAXONOMY_ID, "AssessmentItem");
 		List<MetadataDefinition> props = definition.getProperties();
 		List<String> externalProperties = new ArrayList<>();
 		if (CollectionUtils.isNotEmpty(props))
