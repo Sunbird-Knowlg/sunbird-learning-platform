@@ -210,7 +210,7 @@
         },
         {
           "required": false,
-          "dataType": "Text",
+          "dataType": "external",
           "propertyName": "question",
           "title": "Question Text",
           "description": "",
