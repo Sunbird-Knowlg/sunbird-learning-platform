@@ -1,3 +1,4 @@
+@Library('deploy-conf') _
 node() {
     try {
         String ANSI_GREEN = "\u001B[32m"
@@ -48,13 +49,16 @@ node() {
             archiveArtifacts artifacts: "lp_synctool_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
             sh """echo {\\"artifact_name\\" : \\"lp_synctool_artifacts.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
             archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
-            currentBuild.description = "${artifact_version}"
+            currentBuild.result = "SUCCESS"
+            currentBuild.description = "Artifact: ${artifact_version}, Public: ${params.github_release_tag}"
         }
     }
-
     catch (err) {
         currentBuild.result = "FAILURE"
         throw err
     }
-
+    finally {
+        slack_notify(currentBuild.result)
+        email_notify()
+    }
 }
