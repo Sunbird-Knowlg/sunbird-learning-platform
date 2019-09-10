@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -271,7 +272,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 
 	@Override
 	public Response getAssessmentItem(String id, String taxonomyId, String[] ifields) {
-		String body = "";
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
@@ -287,29 +287,23 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 			return response;
 		}
 		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
-
-		if (null == node.getMetadata().get("body")) {
-			try {
-				String questionId = node.getIdentifier();
-				body = assessmentStore.read(questionId);
-			} catch (Exception e) {
-				// No Need to Handle Exception as of now because we don't know
-				// whether body is present for particular Assessment Id. If we
-				// provide a flag in
-				// neo4j for body, then based on that flag, control should enter
-				// into try and Exception should be thrown from here.
-			}
-		} else {
-			body = (String) node.getMetadata().get("body");
+		String questionId = node.getIdentifier();
+		Map<String, Object> externalPropMap = null;
+		if(null != ifields) {
+			List<String> externalProps = getItemExternalPropsList();
+			List<String> externalPropsFromRequest = Arrays.stream(ifields)
+					.filter(prop -> externalProps.contains(prop))
+					.collect(Collectors.toList());
+			if (CollectionUtils.isNotEmpty(externalPropsFromRequest))
+				externalPropMap = assessmentStore.getContentProperties(questionId, externalPropsFromRequest);
 		}
 
 		if (null != node) {
 			DefinitionDTO definition = getDefinition(taxonomyId, ITEM_SET_MEMBERS_TYPE);
 			List<String> jsonProps = getJSONProperties(definition);
 			Map<String, Object> dto = getAssessmentItem(node, jsonProps, ifields);
-			if ((null == ifields || Arrays.asList(ifields).contains("body")) && StringUtils.isNotBlank(body)) {
-				dto.put("body", body);
-			}
+			if(MapUtils.isNotEmpty(externalPropMap))
+				dto.putAll(externalPropMap);
 			response.put(AssessmentAPIParams.assessment_item.name(), dto);
 		}
 		return response;

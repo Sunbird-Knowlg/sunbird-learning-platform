@@ -3,6 +3,7 @@
  */
 package org.ekstep.assessment.store;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +36,7 @@ public class AssessmentStore {
 
 	static String keyspace = "";
 	static String table = "";
+	private static final String PROPERTY_SUFFIX = "__txt";
 	private static final ObjectMapper mapper = new ObjectMapper();
 	public AssessmentStore() {
 		keyspace = Platform.config.hasPath("assessment.keyspace.name")
@@ -61,6 +63,36 @@ public class AssessmentStore {
 			throw new ResourceNotFoundException("ERR_ASSESSMENT_DATA", "Data Not Found.");
 		}
 		return bodyData;
+	}
+
+	public Map<String, Object> getContentProperties(String questionId, List<String> properties) {
+		TelemetryManager.log("GetContentProperties | Content: " + questionId + " | Properties: " + properties);
+		Session session = CassandraConnector.getSession();
+		String query = getSelectQuery(properties);
+		if (StringUtils.isBlank(query))
+			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_NAME.name(),
+					"Invalid properties list. Please specify a valid list of property names");
+		PreparedStatement ps = session.prepare(query);
+		BoundStatement bound = ps.bind(questionId);
+		try {
+			ResultSet rs = session.execute(bound);
+			if (null != rs) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				while (rs.iterator().hasNext()) {
+					Row row = rs.iterator().next();
+					for (String prop : properties) {
+						String value = row.getString(prop + PROPERTY_SUFFIX);
+						map.put(prop, value);
+					}
+					return map;
+				}
+			}
+		} catch (Exception e) {
+			TelemetryManager.error("Error! Executing get content property: " + e.getMessage(), e);
+			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
+					"Error fetching property from Content Store.");
+		}
+		return null;
 	}
 
 	public void update(String questionId, String body) throws Exception {
@@ -154,6 +186,34 @@ public class AssessmentStore {
 		PreparedStatement statement = session.prepare(query);
 		BoundStatement boundStatement = new BoundStatement(statement);
 		return session.execute(boundStatement.bind(objects));
+	}
+
+	private String getSelectQuery(String property) {
+		StringBuilder sb = new StringBuilder();
+		if (StringUtils.isNotBlank(property)) {
+			sb.append("select blobAsText(").append(property).append(") as ");
+			sb.append(property.trim()).append(PROPERTY_SUFFIX)
+					.append(" from " + keyspace + Constants.DOT + table + " where question_id = ?");
+		}
+		return sb.toString();
+	}
+
+	private String getSelectQuery(List<String> properties) {
+		StringBuilder sb = new StringBuilder();
+		if (null != properties && !properties.isEmpty()) {
+			sb.append("select ");
+			StringBuilder selectFields = new StringBuilder();
+			for (String property : properties) {
+				if (StringUtils.isBlank(property))
+						throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_NAME.name(),
+								"Invalid property name. Please specify a valid property name");
+				selectFields.append("blobAsText(").append(property).append(") as ");
+				selectFields.append(property.trim()).append(PROPERTY_SUFFIX).append(", ");
+			}
+			sb.append(StringUtils.removeEnd(selectFields.toString(), ", "));
+			sb.append(" from " + keyspace + Constants.DOT + table + " where question_id = ?");
+		}
+		return sb.toString();
 	}
 
 	private String getUpdateQuery(Set<String> properties) {
