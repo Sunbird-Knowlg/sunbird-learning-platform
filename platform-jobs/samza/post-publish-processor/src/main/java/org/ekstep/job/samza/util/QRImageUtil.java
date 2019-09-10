@@ -33,14 +33,15 @@ public class QRImageUtil {
     private static QRImageRequest qrImageRequest = new QRImageRequest(BASE_DIR);
 
     public static String getQRImageUrl(Node node, String dial, String channel) {
-        String[] urlArray = null;
+        String[] urlArray = null;;
+        File file = null;
         try {
             //create a qr image
             String dialUrl = DIAL_BASE_URL + dial;
             qrImageRequest.setFileName("0_" + dial);
             qrImageRequest.setText(dial);
             qrImageRequest.setData(Arrays.asList(dialUrl));
-            File file = QRImageGenerator.generateQRImage(qrImageRequest);
+            file = QRImageGenerator.generateQRImage(qrImageRequest);
             //upload the qr image and return the url.
             if (null != file) {
                 urlArray = CloudStore.uploadFile(channel, file, false);
@@ -52,6 +53,13 @@ public class QRImageUtil {
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.error("Exception Occurred While generating dial image for " + node.getIdentifier() + " | Exception is: " , e);
+        } finally {
+            try {
+                if (null != file && file.exists())
+                    file.delete();
+            } catch (Exception ex) {
+                LOGGER.error("Exception Occurred While deleting QR Image File from Base Directory : " + BASE_DIR + " | Exception is: ", ex);
+            }
         }
         return null;
     }
