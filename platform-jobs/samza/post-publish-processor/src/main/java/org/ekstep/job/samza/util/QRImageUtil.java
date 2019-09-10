@@ -29,7 +29,7 @@ public class QRImageUtil {
     private static String DIAL_KEYSPACE_NAME = "dialcodes";
     private static String DIAL_TABLE_NAME = "dialcode_images";
     private static String BASE_DIR = Platform.config.hasPath("lp.tempfile.location") ?
-            Platform.config.getString("lp.tempfile.location") + "/dialImage" : "/tmp/dialImage";
+            Platform.config.getString("lp.tempfile.location"): "/tmp";
     private static QRImageRequest qrImageRequest = new QRImageRequest(BASE_DIR);
 
     public static String getQRImageUrl(Node node, String dial, String channel) {
