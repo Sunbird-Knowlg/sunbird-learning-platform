@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS {{ hierarchy_keyspace_name }}.framework_hierarchy (
   PRIMARY KEY (identifier)
 );
 
+ALTER TABLE {{ content_keyspace_name }}.question_data ADD (editorState blob, question blob, solutions blob);
+
 
 {% if groups['cassandra-node-2'] is defined %}
 ALTER KEYSPACE {{ content_keyspace_name }} WITH replication = {
@@ -65,9 +67,4 @@ ALTER KEYSPACE {{ orchestrator_keyspace_name }} WITH replication = {
   'class': 'NetworkTopologyStrategy',
   'datacenter1' : 2
 };
-
-ALTER TABLE {{ content_keyspace_name }}.question_data ADD editorState blob,
-ALTER TABLE {{ content_keyspace_name }}.question_data ADD question blob,
-ALTER TABLE {{ content_keyspace_name }}.question_data ADD solutions blob;
-
 {% endif %}
