@@ -63,7 +63,6 @@ public class SearchProcessor {
 			throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		SearchSourceBuilder query = processSearchQuery(searchDTO, groupByFinalList, true);
-		System.out.println("Query : #######" + query);
 		Future<SearchResponse> searchResponse = ElasticSearchUtil.search(
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				query);
