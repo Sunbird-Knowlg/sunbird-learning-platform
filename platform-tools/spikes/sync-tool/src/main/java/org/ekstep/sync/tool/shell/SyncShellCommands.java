@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.ekstep.sync.tool.mgr.AssessmentItemSyncManager;
 import org.ekstep.sync.tool.mgr.CassandraESSyncManager;
@@ -137,12 +138,16 @@ public class SyncShellCommands implements CommandMarker {
 	}
 	@CliCommand(value = "migratequestionextproperties", help = "Migrate AssessmentItems external properties")
 	public void migrateQuestionExternalProperties(
-			@CliOption(key = {"objectType"}, mandatory = true, help = "Object Type of assessmentItem") final String objectType) throws Exception {
+			@CliOption(key = {"objectType"}, mandatory = true, help = "Object Type of assessmentItem") final String objectType,
+			@CliOption(key = {"ids"}, mandatory = false, help = "Unique Ids of assessmentItem") final String[] ids) throws Exception {
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
 
-		assessmentItemSyncManager.syncAssessmentExternalProperties("domain", objectType, 1000);
+		List<String> listOfIds = null;
+		if(null != ids)
+			listOfIds = Arrays.asList(ids);
+		assessmentItemSyncManager.syncAssessmentExternalProperties("domain", objectType, listOfIds, 1000);
 
 		long endTime = System.currentTimeMillis();
 		long exeTime = endTime - startTime;
