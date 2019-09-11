@@ -17,7 +17,7 @@
             <scala.version>2.11</scala.version>
             <hadoop.version>2.6.2</hadoop.version>
         </properties>
-        <version>0.0.16</version>
+        <version>0.0.18</version>
     <dependencies>
         <dependency>
             <groupId>org.ekstep</groupId>
@@ -33,6 +33,10 @@
                 <exclusion>
                     <groupId>org.apache.kafka</groupId>
                     <artifactId>kafka-clients</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-1.2-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
             </exclusions>
         </dependency>

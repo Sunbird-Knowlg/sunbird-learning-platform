@@ -6,7 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -25,7 +29,6 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.graph.common.JSONUtils;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -47,6 +50,8 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+
 @Component
 public class AssessmentManagerImpl extends BaseManager implements IAssessmentManager {
 
@@ -65,7 +70,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response createAssessmentItem(String taxonomyId, Request request) {
-		String body = "";
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
@@ -96,7 +100,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 
 		Response validateRes = new Response();
 		List<String> assessmentErrors = new ArrayList<String>();
-		body = (String) item.getMetadata().remove("body");
+		Map<String, Object> externalProps = handleExternalProperties(item.getMetadata());
 		if (!skipValidation) {
 			Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
 			validateReq.put(GraphDACParams.node.name(), item);
@@ -123,36 +127,18 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		if (checkError(createRes)) {
 			return createRes;
 		} else {
-			if (StringUtils.isNotBlank(body)) {
-				String questionId = createRes.get("node_id").toString();
-				try {
-					assessmentStore.save(questionId, body);
-				} catch (Exception e) {
-					e.printStackTrace();
-					throw new ServerException(AssessmentErrorCodes.ERR_ASSESSMENT_SAVE_BODY.name(),
-							"Something Went Wrong While Processing Your Request", e);
-				}
+			String contentId = (String) createRes.get(GraphDACParams.node_id.name());
+			if (MapUtils.isNotEmpty(externalProps)) {
+				assessmentStore.updateAssessmentProperties(contentId, externalProps);
 			}
-			List<MetadataDefinition> newDefinitions = (List<MetadataDefinition>) request
-					.get(AssessmentAPIParams.metadata_definitions.name());
-			if (validateRequired(newDefinitions)) {
-				Request defRequest = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDefinition");
-				defRequest.put(GraphDACParams.object_type.name(), item.getObjectType());
-				defRequest.put(GraphDACParams.metadata_definitions.name(), newDefinitions);
-				Response defResponse = getResponse(defRequest);
-				if (checkError(defResponse)) {
-					return defResponse;
-				}
-			}
+			return createRes;
 		}
-		return createRes;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response updateAssessmentItem(String id, String taxonomyId, Request request) {
 		Node item = null;
-		String assessmentBody = "";
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
@@ -182,10 +168,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 			else
 				item.getMetadata().put("framework", getDefaultFramework());
 		}
-
-		assessmentBody = (String) item.getMetadata().get("body");
-		if (StringUtils.isNotBlank(assessmentBody))
-			item.getMetadata().put("body", null);
+		Map<String, Object> externalProps = handleExternalProperties(item.getMetadata());
 		
 		if(item.getMetadata().containsKey("level"))
 			item.getMetadata().remove("level");
@@ -223,25 +206,9 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				if (checkError(updateRes)) {
 					return updateRes;
 				} else {
-					if (StringUtils.isNotBlank(assessmentBody)) {
-						try {
-							assessmentStore.update(id, assessmentBody);
-						} catch (Exception e) {
-							throw new ServerException(AssessmentErrorCodes.ERR_ASSESSMENT_SAVE_BODY.name(),
-									"Something Went Wrong While Processing Your Request");
-						}
-					}
-					List<MetadataDefinition> newDefinitions = (List<MetadataDefinition>) request
-							.get(AssessmentAPIParams.metadata_definitions.name());
-					if (validateRequired(newDefinitions)) {
-						Request defRequest = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
-								"updateDefinition");
-						defRequest.put(GraphDACParams.object_type.name(), item.getObjectType());
-						defRequest.put(GraphDACParams.metadata_definitions.name(), newDefinitions);
-						Response defResponse = getResponse(defRequest);
-						if (checkError(defResponse)) {
-							return defResponse;
-						}
+					String contentId = (String) updateRes.get(GraphDACParams.node_id.name());
+					if (MapUtils.isNotEmpty(externalProps)) {
+						assessmentStore.updateAssessmentProperties(contentId, externalProps);
 					}
 				}
 				return updateRes;
@@ -305,7 +272,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 
 	@Override
 	public Response getAssessmentItem(String id, String taxonomyId, String[] ifields) {
-		String body = "";
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
@@ -321,29 +287,23 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 			return response;
 		}
 		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
-
-		if (null == node.getMetadata().get("body")) {
-			try {
-				String questionId = node.getIdentifier();
-				body = assessmentStore.read(questionId);
-			} catch (Exception e) {
-				// No Need to Handle Exception as of now because we don't know
-				// whether body is present for particular Assessment Id. If we
-				// provide a flag in
-				// neo4j for body, then based on that flag, control should enter
-				// into try and Exception should be thrown from here.
-			}
-		} else {
-			body = (String) node.getMetadata().get("body");
+		String questionId = node.getIdentifier();
+		Map<String, Object> externalPropMap = null;
+		if(null != ifields) {
+			List<String> externalProps = getItemExternalPropsList();
+			List<String> externalPropsFromRequest = Arrays.stream(ifields)
+					.filter(prop -> externalProps.contains(prop))
+					.collect(Collectors.toList());
+			if (CollectionUtils.isNotEmpty(externalPropsFromRequest))
+				externalPropMap = assessmentStore.getAssessmentProperties(questionId, externalPropsFromRequest);
 		}
 
 		if (null != node) {
 			DefinitionDTO definition = getDefinition(taxonomyId, ITEM_SET_MEMBERS_TYPE);
 			List<String> jsonProps = getJSONProperties(definition);
 			Map<String, Object> dto = getAssessmentItem(node, jsonProps, ifields);
-			if ((null == ifields || Arrays.asList(ifields).contains("body")) && StringUtils.isNotBlank(body)) {
-				dto.put("body", body);
-			}
+			if(MapUtils.isNotEmpty(externalPropMap))
+				dto.putAll(externalPropMap);
 			response.put(AssessmentAPIParams.assessment_item.name(), dto);
 		}
 		return response;
@@ -698,17 +658,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		return getResponse(request);
 	}
 
-	private DefinitionDTO getDefinition(String taxonomyId, String objectType) {
-		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
-				GraphDACParams.object_type.name(), objectType);
-		Response response = getResponse(request);
-		if (!checkError(response)) {
-			DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
-			return definition;
-		}
-		return null;
-	}
-
 	private void replaceMediaItemsWithVariants(String graphId, Node item) {
 		String media = (String) item.getMetadata().get(AssessmentAPIParams.media.name());
 		boolean replaced = false;
@@ -791,5 +740,39 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 			return Platform.config.getString("platform.framework.default");
 		else
 			return "NCF";
+	}
+
+	/**
+	 * Get external properties from Item Definition
+	 * (external properties won't be stored in neo4j but some external db)
+	 * @return
+	 */
+	protected List<String> getItemExternalPropsList() {
+		DefinitionDTO definition = getDefinition(TAXONOMY_ID, "AssessmentItem");
+		List<MetadataDefinition> props = definition.getProperties();
+		List<String> externalProperties = new ArrayList<>();
+		if (CollectionUtils.isNotEmpty(props))
+			externalProperties = props.stream().filter(prop -> equalsIgnoreCase("external", prop.getDataType()))
+					.map(prop -> prop.getPropertyName().trim()).collect(Collectors.toList());
+		return externalProperties;
+	}
+
+	protected DefinitionDTO getDefinition(String graphId, String objectType) {
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+				GraphDACParams.object_type.name(), objectType);
+		Response response = getResponse(request);
+		if (!checkError(response)) {
+			DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
+			return definition;
+		}
+		return null;
+	}
+
+	protected Map<String,Object> handleExternalProperties(Map<String, Object> metadata) {
+		List<String> externalPropsList = getItemExternalPropsList();
+		Map<String, Object> externalProps = externalPropsList.stream().filter(prop -> null != metadata.get(prop))
+				.collect(Collectors.toMap(prop -> prop , prop -> metadata.get(prop)));
+		metadata.keySet().removeAll(externalPropsList);
+		return externalProps;
 	}
 }

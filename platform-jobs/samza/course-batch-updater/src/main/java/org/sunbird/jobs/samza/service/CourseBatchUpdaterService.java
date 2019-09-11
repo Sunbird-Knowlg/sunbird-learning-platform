@@ -68,6 +68,8 @@ public class CourseBatchUpdaterService implements ISamzaService {
                         reset = new ArrayList();
                     }
                     reset.add("contentStatus");
+                    reset.add("lastReadContentId");
+                    reset.add("lastReadContentStatus");
                     batchEnrolmentSync.syncEnrolment(edata);
                     break;
                 case "batch-status-update":

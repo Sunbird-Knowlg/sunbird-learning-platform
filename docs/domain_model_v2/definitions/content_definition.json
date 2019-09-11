@@ -2878,6 +2878,21 @@
 				{
 					"required": false,
 					"dataType": "JSON",
+					"propertyName": "certTemplate",
+					"title": "Cert Template",
+					"description": "Certification Template",
+					"category": "general",
+					"displayProperty": "Editable",
+					"range": null,
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+					"indexed": true,
+					"draft": false,
+					"rangeValidation": true
+				},
+				{
+					"required": false,
+					"dataType": "JSON",
 					"propertyName": "plugins",
 					"title": "Plugin",
 					"description": "Plugins associated with the content",

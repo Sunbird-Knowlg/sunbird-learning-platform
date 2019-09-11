@@ -36,7 +36,7 @@ public class BatchEnrolmentSyncTest {
         request.put("batchId", "0126083288437637121");
         request.put("userId", "8454cb21-3ce9-4e30-85b5-fade097880d8");
         request.put("courseId", "do_1127212344324751361295");
-        request.put("reset", Arrays.asList("completionPercentage", "status", "contentStatus"));
+        request.put("reset", Arrays.asList("completionPercentage", "status", "contentStatus", "lastReadContentId", "lastReadContentStatus"));
 
         enrolSync.syncEnrolment(request);
     }
