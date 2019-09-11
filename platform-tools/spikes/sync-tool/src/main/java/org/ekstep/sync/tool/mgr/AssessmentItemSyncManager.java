@@ -58,11 +58,11 @@ public class AssessmentItemSyncManager {
 							try {
 									nodes = util.getNodes(graphId, def.getObjectType(), start, batchSize);
 									if (CollectionUtils.isNotEmpty(nodes)) {
-										start += batchSize;
 										pushToCassandra(nodes, def);
 										if (delay > 0) {
 											Thread.sleep(delay);
 										}
+										start += batchSize;
 									} else {
 										found = false;
 										break;
