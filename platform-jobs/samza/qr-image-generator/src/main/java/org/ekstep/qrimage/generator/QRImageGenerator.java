@@ -31,6 +31,7 @@ public class QRImageGenerator {
     private static QRCodeWriter qrCodeWriter = new QRCodeWriter();
     private static Map<String, Font> fontStore = new HashMap();
 
+
     public static File generateQRImage(QRImageRequest request) throws Exception {
         if (null != request && null == request.getConfig())
             request.setConfig(config);
@@ -63,7 +64,7 @@ public class QRImageGenerator {
             drawBorder(qrImage, borderSize, imageMargin);
         }
 
-        File finalImageFile = new File(fileName + "." + imageFormat);
+        File finalImageFile = new File(request.getTempFileLocation() + File.separator + fileName + "." + imageFormat);
         finalImageFile.createNewFile();
         ImageIO.write(qrImage, imageFormat, finalImageFile);
         return finalImageFile;
