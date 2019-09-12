@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -271,7 +271,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 	}
 
 	@Override
-	public Response getAssessmentItem(String id, String taxonomyId, String[] ifields) {
+	public Response getAssessmentItem(String id, String taxonomyId, String[] ifields, String[] fields) {
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
@@ -288,15 +288,19 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		}
 		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
 		String questionId = node.getIdentifier();
-		Map<String, Object> externalPropMap = null;
-		if(null != ifields) {
-			List<String> externalProps = getItemExternalPropsList();
-			List<String> externalPropsFromRequest = Arrays.stream(ifields)
+		List<String> externalProps = getItemExternalPropsList();
+		Set<String> externalPropsFromRequest = null;
+		if(null != ifields)
+			externalPropsFromRequest = Arrays.stream(ifields)
 					.filter(prop -> externalProps.contains(prop))
-					.collect(Collectors.toList());
-			if (CollectionUtils.isNotEmpty(externalPropsFromRequest))
-				externalPropMap = assessmentStore.getAssessmentProperties(questionId, externalPropsFromRequest);
-		}
+					.collect(Collectors.toSet());
+		if(null != fields)
+			externalPropsFromRequest.addAll(Arrays.stream(fields)
+					.filter(prop -> externalProps.contains(prop))
+					.collect(Collectors.toSet()));
+		Map<String, Object> externalPropMap = null;
+		if (CollectionUtils.isNotEmpty(externalPropsFromRequest))
+			externalPropMap = assessmentStore.getAssessmentProperties(questionId, Arrays.asList(externalPropsFromRequest.toArray()));
 
 		if (null != node) {
 			DefinitionDTO definition = getDefinition(taxonomyId, ITEM_SET_MEMBERS_TYPE);
