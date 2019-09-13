@@ -296,10 +296,11 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 			externalPropsFromRequest = allFields.stream()
 					.filter(prop -> externalProps.contains(prop))
 					.collect(Collectors.toSet());
-		if(CollectionUtils.isEmpty(externalPropsFromRequest))
-			externalPropsFromRequest = new HashSet<>(externalProps);
-		Map<String, Object> externalPropMap = assessmentStore.getAssessmentProperties(questionId, Arrays.asList(externalPropsFromRequest.toArray()));
-
+		Map<String, Object> externalPropMap;
+		if(CollectionUtils.isNotEmpty(externalPropsFromRequest))
+			externalPropMap= assessmentStore.getAssessmentProperties(questionId, Arrays.asList(externalPropsFromRequest.toArray()));
+		else
+			externalPropMap= assessmentStore.getAssessmentProperties(questionId, externalProps);
 		if (null != node) {
 			DefinitionDTO definition = getDefinition(taxonomyId, ITEM_SET_MEMBERS_TYPE);
 			List<String> jsonProps = getJSONProperties(definition);
