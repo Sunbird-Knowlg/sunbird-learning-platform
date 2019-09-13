@@ -308,14 +308,14 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 	}
 
 	private String[] getAllFields(String[] fields, String[] ifields) {
-		List allFields = new ArrayList();
+		List<String> allFields = new ArrayList<String>();
 		if(null != ifields)
 			allFields.addAll(Arrays.asList(ifields));
 		if(null != fields)
 			allFields.addAll(Arrays.asList(fields));
-		if(null == fields && null == ifields)
+		if((null == fields || fields.length == 0) && (null == ifields || ifields.length ==0))
 			allFields.addAll(Arrays.asList("body","question","editorState","solutions"));
-		return (String[]) allFields.toArray();
+		return  allFields.toArray(new String[allFields.size()]);
 	}
 
 	private List<String> getJSONProperties(DefinitionDTO definition) {
