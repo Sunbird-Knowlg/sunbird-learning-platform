@@ -290,11 +290,11 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		String questionId = node.getIdentifier();
 		List<String> externalProps = getItemExternalPropsList();
 		Set<String> externalPropsFromRequest = null;
-		if(null != ifields)
+		if (null != ifields && ifields.length > 0)
 			externalPropsFromRequest = Arrays.stream(ifields)
 					.filter(prop -> externalProps.contains(prop))
 					.collect(Collectors.toSet());
-		if(null != fields)
+		if (null != fields && fields.length > 0)
 			externalPropsFromRequest.addAll(Arrays.stream(fields)
 					.filter(prop -> externalProps.contains(prop))
 					.collect(Collectors.toSet()));

@@ -114,7 +114,9 @@ public class AssessmentItemV3Controller extends BaseController {
                                          @RequestParam(value = "fields", required = false) String[] fields) {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "ekstep.learning.item.read";
-        TelemetryManager.log("Find Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | fields: " + ifields + fields);
+        TelemetryManager.log("Find Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + ifields);
+        TelemetryManager.log("Find Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | fields: " + fields);
+
         try {
             Response response = assessmentManager.getAssessmentItem(id, taxonomyId, ifields, fields);
             TelemetryManager.log("Find Item | Response: " + response);
