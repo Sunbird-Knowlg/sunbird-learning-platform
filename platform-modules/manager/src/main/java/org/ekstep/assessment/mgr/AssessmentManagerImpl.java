@@ -3,6 +3,7 @@ package org.ekstep.assessment.mgr;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -290,27 +291,34 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		String questionId = node.getIdentifier();
 		List<String> externalProps = getItemExternalPropsList();
 		Set<String> externalPropsFromRequest = null;
-		if (null != ifields && ifields.length > 0)
-			externalPropsFromRequest = Arrays.stream(ifields)
+		Set<String> allFields = getAllFields(ifields, fields);
+		if (CollectionUtils.isNotEmpty(allFields))
+			externalPropsFromRequest = allFields.stream()
 					.filter(prop -> externalProps.contains(prop))
 					.collect(Collectors.toSet());
-		if (null != fields && fields.length > 0)
-			externalPropsFromRequest.addAll(Arrays.stream(fields)
-					.filter(prop -> externalProps.contains(prop))
-					.collect(Collectors.toSet()));
-		Map<String, Object> externalPropMap = null;
-		if (CollectionUtils.isNotEmpty(externalPropsFromRequest))
-			externalPropMap = assessmentStore.getAssessmentProperties(questionId, Arrays.asList(externalPropsFromRequest.toArray()));
-
+		Map<String, Object> externalPropMap;
+		if(CollectionUtils.isNotEmpty(externalPropsFromRequest))
+			externalPropMap= assessmentStore.getAssessmentProperties(questionId, Arrays.asList(externalPropsFromRequest.toArray()));
+		else
+			externalPropMap= assessmentStore.getAssessmentProperties(questionId, externalProps);
 		if (null != node) {
 			DefinitionDTO definition = getDefinition(taxonomyId, ITEM_SET_MEMBERS_TYPE);
 			List<String> jsonProps = getJSONProperties(definition);
-			Map<String, Object> dto = getAssessmentItem(node, jsonProps, ifields);
+			Map<String, Object> dto = getAssessmentItem(node, jsonProps, new ArrayList<>(allFields));
 			if(MapUtils.isNotEmpty(externalPropMap))
 				dto.putAll(externalPropMap);
 			response.put(AssessmentAPIParams.assessment_item.name(), dto);
 		}
 		return response;
+	}
+
+	private Set<String> getAllFields(String[] fields, String[] ifields) {
+		Set<String> allFields = new HashSet<>();
+		if(null != ifields)
+			allFields.addAll(Arrays.asList(ifields));
+		if(null != fields)
+			allFields.addAll(Arrays.asList(fields));
+		return allFields;
 	}
 
 	private List<String> getJSONProperties(DefinitionDTO definition) {
@@ -325,16 +333,15 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		return props;
 	}
 
-	private Map<String, Object> getAssessmentItem(Node node, List<String> jsonProps, String[] ifields) {
+	private Map<String, Object> getAssessmentItem(Node node, List<String> jsonProps, List<String> allFields) {
 		Map<String, Object> metadata = new HashMap<String, Object>();
 		metadata.put("subject", node.getGraphId());
 		Map<String, Object> nodeMetadata = node.getMetadata();
 		if (null != nodeMetadata && !nodeMetadata.isEmpty()) {
-			if (null != ifields && ifields.length > 0) {
-				List<String> fields = Arrays.asList(ifields);
+			if (CollectionUtils.isNotEmpty(allFields)) {
 				for (Entry<String, Object> entry : nodeMetadata.entrySet()) {
 					if (null != entry.getValue()) {
-						if (fields.contains(entry.getKey())) {
+						if (allFields.contains(entry.getKey())) {
 							if (jsonProps.contains(entry.getKey())) {
 								Object val = JSONUtils.convertJSONString((String) entry.getValue());
 								if (null != val)
