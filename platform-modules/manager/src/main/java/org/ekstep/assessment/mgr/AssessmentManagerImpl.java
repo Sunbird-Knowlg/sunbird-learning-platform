@@ -290,27 +290,32 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		String questionId = node.getIdentifier();
 		List<String> externalProps = getItemExternalPropsList();
 		Set<String> externalPropsFromRequest = null;
-		if (null != ifields && ifields.length > 0)
-			externalPropsFromRequest = Arrays.stream(ifields)
+		String[] allFields = getAllFields(ifields, fields);
+		if (null != allFields && allFields.length > 0)
+			externalPropsFromRequest = Arrays.stream(allFields)
 					.filter(prop -> externalProps.contains(prop))
 					.collect(Collectors.toSet());
-		if (null != fields && fields.length > 0)
-			externalPropsFromRequest.addAll(Arrays.stream(fields)
-					.filter(prop -> externalProps.contains(prop))
-					.collect(Collectors.toSet()));
-		Map<String, Object> externalPropMap = null;
-		if (CollectionUtils.isNotEmpty(externalPropsFromRequest))
-			externalPropMap = assessmentStore.getAssessmentProperties(questionId, Arrays.asList(externalPropsFromRequest.toArray()));
-
+		Map<String, Object> externalPropMap = assessmentStore.getAssessmentProperties(questionId, Arrays.asList(externalPropsFromRequest.toArray()));
 		if (null != node) {
 			DefinitionDTO definition = getDefinition(taxonomyId, ITEM_SET_MEMBERS_TYPE);
 			List<String> jsonProps = getJSONProperties(definition);
-			Map<String, Object> dto = getAssessmentItem(node, jsonProps, ifields);
+			Map<String, Object> dto = getAssessmentItem(node, jsonProps, allFields);
 			if(MapUtils.isNotEmpty(externalPropMap))
 				dto.putAll(externalPropMap);
 			response.put(AssessmentAPIParams.assessment_item.name(), dto);
 		}
 		return response;
+	}
+
+	private String[] getAllFields(String[] fields, String[] ifields) {
+		List allFields = new ArrayList();
+		if(null != ifields)
+			allFields.addAll(Arrays.asList(ifields));
+		if(null != fields)
+			allFields.addAll(Arrays.asList(fields));
+		if(null == fields && null == ifields)
+			allFields.addAll(Arrays.asList("body","question","editorState","solutions"));
+		return (String[]) allFields.toArray();
 	}
 
 	private List<String> getJSONProperties(DefinitionDTO definition) {
