@@ -83,8 +83,11 @@ public class AssessmentStore {
 					for (Object prop : properties) {
 						String value = row.getString(prop + PROPERTY_SUFFIX);
 						try {
-							Object deserializedValue = new ObjectMapper().readTree(value);
-							map.put((String) prop, deserializedValue);
+							if(!StringUtils.equalsIgnoreCase("body", value)) {
+								Object deserializedValue = mapper.readTree(value);
+								map.put((String) prop, deserializedValue);
+							} else
+								map.put((String) prop, value);
 						} catch (Exception e) {
 							map.put((String) prop, value);
 						}
