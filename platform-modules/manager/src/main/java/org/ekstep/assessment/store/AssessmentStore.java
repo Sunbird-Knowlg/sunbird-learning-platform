@@ -65,7 +65,7 @@ public class AssessmentStore {
 		return bodyData;
 	}
 
-	public Map<String, Object> getAssessmentProperties(String questionId, List<String> properties) {
+	public Map<String, Object> getAssessmentProperties(String questionId, List properties) {
 		TelemetryManager.log("GetAssessmentProperties | Question: " + questionId + " | Properties: " + properties);
 		Session session = CassandraConnector.getSession();
 		String query = getSelectQuery(properties);
@@ -80,9 +80,19 @@ public class AssessmentStore {
 				Map<String, Object> map = new HashMap<String, Object>();
 				while (rs.iterator().hasNext()) {
 					Row row = rs.iterator().next();
-					for (String prop : properties) {
+					for (Object prop : properties) {
 						String value = row.getString(prop + PROPERTY_SUFFIX);
-						map.put(prop, value);
+						try {
+							if(StringUtils.equalsIgnoreCase("body", (String) prop) || 
+							   StringUtils.equalsIgnoreCase("question", (String) prop)) {
+								map.put((String) prop, value);
+							} else {
+								Object deserializedValue = mapper.readTree(value);
+								map.put((String) prop, deserializedValue);
+							}
+						} catch (Exception e) {
+							map.put((String) prop, value);
+						}
 					}
 					return map;
 				}

@@ -49,6 +49,8 @@ channel.default="in.ekstep"
 hierarchy.keyspace.name="{{ hierarchy_keyspace_name }}"
 content.hierarchy.table="content_hierarchy"
 cassandra.lp.connection="{{ lp_cassandra_connection }}"
+assessment.keyspace.name="{{ content_keyspace_name }}"
+assessment.keyspace.table="question_data"
 
 #Filter metadata based on definition while indexing into ES
 #restrict.metadata.objectTypes="Content,ContentImage"

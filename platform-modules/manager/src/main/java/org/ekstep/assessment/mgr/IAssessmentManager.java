@@ -55,7 +55,7 @@ public interface IAssessmentManager {
      * @response {@link AssessmentAPIParams.assessment_item} - AssessmentItem
      *           
      */
-    public Response getAssessmentItem(String id, String taxonomyId, String[] ifields);
+    public Response getAssessmentItem(String id, String taxonomyId, String[] ifields, String[] fields);
     
     /**
      * Searches Assessment Items based on SearchCriteria and the response would
