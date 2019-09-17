@@ -26,11 +26,14 @@ public class AssessmentItemSyncManager {
 	
 	private AssessmentStore assessmentStore = new AssessmentStore();
 	private ControllerUtil util = new ControllerUtil();
-	private static int batchSize = 50;
+	private static int batchSize = 500;
 	
 	public void syncAssessmentExternalProperties(String graphId, String objectType, List<String> ids, Integer delay) throws InterruptedException {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException("BLANK_GRAPH_ID", "Graph Id is blank.");
+		if(!StringUtils.equals(objectType, "AssessmentItem")) {
+			throw new ClientException("INVALID_OBJECT_TYPE", "ObjectType passed should be AssessmentItem.");
+		}
 		
 		DefinitionDTO def;
 		if (StringUtils.isNotBlank(objectType)) {
@@ -81,17 +84,28 @@ public class AssessmentItemSyncManager {
 	
 	private void pushToCassandra(List<Node> nodes, DefinitionDTO def) {
 		List<String> externalProperties = getExternalPropsList(def);
+		System.out.println(def.getObjectType() + " *********** externalProperties ******** " + externalProperties);
+		List<String> migratedQuestions = new ArrayList<>();
+		List<String> notMigratedQuestions = new ArrayList<>();
 		for(Node node: nodes) {
-			Map<String, Object> metaData = node.getMetadata();
-			Map<String, Object> extProp = new HashMap<>();
-			for(String ext : externalProperties) {
-				if(metaData.keySet().contains(ext))
-					extProp.put(ext, metaData.get(ext));
+			if(StringUtils.equals(node.getObjectType(), def.getObjectType())) {
+				Map<String, Object> metaData = node.getMetadata();
+				Map<String, Object> extProp = new HashMap<>();
+				for(String ext : externalProperties) {
+					if(metaData.keySet().contains(ext))
+						extProp.put(ext, metaData.get(ext));
+				}
+				//System.out.println("Id: " + node.getIdentifier() + " *** extProp: " + extProp);
+				if(MapUtils.isNotEmpty(extProp)) {
+					assessmentStore.updateAssessmentProperties(node.getIdentifier(), extProp);
+					migratedQuestions.add(node.getIdentifier());
+				}else {
+					notMigratedQuestions.add(node.getIdentifier());
+				}
 			}
-			System.out.println("Id: " + node.getIdentifier() + " *** extProp: " + extProp);
-			if(MapUtils.isNotEmpty(extProp))
-				assessmentStore.updateAssessmentProperties(node.getIdentifier(), extProp);
 		}
+		System.out.println("***** Questions migrated to cassandra *****: " + migratedQuestions);
+		System.out.println("***** Questions not migrated to cassandra *****: " + notMigratedQuestions);
 	}
 	
 	protected List<String> getExternalPropsList(DefinitionDTO definition) {
