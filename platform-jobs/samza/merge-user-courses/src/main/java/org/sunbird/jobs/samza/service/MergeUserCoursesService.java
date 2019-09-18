@@ -40,6 +40,8 @@ public class MergeUserCoursesService implements ISamzaService {
     private static String USER_COURSES_TABLE;
     private static String USER_COURSE_ES_INDEX;
     private static String USER_COURSE_ES_TYPE;
+    private static String COURSE_BATCH_ES_INDEX;
+    private static String COURSE_BATCH_ES_TYPE;
     private static String COURSE_BATCH_UPDATER_KAFKA_TOPIC;
     private static String COURSE_DATE_FORMAT;
     private static SimpleDateFormat DateFormatter;
@@ -76,6 +78,12 @@ public class MergeUserCoursesService implements ISamzaService {
         USER_COURSE_ES_TYPE = Platform.config.hasPath("user.courses.es.type") ?
                 Platform.config.getString("user.courses.es.type") : "_doc";
 
+        COURSE_BATCH_ES_INDEX = Platform.config.hasPath("course.batch.es.index") ?
+                Platform.config.getString("course.batch.es.index") : "course-batch";
+
+        COURSE_BATCH_ES_TYPE = Platform.config.hasPath("course.batch.es.type") ?
+                Platform.config.getString("course.batch.es.type") : "_doc";
+
         COURSE_BATCH_UPDATER_KAFKA_TOPIC = Platform.config.getString("course.batch.updater.kafka.topic");
 
         COURSE_DATE_FORMAT = Platform.config.hasPath("course.date.format") ?
@@ -92,6 +100,8 @@ public class MergeUserCoursesService implements ISamzaService {
         LOGGER.info("MergeUserCoursesService:initialize: Service config initialized");
         ElasticSearchUtil.initialiseESClient(USER_COURSE_ES_INDEX, Platform.config.getString("search.es_conn_info"));
         LOGGER.info("MergeUserCoursesService:initialize: ESClient initialized for index:" + USER_COURSE_ES_INDEX);
+        ElasticSearchUtil.initialiseESClient(COURSE_BATCH_ES_INDEX, Platform.config.getString("search.es_conn_info"));
+        LOGGER.info("MergeUserCoursesService:initialize: ESClient initialized for index:" + COURSE_BATCH_ES_INDEX);
         systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
         LOGGER.info("MergeUserCoursesService:initialize: Stream initialized for Failed Events");
     }
@@ -128,8 +138,9 @@ public class MergeUserCoursesService implements ISamzaService {
         }
 
         try {
-            mergeContentConsumption(fromUserId, toUserId);
-            mergeUserBatches(fromUserId, toUserId);
+            List<String> excludedBatchIds = getBatchIdsCreatedOrMentoredByUser(toUserId);
+            mergeContentConsumption(fromUserId, toUserId, excludedBatchIds);
+            mergeUserBatches(fromUserId, toUserId, excludedBatchIds);
             generateBatchEnrollmentSyncEvents(toUserId, collector);
             metrics.incSuccessCounter();
             LOGGER.info("MergeUserCoursesService:processMessage: Event processed successfully", message);
@@ -152,7 +163,7 @@ public class MergeUserCoursesService implements ISamzaService {
         }
     }
 
-    private void mergeUserBatches(String fromUserId, String toUserId) throws Exception {
+    private void mergeUserBatches(String fromUserId, String toUserId, List<String> excludedBatchIds) throws Exception {
         List<BatchEnrollmentSyncModel> fromBatches = getBatchDetailsOfUser(fromUserId);
         List<BatchEnrollmentSyncModel> toBatches = getBatchDetailsOfUser(toUserId);
 
@@ -172,6 +183,7 @@ public class MergeUserCoursesService implements ISamzaService {
         }
 
         List<String> batchIdsToBeMigrated = (List<String>) CollectionUtils.subtract(fromBatchIds, toBatchIds);
+        batchIdsToBeMigrated.removeAll(excludedBatchIds);
 
         //Migrate batch records in Cassandra and ES
         if (CollectionUtils.isNotEmpty(batchIdsToBeMigrated)) {
@@ -208,13 +220,17 @@ public class MergeUserCoursesService implements ISamzaService {
         }
     }
 
-    private void mergeContentConsumption(String fromUserId, String toUserId) {
+    private void mergeContentConsumption(String fromUserId, String toUserId, List<String> excludedBatchIds) {
         //Get content consumption data
         List<Map<String, Object>> fromContentConsumptionList = getContentConsumption(fromUserId);
         List<Map<String, Object>> toContentConsumptionList = getContentConsumption(toUserId);
 
         if (CollectionUtils.isNotEmpty(fromContentConsumptionList)) {
             for (Map<String, Object> contentConsumption : fromContentConsumptionList) {
+                if (excludedBatchIds.contains(contentConsumption.get(MergeUserCoursesParams.batchId.name()))) {
+                    //skip this record
+                    continue;
+                }
                 Map<String, Object> matchingRecord = getMatchingRecord(contentConsumption, toContentConsumptionList);
                 if (MapUtils.isEmpty(matchingRecord)) {
                     matchingRecord = contentConsumption;
@@ -369,6 +385,22 @@ public class MergeUserCoursesService implements ISamzaService {
             });
         }
         return objects;
+    }
+
+    private List<String> getBatchIdsCreatedOrMentoredByUser(String userId) throws Exception {
+        Set<String> batchIds = new HashSet<>();
+        Map<String, Object> searchQuery = new HashMap<>();
+        List<String> userIdList = new ArrayList<>();
+        userIdList.add(userId);
+        searchQuery.put(MergeUserCoursesParams.createdBy.name(), userIdList);
+        searchQuery.put(MergeUserCoursesParams.mentors.name(), userIdList);
+        List<Map> documents = ElasticSearchUtil.textSearchReturningId(searchQuery, COURSE_BATCH_ES_INDEX, COURSE_BATCH_ES_TYPE);
+        if (CollectionUtils.isNotEmpty(documents)) {
+            documents.forEach(doc -> {
+                batchIds.add((String) doc.get(MergeUserCoursesParams.batchId.name()));
+            });
+        }
+        return new ArrayList<>(batchIds);
     }
 
     private Map<String, Object> getBatchEnrollmentSyncEvent(BatchEnrollmentSyncModel model) {
