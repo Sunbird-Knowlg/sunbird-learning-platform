@@ -1,20 +1,72 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-	<appender name="jmx" class="org.apache.samza.logging.log4j.JmxAppender" />
-	
+	<appender name="jmx" class="org.apache.samza.logging.log4j.JmxAppender"/>
+
 	<appender name="RollingAppender" class="org.apache.log4j.RollingFileAppender">
-		<param name="File" value="${samza.log.dir}/${samza.container.name}.log" />
-		<param name="append" value="true" />
-	    <param name="maxFileSize" value="100MB" />
-	    <param name="maxBackupIndex" value="5" />
-     <layout class="org.apache.log4j.PatternLayout">
-      <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %c{1} [%p] %m%n" />
-	</layout>
+		<param name="File" value="${samza.log.dir}/${samza.container.name}.log"/>
+		<param name="append" value="true"/>
+		<param name="maxFileSize" value="100MB"/>
+		<param name="maxBackupIndex" value="5"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %c{1} [%p] %m%n"/>
+		</layout>
 	</appender>
-  	<root>
-    	<priority value="info" />
-    	<appender-ref ref="RollingAppender"/>
-    	<appender-ref ref="jmx" />
-  	</root>
+	<appender name="DefaultLogAppender" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="${samza.log.dir}/${samza.container.name}_learning_service_mw.log"/>
+		<param name="append" value="true"/>
+		<param name="maxFileSize" value="100MB"/>
+		<param name="maxBackupIndex" value="5"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %c{1} [%p] %m%n"/>
+		</layout>
+	</appender>
+	<appender name="PerfLogAppender" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="${samza.log.dir}/${samza.container.name}_learning_perf_mw.log"/>
+		<param name="append" value="true"/>
+		<param name="maxFileSize" value="100MB"/>
+		<param name="maxBackupIndex" value="5"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %c{1} [%p] %m%n"/>
+		</layout>
+	</appender>
+	<appender name="TelemetryEventAppender" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="${samza.log.dir}/${samza.container.name}_learning_telemetry_event_mw.log"/>
+		<param name="append" value="true"/>
+		<param name="maxFileSize" value="100MB"/>
+		<param name="maxBackupIndex" value="5"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %c{1} [%p] %m%n"/>
+		</layout>
+	</appender>
+	<appender name="StartupAppender" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="${samza.log.dir}/${samza.container.name}-startup.log" />
+		<param name="MaxFileSize" value="256MB" />
+		<param name="MaxBackupIndex" value="1" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} [%p] %m%n" />
+		</layout>
+	</appender>
+	<logger name="STARTUP_LOGGER" additivity="false">
+		<level value="info" />
+		<appender-ref ref="StartupAppender"/>
+	</logger>
+	<root>
+		<priority value="info"/>
+		<appender-ref ref="RollingAppender"/>
+		<appender-ref ref="jmx"/>
+	</root>
+	<logger name="DefaultPlatformLogger">
+		<level value="info" />
+		<appender-ref ref="DefaultLogAppender"/>
+	</logger>
+	<logger name="TelemetryEventLogger">
+		<level value="info" />
+		<appender-ref ref="TelemetryEventAppender"/>
+	</logger>
+	<logger name="PerformanceTestLogger">
+		<level value="info" />
+		<appender-ref ref="PerfLogAppender"/>
+	</logger>
+
 </log4j:configuration>
