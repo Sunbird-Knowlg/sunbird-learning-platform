@@ -2,8 +2,7 @@ package org.ekstep.graph.engine.loadtest;
 
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.ekstep.common.dto.Request;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -23,7 +22,7 @@ public class CreateNodeTest extends GraphEngineTestSetup {
     String graphId = "JAVA_CS";
     String SCENARIO_NAME ="CREATE_NODE";
     
-    private static final Logger logger = LogManager.getLogger("PerformanceTestLogger");
+    private static final Logger logger = Logger.getLogger("PerformanceTestLogger");
     
     @Before
     public void init() throws Exception {

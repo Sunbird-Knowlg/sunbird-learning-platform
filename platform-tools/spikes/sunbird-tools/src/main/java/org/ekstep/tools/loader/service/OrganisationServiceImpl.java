@@ -3,8 +3,8 @@
  */
 package org.ekstep.tools.loader.service;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 import org.ekstep.tools.loader.utils.Constants;
 import org.ekstep.tools.loader.utils.JsonUtil;
 import org.ekstep.tools.loader.utils.RestUtil;
@@ -21,7 +21,7 @@ import com.mashape.unirest.request.BaseRequest;
  */
 public class OrganisationServiceImpl implements OrganisationService {
 
-	private static Logger logger = LogManager.getLogger(OrganisationServiceImpl.class);
+	private static Logger logger = Logger.getLogger(OrganisationServiceImpl.class);
 
 	/**
 	 * 

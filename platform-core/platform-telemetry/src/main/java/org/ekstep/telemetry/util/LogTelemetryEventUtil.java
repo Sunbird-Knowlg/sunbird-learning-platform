@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 import org.ekstep.common.dto.Request;
 import org.ekstep.telemetry.dto.TelemetryBEEvent;
 import org.ekstep.telemetry.dto.TelemetryBJREvent;
@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class LogTelemetryEventUtil {
 
 	
-	private static final Logger telemetryEventLogger = LogManager.getLogger("TelemetryEventLogger");
+	private static final Logger telemetryEventLogger = Logger.getLogger("TelemetryEventLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String beJobRequesteventId = "BE_JOB_REQUEST";
 	private static int iteration = 1;

@@ -10,15 +10,15 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author feroz
  */
 public class JsonMergeProcessor implements Processor {
-    static Logger logger = LogManager.getLogger(JsonMergeProcessor.class);
+    static Logger logger = Logger.getLogger(JsonMergeProcessor.class);
     private LinkedListMultimap<String, Record> mergeTable = null;
     
 

@@ -1,8 +1,8 @@
 package org.ekstep.learning.router;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -44,7 +44,7 @@ public class LearningRequestRouter extends UntypedActor {
 	/** The timeout. */
 	protected long timeout = Platform.config.hasPath("akka.request_timeout")? (Platform.config.getLong("akka.request_timeout") * 1000): 30000;
 
-	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
+	private static final Logger perfLogger = Logger.getLogger("PerformanceTestLogger");
 
 	/*
 	 * (non-Javadoc)

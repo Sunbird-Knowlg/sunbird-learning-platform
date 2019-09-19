@@ -11,8 +11,8 @@ import java.time.LocalTime;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 import org.ekstep.tools.loader.service.ContentService;
 import org.ekstep.tools.loader.service.ExecutionContext;
 import org.ekstep.tools.loader.service.ProgressCallback;
@@ -28,7 +28,7 @@ import com.google.gson.JsonObject;
  */
 public class ContentDestination implements Destination {
 
-	private static Logger logger = LogManager.getLogger(ContentDestination.class);
+	private static Logger logger = Logger.getLogger(ContentDestination.class);
 	private ExecutionContext context = null;
 	private FileWriter outputFile = null;
 	private File file = null;

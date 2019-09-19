@@ -3,8 +3,8 @@
  */
 package org.ekstep.telemetry.handler;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 
 /**
  * This is the custom logger implementation to carry out platform Logging. This
@@ -15,8 +15,8 @@ import org.apache.logging.log4j.Logger;
  */
 public class TelemetryLoggingHandler implements TelemetryHandler {
 
-	private static final Logger rootLogger = LogManager.getLogger("DefaultPlatformLogger");
-	private static final Logger telemetryLogger = LogManager.getLogger("TelemetryEventLogger");
+	private static final Logger rootLogger = Logger.getLogger("DefaultPlatformLogger");
+	private static final Logger telemetryLogger = Logger.getLogger("TelemetryEventLogger");
 	
 
 	public void send(String event, Level level) {

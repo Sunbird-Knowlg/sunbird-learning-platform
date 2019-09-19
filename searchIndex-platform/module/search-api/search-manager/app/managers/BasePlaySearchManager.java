@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -42,7 +42,7 @@ import static akka.pattern.Patterns.ask;
 
 public class BasePlaySearchManager extends Results {
 	protected ObjectMapper mapper = new ObjectMapper();
-	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
+	private static final Logger perfLogger = Logger.getLogger("PerformanceTestLogger");
 	private static Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
 			Platform.config.getBoolean("content.tagging.backward_enable"): false;
 	private static List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?

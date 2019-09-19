@@ -6,8 +6,8 @@
 package org.ekstep.tools.loader.service;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 import org.ekstep.tools.loader.utils.Constants;
 import org.ekstep.tools.loader.utils.JsonUtil;
 import org.ekstep.tools.loader.utils.RestUtil;
@@ -27,7 +27,7 @@ import com.mashape.unirest.request.BaseRequest;
  */
 public class ConceptServiceImpl implements ConceptService {
 
-    private static final Logger logger = LogManager.getLogger(ConceptServiceImpl.class);
+    private static final Logger logger = Logger.getLogger(ConceptServiceImpl.class);
 
 	/**
 	 * 

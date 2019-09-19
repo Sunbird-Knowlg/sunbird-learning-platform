@@ -7,8 +7,8 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +24,7 @@ import com.typesafe.config.ConfigFactory;
  */
 public class OrgansationServiceTest {
 
-	private Logger logger = LogManager.getLogger(OrgansationServiceTest.class);
+	private Logger logger = Logger.getLogger(OrgansationServiceTest.class);
 	private Config config = null;
 	private String user = null, authToken = null, clientId = null;
 	private ExecutionContext context = null;

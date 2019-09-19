@@ -23,8 +23,8 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
 public class BulkUploadImageProcessor {
@@ -39,7 +39,7 @@ public class BulkUploadImageProcessor {
 	private static final String NEW_LINE_SEPARATOR = "\n";
 	private static final String SUB_FIELD_SEPARATOR = ",";
 	private static final String output = "/data/contentBundle/output";
-	private static Logger LOGGER = LogManager.getLogger(BulkUploadImageProcessor.class.getName());
+	private static Logger LOGGER = Logger.getLogger(BulkUploadImageProcessor.class.getName());
 	private ObjectMapper mapper = new ObjectMapper();
 
 	static {
