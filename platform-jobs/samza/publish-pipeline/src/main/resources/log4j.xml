@@ -56,15 +56,15 @@
 		<appender-ref ref="RollingAppender"/>
 		<appender-ref ref="jmx"/>
 	</root>
-	<logger name="DefaultPlatformLogger">
+	<logger name="DefaultPlatformLogger" additivity="false">
 		<level value="info" />
 		<appender-ref ref="DefaultLogAppender"/>
 	</logger>
-	<logger name="TelemetryEventLogger">
+	<logger name="TelemetryEventLogger" additivity="false">
 		<level value="info" />
 		<appender-ref ref="TelemetryEventAppender"/>
 	</logger>
-	<logger name="PerformanceTestLogger">
+	<logger name="PerformanceTestLogger" additivity="false">
 		<level value="info" />
 		<appender-ref ref="PerfLogAppender"/>
 	</logger>
