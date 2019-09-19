@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 import org.ekstep.tools.loader.functions.LookupFunction;
 import org.ekstep.tools.loader.functions.SluggifyFunction;
 import org.ekstep.tools.loader.functions.SplitFunction;
@@ -35,7 +35,7 @@ import com.typesafe.config.ConfigRenderOptions;
  */
 public class JsonMapperProcessor implements Processor {
     
-    static Logger logger = LogManager.getLogger(JsonMapperProcessor.class);
+    static Logger logger = Logger.getLogger(JsonMapperProcessor.class);
     File templateFile = null;
     JtwigTemplate template = null;
     LookupFunction lookupFn = null;

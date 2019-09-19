@@ -3,7 +3,7 @@ package org.ekstep.learning.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;

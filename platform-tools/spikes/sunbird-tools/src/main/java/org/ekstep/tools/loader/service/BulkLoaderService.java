@@ -8,8 +8,8 @@ package org.ekstep.tools.loader.service;
 import java.io.File;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 import org.ekstep.tools.loader.destination.ArtifactDestination;
 import org.ekstep.tools.loader.destination.ConceptDestination;
 import org.ekstep.tools.loader.destination.ContentDestination;
@@ -28,7 +28,7 @@ import org.ekstep.tools.loader.destination.UserDestination;
  * @author feroz
  */
 public class BulkLoaderService implements ProgressCallback {
-	static Logger logger = LogManager.getLogger(BulkLoaderService.class);
+	static Logger logger = Logger.getLogger(BulkLoaderService.class);
 
 	private File csvFile;
 	private File tfmFile;

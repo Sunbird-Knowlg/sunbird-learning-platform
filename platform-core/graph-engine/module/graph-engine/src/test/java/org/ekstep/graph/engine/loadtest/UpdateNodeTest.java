@@ -3,8 +3,8 @@ package org.ekstep.graph.engine.loadtest;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 import org.ekstep.common.dto.Request;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -21,7 +21,7 @@ public class UpdateNodeTest {
     String graphId = "JAVA_CS";
     String SCENARIO_NAME = "UPDATE_NODE";
 
-    private static final Logger logger = LogManager.getLogger("PerformanceTestLogger");
+    private static final Logger logger = Logger.getLogger("PerformanceTestLogger");
 
     //@BeforeTest
     public void init() throws Exception {

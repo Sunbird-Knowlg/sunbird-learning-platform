@@ -6,8 +6,8 @@
 package org.ekstep.tools.loader.service;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 import org.ekstep.tools.loader.utils.Constants;
 import org.ekstep.tools.loader.utils.FileUtil;
 import org.ekstep.tools.loader.utils.JsonUtil;
@@ -27,7 +27,7 @@ import com.mashape.unirest.request.BaseRequest;
  */
 public class ContentServiceImpl implements ContentService {
     
-    static Logger logger = LogManager.getLogger(ContentServiceImpl.class);
+    static Logger logger = Logger.getLogger(ContentServiceImpl.class);
     
 	/**
 	 * 

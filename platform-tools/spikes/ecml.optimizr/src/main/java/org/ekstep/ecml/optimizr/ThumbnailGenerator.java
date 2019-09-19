@@ -3,8 +3,8 @@ package org.ekstep.ecml.optimizr;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 import org.imgscalr.Scalr;
 
 /**

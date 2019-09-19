@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
