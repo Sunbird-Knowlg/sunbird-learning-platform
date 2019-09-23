@@ -155,10 +155,6 @@ public class Neo4JBoltSearchOperations {
 						node = new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
 								startNodeMap, endNodeMap);
 				}
-				if (StringUtils.equalsIgnoreCase("Concept", node.getObjectType())) {
-					TelemetryManager.info("Saving concept to in-memory cache: "+node.getIdentifier());
-					NodeCacheManager.saveDataNode(graphId, node.getIdentifier(), node);
-				}
 			}
 			return node;
 		}
