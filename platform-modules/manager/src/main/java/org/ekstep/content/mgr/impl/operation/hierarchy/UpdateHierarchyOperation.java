@@ -191,7 +191,7 @@ public class UpdateHierarchyOperation extends BaseContentManager {
     private List<Node> getNodeMapFromHierarchy(Map<String, Object> hierarchyResponse, DefinitionDTO definition, String
             rootId) {
         List<Node> nodeList = new ArrayList<>();
-        Node rootNode = getNodeForOperation(rootId, "update");
+        Node rootNode = getNodeForOperation(rootId, "updateHierarchy");
         if(!StringUtils.equalsIgnoreCase(COLLECTION_MIME_TYPE , (String) rootNode.getMetadata().get(ContentAPIParams
                 .mimeType.name()))) {
             TelemetryManager.error("UpdateHierarchyOperation.getNodeMapFromHierarchy() :: invalid mimeType for root " +
