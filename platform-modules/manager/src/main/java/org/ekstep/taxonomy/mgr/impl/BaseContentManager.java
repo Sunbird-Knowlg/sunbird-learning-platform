@@ -507,6 +507,10 @@ public abstract class BaseContentManager extends BaseManager {
                                     + "' does not Exist.]");
 
                 String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
+                if(equalsIgnoreCase(operation, "updateHierarchy")) {
+                		node.setOutRelations(null);
+                }
+                
                 if (StringUtils.isNotBlank(status)
                         && (equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
                         || equalsIgnoreCase(TaxonomyAPIParams.Unlisted.name(), status)
