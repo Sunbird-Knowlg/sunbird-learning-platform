@@ -1101,7 +1101,8 @@
                         "CuriosityQuestionSet",
                         "MarkingSchemeRubric",
                         "ExplanationResource",
-                        "ExperientialResource"
+						"ExperientialResource",
+						"ConceptMap"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
