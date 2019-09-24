@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
+import org.ekstep.test.common.CommonTestSetup;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -40,7 +41,7 @@ import org.springframework.web.context.WebApplicationContext;
  * test senarios have been specified for each of the operation
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AssessmentItemSetV3Test extends GraphEngineTestSetup {
+public class AssessmentItemSetV3Test extends CommonTestSetup {
 
 	@Autowired
 	private WebApplicationContext context;
