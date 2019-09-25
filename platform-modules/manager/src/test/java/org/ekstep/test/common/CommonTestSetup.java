@@ -110,7 +110,7 @@ public class CommonTestSetup {
 
 	private static void tearEmbeddedCassandraSetup() {
 		try {
-			if (!session.isClosed())
+			if (null != session && !session.isClosed())
 				session.close();
 			EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
 		} catch (Exception e) {
