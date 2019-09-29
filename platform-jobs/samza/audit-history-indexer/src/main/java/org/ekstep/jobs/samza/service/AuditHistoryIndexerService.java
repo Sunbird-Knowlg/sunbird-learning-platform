@@ -2,6 +2,7 @@ package org.ekstep.jobs.samza.service;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +34,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 
 	static JobLogger LOGGER = new JobLogger(AuditHistoryIndexerService.class);
 	private ObjectMapper mapper = new ObjectMapper();
-	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 	
 	/** The constructor */
 	public AuditHistoryIndexerService() {
@@ -68,7 +69,8 @@ public class AuditHistoryIndexerService implements ISamzaService {
 				Map<String, Object> entity_map = mapper.convertValue(record, Map.class);
 				String document = mapper.writeValueAsString(entity_map);
 				LOGGER.debug("Saving the record into ES");
-				ElasticSearchUtil.addDocument(AuditHistoryConstants.AUDIT_HISTORY_INDEX,
+				String indexName = getIndexName(String.valueOf(message.get("ets")));
+				ElasticSearchUtil.addDocument(indexName,
 						AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, document);
 				metrics.incSuccessCounter();
 			} catch (Exception ex) {
@@ -78,6 +80,13 @@ public class AuditHistoryIndexerService implements ISamzaService {
 		} else {
 			LOGGER.info("Learning event not qualified for audit");
 		}
+	}
+
+
+	private String getIndexName(String ets) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date(Long.parseLong(ets)));
+		return (AuditHistoryConstants.AUDIT_HISTORY_INDEX + "_" + cal.get(Calendar.YEAR) + "_" + cal.get(Calendar.WEEK_OF_YEAR));
 	}
 
 	/**
