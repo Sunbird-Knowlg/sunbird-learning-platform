@@ -34,7 +34,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 
 	static JobLogger LOGGER = new JobLogger(AuditHistoryIndexerService.class);
 	private ObjectMapper mapper = new ObjectMapper();
-	static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	private DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 	
 	/** The constructor */
 	public AuditHistoryIndexerService() {
