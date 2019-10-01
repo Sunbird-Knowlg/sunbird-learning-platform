@@ -1,6 +1,6 @@
 {
   "index_patterns": [
-    "lp_audit_log*"
+    "kp_audit_log*"
   ],
   "settings": {
     "index": {
@@ -314,7 +314,7 @@
     }
   },
   "aliases":{
-    "lp_audit_log":{
+    "kp_audit_log":{
 
     }
   }
