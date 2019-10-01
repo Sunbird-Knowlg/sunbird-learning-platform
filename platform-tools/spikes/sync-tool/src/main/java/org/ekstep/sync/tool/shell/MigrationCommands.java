@@ -61,7 +61,7 @@ public class MigrationCommands implements CommandMarker {
                     //migrate image node, if exist
                     Boolean isImageExist = migrateNeo4jImageData(graphId, getImageId(contentId));
                     // migrate live node, if image node not exist
-                    if (isImageExist)
+                    if (!isImageExist)
                         migrateNeo4jData(node);
                     // migrate image hierarchy data
                     migrateCassandraData(getImageId(contentId));
