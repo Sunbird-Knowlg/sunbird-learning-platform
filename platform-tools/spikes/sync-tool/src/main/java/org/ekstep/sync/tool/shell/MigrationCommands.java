@@ -1,5 +1,7 @@
 package org.ekstep.sync.tool.shell;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +25,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.stream.Collectors.toList;
+
 @Component
 public class MigrationCommands implements CommandMarker {
 
@@ -31,6 +35,7 @@ public class MigrationCommands implements CommandMarker {
 
     private ControllerUtil util = new ControllerUtil();
     private HierarchyStore hierarchyStore = new HierarchyStore();
+    private ObjectMapper mapper = new ObjectMapper();
 
     private static final String PASSPORT_KEY = Platform.config.getString("graph.passport.key.base");
     private static final String HIERARCHY_CACHE_PREFIX = "hierarchy_";
@@ -79,7 +84,7 @@ public class MigrationCommands implements CommandMarker {
 
     private void migrateNeo4jData(Node node) {
         try {
-            List<String> dials = (List<String>) node.getMetadata().get("dialcodes");
+            List<String> dials = getDialCodes(node.getMetadata());
             String dialReq = (String) node.getMetadata().get("dialcodeRequired");
             if (CollectionUtils.isNotEmpty(dials) && !StringUtils.equalsIgnoreCase("Yes", dialReq)) {
                 node.getMetadata().put("dialcodeRequired", "Yes");
@@ -102,7 +107,7 @@ public class MigrationCommands implements CommandMarker {
             Node node = util.getNode(graphId, contentId);
             if (null != node) {
                 result = true;
-                List<String> dials = (List<String>) node.getMetadata().get("dialcodes");
+                List<String> dials = getDialCodes(node.getMetadata());
                 String dialReq = (String) node.getMetadata().get("dialcodeRequired");
                 if (CollectionUtils.isNotEmpty(dials) && !StringUtils.equalsIgnoreCase("Yes", dialReq)) {
                     node.getMetadata().put("dialcodeRequired", "Yes");
@@ -122,6 +127,14 @@ public class MigrationCommands implements CommandMarker {
 
     private String getImageId(String id) {
         return org.apache.commons.lang3.StringUtils.isNotBlank(id) ? id + ".img" : null;
+    }
+
+    public List<String> getDialCodes(Map<String, Object> map) {
+        if (MapUtils.isNotEmpty(map) && map.containsKey("dialcodes")) {
+            List<String> dialcodes = mapper.convertValue(map.get("dialcodes"), new TypeReference<List<String>>(){});
+            return (dialcodes.stream().filter(f -> StringUtils.isNotBlank(f)).collect(toList()));
+        }
+        return new ArrayList<>();
     }
 
     private void migrateCassandraData(String contentId) {
@@ -146,7 +159,7 @@ public class MigrationCommands implements CommandMarker {
         if (CollectionUtils.isNotEmpty(children)) {
             children.forEach(child -> {
                 try {
-                    List<String> dials = (List<String>) child.get("dialcodes");
+                    List<String> dials = getDialCodes(child);
                     String dialReq = (String) child.get("dialcodeRequired");
                     String visibility = (String) child.get("visibility");
                     if (StringUtils.equalsIgnoreCase("Parent", visibility) && CollectionUtils.isNotEmpty(dials)
