@@ -117,8 +117,8 @@ public class ElasticSearchUtil {
 	private static RestHighLevelClient getClient(String indexName) {
 		if (StringUtils.isBlank(indexName))
 			indexName = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
-		if (StringUtils.startsWith(indexName,"lp_audit_log"))
-			return esClient.get("lp_audit_log");
+		if (StringUtils.startsWith(indexName,"kp_audit_log"))
+			return esClient.get("kp_audit_log");
 		return esClient.get(indexName);
 	}
 
