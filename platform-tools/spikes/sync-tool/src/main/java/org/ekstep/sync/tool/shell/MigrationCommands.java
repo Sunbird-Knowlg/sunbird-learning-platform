@@ -2,8 +2,9 @@ package org.ekstep.sync.tool.shell;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.hadoop.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
@@ -57,13 +58,13 @@ public class MigrationCommands implements CommandMarker {
                 // Get Neo4j Object
                 Node node = util.getNode(graphId, contentId);
                 if (null != node && StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", (String) node.getMetadata().get("mimeType"))) {
-                    // check if neo4j update is required.
-                    //Need to handle image content
-                    //Boolean isNeo4jMigReq = isNeo4jMigrRequired(node);
-                    if (isNeo4jMigReq)
+                    //migrate image node, if exist
+                    Boolean isImageExist = migrateNeo4jImageData(graphId, getImageId(contentId));
+                    // migrate live node, if image node not exist
+                    if (isImageExist)
                         migrateNeo4jData(node);
-                    // update hierarchy data
-                    migrateCassandraData(contentId, isNeo4jMigReq);
+                    // migrate image hierarchy data
+                    migrateCassandraData(getImageId(contentId));
                     migrResult.add(contentId);
                 } else {
                     System.out.println("node object is null for : " + contentId);
@@ -76,69 +77,72 @@ public class MigrationCommands implements CommandMarker {
         System.out.println("Migration Success for Ids : " + migrResult);
     }
 
-    private Boolean isNeo4jMigrRequired(Node node) {
-        List<String> dials = (List<String>) node.getMetadata().get("dialcodes");
-        String dialReq = (String) node.getMetadata().get("dialcodeRequired");
-        return CollectionUtils.isNotEmpty(dials) && StringUtils.equalsIgnoreCase("No", dialReq) ? true : false;
-    }
-
     private void migrateNeo4jData(Node node) {
-        node.getMetadata().put("dialcodeRequired", "Yes");
-        node.getMetadata().put("versionKey", PASSPORT_KEY);
-        util.updateNode(node);
-        System.out.println("Neo4j Node Updated for : " + node.getIdentifier());
-    }
-
-    private void migrateCassandraData(String contentId, Boolean isRootNodeMigReq) {
-        List<String> identifiers = Arrays.asList(contentId, contentId + ".img");
-        ArrayList<String> unitsToBeSync = new ArrayList<String>();
-        for (String id : identifiers) {
-            // get hierarchy and update hierarchy data
-            try {
-                Map<String, Object> hierarchy = hierarchyStore.getHierarchy(id);
-                if (MapUtils.isNotEmpty(hierarchy)) {
-                    List<Map<String, Object>> children = (List<Map<String, Object>>) hierarchy.get("children");
-                    updateUnitsAndPrepareForSync(id, children, unitsToBeSync);
-                    if (!id.endsWith(".img") && isRootNodeMigReq) {
-                        hierarchy.put("dialcodeRequired", "Yes");
-                    }
-                    // write hierarchy into cassandra.
-                    hierarchyStore.saveOrUpdateHierarchy(id, hierarchy);
-
-                    // sync modified units of live hierarchy
-                    if (!id.endsWith(".img")) {
-                        syncUnitsAndResetCache(contentId, hierarchy, unitsToBeSync);
-                    }
-                } else {
-                    System.out.println("Got Null Hierarchy for " + id);
-                }
-            } catch (Exception e) {
-                System.out.println("Exception Occurred While Processing Hierarchy for : " + id);
-                e.printStackTrace();
+        try {
+            List<String> dials = (List<String>) node.getMetadata().get("dialcodes");
+            String dialReq = (String) node.getMetadata().get("dialcodeRequired");
+            if (CollectionUtils.isNotEmpty(dials) && !StringUtils.equalsIgnoreCase("Yes", dialReq)) {
+                node.getMetadata().put("dialcodeRequired", "Yes");
+                node.getMetadata().put("versionKey", PASSPORT_KEY);
+                util.updateNode(node);
+                System.out.println("Neo4j Node Updated for : " + node.getIdentifier());
+                //Clear TextBook Cache
+                RedisStoreUtil.delete(node.getIdentifier());
             }
+        } catch (Exception ex) {
+            System.out.println("Exception Occurred While Migrating Neo4j Node : " + ex.getMessage());
+            ex.printStackTrace();
+        }
+
+    }
+
+    private Boolean migrateNeo4jImageData(String graphId, String contentId) {
+        Boolean result = false;
+        try {
+            Node node = util.getNode(graphId, contentId);
+            if (null != node) {
+                result = true;
+                List<String> dials = (List<String>) node.getMetadata().get("dialcodes");
+                String dialReq = (String) node.getMetadata().get("dialcodeRequired");
+                if (CollectionUtils.isNotEmpty(dials) && !StringUtils.equalsIgnoreCase("Yes", dialReq)) {
+                    node.getMetadata().put("dialcodeRequired", "Yes");
+                    node.getMetadata().put("versionKey", PASSPORT_KEY);
+                    util.updateNode(node);
+                    System.out.println("Neo4j Node Updated for : " + node.getIdentifier());
+                }
+            }
+        } catch (ResourceNotFoundException e) {
+
+        } catch (Exception ex) {
+            System.out.println("Exception Occurred While Migrating Neo4j Node : " + ex.getMessage());
+            ex.printStackTrace();
+        }
+        return result;
+    }
+
+    private String getImageId(String id) {
+        return org.apache.commons.lang3.StringUtils.isNotBlank(id) ? id + ".img" : null;
+    }
+
+    private void migrateCassandraData(String contentId) {
+        try {
+            // Get Hierarchy Data
+            Map<String, Object> hierarchy = hierarchyStore.getHierarchy(contentId);
+            if (MapUtils.isNotEmpty(hierarchy)) {
+                List<Map<String, Object>> children = (List<Map<String, Object>>) hierarchy.get("children");
+                updateUnits(contentId, children);
+                // write hierarchy into cassandra.
+                hierarchyStore.saveOrUpdateHierarchy(contentId, hierarchy);
+            } else {
+                System.out.println("Got Null Hierarchy for " + contentId);
+            }
+        } catch (Exception e) {
+            System.out.println("Exception Occurred While Processing Hierarchy for : " + contentId);
+            e.printStackTrace();
         }
     }
 
-    private void syncUnitsAndResetCache(String contentId, Map<String, Object> hierarchy, ArrayList<String> unitsToBeSync) {
-
-        Map<String, Object> units = cassandraSyncMgr.getUnitsMetadata(hierarchy, unitsToBeSync);
-        if (MapUtils.isNotEmpty(units)) {
-            cassandraSyncMgr.pushToElastic(units);
-            List<String> collectionUnitIds = new ArrayList<>(units.keySet());
-
-            //Clear TextBook Cache
-            RedisStoreUtil.delete(contentId);
-
-            //Clear TextBook Hierarchy from Redis Cache
-            RedisStoreUtil.delete(HIERARCHY_CACHE_PREFIX + contentId);
-
-            //Clear TextBookUnit Hierarchy from Redis Cache
-            collectionUnitIds.forEach(id -> RedisStoreUtil.delete(HIERARCHY_CACHE_PREFIX + id));
-
-        }
-    }
-
-    private void updateUnitsAndPrepareForSync(String id, List<Map<String, Object>> children, List<String> unitsToBeSync) {
+    private void updateUnits(String id, List<Map<String, Object>> children) {
         if (CollectionUtils.isNotEmpty(children)) {
             children.forEach(child -> {
                 try {
@@ -146,18 +150,15 @@ public class MigrationCommands implements CommandMarker {
                     String dialReq = (String) child.get("dialcodeRequired");
                     String visibility = (String) child.get("visibility");
                     if (StringUtils.equalsIgnoreCase("Parent", visibility) && CollectionUtils.isNotEmpty(dials)
-                            && org.apache.commons.lang3.StringUtils.equals("No", dialReq)) {
+                            && !StringUtils.equalsIgnoreCase("Yes", dialReq)) {
                         child.put("dialcodeRequired", "Yes");
-                        if (!id.endsWith(".img"))
-                            unitsToBeSync.add((String) child.get("identifier"));
                     }
                     if (StringUtils.equalsIgnoreCase("Parent", visibility))
-                        updateUnitsAndPrepareForSync(id, (List<Map<String, Object>>) child.get("children"), unitsToBeSync);
+                        updateUnits(id, (List<Map<String, Object>>) child.get("children"));
                 } catch (Exception e) {
                     System.out.println("Exception Occurred While Processing Children for : " + id);
                     e.printStackTrace();
                 }
-
             });
         }
     }
