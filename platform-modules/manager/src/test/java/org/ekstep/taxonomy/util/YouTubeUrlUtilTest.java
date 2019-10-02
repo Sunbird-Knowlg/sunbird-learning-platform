@@ -139,7 +139,7 @@ public class YouTubeUrlUtilTest extends GraphEngineTestSetup {
 
 	/*
 	 * Upload Valid Youtube URL. 
-	 * Expected: 200-OK, license=Creative Commons Attribution (CC BY)
+	 * Expected: 200-OK, license=CC-BY 4.0
 	 */
 	@Test
 	public void testYouTubeService_08() throws Exception {
@@ -153,7 +153,7 @@ public class YouTubeUrlUtilTest extends GraphEngineTestSetup {
 		//Read Content and Verify Result
 		Response resp = contentManager.find(contentId, null, null);
 		String license = (String) ((Map<String, Object>) resp.getResult().get("content")).get("license");
-		assertEquals("Creative Commons Attribution (CC BY)", license);
+		assertEquals("CC-BY 4.0", license);
 	}
 
 	/*
