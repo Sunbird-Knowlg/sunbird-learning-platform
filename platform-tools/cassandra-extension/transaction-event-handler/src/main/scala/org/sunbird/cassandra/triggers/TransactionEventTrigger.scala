@@ -37,10 +37,11 @@ class TransactionEventTrigger extends ITrigger {
         val partitionData = getPartitionKeyData(partition)
         val levelDeletion = partition.partitionLevelDeletion
         val objectType = partition.metadata().ksName + "." + partition.metadata().cfName
+        val generatedTime = System.currentTimeMillis()
         if (!levelDeletion.isLive) {
-            logger.info(mapper.writeValueAsString(Map("operationType" -> "DELETE" ,"partitionKeys" -> partitionData, "objectType" -> objectType)))
+            logger.info(mapper.writeValueAsString(Map("ets" -> generatedTime, "operationType" -> "DELETE" ,"partitionKeys" -> partitionData, "objectType" -> objectType)))
         } else {
-            logger.info(mapper.writeValueAsString(Map("operationType" -> "UPSERT", "partitionKeys" -> partitionData, "objectType" -> objectType) ++ processEvent(partition, partitionData)))
+            logger.info(mapper.writeValueAsString(Map("ets" -> generatedTime, "operationType" -> "UPSERT", "partitionKeys" -> partitionData, "objectType" -> objectType) ++ processEvent(partition, partitionData)))
         }
 
         return null;
