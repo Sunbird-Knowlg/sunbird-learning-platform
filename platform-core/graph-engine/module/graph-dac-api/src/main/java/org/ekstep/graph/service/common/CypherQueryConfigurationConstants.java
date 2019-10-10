@@ -42,23 +42,6 @@ public class CypherQueryConfigurationConstants {
 
 	public final static String CLOSE_SQUARE_BRACKETS = "]";
 
-	public final static String METADATA_KEY_PREFIX = " { MD_KEY_";
-
-	public final static String METADATA_VALUE_PREFIX = " { MD_VALUE_";
-
-	public final static String SYSTEM_PROPERTIES_KEY_PREFIX = " { SP_KEY_";
-
-	public final static String SYSTEM_PROPERTIES_VALUE_PREFIX = " { SP_VALUE_";
-	
-	public final static String AUDIT_PROPERTIES_KEY_PREFIX = " { AP_KEY_";
-
-	public final static String AUDIT_PROPERTIES_VALUE_PREFIX = " { AP_VALUE_";
-
-	public final static String VERSION_PROPERTIES_KEY_PREFIX = " { VP_KEY_";
-
-	public final static String VERSION_PROPERTIES_VALUE_PREFIX = " { VP_VALUE_";
-
-
 	private CypherQueryConfigurationConstants() {
 		throw new AssertionError();
 	}
