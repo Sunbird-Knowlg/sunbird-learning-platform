@@ -7,11 +7,11 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.apache.cassandra.db.{Clustering, Mutation}
-import org.apache.cassandra.db.marshal.{AbstractType, ByteType, BytesType, CompositeType, ListType, MapType, SetType}
+import org.apache.cassandra.db.marshal.{AbstractType, BytesType, CompositeType, ListType, MapType, SetType}
 import org.apache.cassandra.db.partitions.Partition
 import org.apache.cassandra.db.rows.{Cell, Unfiltered}
 import org.apache.cassandra.triggers.ITrigger
-import org.slf4j.LoggerFactory
+import org.sunbird.cassandra.loggers.TransactionLoggerFactory
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
@@ -24,7 +24,6 @@ class TransactionEventTrigger extends ITrigger {
     private val DELETE_ROW = "DELETE"
     private val KEY_NV = "nv"
 
-    val logger = LoggerFactory.getLogger("org.sunbird.cassandra.triggers")
     @transient val mapper = new ObjectMapper();
     mapper.registerModule(DefaultScalaModule);
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -37,6 +36,7 @@ class TransactionEventTrigger extends ITrigger {
         val partitionData = getPartitionKeyData(partition)
         val levelDeletion = partition.partitionLevelDeletion
         val objectType = partition.metadata().ksName + "." + partition.metadata().cfName
+        val logger = TransactionLoggerFactory.getLogger(objectType)
         val generatedTime = System.currentTimeMillis()
         if (!levelDeletion.isLive) {
             logger.info(mapper.writeValueAsString(Map("ets" -> generatedTime, "operationType" -> "DELETE" ,"partitionKeys" -> partitionData, "objectType" -> objectType)))
