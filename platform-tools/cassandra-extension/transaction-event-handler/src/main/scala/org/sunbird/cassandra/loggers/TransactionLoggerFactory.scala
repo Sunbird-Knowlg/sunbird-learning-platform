@@ -8,7 +8,7 @@ object TransactionLoggerFactory {
     val basePath: String = "org.sunbird.cassandra.triggers"
 
     def getLogger(objectType: String): Logger = {
-        val key = basePath + objectType
+        val key = basePath + "." + objectType
         val logger = loggers.getOrElse(key, LoggerFactory.getLogger(key))
         if(!loggers.contains(key))
             loggers += (key -> logger)
