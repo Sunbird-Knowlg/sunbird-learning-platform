@@ -8,6 +8,12 @@
         dest: /etc/cassandra/triggers
       with_fileglob:
            - static-files/cassandra.transaction-event-handler-*.jar
+
+    - name: copy logback.xml file to cassandra trigger path
+      template:
+        src: "roles/cassandra-db-update/templates/logback.j2"
+        dest: "/etc/cassandra/triggers/logback.xml"
+        mode: 0755
              
     - name: restart the cassandra
       service:
