@@ -43,12 +43,6 @@ public class FindOperation extends BaseContentManager {
 
         fields = CollectionUtils.isEmpty(fields) ? new ArrayList<>() : new ArrayList<>(fields);
 
-        //TODO: this is only for backward compatibility. remove after this release.
-        if (fields.contains("tags")) {
-            fields.remove("tags");
-            fields.add("keywords");
-        }
-
         if (!StringUtils.equalsIgnoreCase("edit", mode)) {
             String content = "";
             if(CONTENT_CACHE_ENABLED)
