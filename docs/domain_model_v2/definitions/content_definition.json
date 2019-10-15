@@ -1102,7 +1102,8 @@
                         "MarkingSchemeRubric",
                         "ExplanationResource",
                         "ExperientialResource",
-						"ConceptMap"
+						"ConceptMap",
+						"SelfAssess"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
