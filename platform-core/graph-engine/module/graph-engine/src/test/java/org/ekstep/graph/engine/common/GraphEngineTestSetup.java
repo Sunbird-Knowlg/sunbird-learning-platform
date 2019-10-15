@@ -50,8 +50,8 @@ public class GraphEngineTestSetup {
 
 	public static ActorRef reqRouter = null;
 
-	protected static long timeout = 50000;
-	protected static Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
+	protected static long timeout = 120000;
+	protected static Timeout t = new Timeout(Duration.create(300, TimeUnit.SECONDS));
 	protected static Set<String> graphIds = new HashSet<>();
 
 	@AfterClass

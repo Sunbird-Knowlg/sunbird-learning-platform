@@ -28,10 +28,10 @@ if {$check_error} {
 		set isCCBy 1
 		if {$license_null == 0} {
 			set license_str [java::new String [$license toString]]
-			set isCCBy [$license_str equalsIgnoreCase "CC-BY 4.0"]
+			set isCCBy [$license_str equalsIgnoreCase "CC-BY 4.0 For details: https://creativecommons.org/licenses/by/4.0/legalcode"]
 		}
 		if {$license_null == 1 || $isCCBy != 1} {
-			$metadata put "license" "CC-BY 4.0"
+			$metadata put "license" "CC-BY 4.0 For details: https://creativecommons.org/licenses/by/4.0/legalcode"
 			puts "updating asset: $asset_id"
 			set update_response [updateDataNode $graph_id $asset_id $graph_node]
 			set check_error [check_response_error $update_response]
