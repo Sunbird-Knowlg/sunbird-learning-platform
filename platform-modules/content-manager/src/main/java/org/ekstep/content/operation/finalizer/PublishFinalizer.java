@@ -1109,16 +1109,6 @@ public class PublishFinalizer extends BaseFinalizer {
 					result.put(prop, new HashSet<Object>((List<String>)o));
 			}
 		}
-		if (null != node.get(ContentWorkflowPipelineParams.concepts.name())) {
-			List<Map<String, Object>> conceptList = (List<Map<String, Object>>) node.get(ContentWorkflowPipelineParams.concepts.name());
-			Set<Object> concepts = new HashSet<Object>();
-			for(Map<String, Object> concept : conceptList) {
-				concepts.add(concept.get(ContentWorkflowPipelineParams.identifier.name()));
-			}
-			if (null != concepts && !concepts.isEmpty()) {
-				result.put(ContentWorkflowPipelineParams.concepts.name(), concepts);
-			}
-		}
 		return result;
 	}
 
