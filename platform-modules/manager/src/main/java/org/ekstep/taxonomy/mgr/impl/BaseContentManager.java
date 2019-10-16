@@ -622,8 +622,8 @@ public abstract class BaseContentManager extends BaseManager {
             if (equalsIgnoreCase("youtube", licenseType))
                 node.getMetadata().put("license", "Standard YouTube License");
             else if (equalsIgnoreCase("creativeCommon", licenseType)) {
-            		String creativeCommonLicenseType = Platform.config.hasPath("creative.common.license.type") 
-            				? Platform.config.getString("creative.common.license.type") : "Creative Commons Attribution (CC BY)";
+            		String creativeCommonLicenseType = Platform.config.hasPath("content.license") 
+            				? Platform.config.getString("content.license") : "Creative Commons Attribution (CC BY)";
                 node.getMetadata().put("license", creativeCommonLicenseType);
             }
             else {
