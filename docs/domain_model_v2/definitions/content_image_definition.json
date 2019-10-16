@@ -908,7 +908,7 @@
 					"range": [
 						"Against DRM license",
 						"Creative Commons Attribution-NoDerivs (CC-BY-ND)",
-						"CC-BY 4.0 For details: https://creativecommons.org/licenses/by/4.0/legalcode",
+						"Creative Commons Attribution (CC BY)",
 						"Creative Commons Attribution-ShareAlike (CC BY-SA)",
 						"Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)",
 						"Creative Commons Zero (CC0)",
@@ -920,7 +920,7 @@
 					],
 					"category": "Ownership",
 					"displayProperty": "Editable",
-					"defaultValue": "CC-BY 4.0 For details: https://creativecommons.org/licenses/by/4.0/legalcode",
+					"defaultValue": "Creative Commons Attribution (CC BY)",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false

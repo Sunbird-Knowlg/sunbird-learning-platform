@@ -130,7 +130,7 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 		String status = jP1.get("result.content.status");
 		String license=jP1.get("result.content.license");
 		Assert.assertEquals(status, "Draft");
-		Assert.assertEquals(license, "CC-BY 4.0 For details: https://creativecommons.org/licenses/by/4.0/legalcode");
+		Assert.assertEquals(license, "Creative Commons Attribution (CC BY)");
 		
 	}
 	
