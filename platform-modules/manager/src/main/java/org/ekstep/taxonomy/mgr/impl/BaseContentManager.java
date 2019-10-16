@@ -92,6 +92,8 @@ public abstract class BaseContentManager extends BaseManager {
 
 	protected List<String> finalStatus = Arrays.asList("Flagged", "Live", "Unlisted");
 	protected List<String> reviewStatus = Arrays.asList("Review", "FlagReview");
+    protected List<String> liveStatus = Arrays.asList("Live", "Unlisted");
+
 
     protected ControllerUtil util = new ControllerUtil();
 
@@ -505,6 +507,10 @@ public abstract class BaseContentManager extends BaseManager {
                                     + "' does not Exist.]");
 
                 String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
+                if(equalsIgnoreCase(operation, "updateHierarchy")) {
+                		node.setOutRelations(null);
+                }
+                
                 if (StringUtils.isNotBlank(status)
                         && (equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
                         || equalsIgnoreCase(TaxonomyAPIParams.Unlisted.name(), status)

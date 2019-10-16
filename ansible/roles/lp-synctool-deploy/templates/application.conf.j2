@@ -53,6 +53,8 @@ channel.default="in.ekstep"
 hierarchy.keyspace.name="{{ hierarchy_keyspace_name }}"
 content.hierarchy.table="content_hierarchy"
 cassandra.lp.connection="{{ lp_cassandra_connection }}"
+assessment.keyspace.name="{{ content_keyspace_name }}"
+assessment.keyspace.table="question_data"
 
 #Filter metadata based on definition while indexing into ES
 #restrict.metadata.objectTypes="Content,ContentImage"
@@ -60,3 +62,10 @@ cassandra.lp.connection="{{ lp_cassandra_connection }}"
 #Content relationship properties, to be used for units
 content.relationship.properties="collections,usedByContent,concepts,questions,item_sets,methods,usesContent,children,libraries"
 
+
+cassandra.connection.platform_courses="{{ core_cassandra_connection }}"
+courses.keyspace.name="sunbird_courses"
+courses.topic="{{ env }}.coursebatch.job.request"
+kafka.urls="{{ graphevent_kafka_url }}"
+
+search.lms_es_conn_info="{{ search_lms_index_host }}"

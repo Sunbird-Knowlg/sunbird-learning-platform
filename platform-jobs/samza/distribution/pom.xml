@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>qrcode-image-generator</artifactId>
-			<version>0.0.21</version>
+			<version>0.0.24</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -53,7 +53,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
-			<version>0.0.285</version>
+			<version>0.0.295</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -61,6 +61,34 @@
 			<groupId>org.ekstep</groupId>
 			<artifactId>collection-migration</artifactId>
 			<version>0.0.18</version>
+			<type>tar.gz</type>
+			<classifier>distribution</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>course-batch-updater</artifactId>
+			<version>0.0.18</version>
+			<type>tar.gz</type>
+			<classifier>distribution</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>post-publish-processor</artifactId>
+			<version>0.0.11</version>
+			<type>tar.gz</type>
+			<classifier>distribution</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>merge-user-courses</artifactId>
+			<version>0.0.9</version>
+			<type>tar.gz</type>
+			<classifier>distribution</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>course-certificate-generator</artifactId>
+			<version>0.0.9</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

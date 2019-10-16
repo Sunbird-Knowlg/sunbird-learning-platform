@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS {{ hierarchy_keyspace_name }}.framework_hierarchy (
   PRIMARY KEY (identifier)
 );
 
+ALTER TABLE {{ content_keyspace_name }}.question_data ADD (editorState blob, question blob, solutions blob);
+
 
 {% if groups['cassandra-node-2'] is defined %}
 ALTER KEYSPACE {{ content_keyspace_name }} WITH replication = {

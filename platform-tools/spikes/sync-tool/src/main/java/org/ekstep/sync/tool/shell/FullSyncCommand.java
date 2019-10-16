@@ -26,21 +26,15 @@ public class FullSyncCommand implements CommandMarker {
 
     @CliCommand(value = "sync", help = "Sync data from Neo4j to Elastic Search by Id(s)")
     public void syncByIds(@CliOption(key = {"type"}, mandatory = false, unspecifiedDefaultValue = "full", help = "Sync type.") final String type,
-                          @CliOption(key = {
-                                  "graph"}, mandatory = true, help = "graphId of the object") final String graphId,
-                          @CliOption(key = {
-                                  "delay"}, mandatory = false, unspecifiedDefaultValue = "10", help = "time gap between each batch") final Integer delay,
-                          @CliOption(key = {
-                                  "objectType"}, mandatory = false, help = "time gap between each batch") final String[] objectType,
-                          @CliOption(key = {
-            "ignoredIds"}, mandatory = false, help = "ignored identifiers to sync") final String[] ignoredIds,
-                          @CliOption(key = {
-                                  "offset"}, mandatory = false, help = "ignored identifiers to sync") final String offset,
-                          @CliOption(key = {
-                                  "limit"}, mandatory = false, help = "ignored identifiers to sync") final String limit,
-                          @CliOption(key = {
-                                  "filepath"}, mandatory = false, help = "ignored identifiers to sync") final String filePath)
+                          @CliOption(key = {"graph"}, mandatory = true, help = "graphId of the object") final String graphId,
+                          @CliOption(key = {"delay"}, mandatory = false, unspecifiedDefaultValue = "10", help = "time gap between each batch") final Integer delay,
+                          @CliOption(key = {"objectType"}, mandatory = false, help = "time gap between each batch") final String[] objectType,
+                          @CliOption(key = {"ignoredIds"}, mandatory = false, help = "ignored identifiers to sync") final String[] ignoredIds,
+                          @CliOption(key = {"offset"}, mandatory = false, help = "ignored identifiers to sync") final String offset,
+                          @CliOption(key = {"limit"}, mandatory = false, help = "ignored identifiers to sync") final String limit,
+                          @CliOption(key = {"filepath"}, mandatory = false, help = "ignored identifiers to sync") final String filePath)
             throws Exception {
+    	
         System.out.println("Fetching data from graph: " + graphId + ".");
         System.out.println("-----------------------------------------");
         if (StringUtils.equalsIgnoreCase("hierarchy", type)) {

@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import org.ekstep.sync.tool.mgr.AssessmentItemSyncManager;
 import org.ekstep.sync.tool.mgr.CassandraESSyncManager;
 import org.ekstep.sync.tool.mgr.ISyncManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class SyncShellCommands implements CommandMarker {
 
 	@Autowired
 	CassandraESSyncManager syncManager;
+	
+	@Autowired
+	AssessmentItemSyncManager assessmentItemSyncManager;
 
 	@CliCommand(value = "syncbyids", help = "Sync data from Neo4j to Elastic Search by Id(s)")
 	public void syncByIds(@CliOption(key = {
@@ -131,4 +136,23 @@ public class SyncShellCommands implements CommandMarker {
 		LocalDateTime end = LocalDateTime.now();
 		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
 	}
+	@CliCommand(value = "migratequestionextproperties", help = "Migrate AssessmentItems external properties")
+	public void migrateQuestionExternalProperties(
+			@CliOption(key = {"objectType"}, mandatory = true, help = "Object Type of assessmentItem") final String objectType,
+			@CliOption(key = {"ids"}, mandatory = false, help = "Unique Ids of assessmentItem") final String[] ids) throws Exception {
+		long startTime = System.currentTimeMillis();
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		LocalDateTime start = LocalDateTime.now();
+
+		List<String> listOfIds = null;
+		if(null != ids)
+			listOfIds = Arrays.asList(ids);
+		assessmentItemSyncManager.syncAssessmentExternalProperties("domain", objectType, listOfIds, 1000);
+
+		long endTime = System.currentTimeMillis();
+		long exeTime = endTime - startTime;
+		System.out.println("Total time of execution: " + exeTime + "ms");
+		LocalDateTime end = LocalDateTime.now();
+		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
+		}
 }

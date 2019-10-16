@@ -1,8 +1,12 @@
 package org.ekstep.jobs.samza.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
+import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
@@ -21,11 +25,12 @@ import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
-import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.telemetry.dto.TelemetryBJREvent;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
+import com.rits.cloning.Cloner;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -40,15 +45,16 @@ public class PublishPipelineService implements ISamzaService {
 
 	private ControllerUtil util = new ControllerUtil();
 
-	private HierarchyStore hierarchyStore = null;
-
 	private Config config = null;
 
 	private static int MAXITERTIONCOUNT = 2;
 
 	private SystemStream systemStream = null;
+	private SystemStream postPublishStream = null;
 	
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+	private static ObjectMapper mapper = new ObjectMapper();
 	
 	protected int getMaxIterations() {
 		if (Platform.config.hasPath("max.iteration.count.samza.job"))
@@ -66,7 +72,8 @@ public class PublishPipelineService implements ISamzaService {
 		LOGGER.info("Akka actors initialized");
 		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
 		LOGGER.info("Stream initialized for Failed Events");
-		hierarchyStore = new HierarchyStore();
+		postPublishStream = new SystemStream("kafka", config.get("post.publish.event.topic"));
+		LOGGER.info("Stream initialized for Post Publish Events");
 	}
 
 	@Override
@@ -95,7 +102,8 @@ public class PublishPipelineService implements ISamzaService {
 						LOGGER.info(
 								"Node fetched for publish and content enrichment operation : " + node.getIdentifier());
 						prePublishUpdate(edata, node);
-						processJob(edata, nodeId, metrics);
+
+						processJob(edata, nodeId, metrics, collector);
 					}
 				} else {
 					metrics.incSkippedCounter();
@@ -132,7 +140,7 @@ public class PublishPipelineService implements ISamzaService {
 		return (objPkgVersion <= eventPkgVersion);
 	}
 
-	private void processJob(Map<String, Object> edata, String contentId, JobMetrics metrics) throws Exception {
+	private void processJob(Map<String, Object> edata, String contentId, JobMetrics metrics, MessageCollector collector) throws Exception {
 
 		Node node = getNode(contentId);
 		String publishType = (String) edata.get(PublishPipelineParams.publish_type.name());
@@ -141,6 +149,7 @@ public class PublishPipelineService implements ISamzaService {
 			metrics.incSuccessCounter();
 			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.SUCCESS.name());
 			LOGGER.debug("Node publish operation :: SUCCESS :: For NodeId :: " + node.getIdentifier());
+			pushInstructionEvent(node, collector);
 		} else {
 			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.FAILED.name());
 			LOGGER.debug("Node publish operation :: FAILED :: For NodeId :: " + node.getIdentifier());
@@ -206,6 +215,8 @@ public class PublishPipelineService implements ISamzaService {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(),
 					ContentErrorMessageConstants.INVALID_CONTENT
 							+ " | ['null' or Invalid Content Node (Object). Async Publish Operation Failed.]");
+		Cloner cloner = new Cloner();
+		Node cloneNode = cloner.deepClone(node);
 		String nodeId = node.getIdentifier().replace(".img", "");
 		LOGGER.info("Publish processing start for node: " + nodeId);
 		String basePath = PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location"));
@@ -224,9 +235,9 @@ public class PublishPipelineService implements ISamzaService {
 					"Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
 							+ nodeId + "]",
 					e.getMessage());
-			node.getMetadata().put(PublishPipelineParams.publishError.name(), e.getMessage());
-			node.getMetadata().put(PublishPipelineParams.status.name(), PublishPipelineParams.Failed.name());
-			util.updateNode(node);
+			cloneNode.getMetadata().put(PublishPipelineParams.publishError.name(), e.getMessage());
+			cloneNode.getMetadata().put(PublishPipelineParams.status.name(), PublishPipelineParams.Failed.name());
+			util.updateNode(cloneNode);
 		} finally {
 			try {
 				FileUtils.deleteDirectory(new File(basePath.replace(nodeId, "")));
@@ -253,5 +264,77 @@ public class PublishPipelineService implements ISamzaService {
                 return true;
         }
         return false;
-    }	
+    }
+
+	private void pushInstructionEvent(Node node, MessageCollector collector) throws Exception{
+		Map<String, Object> actor = new HashMap<String, Object>();
+		Map<String, Object> context = new HashMap<String, Object>();
+		Map<String, Object> object = new HashMap<String, Object>();
+		Map<String, Object> edata = new HashMap<String, Object>();
+		String mimeType = (String) node.getMetadata().get("mimeType");
+		if (StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
+			Map<String, Object> linkDialcodeEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
+
+			if (MapUtils.isEmpty(linkDialcodeEvent)) {
+				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + linkDialcodeEvent);
+				throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+			}
+			collector.send(new OutgoingMessageEnvelope(postPublishStream, linkDialcodeEvent));
+
+			Map<String, Object> courseBatchSyncEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "coursebatch-sync");
+			if (MapUtils.isEmpty(courseBatchSyncEvent)) {
+				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + courseBatchSyncEvent);
+				throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+			}
+			collector.send(new OutgoingMessageEnvelope(postPublishStream, courseBatchSyncEvent));
+			LOGGER.info("Event sent to post publish event topic");
+		}
+	}
+
+	private Map<String, Object> generateInstructionEventMetadata(Map<String, Object> actor, Map<String, Object> context,
+																 Map<String, Object> object, Map<String, Object> edata, Map<String, Object> metadata, String contentId, String action) {
+		TelemetryBJREvent te = new TelemetryBJREvent();
+		actor.put("id", "Post Publish Processor");
+		actor.put("type", "System");
+		context.put("channel", metadata.get("channel"));
+		Map<String, Object> pdata = new HashMap<>();
+		pdata.put("id", "org.ekstep.platform");
+		pdata.put("ver", "1.0");
+		context.put("pdata", pdata);
+		if (Platform.config.hasPath("cloud_storage.env")) {
+			String env = Platform.config.getString("cloud_storage.env");
+			context.put("env", env);
+		}
+
+		object.put("id", contentId);
+		object.put("ver", metadata.get("versionKey"));
+
+		Map<String, Object> instructionEventMetadata = new HashMap<>();
+		instructionEventMetadata.put("pkgVersion", metadata.get("pkgVersion"));
+		instructionEventMetadata.put("mimeType", metadata.get("mimeType"));
+		instructionEventMetadata.put("lastPublishedBy", metadata.get("lastPublishedBy"));
+
+		edata.put("action", action);
+		edata.put("contentType", metadata.get("contentType"));
+		edata.put("id", contentId);
+		// generate event structure
+		long unixTime = System.currentTimeMillis();
+		String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();
+		edata.put("iteration", 1);
+		te.setEid("BE_JOB_REQUEST");
+		te.setEts(unixTime);
+		te.setMid(mid);
+		te.setActor(actor);
+		te.setContext(context);
+		te.setObject(object);
+		te.setEdata(edata);
+		Map<String, Object> event = null;
+		try {
+			event = mapper.convertValue(te, new TypeReference<Map<String, Object>>() {
+			});
+		} catch (Exception e) {
+			TelemetryManager.error("Error Generating BE_JOB_REQUEST event: " + e.getMessage(), e);
+		}
+		return event;
+	}
 }

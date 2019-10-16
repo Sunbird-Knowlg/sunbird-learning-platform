@@ -12,6 +12,7 @@ import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -59,6 +60,7 @@ public class AssessmentItemSetTest extends GraphEngineTestSetup {
 
 	// Create assessmentItemset
 	// expect 200 response
+	@Ignore
 	@Test
 	public void createItemsetWithValidRequest() throws InterruptedException {
 		MockMvc mockMvc;
