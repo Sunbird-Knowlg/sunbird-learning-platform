@@ -981,21 +981,6 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		addResourceToCollection(node, children);
 
-		if (MapUtils.isNotEmpty(dataMap) && null != dataMap.get("concepts")) {
-			List<String> concepts = new ArrayList<>();
-			concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
-			if (!concepts.isEmpty()) {
-				List<Relation> relations = new ArrayList<>();
-				for (String concept : concepts) {
-					relations.add(new Relation(StringUtils.replace(contentId, ".img", ""), RelationTypes.ASSOCIATED_TO.relationName(), concept));
-				}
-				List<Relation> existingRelations = node.getOutRelations();
-				if (CollectionUtils.isNotEmpty(existingRelations)) {
-					relations.addAll(existingRelations);
-				}
-				node.setOutRelations(relations);
-			}
-		}
 	}
 
 	private void addResourceToCollection(Node node, List<Map<String, Object>> children) {
@@ -1122,16 +1107,6 @@ public class PublishFinalizer extends BaseFinalizer {
 					result.put(prop, new HashSet<Object>(Arrays.asList((String)o)));
 				if(o instanceof List)
 					result.put(prop, new HashSet<Object>((List<String>)o));
-			}
-		}
-		if (null != node.get(ContentWorkflowPipelineParams.concepts.name())) {
-			List<Map<String, Object>> conceptList = (List<Map<String, Object>>) node.get(ContentWorkflowPipelineParams.concepts.name());
-			Set<Object> concepts = new HashSet<Object>();
-			for(Map<String, Object> concept : conceptList) {
-				concepts.add(concept.get(ContentWorkflowPipelineParams.identifier.name()));
-			}
-			if (null != concepts && !concepts.isEmpty()) {
-				result.put(ContentWorkflowPipelineParams.concepts.name(), concepts);
 			}
 		}
 		return result;

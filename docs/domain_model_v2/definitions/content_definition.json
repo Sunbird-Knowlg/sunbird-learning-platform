@@ -901,6 +901,19 @@
 				},
 				{
 					"required": false,
+					"dataType": "Text",
+					"propertyName": "copyrightYear",
+					"title": "Copyright Year",
+					"description": "Copyright Year",
+					"category": "Ownership",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
 					"dataType": "Select",
 					"propertyName": "license",
 					"title": "License",
