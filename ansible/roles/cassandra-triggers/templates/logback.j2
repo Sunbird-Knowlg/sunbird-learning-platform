@@ -1,0 +1,149 @@
+<configuration>
+    <!-- transaction-event-trigger START -->
+        <timestamp key="timestamp" datePattern="yyyy-MM-dd"/>
+        <!-- common transactions logs -->
+        <appender name="TRANSACTION_HANDLER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${cassandra.logdir}/cassandra-triggers/transactions.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${cassandra.logdir}/cassandra-triggers/transactions-${timestamp}-%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>20</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>5MB</maxFileSize>
+            </triggeringPolicy>
+            <encoder>
+                <pattern>%d %msg%n</pattern>
+            </encoder>
+        </appender>
+        <appender name="ASYNC_TRANSACTION_HANDLER" class="ch.qos.logback.classic.AsyncAppender">
+            <queueSize>1024</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <includeCallerData>true</includeCallerData>
+            <appender-ref ref="TRANSACTION_HANDLER" />
+        </appender>
+        <logger name="org.sunbird.cassandra.triggers" level="INFO" additivity="false">
+            <appender-ref ref="ASYNC_TRANSACTION_HANDLER"/>
+        </logger>
+        <!-- content_data transaction logs -->
+        <appender name="TRANSACTION_HANDLER_CONTENT_DATA" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${cassandra.logdir}/cassandra-triggers/content_data_transactions.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${cassandra.logdir}/cassandra-triggers/content_data_transactions-${timestamp}-%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>20</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>5MB</maxFileSize>
+            </triggeringPolicy>
+            <encoder>
+                <pattern>%d %msg%n</pattern>
+            </encoder>
+        </appender>
+        <appender name="ASYNC_TRANSACTION_HANDLER_CONTENT_DATA" class="ch.qos.logback.classic.AsyncAppender">
+            <queueSize>1024</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <includeCallerData>true</includeCallerData>
+            <appender-ref ref="TRANSACTION_HANDLER_CONTENT_DATA" />
+        </appender>
+        <logger name="org.sunbird.cassandra.triggers.{{ content_keyspace_name }}.content_data" level="INFO" additivity="false">
+            <appender-ref ref="ASYNC_TRANSACTION_HANDLER_CONTENT_DATA"/>
+        </logger>
+        <!-- question data transaction logs -->
+        <appender name="TRANSACTION_HANDLER_QUESTION_DATA" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${cassandra.logdir}/cassandra-triggers/question_data_transactions.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${cassandra.logdir}/cassandra-triggers/question_data_transactions-${timestamp}-%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>20</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>5MB</maxFileSize>
+            </triggeringPolicy>
+            <encoder>
+                <pattern>%d %msg%n</pattern>
+            </encoder>
+        </appender>
+        <appender name="ASYNC_TRANSACTION_HANDLER_QUESTION_DATA" class="ch.qos.logback.classic.AsyncAppender">
+            <queueSize>1024</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <includeCallerData>true</includeCallerData>
+            <appender-ref ref="TRANSACTION_HANDLER_QUESTION_DATA" />
+        </appender>
+        <logger name="org.sunbird.cassandra.triggers.{{ content_keyspace_name }}.question_data" level="INFO" additivity="false">
+            <appender-ref ref="ASYNC_TRANSACTION_HANDLER_QUESTION_DATA"/>
+        </logger>
+        <!-- content hierarchy transaction logs -->
+        <appender name="TRANSACTION_HANDLER_CONTENT_HIERARCHY" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${cassandra.logdir}/cassandra-triggers/content_hierarchy_transactions.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${cassandra.logdir}/cassandra-triggers/content_hierarchy_transactions-${timestamp}-%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>20</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>5MB</maxFileSize>
+            </triggeringPolicy>
+            <encoder>
+                <pattern>%d %msg%n</pattern>
+            </encoder>
+        </appender>
+        <appender name="ASYNC_TRANSACTION_HANDLER_CONTENT_HIERARCHY" class="ch.qos.logback.classic.AsyncAppender">
+            <queueSize>1024</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <includeCallerData>true</includeCallerData>
+            <appender-ref ref="TRANSACTION_HANDLER_CONTENT_HIERARCHY" />
+        </appender>
+        <logger name="org.sunbird.cassandra.triggers.{{ hierarchy_keyspace_name }}.content_hierarchy" level="INFO" additivity="false">
+            <appender-ref ref="ASYNC_TRANSACTION_HANDLER_CONTENT_HIERARCHY"/>
+        </logger>
+        <!-- framework hierarchy transaction logs -->
+        <appender name="TRANSACTION_HANDLER_FRAMEWORK_HIERARCHY" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${cassandra.logdir}/cassandra-triggers/framework_hierarchy_transactions.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${cassandra.logdir}/cassandra-triggers/framework_hierarchy_transactions-${timestamp}-%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>20</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>5MB</maxFileSize>
+            </triggeringPolicy>
+            <encoder>
+                <pattern>%d %msg%n</pattern>
+            </encoder>
+        </appender>
+        <appender name="ASYNC_TRANSACTION_HANDLER_FRAMEWORK_HIERARCHY" class="ch.qos.logback.classic.AsyncAppender">
+            <queueSize>1024</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <includeCallerData>true</includeCallerData>
+            <appender-ref ref="TRANSACTION_HANDLER_FRAMEWORK_HIERARCHY" />
+        </appender>
+        <logger name="org.sunbird.cassandra.triggers.{{ hierarchy_keyspace_name }}.framework_hierarchy" level="INFO" additivity="false">
+            <appender-ref ref="ASYNC_TRANSACTION_HANDLER_FRAMEWORK_HIERARCHY"/>
+        </logger>
+        <!-- sunbird courses transaction logs -->
+        <appender name="TRANSACTION_HANDLER_SUNBIRD_COURSES" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${cassandra.logdir}/cassandra-triggers/sunbird_courses_transactions.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${cassandra.logdir}/cassandra-triggers/sunbird_courses_transactions-${timestamp}-%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>20</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>5MB</maxFileSize>
+            </triggeringPolicy>
+            <encoder>
+                <pattern>%d %msg%n</pattern>
+            </encoder>
+        </appender>
+        <appender name="ASYNC_TRANSACTION_HANDLER_SUNBIRD_COURSES" class="ch.qos.logback.classic.AsyncAppender">
+            <queueSize>1024</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <includeCallerData>true</includeCallerData>
+            <appender-ref ref="TRANSACTION_HANDLER_SUNBIRD_COURSES" />
+        </appender>
+        <logger name="org.sunbird.cassandra.triggers.sunbird_courses" level="INFO" additivity="false">
+            <appender-ref ref="ASYNC_TRANSACTION_HANDLER_SUNBIRD_COURSES"/>
+        </logger>
+    <!-- transaction-event-trigger END -->
+</configuration>

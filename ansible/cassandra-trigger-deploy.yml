@@ -1,15 +1,7 @@
 ---
 - hosts: cassandra
   become: yes
-  tasks:
-    - name: copy the jar file to cassandra trigger path
-      copy: 
-        src: "{{ item }}"
-        dest: /etc/cassandra/triggers
-      with_fileglob:
-           - static-files/cassandra.transaction-event-handler-*.jar
-             
-    - name: restart the cassandra
-      service:
-        name: "cassandra"
-        state: "restarted"
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
+  roles:
+    - cassandra-triggers
