@@ -68,3 +68,9 @@ ALTER KEYSPACE {{ orchestrator_keyspace_name }} WITH replication = {
   'datacenter1' : 2
 };
 {% endif %}
+
+
+CREATE TRIGGER content_data_trigger ON {{ content_keyspace_name }}.content_data USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
+CREATE TRIGGER question_data_trigger ON {{ content_keyspace_name }}.question_data USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
+CREATE TRIGGER framework_hierarchy_trigger ON {{ hierarchy_keyspace_name }}.framework_hierarchy USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
+CREATE TRIGGER content_hierarchy_trigger ON {{ hierarchy_keyspace_name }}.content_hierarchy USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
