@@ -42,13 +42,15 @@ search.batch.size=500
 search.connection.timeout=30
 search.index.name="compositesearch"
 
-nested.fields=["badgeAssertions","targets","badgeAssociations"]
+nested.fields=["badgeAssertions","targets","badgeAssociations","plugins"]
 channel.default="in.ekstep"
 
 # Cassandra Configurations
 hierarchy.keyspace.name="{{ hierarchy_keyspace_name }}"
 content.hierarchy.table="content_hierarchy"
 cassandra.lp.connection="{{ lp_cassandra_connection }}"
+assessment.keyspace.name="{{ content_keyspace_name }}"
+assessment.keyspace.table="question_data"
 
 #Filter metadata based on definition while indexing into ES
 #restrict.metadata.objectTypes="Content,ContentImage"

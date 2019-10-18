@@ -79,7 +79,10 @@ public class UpdateHierarchyOperation extends BaseContentManager {
             put(ContentAPIParams.children.name(), children);
         }};
 
-        Response rootNodeResponse = updateDataNode(getTempNode(nodeList, rootId));
+        //Adding to remove outrelation while updating node in update hierarchy
+        Node node = getTempNode(nodeList, rootId);
+        node.setOutRelations(null);
+        Response rootNodeResponse = updateDataNode(node);
         if(checkError(rootNodeResponse)) {
             return rootNodeResponse;
         }
@@ -188,8 +191,7 @@ public class UpdateHierarchyOperation extends BaseContentManager {
     private List<Node> getNodeMapFromHierarchy(Map<String, Object> hierarchyResponse, DefinitionDTO definition, String
             rootId) {
         List<Node> nodeList = new ArrayList<>();
-        Map<String, Node> nodeMap = new HashMap<>();
-        Node rootNode = getNodeForOperation(rootId, "update");
+        Node rootNode = getNodeForOperation(rootId, "updateHierarchy");
         if(!StringUtils.equalsIgnoreCase(COLLECTION_MIME_TYPE , (String) rootNode.getMetadata().get(ContentAPIParams
                 .mimeType.name()))) {
             TelemetryManager.error("UpdateHierarchyOperation.getNodeMapFromHierarchy() :: invalid mimeType for root " +
@@ -205,7 +207,6 @@ public class UpdateHierarchyOperation extends BaseContentManager {
 
         rootNode.getMetadata().put(ContentAPIParams.version.name(), LATEST_CONTENT_VERSION);
         nodeList.add(rootNode);
-        nodeMap.put(rootId, rootNode);
         if (MapUtils.isNotEmpty(hierarchyResponse)) {
             List<Map<String, Object>> children = (List<Map<String, Object>>) hierarchyResponse
                     .get("children");

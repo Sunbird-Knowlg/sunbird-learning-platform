@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
+import org.ekstep.test.common.CommonTestSetup;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -40,7 +41,7 @@ import org.springframework.web.context.WebApplicationContext;
  * test senarios have been specified for each of the operation
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AssessmentItemSetV3Test extends GraphEngineTestSetup {
+public class AssessmentItemSetV3Test extends CommonTestSetup {
 
 	@Autowired
 	private WebApplicationContext context;
@@ -52,12 +53,15 @@ public class AssessmentItemSetV3Test extends GraphEngineTestSetup {
 	static String set_id1 = null;
 	List<Integer> items = new ArrayList<Integer>();
 	private final String base_path = "/assessment/v3/itemsets";
+	private static String cassandraScript_1 = "CREATE KEYSPACE IF NOT EXISTS content_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
+	private static String cassandraScript_2 = "CREATE TABLE IF NOT EXISTS content_store_test.question_data_test (question_id text,last_updated_on timestamp,body blob, question blob, solutions blob, editorState blob,PRIMARY KEY (question_id));";
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		loadDefinition("definitions/concept_definition.json", "definitions/content_definition.json",
 				"definitions/dimension_definition.json", "definitions/item_definition.json",
 				"definitions/itemset_definition.json");
+		executeScript(cassandraScript_1, cassandraScript_2);
 	}
 
 	// Create assessmentItemset

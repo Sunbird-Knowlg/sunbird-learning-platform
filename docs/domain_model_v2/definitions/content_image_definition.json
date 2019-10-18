@@ -909,6 +909,7 @@
 						"Against DRM license",
 						"Creative Commons Attribution-NoDerivs (CC-BY-ND)",
 						"Creative Commons Attribution (CC BY)",
+						"CC-BY 4.0 For details: https://creativecommons.org/licenses/by/4.0/legalcode",
 						"Creative Commons Attribution-ShareAlike (CC BY-SA)",
 						"Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)",
 						"Creative Commons Zero (CC0)",
@@ -1101,7 +1102,8 @@
                         "CuriosityQuestionSet",
                         "MarkingSchemeRubric",
                         "ExplanationResource",
-                        "ExperientialResource"
+						"ExperientialResource",
+						"ConceptMap"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -2875,6 +2877,21 @@
                     "draft": false,
                     "rangeValidation": true
                 },
+				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "certTemplate",
+					"title": "Cert Template",
+					"description": "Certification Template",
+					"category": "general",
+					"displayProperty": "Editable",
+					"range": null,
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+					"indexed": true,
+					"draft": false,
+					"rangeValidation": true
+				},
 				{
 					"required": false,
 					"dataType": "JSON",

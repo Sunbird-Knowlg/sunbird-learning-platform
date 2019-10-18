@@ -31,7 +31,6 @@
           node.master: "true",
           bootstrap.memory_lock: true,
         },
-        es_heap_size: "2g",
         es_etc_discovery_zen_ping_unicast_hosts: "{{ groups['composite-search-cluster'] }}",
         es_etc_cluster_name: "elasticsearch-composite-search"
       }

@@ -6,9 +6,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.job.samza.util.BatchSyncUtil;
 import org.ekstep.job.samza.util.DIALCodeUtil;
+import org.ekstep.job.samza.util.QRImageUtil;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
@@ -16,6 +19,7 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.SamzaCommonParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,8 +60,9 @@ public class PostPublishProcessor implements ISamzaService {
         LearningRequestRouterPool.init();
         LOGGER.info("Learning Actor System initialized");
         dialUtil = new DIALCodeUtil();
-        batchSyncUtil = new BatchSyncUtil();
         LOGGER.info("DIAL Util initialized");
+        batchSyncUtil = new BatchSyncUtil();
+        LOGGER.info("Batch Sync Util initialized");
     }
 
     /**
@@ -85,17 +90,9 @@ public class PostPublishProcessor implements ISamzaService {
         switch (((String) edata.get("action")).toLowerCase()) {
             case "link-dialcode": {
                 String nodeId = (String) object.get("id");
-                Node node = util.getNode(SamzaCommonParams.domain.name(), nodeId);
-                if (null != node && MapUtils.isNotEmpty(node.getMetadata())) {
-                    List<String> dialcodes = dialUtil.getDialCodes(node);
-                    if (CollectionUtils.isNotEmpty(dialcodes)) {
-                        LOGGER.info("Event Skipped. Target Object (" + nodeId + ") already has DIAL Code.| DIAL Codes : " + dialcodes);
-                    } else {
-                        dialUtil.linkDialCode(node);
-                    }
-                } else {
-                    LOGGER.info("Event Skipped. Target Object (" + nodeId + ") metadata is null.");
-                }
+                LOGGER.info("Started processing of link-dialcode operation for : " + nodeId);
+                processDIALEvent(nodeId);
+                LOGGER.info("Completed processing of link-dialcode operation for : " + nodeId);
                 break;
             }
 
@@ -128,6 +125,42 @@ public class PostPublishProcessor implements ISamzaService {
         Integer iteration = (Integer) edata.get(SamzaCommonParams.iteration.name());
         String contentType = (String) edata.get("contentType");
         return (ACTIONS.contains(action) && iteration <= MAX_ITERATION_COUNT && CONTENT_TYPES.contains(contentType));
+    }
+
+    private void processDIALEvent(String identifier) {
+        Node node = util.getNode(SamzaCommonParams.domain.name(), identifier);
+        if (null != node && MapUtils.isNotEmpty(node.getMetadata())) {
+            List<String> dialcodes = dialUtil.getDialCodes(node);
+            if (CollectionUtils.isNotEmpty(dialcodes)) {
+                Boolean isQRImagePresent = validateQRImage(dialcodes.get(0));
+                if (isQRImagePresent)
+                    LOGGER.info("Event Skipped. Target Object [" + identifier + "] already has DIAL Code and its QR Image.| DIAL Codes : " + dialcodes);
+                else {
+                    LOGGER.info("QR Image Not Found for [" + identifier + "] having DIAL Code " + dialcodes+". So Generating QR Image.");
+                    dialUtil.generateQRImage(node, dialcodes.get(0));
+                }
+            } else {
+                dialUtil.linkDialCode(node);
+            }
+        } else {
+            LOGGER.info("Event Skipped. Target Object (" + identifier + ") metadata is null.");
+        }
+    }
+
+    /**
+     * This method checks whether QR Image Url Exist for given DIAL Code or not.
+     * @param dial
+     * @return Boolean
+     */
+    private Boolean validateQRImage(String dial) {
+        Boolean result = false;
+        try {
+            String url = QRImageUtil.getQRImageRecord(dial);
+            return StringUtils.isNotBlank(url) ? true : false;
+        } catch (Exception e) {
+            LOGGER.error("Exception Occurred While Validating QR Image Record. | Exception is : ", e);
+            return false;
+        }
     }
 
 }

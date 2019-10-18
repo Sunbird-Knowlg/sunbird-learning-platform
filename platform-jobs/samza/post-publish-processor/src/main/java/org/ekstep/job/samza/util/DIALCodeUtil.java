@@ -11,11 +11,9 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.util.ControllerUtil;
-import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -52,17 +50,7 @@ public class DIALCodeUtil {
         // get 0th index dialcode from reserved dials
         String dial = reservedDials.entrySet().stream().filter(entry -> entry.getValue() == 0).map(entry -> entry.getKey()).findFirst().get();
         updateNode(node, dial);
-        String channel = (String) node.getMetadata().get(PostPublishParams.channel.name());
-        //Generate DIAL Image and upload it to cloud storage
-        String qrImageUrl = QRImageUtil.getQRImageUrl(node, dial, channel);
-        LOGGER.info("DIAL Code Image Url generated & uploaded successfully for " + node.getIdentifier() + " | Image Url is :" + qrImageUrl);
-        // Insert QR Image Record into Cassandra DB
-        if (StringUtils.isNotBlank(qrImageUrl)) {
-            QRImageUtil.createQRImageRecord(channel, dial, qrImageUrl);
-            LOGGER.info("DIAL Code Image Record Inserted successfully to Cassandra DB for " + node.getIdentifier());
-        } else {
-            LOGGER.info("DIAL Code Image Url is Null for" + node.getIdentifier() + " | So Skipping Cassandra DB Update.");
-        }
+        generateQRImage(node, dial);
     }
 
     /**
@@ -77,7 +65,8 @@ public class DIALCodeUtil {
                 });
                 return (dialcodes.stream().filter(f -> StringUtils.isNotBlank(f)).collect(Collectors.toList()));
             } catch (Exception e) {
-                LOGGER.info("Exception Occurred While Parsing dialcodes for " + node.getIdentifier() + " | Exception is: " + e);
+                LOGGER.error("Exception Occurred While Parsing dialcodes for " + node.getIdentifier() + " | Exception is: " , e);
+                e.printStackTrace();
             }
 
         }
@@ -95,7 +84,8 @@ public class DIALCodeUtil {
                 return objectMapper.readValue((String) node.getMetadata().get(PostPublishParams.reservedDialcodes.name()), new TypeReference<Map<String, Integer>>() {
                 });
         } catch (Exception e) {
-            LOGGER.info("Exception Occurred While Parsing reservedDialcodes for " + node.getIdentifier() + " | Exception is: " + e);
+            LOGGER.error("Exception Occurred While Parsing reservedDialcodes for " + node.getIdentifier() + " | Exception is: " , e);
+            e.printStackTrace();
         }
         return null;
     }
@@ -136,7 +126,8 @@ public class DIALCodeUtil {
                 LOGGER.info("Error Response Received While Reserving DialCode for " + node.getIdentifier() + " | Error Response Code is :" + response.getResponseCode() + "| Error Result : " + response.getResult());
             }
         } catch (Exception e) {
-            LOGGER.info("Exception Occurred While Reserving DialCode for " + node.getIdentifier() + " | Exception is :" + e);
+            LOGGER.error("Exception Occurred While Reserving DialCode for " + node.getIdentifier() + " | Exception is :" , e);
+            e.printStackTrace();
         }
         return reservedDials;
     }
@@ -155,6 +146,20 @@ public class DIALCodeUtil {
             LOGGER.info("DIAL Code Link (Node Update) Failed for Node : " + node.getIdentifier() + " | DIAL Code is: " + dial);
     }
 
+    public static void generateQRImage(Node node, String dial) {
+        String channel = (String) node.getMetadata().get(PostPublishParams.channel.name());
+        //Generate DIAL Image and upload it to cloud storage
+        String qrImageUrl = QRImageUtil.getQRImageUrl(node, dial, channel);
+        LOGGER.info("DIAL Code Image Url generated & uploaded successfully for " + node.getIdentifier() + " | Image Url is :" + qrImageUrl);
+        // Insert QR Image Record into Cassandra DB
+        if (StringUtils.isNotBlank(qrImageUrl)) {
+            QRImageUtil.createQRImageRecord(channel, dial, qrImageUrl);
+            LOGGER.info("DIAL Code Image Record Inserted successfully to Cassandra DB for " + node.getIdentifier());
+        } else {
+            LOGGER.info("DIAL Code Image Url is Null for " + node.getIdentifier() + " | So Skipping Cassandra DB Update.");
+        }
+    }
+
     private static Response getResponse(HttpResponse<String> response) {
         String body = null;
         Response resp = new Response();
@@ -163,10 +168,10 @@ public class DIALCodeUtil {
             if (StringUtils.isNotBlank(body))
                 resp = objectMapper.readValue(body, Response.class);
         } catch (UnsupportedEncodingException e) {
-            TelemetryManager.info("UnsupportedEncodingException:::::" + e);
+            LOGGER.error("UnsupportedEncodingException:::::" , e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
         } catch (Exception e) {
-            TelemetryManager.info("Exception:::::" + e);
+            LOGGER.error("Exception:::::" , e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
         }
         return resp;
