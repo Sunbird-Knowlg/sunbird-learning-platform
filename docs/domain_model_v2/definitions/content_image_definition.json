@@ -909,6 +909,7 @@
 						"Against DRM license",
 						"Creative Commons Attribution-NoDerivs (CC-BY-ND)",
 						"Creative Commons Attribution (CC BY)",
+						"CC-BY 4.0 For details: https://creativecommons.org/licenses/by/4.0/legalcode",
 						"Creative Commons Attribution-ShareAlike (CC BY-SA)",
 						"Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)",
 						"Creative Commons Zero (CC0)",
@@ -1101,7 +1102,8 @@
                         "CuriosityQuestionSet",
                         "MarkingSchemeRubric",
                         "ExplanationResource",
-                        "ExperientialResource"
+						"ExperientialResource",
+						"ConceptMap"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -2889,6 +2891,18 @@
 					"indexed": true,
 					"draft": false,
 					"rangeValidation": true
+				},
+				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "plugins",
+					"title": "Plugin",
+					"description": "Plugins associated with the content",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+					"indexed": true
 				}
 			],
 			"inRelations": [
@@ -3196,7 +3210,8 @@
 					"programId",
 					"leafNodes",
 					"origin",
-					"originData"
+					"originData",
+					"plugins"
 				]
 			}
 		}

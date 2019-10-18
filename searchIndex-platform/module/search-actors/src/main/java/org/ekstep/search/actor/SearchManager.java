@@ -269,6 +269,7 @@ public class SearchManager extends SearchBaseActor {
 			searchObj.setLimit(limit);
 			searchObj.setFields(fieldsSearch);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
+			getAggregations(req, searchObj);
 
 			if (null != req.get(CompositeSearchParams.offset.name())) {
 				int offset = getIntValue(req.get(CompositeSearchParams.offset.name()));
@@ -287,7 +288,7 @@ public class SearchManager extends SearchBaseActor {
 		return searchObj;
 	}
 
-	@SuppressWarnings("unchecked")
+
 	private Map<String, Float> getWeightagesMap(String weightagesString)
 			throws JsonParseException, JsonMappingException, IOException {
 		Map<String, Float> weightagesMap = new HashMap<String, Float>();
@@ -733,6 +734,13 @@ private Integer getIntValue(Object num) {
 		collectionResult.remove("count");
 		collectionResult.remove("results");
 		return collectionResult;
+	}
+
+	private void getAggregations(Map<String, Object> req, SearchDTO searchObj) {
+		if(null != req.get("aggregations") && CollectionUtils.isNotEmpty((List<Map<String, Object>>) req.get("aggregations"))){
+			searchObj.setAggregations((List<Map<String, Object>>) req.get("aggregations"));
+		}
+
 	}
 
 }
