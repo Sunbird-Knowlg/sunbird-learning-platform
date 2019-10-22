@@ -45,6 +45,8 @@ public class CertificateGenerator {
     private SimpleDateFormat dateFormatter = null;
     private static final String ES_INDEX_NAME = "user-courses";
     private static final String ES_DOC_TYPE = "_doc";
+    private static final String CERTIFICATE_BASE_PATH = Platform.config.hasPath("certificate.base_path")
+            ? Platform.config.getString("certificate.base_path"): "http://localhost:9000/certs";
 
     private static JobLogger LOGGER = new JobLogger(CertificateGenerator.class);
 
@@ -233,10 +235,11 @@ public class CertificateGenerator {
                    put(CourseCertificateParams.issuer.name(), getIssuerDetails(certTemplate));
                    put(CourseCertificateParams.signatoryList.name(), getSignatoryList(certTemplate));
                    put(CourseCertificateParams.htmlTemplate.name(), certTemplate.get(CourseCertificateParams.htmlTemplate.name()));
-                   put(CourseCertificateParams.tag.name(), batchId);
+                   put(CourseCertificateParams.tag.name(),  rootOrgId + "_" + batchId);
                    put(CourseCertificateParams.issuedDate.name(), dateFormatter.format(issuedOn));
                    put(CourseCertificateParams.keys.name(), certTemplate.get(CourseCertificateParams.keys.name()));
-                   put(CourseCertificateParams.orgId.name(), rootOrgId);
+                   put(CourseCertificateParams.criteria.name(), getCriteria(certTemplate));
+                   put(CourseCertificateParams.basePath.name(), CERTIFICATE_BASE_PATH);
                }});
            }});
         }};
@@ -322,6 +325,22 @@ public class CertificateGenerator {
             return (List<Map<String, Object>>) certTemplate.get("signatoryList");
         }
         return null;
+    }
+
+    /**
+     * this method gives "What was the criteria for issuing this certificate"
+     * if criteria is not given by defaults to "course completion certificate"
+     * @param certTemplate
+     * @return
+     */
+    private Map<String, Object> getCriteria(Map<String, Object> certTemplate) {
+        if(MapUtils.isNotEmpty((Map) certTemplate.get("criteria"))) {
+            return (Map<String, Object>) certTemplate.get("criteria");
+        } else {
+            Map<String , Object> criteria = new HashMap<>();
+            criteria.put(CourseCertificateParams.narrative.name(), "course completion certificate");
+            return criteria;
+        }
     }
 
 
