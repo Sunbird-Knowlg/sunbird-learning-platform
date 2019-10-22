@@ -93,13 +93,10 @@ public class CertificateGenerator {
             String courseName = (String) courseMetadata.get("name");
             Map<String, Object> dataToFetch = new HashMap<String, Object>() {{
                 put(CourseCertificateParams.courseId.name(), courseId);
+                put(CourseCertificateParams.name.name(),certificateName);
             }};
             List<Row> rows = SunbirdCassandraUtil.read(KEYSPACE, CERTIFICATE_TEMPLATES_TABLE, dataToFetch);
-            List<Map<String,Object>> certTemplates = rows.stream().map(row -> mapToObject(row.getString("template"))).collect(Collectors.toList());
-            Map<String, Object> certTemplate = new HashMap<>();
-            if(CollectionUtils.isNotEmpty(certTemplates)) {
-                certTemplate = certTemplates.stream().filter(t -> StringUtils.equalsIgnoreCase(certificateName, (String) t.get("name"))).findFirst().get();
-            }
+            Map<String,Object> certTemplate = mapToObject(rows.get(0).getString("template"));
 
             if(MapUtils.isNotEmpty(certTemplate)) {
                 //Get Username from user get by Id.
