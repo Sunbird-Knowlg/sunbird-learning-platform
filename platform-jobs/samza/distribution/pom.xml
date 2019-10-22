@@ -12,7 +12,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>audit-history-indexer</artifactId>
-			<version>0.0.78</version>
+			<version>0.0.79</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -88,7 +88,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-certificate-generator</artifactId>
-			<version>0.0.9</version>
+			<version>0.0.10</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

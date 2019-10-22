@@ -621,8 +621,11 @@ public abstract class BaseContentManager extends BaseManager {
             String licenseType = YouTubeUrlUtil.getLicense(artifactUrl);
             if (equalsIgnoreCase("youtube", licenseType))
                 node.getMetadata().put("license", "Standard YouTube License");
-            else if (equalsIgnoreCase("creativeCommon", licenseType))
-                node.getMetadata().put("license", "CC-BY 4.0");
+            else if (equalsIgnoreCase("creativeCommon", licenseType)) {
+            		String creativeCommonLicenseType = Platform.config.hasPath("content.license") 
+            				? Platform.config.getString("content.license") : "Creative Commons Attribution (CC BY)";
+                node.getMetadata().put("license", creativeCommonLicenseType);
+            }
             else {
                 TelemetryManager.log("Got Unsupported Youtube License Type : " + licenseType + " | [Content ID: "
                         + node.getIdentifier() + "]");
