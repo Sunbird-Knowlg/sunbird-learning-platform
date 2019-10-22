@@ -3,6 +3,7 @@ package org.sunbird.jobs.samza.service.util;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.TypeTokens;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
@@ -39,6 +40,7 @@ public class CertificateGenerator {
     private static final String KEYSPACE = Platform.config.hasPath("courses.keyspace.name")
             ? Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
     private static final String USER_COURSES_TABLE = "user_courses";
+    private static final String CERTIFICATE_TEMPLATES_TABLE = "certificate_templates";
     protected static final String KP_LEARNING_BASE_URL = Platform.config.hasPath("kp.learning_service.base_url")
             ? Platform.config.getString("kp.learning_service.base_url"): "http://localhost:8080/learning-service";
     private SimpleDateFormat formatter = null;
@@ -89,7 +91,11 @@ public class CertificateGenerator {
         Map<String, Object> courseMetadata = getContent(courseId,null);
         if(MapUtils.isNotEmpty(courseMetadata)){
             String courseName = (String) courseMetadata.get("name");
-            List<Map<String, Object>> certTemplates= (List<Map<String, Object>>) courseMetadata.get("certTemplate");
+            Map<String, Object> dataToFetch = new HashMap<String, Object>() {{
+                put(CourseCertificateParams.courseId.name(), courseId);
+            }};
+            List<Row> rows = SunbirdCassandraUtil.read(KEYSPACE, CERTIFICATE_TEMPLATES_TABLE, dataToFetch);
+            List<Map<String,Object>> certTemplates = rows.stream().map(row -> mapToObject(row.getString("template"))).collect(Collectors.toList());
             Map<String, Object> certTemplate = new HashMap<>();
             if(CollectionUtils.isNotEmpty(certTemplates)) {
                 certTemplate = certTemplates.stream().filter(t -> StringUtils.equalsIgnoreCase(certificateName, (String) t.get("name"))).findFirst().get();
@@ -111,6 +117,17 @@ public class CertificateGenerator {
         } else {
             LOGGER.info( courseId+ " not found");
         }
+    }
+
+    private Map<String, Object> mapToObject(String certificateTemplate) {
+        Map<String, Object> template = new HashMap<>();
+        try {
+          template  = mapper.readValue(certificateTemplate, new TypeReference<Map<String, String>>() {});
+         } catch (Exception ex) {
+            LOGGER.info(
+                    "CertificateGenerator:issueCertificate Exception occurred with error message =="+ ex);
+        }
+        return template;
     }
 
     private void generateCertificate(List<Map<String, String>> certificates, String courseId, String courseName, String certificateName, String batchId, String userId, Map<String, Object> userResponse,
