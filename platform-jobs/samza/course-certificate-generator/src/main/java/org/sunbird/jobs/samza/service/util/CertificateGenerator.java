@@ -74,7 +74,8 @@ public class CertificateGenerator {
         List<Row> rows = SunbirdCassandraUtil.read(KEYSPACE, USER_COURSES_TABLE, dataToFetch);
 
         for(Row row: rows) {
-            List<Map<String, String>> certificates = row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class));
+            List<Map<String, String>> certificates = row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class))
+                    .stream().filter(cert -> StringUtils.equalsIgnoreCase(certificateName, (String)cert.get(CourseCertificateParams.name.name()))).collect(Collectors.toList());
             Date issuedOn = row.getTimestamp("completedOn");
             if(CollectionUtils.isNotEmpty(certificates) && reIssue) {
                 issueCertificate(certificates, courseId, certificateName, batchId, userId, issuedOn,  true);
@@ -91,12 +92,7 @@ public class CertificateGenerator {
         Map<String, Object> courseMetadata = getContent(courseId,null);
         if(MapUtils.isNotEmpty(courseMetadata)){
             String courseName = (String) courseMetadata.get("name");
-            List<Map<String, Object>> certTemplates= (List<Map<String, Object>>) courseMetadata.get("certTemplate");
-            Map<String, Object> certTemplate = new HashMap<>();
-            if(CollectionUtils.isNotEmpty(certTemplates)) {
-                certTemplate = certTemplates.stream().filter(t -> StringUtils.equalsIgnoreCase(certificateName, (String) t.get("name"))).findFirst().get();
-            }
-
+            Map<String, Object> certTemplate = getCertTemplates(courseMetadata, certificateName);
             if(MapUtils.isNotEmpty(certTemplate)) {
                 //Get Username from user get by Id.
                 Map<String, Object> userResponse = getUserDetails(userId); // call user Service
@@ -128,18 +124,8 @@ public class CertificateGenerator {
             if(200 == httpResponse.getStatus()) {
                 Response response = mapper.readValue(httpResponse.getBody(), Response.class);
                 List<Map<String, String>> updatedCerts = certificates.stream().filter(cert -> !StringUtils.equalsIgnoreCase(certificateName, cert.get("name"))).collect(Collectors.toList());
-
                 Map<String, Object> certificate = ((List<Map<String, Object>>)response.get("response")).get(0);
-                updatedCerts.add(new HashMap<String, String>(){{
-                    put(CourseCertificateParams.name.name(), certificateName);
-                    put(CourseCertificateParams.id.name(), (String) certificate.get(CourseCertificateParams.id.name()));
-                    put(CourseCertificateParams.url.name(), (String) certificate.get(CourseCertificateParams.pdfUrl.name()));
-                    put(CourseCertificateParams.token.name(), (String) certificate.get(CourseCertificateParams.accessCode.name()));
-                    put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(issuedOn));
-                    if(reIssue){
-                        put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(new Date()));
-                    }
-                }});
+                populateCreatedCertificate(updatedCerts, certificate, certificateName, issuedOn, reIssue);
 
                 if(CollectionUtils.isNotEmpty(updatedCerts)) {
                     Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
@@ -155,6 +141,8 @@ public class CertificateGenerator {
                 if(addCertificateToUser(certificate, courseId, batchId, oldId)) {
                     notifyUser(userId, certTemplate, courseName, userResponse, issuedOn);
                 }
+            } else {
+                LOGGER.info("Error while generation certificate for batchId : " + batchId + " for user : " + userId + " with error response : "  +  + httpResponse.getStatus()  + " :: " + httpResponse.getBody());
             }
         } catch (Exception e) {
             LOGGER.error("Error while generating the certificate for user " + userId +" with batch: " + batchId, e);
@@ -221,6 +209,7 @@ public class CertificateGenerator {
     private Map<String,Object> prepareCertServiceRequest(String courseName, String certificateName, String batchId, String userId, Map<String, Object> userResponse, Map<String, Object> certTemplate, Date issuedOn) {
         String recipientName = getRecipientName(userResponse);
         String rootOrgId = (String) userResponse.get("rootOrgId");
+        Map<String, Object> keys = getKeysFromOrg(rootOrgId);
         Map<String, Object> request = new HashMap<String, Object>() {{
            put(CourseCertificateParams.request.name(), new HashMap<String, Object>() {{
                put(CourseCertificateParams.certificate.name(), new HashMap<String, Object>() {{
@@ -237,7 +226,8 @@ public class CertificateGenerator {
                    put(CourseCertificateParams.htmlTemplate.name(), certTemplate.get(CourseCertificateParams.htmlTemplate.name()));
                    put(CourseCertificateParams.tag.name(),  rootOrgId + "_" + batchId);
                    put(CourseCertificateParams.issuedDate.name(), dateFormatter.format(issuedOn));
-                   put(CourseCertificateParams.keys.name(), certTemplate.get(CourseCertificateParams.keys.name()));
+                   if(MapUtils.isNotEmpty(keys))
+                    put(CourseCertificateParams.keys.name(), keys);
                    put(CourseCertificateParams.criteria.name(), getCriteria(certTemplate));
                    put(CourseCertificateParams.basePath.name(), CERTIFICATE_BASE_PATH);
                }});
@@ -356,6 +346,52 @@ public class CertificateGenerator {
         } catch (Exception e) {
             LOGGER.error("Error while update to ES: ", e);
         }
+
+    }
+
+    /**
+     * Get Certificate Template
+     * @param courseMetadata
+     * @return
+     */
+    private Map<String,Object> getCertTemplates(Map<String, Object> courseMetadata, String certificateName) {
+        List<Map<String, Object>> certTemplates =(List<Map<String, Object>>) courseMetadata.get("certTemplate");
+        Map<String, Object> certTemplate = new HashMap<>();
+        if(CollectionUtils.isNotEmpty(certTemplates)) {
+            certTemplate = certTemplates.stream().filter(t -> StringUtils.equalsIgnoreCase(certificateName, (String) t.get("name"))).findFirst().get();
+        }
+        return certTemplate;
+    }
+
+    private void populateCreatedCertificate(List<Map<String, String>> updatedCerts, Map<String, Object> certificate, String certificateName, Date issuedOn, boolean reIssue) {
+        updatedCerts.add(new HashMap<String, String>(){{
+            put(CourseCertificateParams.name.name(), certificateName);
+            put(CourseCertificateParams.id.name(), (String) certificate.get(CourseCertificateParams.id.name()));
+            put(CourseCertificateParams.url.name(), (String) certificate.get(CourseCertificateParams.pdfUrl.name()));
+            put(CourseCertificateParams.token.name(), (String) certificate.get(CourseCertificateParams.accessCode.name()));
+            put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(issuedOn));
+            if(reIssue){
+                put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(new Date()));
+            }
+        }});
+    }
+
+
+    private Map<String, Object> getKeysFromOrg(String orgId) {
+        try{
+            String url = LEARNER_SERVICE_PRIVATE_URL + "/v1/org/read";
+            Request request = new Request();
+            request.put("organisationId", orgId);
+            HttpResponse<String> httpResponse = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
+            if(200 == httpResponse.getStatus()) {
+                Response response = mapper.readValue(httpResponse.getBody(), Response.class);
+                Map<String, Object> keys = (Map<String, Object>) ((Map<String, Object>) response.getResult().get("response")).get("keys");
+                return keys;
+            }
+        } catch(Exception e){
+            LOGGER.error("Error while reading organisation : " + orgId, e);
+        }
+        return null;
 
     }
 
