@@ -6,6 +6,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.model.Node;
@@ -60,8 +61,11 @@ public class MigrationCommands implements CommandMarker {
 	}
 
 	private void migrateCollectionContent(String graphId, List<String> identifiers) {
+		System.out.println("Total Number of object Received for migration : " + identifiers.size());
+		System.out.println("------------------------------------------------------------------------------------");
 		ArrayList<String> migrProcessingResult = new ArrayList<String>();
 		Set<String> neo4jMigrSuccess = new HashSet<String>();
+		Map<String, Object> neo4jFailedMigrIds = new HashMap<String, Object>();
 		Set<String> cassandraMigrSuccess = new HashSet<String>();
 		ArrayList<String> invalidIds = new ArrayList<String>();
 		ArrayList<String> invalidHierarchy = new ArrayList<String>();
@@ -72,10 +76,10 @@ public class MigrationCommands implements CommandMarker {
 				Node node = util.getNode(graphId, contentId);
 				if (null != node && StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", (String) node.getMetadata().get("mimeType"))) {
 					//migrate image node, if exist
-					Boolean isImageExist = migrateNeo4jImageData(graphId, getImageId(contentId), neo4jMigrSuccess);
+					Boolean isImageExist = migrateNeo4jImageData(graphId, getImageId(contentId), neo4jMigrSuccess, neo4jFailedMigrIds);
 					// migrate live node, if image node not exist
 					if (!isImageExist)
-						migrateNeo4jData(node, neo4jMigrSuccess);
+						migrateNeo4jData(node, neo4jMigrSuccess, neo4jFailedMigrIds);
 					// migrate image hierarchy data
 					migrateCassandraData(getImageId(contentId), cassandraMigrSuccess, invalidHierarchy);
 					migrProcessingResult.add(contentId);
@@ -91,6 +95,13 @@ public class MigrationCommands implements CommandMarker {
 			System.out.println("Successfully Migrated Ids (Neo4j): " + neo4jMigrSuccess);
 		if (CollectionUtils.isNotEmpty(cassandraMigrSuccess))
 			System.out.println("Successfully Migrated Ids (Cassandra): " + cassandraMigrSuccess);
+		System.out.println("====================================================================================");
+		if (MapUtils.isNotEmpty(neo4jFailedMigrIds)) {
+			System.out.println("Neo4j Migration Failed for " + neo4jFailedMigrIds.keySet().size() + " objects.");
+			System.out.println("Neo4j Migration Failed for " + neo4jFailedMigrIds.keySet());
+			System.out.println("Error Map : " + neo4jFailedMigrIds);
+		}
+		System.out.println("====================================================================================");
 		if (CollectionUtils.isNotEmpty(invalidIds))
 			System.out.println("Invalid Identifiers: " + invalidIds);
 		if (CollectionUtils.isNotEmpty(invalidHierarchy))
@@ -99,20 +110,26 @@ public class MigrationCommands implements CommandMarker {
 			System.out.println("Migration Failed for Ids : " + failedMigrIds.keySet());
 			System.out.println("Error Map : " + failedMigrIds);
 		}
-		System.out.println("DIAL Migration Successfully processed for Ids : " + migrProcessingResult);
+		System.out.println("------------------------------------------------------------------------------------");
+		System.out.println("DIAL Migration Successfully processed for " + migrProcessingResult.size() + " Ids.");
 	}
 
-	private void migrateNeo4jData(Node node, Set<String> migrationSuccess) {
+	private void migrateNeo4jData(Node node, Set<String> migrationSuccess, Map<String, Object> neo4jFailedMigrIds) {
 		try {
 			List<String> dials = getDialCodes(node.getMetadata());
 			String dialReq = (String) node.getMetadata().get("dialcodeRequired");
 			if (CollectionUtils.isNotEmpty(dials) && !StringUtils.equals("Yes", dialReq)) {
 				node.getMetadata().put("dialcodeRequired", "Yes");
 				node.getMetadata().put("versionKey", PASSPORT_KEY);
-				util.updateNode(node);
-				migrationSuccess.add(node.getIdentifier());
-				//Clear TextBook Cache
-				RedisStoreUtil.delete(node.getIdentifier());
+				Response resp = util.updateNode(node);
+				if (null != resp && StringUtils.equals("OK", resp.getResponseCode().toString())) {
+					migrationSuccess.add(node.getIdentifier());
+					//Clear TextBook Cache
+					RedisStoreUtil.delete(node.getIdentifier());
+				} else {
+					neo4jFailedMigrIds.put(node.getIdentifier(), resp.getResult());
+				}
+
 			}
 		} catch (Exception ex) {
 			System.out.println("Exception Occurred While Migrating Neo4j Node : " + ex.getMessage());
@@ -121,7 +138,7 @@ public class MigrationCommands implements CommandMarker {
 
 	}
 
-	private Boolean migrateNeo4jImageData(String graphId, String contentId, Set<String> migrationSuccess) {
+	private Boolean migrateNeo4jImageData(String graphId, String contentId, Set<String> migrationSuccess, Map<String, Object> neo4jFailedMigrIds) {
 		Boolean result = false;
 		try {
 			Node node = util.getNode(graphId, contentId);
@@ -132,8 +149,12 @@ public class MigrationCommands implements CommandMarker {
 				if (CollectionUtils.isNotEmpty(dials) && !StringUtils.equals("Yes", dialReq)) {
 					node.getMetadata().put("dialcodeRequired", "Yes");
 					node.getMetadata().put("versionKey", PASSPORT_KEY);
-					util.updateNode(node);
-					migrationSuccess.add(node.getIdentifier().replace(".img", ""));
+					Response resp = util.updateNode(node);
+					if (null != resp && StringUtils.equals("OK", resp.getResponseCode().toString())) {
+						migrationSuccess.add(node.getIdentifier());
+					} else {
+						neo4jFailedMigrIds.put(node.getIdentifier(), resp.getResult());
+					}
 				}
 			}
 		} catch (ResourceNotFoundException e) {
