@@ -21,8 +21,6 @@
   vars_files:
     - "{{inventory_dir}}/secrets.yml"
   become: yes
-  vars_files:
-    - "{{inventory_dir}}/secrets/lp_secrets.yml"
   roles:
     - jdk-1.8.0_121
     - yarn
@@ -44,8 +42,6 @@
   vars_files:
     - "{{inventory_dir}}/secrets.yml"
   become: yes
-  vars_files:
-    - "{{inventory_dir}}/secrets/lp_secrets.yml"
   remote_user: hduser
   roles:
     - jdk-1.8.0_121
