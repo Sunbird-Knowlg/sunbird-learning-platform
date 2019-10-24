@@ -23,6 +23,9 @@
   become: yes
   roles:
     - jdk-1.8.0_121
-    - { artifacts-download.yml, artifacts_container: "{{ artifacts_container }}" artifact: "{{ neo4j_zip }}", artifact_path: "{{ playbook_dir }}/artifacts"
+    - role: artifacts-download-azure
+      vars:
+        artifact: "{{ neo4j_zip }}"
+        artifact_path: "{{ playbook_dir }}/artifacts"
     - neo4j-cluster
     - logstash
