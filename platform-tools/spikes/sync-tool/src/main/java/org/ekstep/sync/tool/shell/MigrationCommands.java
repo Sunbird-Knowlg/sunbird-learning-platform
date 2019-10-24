@@ -89,7 +89,7 @@ public class MigrationCommands implements CommandMarker {
 		}
 		if (CollectionUtils.isNotEmpty(neo4jMigrSuccess))
 			System.out.println("Successfully Migrated Ids (Neo4j): " + neo4jMigrSuccess);
-		if (CollectionUtils.isNotEmpty(neo4jMigrSuccess))
+		if (CollectionUtils.isNotEmpty(cassandraMigrSuccess))
 			System.out.println("Successfully Migrated Ids (Cassandra): " + cassandraMigrSuccess);
 		if (CollectionUtils.isNotEmpty(invalidIds))
 			System.out.println("Invalid Identifiers: " + invalidIds);
