@@ -62,7 +62,7 @@ public class FindOperation extends BaseContentManager {
                 Node node = getContentNode(TAXONOMY_ID, contentId, null);
                 contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
                 if(CONTENT_CACHE_ENABLED && CONTENT_CACHE_FINAL_STATUS.contains(contentMap.get(ContentAPIParams.status.name()).toString()))
-                    RedisStoreUtil.saveData(contentId, contentMap, 0);
+                    RedisStoreUtil.saveData(contentId, contentMap, CONTENT_CACHE_TTL);
             }
         } else {
             TelemetryManager.log("Fetching the Data For Content Id: " + contentId);
