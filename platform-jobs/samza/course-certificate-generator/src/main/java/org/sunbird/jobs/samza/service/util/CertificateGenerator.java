@@ -54,7 +54,7 @@ public class CertificateGenerator {
     public CertificateGenerator() {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
         formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSSZ");
-        dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
+        dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
         mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
@@ -228,7 +228,7 @@ public class CertificateGenerator {
                    put(CourseCertificateParams.name.name(), certTemplate.get(CourseCertificateParams.name.name()));
                    put(CourseCertificateParams.issuer.name(), getIssuerDetails(certTemplate));
                    put(CourseCertificateParams.signatoryList.name(), getSignatoryList(certTemplate));
-                   put(CourseCertificateParams.htmlTemplate.name(), certTemplate.get(CourseCertificateParams.htmlTemplate.name()));
+                   put(CourseCertificateParams.htmlTemplate.name(), certTemplate.get("template"));
                    put(CourseCertificateParams.tag.name(),  rootOrgId + "_" + batchId);
                    put(CourseCertificateParams.issuedDate.name(), dateFormatter.format(issuedOn));
                    if(MapUtils.isNotEmpty(keys))
@@ -366,7 +366,7 @@ public class CertificateGenerator {
             HttpResponse<String> httpResponse = Unirest.get(url).header("Content-Type", "application/json").asString();
             if(200 == httpResponse.getStatus()) {
                 Response response = mapper.readValue(httpResponse.getBody(), Response.class);
-                Map<String, Object> certTemplate = (Map<String, Object>) ((Map<String, Object>) response.getResult().get("response")).get("certificate");
+                Map<String, Object> certTemplate = (Map<String, Object>) ((Map<String, Object>) response.getResult().get("certificate")).get("template");
                 return certTemplate;
             }
         } catch(Exception e) {
