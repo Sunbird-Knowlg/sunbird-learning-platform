@@ -14,9 +14,11 @@ import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
+import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,6 +42,7 @@ public class IssueCertificate {
             ? Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
 
     private static final String topic = Platform.config.getString("task.inputs").replace("kafka.", "");
+    private static JobLogger LOGGER = new JobLogger(IssueCertificate.class);
 
     public void issue(Map<String, Object> edata, MessageCollector collector) {
         String batchId = (String) edata.get(CourseCertificateParams.batchId.name());
@@ -79,6 +82,7 @@ public class IssueCertificate {
                 }
             }
         } catch (Exception e) {
+            LOGGER.error("Error while fetching user and generatecertificates", e);
         }
     }
 
@@ -174,19 +178,28 @@ public class IssueCertificate {
                 }
             }
         } catch (Exception e) {
-
+            LOGGER.error("Error while fetching users", e);
         }
 
         return enrolledUsers;
     }
 
-    private void generateCertificatesForEnrollment(List<String> enrolledUsers, List<String> usersAssessed, String batchId, String courseId, Boolean reIssue, Map<String, String> template, MessageCollector collector) {
+    private void generateCertificatesForEnrollment(List<String> enrolledUsers, List<String> usersAssessed, String batchId, String courseId, Boolean reIssue, Map<String, String> template, MessageCollector collector) throws IOException {
         Map<String, Object> certTemplate = new HashMap<>();
         certTemplate.putAll(template);
+        Map<String, Object> issuer = StringUtils.isNotBlank((String)certTemplate.get("issuer"))
+                ? mapper.readValue((String)certTemplate.get("issuer"), new TypeReference<Map<String, Object>>(){}) : new HashMap<>();
+        List<Map<String, Object>> signatoryList = StringUtils.isNotBlank((String)certTemplate.get("signatoryList"))
+                ? mapper.readValue((String)certTemplate.get("signatoryList"), new TypeReference<List<Map<String, Object>>>(){}) : new ArrayList<>();
         certTemplate.remove("criteria");
+        certTemplate.put("issuer", issuer);
+        certTemplate.put("signatoryList", signatoryList);
         List<String> users = new ArrayList<>();
-        if(CollectionUtils.isNotEmpty(enrolledUsers)){
+        if(CollectionUtils.isNotEmpty(enrolledUsers) && CollectionUtils.isNotEmpty(usersAssessed)){
             users = enrolledUsers.stream().filter(usersAssessed::contains).collect(Collectors.toList());
+        }
+        else if(CollectionUtils.isNotEmpty(enrolledUsers) && CollectionUtils.isEmpty(usersAssessed)) {
+            users = enrolledUsers;
         }
         else{
             users = usersAssessed;
