@@ -14,6 +14,7 @@ import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
+import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
@@ -40,6 +41,7 @@ public class IssueCertificate {
             ? Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
 
     private static final String topic = Platform.config.getString("task.inputs").replace("kafka.", "");
+    private static JobLogger LOGGER = new JobLogger(IssueCertificate.class);
 
     public void issue(Map<String, Object> edata, MessageCollector collector) {
         String batchId = (String) edata.get(CourseCertificateParams.batchId.name());
@@ -79,6 +81,7 @@ public class IssueCertificate {
                 }
             }
         } catch (Exception e) {
+            LOGGER.error("Error while fetching user and generatecertificates", e);
         }
     }
 
@@ -174,7 +177,7 @@ public class IssueCertificate {
                 }
             }
         } catch (Exception e) {
-
+            LOGGER.error("Error while fetching users", e);
         }
 
         return enrolledUsers;

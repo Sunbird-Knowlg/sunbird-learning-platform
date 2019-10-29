@@ -74,9 +74,9 @@ public class CertificateGeneratorService implements ISamzaService {
                         LOGGER.info("Certificate is generated");
                         break;
                     case "issue-certificate":
-                        LOGGER.info("Certificate generation process started ");
+                        LOGGER.info("Certificate issue process started ");
                         issueCertificate.issue(edata, collector);
-                        LOGGER.info("Certificate is generated");
+                        LOGGER.info("Pushed certificate generation event");
                         break;
                 }
             }
