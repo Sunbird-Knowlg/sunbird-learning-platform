@@ -104,27 +104,19 @@ public class IssueCertificate {
         Double score = criteria.get(operation);
         switch (operation) {
             case "EQ":
+            case "eq":
             case "=": return (actualScore == score);
 
-            case "gt":
-            case ">":
-            case "GT": return (actualScore > score);
+            case ">": return (actualScore > score);
 
-            case "lt":
-            case "<":
-            case "LT": return (actualScore < score);
+            case "<": return (actualScore < score);
 
-            case "gte":
-            case ">=":
-            case "GTE": return (actualScore >= score);
+            case ">=": return (actualScore >= score);
 
-            case "lte":
-            case "<=":
-            case "LTE": return (actualScore <= score);
+            case "<=": return (actualScore <= score);
 
             case "ne":
-            case "!=":
-            case "NE": return (actualScore != score);
+            case "!=": return (actualScore != score);
 
             default: return false;
         }
