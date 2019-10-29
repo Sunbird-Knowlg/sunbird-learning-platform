@@ -362,7 +362,7 @@ public class CertificateGenerator {
     private Map<String,Object> getCertTemplate(Map<String, Object> template) {
         try{
             String id = (String) template.get("identifier");
-            String url = CERT_SERVICE_URL + "/cert/template/v1/read/" + id;
+            String url = CERT_SERVICE_URL + "/cert/v1/template/read/" + id;
             HttpResponse<String> httpResponse = Unirest.get(url).header("Content-Type", "application/json").asString();
             if(200 == httpResponse.getStatus()) {
                 Response response = mapper.readValue(httpResponse.getBody(), Response.class);
