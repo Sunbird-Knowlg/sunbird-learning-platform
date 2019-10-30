@@ -101,7 +101,7 @@ public class IssueCertificate {
             }
         }
         if(CollectionUtils.isNotEmpty(userIds)){
-            return assessedUsers.stream().filter(userIds:: contains).collect(Collectors.toList());
+            return (List<String>) CollectionUtils.intersection(assessedUsers, userIds);
         } else{
             return assessedUsers;
         }
@@ -198,14 +198,15 @@ public class IssueCertificate {
                 ? mapper.readValue((String)certTemplate.get("issuer"), new TypeReference<Map<String, Object>>(){}) : new HashMap<>();
         List<Map<String, Object>> signatoryList = StringUtils.isNotBlank((String)certTemplate.get("signatoryList"))
                 ? mapper.readValue((String)certTemplate.get("signatoryList"), new TypeReference<List<Map<String, Object>>>(){}) : new ArrayList<>();
-        certTemplate.remove("criteria");
+        Map<String, Object> criteria = (Map<String, Object>) certTemplate.remove("criteria");
         certTemplate.put("issuer", issuer);
         certTemplate.put("signatoryList", signatoryList);
         List<String> users = new ArrayList<>();
-        if(CollectionUtils.isNotEmpty(enrolledUsers) && CollectionUtils.isNotEmpty(usersAssessed)){
-            users = enrolledUsers.stream().filter(usersAssessed::contains).collect(Collectors.toList());
+        if(MapUtils.isNotEmpty((Map<String, Object>) criteria.get("enrollment")) && MapUtils.isNotEmpty((Map<String, Object>) criteria.get("assessment"))){
+            users = (List<String>) CollectionUtils.intersection(enrolledUsers, usersAssessed).stream().collect(Collectors.toList());
+
         }
-        else if(CollectionUtils.isNotEmpty(enrolledUsers) && CollectionUtils.isEmpty(usersAssessed)) {
+        else if(MapUtils.isNotEmpty((Map<String, Object>) criteria.get("enrollment")) && MapUtils.isEmpty((Map<String, Object>) criteria.get("assessment"))) {
             users = enrolledUsers;
         }
         else{
