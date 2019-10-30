@@ -31,7 +31,7 @@ public class CourseCertificateGeneratorTask extends BaseTask {
     public void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
         try {
             LOGGER.info("Starting to process for mid : " + message.get("mid") + " at :: " + System.currentTimeMillis());
-            service.processMessage(message, null, null);
+            service.processMessage(message, metrics, collector);
             LOGGER.info("Successfully completed processing  for mid : " + message.get("mid") + " at :: " + System.currentTimeMillis());
         } catch (Exception e) {
             metrics.incErrorCounter();
