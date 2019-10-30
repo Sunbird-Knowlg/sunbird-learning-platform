@@ -198,7 +198,8 @@ public class IssueCertificate {
                 ? mapper.readValue((String)certTemplate.get("issuer"), new TypeReference<Map<String, Object>>(){}) : new HashMap<>();
         List<Map<String, Object>> signatoryList = StringUtils.isNotBlank((String)certTemplate.get("signatoryList"))
                 ? mapper.readValue((String)certTemplate.get("signatoryList"), new TypeReference<List<Map<String, Object>>>(){}) : new ArrayList<>();
-        Map<String, Object> criteria = (Map<String, Object>) certTemplate.remove("criteria");
+        Map<String, Object> criteria = mapper.readValue( (String) certTemplate.remove("criteria"), new TypeReference<Map<String, Object>>() {
+        });
         certTemplate.put("issuer", issuer);
         certTemplate.put("signatoryList", signatoryList);
         List<String> users = new ArrayList<>();
