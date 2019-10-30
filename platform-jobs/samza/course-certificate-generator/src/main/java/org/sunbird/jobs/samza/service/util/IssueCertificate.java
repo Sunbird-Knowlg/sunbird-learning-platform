@@ -47,13 +47,14 @@ public class IssueCertificate {
     public void issue(Map<String, Object> edata, MessageCollector collector) {
         String batchId = (String) edata.get(CourseCertificateParams.batchId.name());
         String courseId = (String) edata.get(CourseCertificateParams.courseId.name());
+        List<String> userIds = (null != edata.get(CourseCertificateParams.userId.name()))? (List<String>)edata.get(CourseCertificateParams.userId.name()): new ArrayList<>();
         Boolean reissue = (null != edata.get(CourseCertificateParams.reIssue.name()))
                 ? (Boolean) edata.get(CourseCertificateParams.reIssue.name()) : false;
 
         if (StringUtils.isNotBlank(batchId) && StringUtils.isNotBlank(courseId)) {
             Map<String, Map<String, String>> templates = fetchTemplates(batchId, courseId);
             if (MapUtils.isNotEmpty(templates)) {
-                fetchUsersAndIssueCertificates(batchId, courseId, reissue, templates, collector);
+                fetchUsersAndIssueCertificates(batchId, courseId, reissue, templates, collector, userIds);
             }
         }
     }
@@ -68,7 +69,7 @@ public class IssueCertificate {
         return row.getMap("cert_templates", TypeToken.of(String.class), TypeTokens.mapOf(String.class, String.class));
     }
 
-    private void fetchUsersAndIssueCertificates(String batchId, String courseId, Boolean reIssue, Map<String, Map<String, String>> templates, MessageCollector collector) {
+    private void fetchUsersAndIssueCertificates(String batchId, String courseId, Boolean reIssue, Map<String, Map<String, String>> templates, MessageCollector collector, List<String> userIds) {
         try {
             for (String key : templates.keySet()) {
                 Map<String, String> template = templates.get(key);
@@ -76,8 +77,8 @@ public class IssueCertificate {
                 if (StringUtils.isNotBlank(criteriaString)) {
                     Map<String, Object> criteria = mapper.readValue(criteriaString, new TypeReference<Map<String, Object>>() {
                     });
-                    List<String> enrolledUsers = getUserFromEnrolmentCriteria((Map<String, Object>) criteria.get("enrollment"), batchId, courseId);
-                    List<String> usersAssessed = getUersFromAssessmentCriteria((Map<String, Object>) criteria.get("assessment"), batchId, courseId);
+                    List<String> enrolledUsers = getUserFromEnrolmentCriteria((Map<String, Object>) criteria.get("enrollment"), batchId, courseId, userIds);
+                    List<String> usersAssessed = getUersFromAssessmentCriteria((Map<String, Object>) criteria.get("assessment"), batchId, courseId, userIds);
                     generateCertificatesForEnrollment(enrolledUsers, usersAssessed, batchId, courseId, reIssue, template, collector);
                 }
             }
@@ -86,7 +87,7 @@ public class IssueCertificate {
         }
     }
 
-    private List<String> getUersFromAssessmentCriteria(Map<String, Object> assessmentCriteria, String batchId, String courseId) {
+    private List<String> getUersFromAssessmentCriteria(Map<String, Object> assessmentCriteria, String batchId, String courseId, List<String> userIds) {
         List<String> assessedUsers = new ArrayList<>();
         if(MapUtils.isNotEmpty(assessmentCriteria)) {
             Map<String, Double> userScores = fetchAssesedUsersFromDB(batchId, courseId);
@@ -99,8 +100,11 @@ public class IssueCertificate {
                 }
             }
         }
-
-        return assessedUsers;
+        if(CollectionUtils.isNotEmpty(userIds)){
+            return (List<String>) CollectionUtils.intersection(assessedUsers, userIds);
+        } else{
+            return assessedUsers;
+        }
     }
 
     private boolean isValidAssessUser(Double actualScore, Map<String, Double> criteria) {
@@ -135,8 +139,8 @@ public class IssueCertificate {
     }
 
     private Map<String, Double> fetchAssesedUsersFromDB(String batchId, String courseId) {
-        String query = "SELECT user_id, max(total_score) as score, total_max_score FROM sunbird_courses.assessment_aggregator " +
-                "where course_id=' " +courseId + "' AND batch_id='" + batchId + "' " +
+        String query = "SELECT user_id, max(total_score) as score, total_max_score FROM " + KEYSPACE +"." + ASSESSMENT_AGGREGATOR_TABLE +
+                " where course_id=' " +courseId + "' AND batch_id='" + batchId + "' " +
                 "GROUP BY course_id,batch_id,user_id,content_id ORDER BY batch_id,user_id,content_id;";
         ResultSet resultSet = SunbirdCassandraUtil.execute(query);
         Iterator<Row> rows = resultSet.iterator();
@@ -160,7 +164,7 @@ public class IssueCertificate {
         return result;
     }
 
-    private List<String> getUserFromEnrolmentCriteria(Map<String, Object> enrollment, String batchId, String courseId) {
+    private List<String> getUserFromEnrolmentCriteria(Map<String, Object> enrollment, String batchId, String courseId, List<String> userIds) {
         List<String> enrolledUsers = new ArrayList<>();
         try {
             if(MapUtils.isNotEmpty(enrollment)){
@@ -168,6 +172,9 @@ public class IssueCertificate {
                     put(CourseCertificateParams.batchId.name(), batchId);
                     putAll(enrollment);
                 }};
+                if(CollectionUtils.isNotEmpty(userIds)) {
+                    dataToFetch.put(CourseCertificateParams.userId.name(), userIds);
+                }
                 ResultSet resultSet = SunbirdCassandraUtil.read(KEYSPACE, USER_COURSES_TABLE, dataToFetch);
                 Iterator<Row> rowIterator = resultSet.iterator();
                 while (rowIterator.hasNext()) {
@@ -191,14 +198,16 @@ public class IssueCertificate {
                 ? mapper.readValue((String)certTemplate.get("issuer"), new TypeReference<Map<String, Object>>(){}) : new HashMap<>();
         List<Map<String, Object>> signatoryList = StringUtils.isNotBlank((String)certTemplate.get("signatoryList"))
                 ? mapper.readValue((String)certTemplate.get("signatoryList"), new TypeReference<List<Map<String, Object>>>(){}) : new ArrayList<>();
-        certTemplate.remove("criteria");
+        Map<String, Object> criteria = mapper.readValue( (String) certTemplate.remove("criteria"), new TypeReference<Map<String, Object>>() {
+        });
         certTemplate.put("issuer", issuer);
         certTemplate.put("signatoryList", signatoryList);
         List<String> users = new ArrayList<>();
-        if(CollectionUtils.isNotEmpty(enrolledUsers) && CollectionUtils.isNotEmpty(usersAssessed)){
-            users = enrolledUsers.stream().filter(usersAssessed::contains).collect(Collectors.toList());
+        if(MapUtils.isNotEmpty((Map<String, Object>) criteria.get("enrollment")) && MapUtils.isNotEmpty((Map<String, Object>) criteria.get("assessment"))){
+            users = (List<String>) CollectionUtils.intersection(enrolledUsers, usersAssessed).stream().collect(Collectors.toList());
+
         }
-        else if(CollectionUtils.isNotEmpty(enrolledUsers) && CollectionUtils.isEmpty(usersAssessed)) {
+        else if(MapUtils.isNotEmpty((Map<String, Object>) criteria.get("enrollment")) && MapUtils.isEmpty((Map<String, Object>) criteria.get("assessment"))) {
             users = enrolledUsers;
         }
         else{

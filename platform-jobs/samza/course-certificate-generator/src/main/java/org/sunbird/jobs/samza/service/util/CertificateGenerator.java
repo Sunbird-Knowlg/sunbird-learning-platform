@@ -84,7 +84,8 @@ public class CertificateGenerator {
                 if(CollectionUtils.isNotEmpty(certificates) && reIssue) {
                     issueCertificate(certificates, courseId, certTemplate, batchId, userId, issuedOn,  true);
                 } else if(CollectionUtils.isEmpty(certificates)) {
-                    certificates = new ArrayList<>();
+                    certificates = (null != row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class)))
+                            ? row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class)): new ArrayList<>();
                     issueCertificate(certificates, courseId, certTemplate, batchId, userId, issuedOn,  false);
                 }
             }
