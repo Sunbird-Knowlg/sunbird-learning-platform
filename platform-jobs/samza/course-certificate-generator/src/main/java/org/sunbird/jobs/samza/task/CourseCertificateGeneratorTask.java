@@ -20,7 +20,7 @@ public class CourseCertificateGeneratorTask extends BaseTask {
     @Override
     public ISamzaService initialize() throws Exception {
         LOGGER.info("Task initialized");
-        this.action = Arrays.asList("generate-course-certificate");
+        this.action = Arrays.asList("generate-course-certificate", "issue-certificate");
         this.jobStartMessage = "Started processing of course-certificate-generator samza job";
         this.jobEndMessage = "course-certificate-generator job processing complete";
         this.jobClass = "org.sunbird.jobs.samza.task.CourseCertificateGeneratorTask";
