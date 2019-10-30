@@ -79,7 +79,7 @@ public class CertificateGenerator {
 
             for(Row row: rows) {
                 List<Map<String, String>> certificates = row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class))
-                        .stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("identifier"), (String)cert.get(CourseCertificateParams.id.name()))).collect(Collectors.toList());
+                        .stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), (String)cert.get(CourseCertificateParams.name.name()))).collect(Collectors.toList());
                 Date issuedOn = row.getTimestamp("completedOn");
                 if(CollectionUtils.isNotEmpty(certificates) && reIssue) {
                     issueCertificate(certificates, courseId, certTemplate, batchId, userId, issuedOn,  true);
@@ -122,14 +122,14 @@ public class CertificateGenerator {
         try{
             String oldId = null;
             if(reIssue) {
-                oldId = certificates.stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("identifier"), cert.get("identifier"))).map(cert -> {return  cert.get("id");}).findFirst().orElse("");
+                oldId = certificates.stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), cert.get("name"))).map(cert -> {return  cert.get("name");}).findFirst().orElse("");
             }
             Map<String, Object> certServiceRequest = prepareCertServiceRequest(courseName, batchId, userId, userResponse, certTemplate, issuedOn);
             String url = CERT_SERVICE_URL + "/v1/certs/generate";
             HttpResponse<String> httpResponse = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(certServiceRequest)).asString();
             if(200 == httpResponse.getStatus()) {
                 Response response = mapper.readValue(httpResponse.getBody(), Response.class);
-                List<Map<String, String>> updatedCerts = certificates.stream().filter(cert -> !StringUtils.equalsIgnoreCase((String)certTemplate.get("identifier"), cert.get("id"))).collect(Collectors.toList());
+                List<Map<String, String>> updatedCerts = certificates.stream().filter(cert -> !StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), cert.get("name"))).collect(Collectors.toList());
                 Map<String, Object> certificate = ((List<Map<String, Object>>)response.get("response")).get(0);
                 populateCreatedCertificate(updatedCerts, certificate, (String)certTemplate.get("name"), issuedOn, reIssue);
 
