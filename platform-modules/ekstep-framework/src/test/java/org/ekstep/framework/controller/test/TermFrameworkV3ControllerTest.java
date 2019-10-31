@@ -228,6 +228,22 @@ public class TermFrameworkV3ControllerTest extends GraphEngineTestSetup {
 		}
 	}
 
+	@Test
+	public void testA4() {
+		String request = "{ \"request\": { \"term\": { \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" } } }";
+		try {
+			String path = base_category_path + "/create?framework=" + frameworkId + "&category=" + categoryId.toUpperCase();
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+			Response response1 = new ObjectMapper().readValue(response.getContentAsString(),new TypeReference<Response>(){});
+			Assert.assertEquals("ERR_INVALID_CATEGORY", response1.getParams().getErr());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
 	/**
 	 * readCategoryTerm
 	 */
