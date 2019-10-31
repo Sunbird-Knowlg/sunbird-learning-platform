@@ -15,6 +15,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -65,6 +66,7 @@ public class AssessmentitemV3Test extends CommonTestSetup {
 	}
 
 	@Test
+	@Ignore
 	public void createAssessmentItem() {
 		String request = "{\"request\":{\"assessment_item\":{\"identifier\":\"LP_UT_test_01\",\"objectType\":\"AssessmentItem\",\"metadata\":{\"createdBy\":\"874ed8a5-782e-4f6c-8f36-e0288455901e\",\"creator\":\"Creation\",\"organisation\":[\"DLF Public School (Rajinder Nagar)\"],\"code\":\"124bd88e-0b38-0ba2-3719-f5c99e6ba38d\",\"type\":\"reference\",\"category\":\"VSA\",\"itemType\":\"UNIT\",\"version\":3,\"name\":\"vsa_NCFCOPY\",\"body\":\"<p>Write down in your words the conversation between the bird in the rishi’s ashram and the king.</p>\",\"editorState\":{\"solutions\":[\"<p>When the bird.</p>\"]},\"question\":\"<p>Write down in your words the conversation between the bird in the rishi’s ashram and the king.</p>\",\"solutions\":[\"<p>When the bird.</p>\"],\"learningOutcome\":[],\"bloomsLevel\":[\"Knowledge (Remembering)\"],\"templateId\":\"NA\",\"programId\":\"2bf17140-8124-11e9-bafa-676cba786201\",\"program\":\"CBSE\",\"channel\":\"b00bc992ef25f1a9a8d63291e20efc8d\",\"framework\":\"NCFCOPY\",\"board\":\"CBSE\",\"medium\":\"English\",\"gradeLevel\":[\"Kindergarten\"],\"subject\":\"English\",\"topic\":[\"Topic 1\"],\"status\":\"Review\",\"media\":[],\"qumlVersion\":0.5,\"textBookUnitIdentifier\":\"do_112771678991564800152\",\"authorNames\":\"Creation\"}}}}";
 		try {
@@ -203,6 +205,7 @@ public class AssessmentitemV3Test extends CommonTestSetup {
 	// Gets an existing assessmentItem with valid assessmentitem Id
 	// expect 200 ok response
 	@Test
+	@Ignore
 	public void createAssessmentItem_get() {
 		String path = base_path + "/read/LP_UT_test_01";
 		try {
@@ -267,6 +270,7 @@ public class AssessmentitemV3Test extends CommonTestSetup {
 	// Update assessment with valid assessmentitem id
 	// expect 200 ok response
 	@Test
+	@Ignore
 	public void updateAssessmentItem() {
 		String node_id = "LP_UT_test_01";
 		String contentString = "{\"request\":{\"assessment_item\":{\"objectType\":\"AssessmentItem\",\"metadata\":{\"createdBy\":\"874ed8a5-782e-4f6c-8f36-e0288455901e\",\"creator\":\"Creation\",\"organisation\":[\"DLF Public School (Rajinder Nagar)\"],\"code\":\"124bd88e-0b38-0ba2-3719-f5c99e6ba38d\",\"type\":\"reference\",\"category\":\"VSA\",\"itemType\":\"UNIT\",\"version\":3,\"name\":\"vsa_NCFCOPY\",\"body\":\"<p>Write down in your words the conversation between the bird in the rishi’s ashram and the king.</p>\",\"editorState\":{\"solutions\":[\"<p>When the bird.</p>\"]},\"question\":\"<p>Write down in your words the conversation between the bird in the rishi’s ashram and the king.</p>\",\"solutions\":[\"<p>When the bird.</p>\"],\"learningOutcome\":[],\"bloomsLevel\":[\"Knowledge (Remembering)\"],\"templateId\":\"NA\",\"programId\":\"2bf17140-8124-11e9-bafa-676cba786201\",\"program\":\"CBSE\",\"channel\":\"b00bc992ef25f1a9a8d63291e20efc8d\",\"framework\":\"NCFCOPY\",\"board\":\"CBSE\",\"medium\":\"English\",\"gradeLevel\":[\"Kindergarten\"],\"subject\":\"English\",\"topic\":[\"Topic 1\"],\"status\":\"Review\",\"media\":[],\"qumlVersion\":0.5,\"textBookUnitIdentifier\":\"do_112771678991564800152\",\"authorNames\":\"Creation\"}}}}";
