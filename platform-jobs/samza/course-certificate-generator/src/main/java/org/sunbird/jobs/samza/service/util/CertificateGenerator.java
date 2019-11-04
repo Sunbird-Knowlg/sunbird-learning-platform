@@ -180,8 +180,8 @@ public class CertificateGenerator {
     }
 
     private boolean notifyUser(String userId, Map<String, Object> certTemplate, String courseName, Map<String, Object> userResponse, Date issuedOn) {
-        Map<String, Object> notifyTemplate = (MapUtils.isNotEmpty((Map) certTemplate.get("notifyTemplate"))) ? ((Map) certTemplate.get("notifyTemplate")) : getDefaultNotificationTemplate();
-        if(MapUtils.isNotEmpty(notifyTemplate)) {
+        if(MapUtils.isNotEmpty(((Map) certTemplate.get("notifyTemplate")))) {
+            Map<String, Object> notifyTemplate = ((Map) certTemplate.get("notifyTemplate"));
             String url = LEARNER_SERVICE_PRIVATE_URL + "/v1/notification/email";
             Request request = new Request();
             notifyTemplate.entrySet().forEach(entry -> request.put(entry.getKey(), entry.getValue()));
@@ -408,17 +408,5 @@ public class CertificateGenerator {
 
     }
 
-
-    private Map<String,Object> getDefaultNotificationTemplate() {
-        String templateStr  = Platform.config.hasPath("notification.template") ? Platform.config.getString("notification.template") : "";
-        if(StringUtils.isNotBlank(templateStr)) {
-            try {
-                return mapper.readValue(templateStr, new TypeReference<Map<String, Object>>(){});
-            } catch (IOException e) {
-                LOGGER.error("Error while reading notification template from config : " , e);
-            }
-        }
-        return new HashMap<>();
-    }
 
 }
