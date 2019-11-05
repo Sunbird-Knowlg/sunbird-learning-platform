@@ -17,7 +17,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -483,7 +482,6 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 	 * Expected: 400 - CLIENT_ERROR. Record Should not be updated with given
 	 * data.
 	 */
-	@Ignore
 	@Test
 	public void testItem_22() throws Exception {
 		String request = "{\"request\": {\"assessment_item\": {\"identifier\": \"" + assessmentId
