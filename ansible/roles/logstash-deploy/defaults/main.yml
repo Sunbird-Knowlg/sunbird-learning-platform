@@ -5,6 +5,5 @@ graphevent_kafka_url: "{{groups['processing-cluster-zookeepers']|join(':9092,')}
 graphevent_kafka_topic_id: "{{env}}.learning.graph.events"
 rawtelemetry_event_topic_id: "{{env}}.telemetry.raw"
 logstash_version: 6.3.1
-backend_event_topic_id: "{{env}}.telemetry.backend"
 platform:
  logstash_config: ['logstash-lp']
