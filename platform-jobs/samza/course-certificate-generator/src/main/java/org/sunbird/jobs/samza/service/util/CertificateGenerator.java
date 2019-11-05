@@ -4,6 +4,7 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.TypeTokens;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
@@ -20,6 +21,7 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -178,37 +180,35 @@ public class CertificateGenerator {
     }
 
     private boolean notifyUser(String userId, Map<String, Object> certTemplate, String courseName, Map<String, Object> userResponse, Date issuedOn) {
-        
-            if(MapUtils.isNotEmpty((Map) certTemplate.get("notifyTemplate"))) {
-                Map<String, Object> notifyTemplate = (Map<String, Object>) certTemplate.get("notifyTemplate");
-                String url = LEARNER_SERVICE_PRIVATE_URL + "/v1/notification/email";
-                Request request = new Request();
-                notifyTemplate.entrySet().forEach(entry -> request.put(entry.getKey(), entry.getValue()));
-                request.put("firstName", (String) userResponse.get("firstName"));
-                request.put("TraningName", courseName);
-                request.put("heldDate", dateFormatter.format(issuedOn));
-                request.put("recipientUserIds", Arrays.asList(userId));
-                request.put("body", "email body");
-                try {
-                	HttpResponse<String> response = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
-                	LOGGER.info("email response.getStatus()"+response.getStatus());
-                } catch (Exception e) {
-                    LOGGER.error("Error while sending email notification to user : " + userId, e);
-                }
-                if(userResponse.containsKey("maskedPhone") && StringUtils.isNotEmpty((String)userResponse.get("maskedPhone")) && !"null".equalsIgnoreCase((String)userResponse.get("maskedPhone"))) {
-                	request.put("mode", "sms");
-                	String smsBody = Platform.config.getString("notification.sms.body").replaceAll("@@TRAINING_NAME@@", courseName).replaceAll("@@HELD_DATE@@", dateFormatter.format(issuedOn));
-                	request.put("body", smsBody);
-                	try {
-                    	HttpResponse<String> response = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
-                    	LOGGER.info("phone response.getStatus()"+response.getStatus());
-                    } catch (Exception e) {
-                        LOGGER.error("Error while sending phone notification to user : " + userId, e);
-                    }
-                }
-                return true;
+        if(MapUtils.isNotEmpty(((Map) certTemplate.get("notifyTemplate")))) {
+            Map<String, Object> notifyTemplate = ((Map) certTemplate.get("notifyTemplate"));
+            String url = LEARNER_SERVICE_PRIVATE_URL + "/v1/notification/email";
+            Request request = new Request();
+            notifyTemplate.entrySet().forEach(entry -> request.put(entry.getKey(), entry.getValue()));
+            request.put("firstName", (String) userResponse.get("firstName"));
+            request.put("TraningName", courseName);
+            request.put("heldDate", dateFormatter.format(issuedOn));
+            request.put("recipientUserIds", Arrays.asList(userId));
+            request.put("body", "email body");
+            try {
+                HttpResponse<String> response = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
+                LOGGER.info("email response.getStatus()" + response.getStatus());
+            } catch (Exception e) {
+                LOGGER.error("Error while sending email notification to user : " + userId, e);
             }
-
+            if (userResponse.containsKey("maskedPhone") && StringUtils.isNotEmpty((String) userResponse.get("maskedPhone")) && !"null".equalsIgnoreCase((String) userResponse.get("maskedPhone"))) {
+                request.put("mode", "sms");
+                String smsBody = Platform.config.getString("notification.sms.body").replaceAll("@@TRAINING_NAME@@", courseName).replaceAll("@@HELD_DATE@@", dateFormatter.format(issuedOn));
+                request.put("body", smsBody);
+                try {
+                    HttpResponse<String> response = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
+                    LOGGER.info("phone response.getStatus()" + response.getStatus());
+                } catch (Exception e) {
+                    LOGGER.error("Error while sending phone notification to user : " + userId, e);
+                }
+            }
+            return true;
+        }
         return false;
     }
 
@@ -407,5 +407,6 @@ public class CertificateGenerator {
         return null;
 
     }
+
 
 }
