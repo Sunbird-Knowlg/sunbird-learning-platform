@@ -901,7 +901,7 @@
 				},
 				{
 					"required": false,
-					"dataType": "Number",
+					"dataType": "Text",
 					"propertyName": "copyrightYear",
 					"title": "Copyright Year",
 					"description": "Copyright Year",
