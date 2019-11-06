@@ -47,7 +47,7 @@ public class IssueCertificate {
     public void issue(Map<String, Object> edata, MessageCollector collector) {
         String batchId = (String) edata.get(CourseCertificateParams.batchId.name());
         String courseId = (String) edata.get(CourseCertificateParams.courseId.name());
-        List<String> userIds = (null != edata.get(CourseCertificateParams.userId.name()))? (List<String>)edata.get(CourseCertificateParams.userId.name()): new ArrayList<>();
+        List<String> userIds = (null != edata.get(CourseCertificateParams.userIds.name()))? (List<String>)edata.get(CourseCertificateParams.userIds.name()): new ArrayList<>();
         Boolean reissue = (null != edata.get(CourseCertificateParams.reIssue.name()))
                 ? (Boolean) edata.get(CourseCertificateParams.reIssue.name()) : false;
 

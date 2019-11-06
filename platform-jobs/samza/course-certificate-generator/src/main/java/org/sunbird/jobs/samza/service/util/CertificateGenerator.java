@@ -4,7 +4,6 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.TypeTokens;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
@@ -21,7 +20,6 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -399,6 +397,12 @@ public class CertificateGenerator {
             if(200 == httpResponse.getStatus()) {
                 Response response = mapper.readValue(httpResponse.getBody(), Response.class);
                 Map<String, Object> keys = (Map<String, Object>) ((Map<String, Object>) response.getResult().get("response")).get("keys");
+                if(MapUtils.isNotEmpty(keys) && (CollectionUtils.isNotEmpty((List<String>) keys.get("signKeys")))) {
+                    Map<String, Object> signKeys = new HashMap<String, Object>(){{
+                       put("id", ((List<String>)keys.get("signKeys")).get(0)) ;
+                    }};
+                    return signKeys;
+                }
                 return keys;
             }
         } catch(Exception e){
