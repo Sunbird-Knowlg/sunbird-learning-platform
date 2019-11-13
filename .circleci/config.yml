@@ -13,18 +13,11 @@ jobs:
       - run:
           name: Push coverage report to codecov
           command: bash <(curl -s https://codecov.io/bash)
-
+      
       - run:
-          name: Download codacy coverage jar file.
-          command: wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets[0].browser_download_url')
-
-      - run:
-          name: Push coverage report to Codacy - Partial
-          command: find . -name jacoco.xml | awk '{print "java -jar ~/codacy-coverage-reporter-assembly-latest.jar report -l Java -r " $0 " --partial"}' | bash
-
-      - run:
-          name: Push coverage report to Codacy - Final
-          command: java -jar ~/codacy-coverage-reporter-assembly-latest.jar final
+          name: sonar
+          command: |
+             mvn verify sonar:sonar -Dsonar.projectKey=project-sunbird_sunbird-learning-platform -Dsonar.organization=project-sunbird -Dsonar.host.url=https://sonarcloud.io -Dsonar.coverage.jacoco.xmlReportPaths=/home/circleci/project/searchIndex-platform/module/search-api/search-manager/target/site/jacoco/jacoco.xml,/home/circleci/project/searchIndex-platform/module/searchindex-elasticsearch/target/site/jacoco/jacoco.xml,/home/circleci/project/searchIndex-platform/module/search-actors/target/site/jacoco/jacoco.xml,/home/circleci/project/platform-modules/actors/target/site/jacoco/jacoco.xml,/home/circleci/project/platform-core/graph-engine/module/graph-engine/target/site/jacoco/jacoco.xml,/home/circleci/project/platform-core/graph-engine/module/cache-manager/target/site/jacoco/jacoco.xml,/home/circleci/project/platform-core/graph-engine/module/graph-dac-api/target/site/jacoco/jacoco.xml    
 
       - save_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
