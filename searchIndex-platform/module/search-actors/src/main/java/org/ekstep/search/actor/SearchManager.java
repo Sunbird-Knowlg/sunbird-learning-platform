@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import akka.dispatch.OnFailure;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -156,6 +157,19 @@ public class SearchManager extends SearchBaseActor {
 				}
 			}
 
+			//For NCERT Book Support
+			List<String> consumerProps = Platform.config.hasPath("consumeas.props") ?
+					Platform.config.getStringList("consumeas.props") : new ArrayList<String>();
+			Map<String, Object> implicitFilter = new HashMap<String, Object>();
+			if (CollectionUtils.isNotEmpty(consumerProps) && MapUtils.isNotEmpty(filters) &&
+					StringUtils.equalsIgnoreCase("content", objectType) && (consumerProps.stream().anyMatch(filters::containsKey))) {
+				implicitFilter = consumerProps.stream().filter(filters::containsKey).collect(Collectors.toMap(prop -> "consumeAs." + prop, filters::get, (a, b) -> b));
+				searchObj.setImplicitFilter(implicitFilter);
+			}
+			List<Map> implicitFilterProps = new ArrayList<Map>();
+			implicitFilterProps.addAll(getSearchFilterProperties(implicitFilter, false));
+			//For NCERT Book Support
+
 			Object graphIdFromFilter = filters.get(CompositeSearchParams.graph_id.name());
 			String graphId = null;
 			if (graphIdFromFilter != null) {
@@ -266,6 +280,8 @@ public class SearchManager extends SearchBaseActor {
 			searchObj.setSortBy(sortBy);
 			searchObj.setFacets(facets);
 			searchObj.setProperties(properties);
+			// Added Implicit Filter Properties To Support NCERT Textbook
+			searchObj.setImplicitFilterProperties(implicitFilterProps);
 			searchObj.setLimit(limit);
 			searchObj.setFields(fieldsSearch);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);

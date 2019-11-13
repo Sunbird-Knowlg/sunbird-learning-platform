@@ -17,8 +17,10 @@ public class SearchDTO {
 	private int offset;
 	boolean fuzzySearch = false;
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	private Map<String, Object> implicitFilter = new HashMap<String, Object>();
 	private Map<String, Object> softConstraints = new HashMap<String, Object>();
 	private List<Map<String, Object>> aggregations = new ArrayList<>();
+	private List<Map> implicitFilterProperties;
 
 	
 	
@@ -110,5 +112,21 @@ public class SearchDTO {
 
 	public List<Map<String, Object>> getAggregations() {
 		return this.aggregations;
+	}
+
+	public Map<String, Object> getImplicitFilter() {
+		return implicitFilter;
+	}
+
+	public void setImplicitFilter(Map<String, Object> implicitFilter) {
+		this.implicitFilter = implicitFilter;
+	}
+
+	public List<Map> getImplicitFilterProperties() {
+		return implicitFilterProperties;
+	}
+
+	public void setImplicitFilterProperties(List<Map> implicitFilterProperties) {
+		this.implicitFilterProperties = implicitFilterProperties;
 	}
 }
