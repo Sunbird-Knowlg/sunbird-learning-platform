@@ -98,11 +98,14 @@ public class IssueCertificate {
                         assessedUsers.add(user);
                     }
                 }
+            } else {
+                LOGGER.info("No assessment score for batchID: " + batchId + " and courseId: " + courseId);
             }
         }
         if(CollectionUtils.isNotEmpty(userIds)){
             return (List<String>) CollectionUtils.intersection(assessedUsers, userIds);
         } else{
+            LOGGER.info("No users satisfy assessment criteria for batchID: " + batchId + " and courseID: " + courseId);
             return assessedUsers;
         }
     }
@@ -160,7 +163,7 @@ public class IssueCertificate {
             }
         }
         Map<String, Double> result = userScore.entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey(), entry -> ((entry.getValue().get("score") *100)/entry.getValue().get("maxScore"))));
-
+        LOGGER.info("The users scores for batchID: " + batchId + "  and courseID: " + courseId + " are : " + result);
         return result;
     }
 
@@ -218,6 +221,8 @@ public class IssueCertificate {
                 Map<String, Object> event = prepareCertificateEvent(batchId, courseId, userId, reIssue, certTemplate);
                 collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", topic), event));
             }
+        } else {
+            LOGGER.info("NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);
         }
     }
 
