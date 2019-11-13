@@ -9,6 +9,8 @@
     remote_src: yes
     keep_newer: yes
   register: tar
+  async: 3600
+  poll: 10
 
 - name: Updating java jdk to system path
   shell: |
