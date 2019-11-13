@@ -163,7 +163,7 @@ public class IssueCertificate {
             }
         }
         Map<String, Double> result = userScore.entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey(), entry -> ((entry.getValue().get("score") *100)/entry.getValue().get("maxScore"))));
-
+        LOGGER.info("The users scores for batchID: " + batchId + "  and courseID: " + courseId + " are : " + result);
         return result;
     }
 
