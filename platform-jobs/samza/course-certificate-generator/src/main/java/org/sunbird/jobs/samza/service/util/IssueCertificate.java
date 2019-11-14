@@ -143,7 +143,7 @@ public class IssueCertificate {
 
     private Map<String, Double> fetchAssesedUsersFromDB(String batchId, String courseId) {
         String query = "SELECT user_id, max(total_score) as score, total_max_score FROM " + KEYSPACE +"." + ASSESSMENT_AGGREGATOR_TABLE +
-                " where course_id=' " +courseId + "' AND batch_id='" + batchId + "' " +
+                " where course_id='" +courseId + "' AND batch_id='" + batchId + "' " +
                 "GROUP BY course_id,batch_id,user_id,content_id ORDER BY batch_id,user_id,content_id;";
         ResultSet resultSet = SunbirdCassandraUtil.execute(query);
         Iterator<Row> rows = resultSet.iterator();
@@ -162,6 +162,7 @@ public class IssueCertificate {
                 }});
             }
         }
+        LOGGER.info("UserScores for batchId: " + batchId + " and courseID: " + courseId + " is :" + userScore);
         Map<String, Double> result = userScore.entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey(), entry -> ((entry.getValue().get("score") *100)/entry.getValue().get("maxScore"))));
         LOGGER.info("The users scores for batchID: " + batchId + "  and courseID: " + courseId + " are : " + result);
         return result;
