@@ -746,12 +746,12 @@ private Integer getIntValue(Object num) {
 	}
 
 	private void setImplicitFilters(String objectType, Map<String, Object> filters, SearchDTO searchObj) throws Exception {
-		List<String> consumerProps = Platform.config.hasPath("consumeas.props") ?
-				Platform.config.getStringList("consumeas.props") : new ArrayList<String>();
+		List<String> consumerProps = Platform.config.hasPath("relatedBoards.props") ?
+				Platform.config.getStringList("relatedBoards.props") : new ArrayList<String>();
 		Map<String, Object> implicitFilter = new HashMap<String, Object>();
 		if (CollectionUtils.isNotEmpty(consumerProps) && MapUtils.isNotEmpty(filters) &&
 				StringUtils.equalsIgnoreCase("content", objectType) && (consumerProps.stream().anyMatch(filters::containsKey))) {
-			implicitFilter = consumerProps.stream().filter(filters::containsKey).collect(Collectors.toMap(prop -> "consumeAs." + prop, filters::get, (a, b) -> b));
+			implicitFilter = consumerProps.stream().filter(filters::containsKey).collect(Collectors.toMap(prop -> "relatedBoards." + prop, filters::get, (a, b) -> b));
 			List<Map> implicitFilterProps = new ArrayList<Map>();
 			implicitFilterProps.addAll(getSearchFilterProperties(implicitFilter, false));
 			searchObj.setImplicitFilterProperties(implicitFilterProps);

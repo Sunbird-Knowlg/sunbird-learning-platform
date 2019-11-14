@@ -926,9 +926,9 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		boolean found = false;
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
-			Map<String, Object> consumeAs = (Map<String, Object>) content.get("consumeAs");
-			if (MapUtils.isNotEmpty(consumeAs) && StringUtils.equalsIgnoreCase("do_10000034",(String)content.get("identifier"))
-					&& StringUtils.equalsIgnoreCase("test-channel",(String)consumeAs.get("channel")))
+			Map<String, Object> relatedBoards = (Map<String, Object>) content.get("relatedBoards");
+			if (MapUtils.isNotEmpty(relatedBoards) && StringUtils.equalsIgnoreCase("do_10000034",(String)content.get("identifier"))
+					&& StringUtils.equalsIgnoreCase("test-channel",(String)relatedBoards.get("channel")))
 				found = true;
 		}
 		Assert.assertTrue(found);
