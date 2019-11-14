@@ -157,19 +157,6 @@ public class SearchManager extends SearchBaseActor {
 				}
 			}
 
-			//For NCERT Book Support
-			List<String> consumerProps = Platform.config.hasPath("consumeas.props") ?
-					Platform.config.getStringList("consumeas.props") : new ArrayList<String>();
-			Map<String, Object> implicitFilter = new HashMap<String, Object>();
-			if (CollectionUtils.isNotEmpty(consumerProps) && MapUtils.isNotEmpty(filters) &&
-					StringUtils.equalsIgnoreCase("content", objectType) && (consumerProps.stream().anyMatch(filters::containsKey))) {
-				implicitFilter = consumerProps.stream().filter(filters::containsKey).collect(Collectors.toMap(prop -> "consumeAs." + prop, filters::get, (a, b) -> b));
-				searchObj.setImplicitFilter(implicitFilter);
-			}
-			List<Map> implicitFilterProps = new ArrayList<Map>();
-			implicitFilterProps.addAll(getSearchFilterProperties(implicitFilter, false));
-			//For NCERT Book Support
-
 			Object graphIdFromFilter = filters.get(CompositeSearchParams.graph_id.name());
 			String graphId = null;
 			if (graphIdFromFilter != null) {
@@ -281,7 +268,7 @@ public class SearchManager extends SearchBaseActor {
 			searchObj.setFacets(facets);
 			searchObj.setProperties(properties);
 			// Added Implicit Filter Properties To Support NCERT Textbook
-			searchObj.setImplicitFilterProperties(implicitFilterProps);
+			setImplicitFilters(objectType, filters, searchObj);
 			searchObj.setLimit(limit);
 			searchObj.setFields(fieldsSearch);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
@@ -303,7 +290,6 @@ public class SearchManager extends SearchBaseActor {
 		}
 		return searchObj;
 	}
-
 
 	private Map<String, Float> getWeightagesMap(String weightagesString)
 			throws JsonParseException, JsonMappingException, IOException {
@@ -757,6 +743,19 @@ private Integer getIntValue(Object num) {
 			searchObj.setAggregations((List<Map<String, Object>>) req.get("aggregations"));
 		}
 
+	}
+
+	private void setImplicitFilters(String objectType, Map<String, Object> filters, SearchDTO searchObj) throws Exception {
+		List<String> consumerProps = Platform.config.hasPath("consumeas.props") ?
+				Platform.config.getStringList("consumeas.props") : new ArrayList<String>();
+		Map<String, Object> implicitFilter = new HashMap<String, Object>();
+		if (CollectionUtils.isNotEmpty(consumerProps) && MapUtils.isNotEmpty(filters) &&
+				StringUtils.equalsIgnoreCase("content", objectType) && (consumerProps.stream().anyMatch(filters::containsKey))) {
+			implicitFilter = consumerProps.stream().filter(filters::containsKey).collect(Collectors.toMap(prop -> "consumeAs." + prop, filters::get, (a, b) -> b));
+			List<Map> implicitFilterProps = new ArrayList<Map>();
+			implicitFilterProps.addAll(getSearchFilterProperties(implicitFilter, false));
+			searchObj.setImplicitFilterProperties(implicitFilterProps);
+		}
 	}
 
 }

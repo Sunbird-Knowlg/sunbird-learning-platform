@@ -914,7 +914,7 @@ public class SearchProcessor {
 		QueryBuilder origFilterQry = getQuery(searchDTO);
 		QueryBuilder implFilterQuery = null;
 
-		if (MapUtils.isNotEmpty(searchDTO.getImplicitFilter()) && CollectionUtils.isNotEmpty(searchDTO.getImplicitFilterProperties())) {
+		if (CollectionUtils.isNotEmpty(searchDTO.getImplicitFilterProperties())) {
 			List<Map> properties = searchDTO.getProperties();
 			searchDTO.setProperties(searchDTO.getImplicitFilterProperties());
 			implFilterQuery = getQuery(searchDTO);
