@@ -202,7 +202,7 @@
           "propertyName": "defaultLicense",
           "title": "Default License",
           "description": "Default License for Channel",
-          "category": "Technical",
+          "category": "General",
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "",
