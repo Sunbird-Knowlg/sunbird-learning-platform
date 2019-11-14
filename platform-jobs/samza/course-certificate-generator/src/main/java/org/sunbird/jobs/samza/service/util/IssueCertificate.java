@@ -91,7 +91,7 @@ public class IssueCertificate {
         List<String> assessedUsers = new ArrayList<>();
         if(MapUtils.isNotEmpty(assessmentCriteria)) {
             Map<String, Double> userScores = fetchAssesedUsersFromDB(batchId, courseId);
-            Map<String, Double> criteria = getAssessmentOperation(assessmentCriteria);
+            Map<String, Object> criteria = getAssessmentOperation(assessmentCriteria);
             if(MapUtils.isNotEmpty(userScores)){
                 for(String user: userScores.keySet()) {
                     if(isValidAssessUser(userScores.get(user), criteria)){
@@ -110,9 +110,9 @@ public class IssueCertificate {
         }
     }
 
-    private boolean isValidAssessUser(Double actualScore, Map<String, Double> criteria) {
+    private boolean isValidAssessUser(Double actualScore, Map<String, Object> criteria) {
         String operation = (String) criteria.keySet().toArray()[0];
-        Double score = criteria.get(operation);
+        Double score = ((Number)criteria.get(operation)).doubleValue();
         switch (operation) {
             case "EQ":
             case "eq":
@@ -133,11 +133,11 @@ public class IssueCertificate {
         }
     }
 
-    private Map<String, Double> getAssessmentOperation(Map<String, Object> assessmentCriteria) {
+    private Map<String, Object> getAssessmentOperation(Map<String, Object> assessmentCriteria) {
         if (assessmentCriteria.get("score") instanceof Map) {
             return ((Map) assessmentCriteria.get("score"));
         } else {
-            return new HashMap<String, Double>(){{put("EQ", ((Number)assessmentCriteria.get("score")).doubleValue());}};
+            return new HashMap<String, Object>(){{put("EQ", ((Number)assessmentCriteria.get("score")).doubleValue());}};
         }
     }
 
