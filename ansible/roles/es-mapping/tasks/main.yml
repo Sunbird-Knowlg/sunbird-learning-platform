@@ -28,7 +28,7 @@
     dest: /tmp/elasticsearch_mapping.sh
     mode: 0744
 
-- name: running the script to create indices and mappings
+- name: running the script to create templates and mappings
   command: /tmp/elasticsearch_mapping.sh
   register: out
  
