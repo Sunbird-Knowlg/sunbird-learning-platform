@@ -1,21 +1,21 @@
-- name: ensure indices and mapping dir exists
+- name: ensure templates and mapping dir exists
   file: path="{{ item }}" state=directory
   with_items:
-    - "{{ indices_dir }}"
+    - "{{ templates_dir }}"
     - "{{ mapping_dir }}"
 
-- name: Copy indices file
-  copy: src="files/indices/{{ item }}.json" dest="{{ indices_dir }}"
-  with_items: "{{ indices_name.split(',')|list }}"
+- name: Copy templates file
+  copy: src="files/templates/{{ item }}.json" dest="{{ templates_dir }}"
+  with_items: "{{ template_name.split(',')|list }}"
   when: ansible_tag == 'run_single_index_and_mapping'
 
 - name: Copy mapping file
   copy: src="files/mappings/{{ item }}-mapping.json" dest="{{ mapping_dir }}"
-  with_items: "{{ indices_name.split(',')|list }}"
+  with_items: "{{ mapping_name.split(',')|list }}"
   when: ansible_tag == 'run_single_index_and_mapping'
 
-- name: Copy indices file
-  copy: src="files/indices/" dest="{{ indices_dir }}"
+- name: Copy template file
+  copy: src="files/templates/" dest="{{ templates_dir }}"
   when: ansible_tag == 'run_all_index_and_mapping'
 
 - name: Copy mapping file
@@ -34,8 +34,8 @@
  
 - debug: var=out.stdout_lines
 
-- name: remove indices and mapping dir 
+- name: remove templates and mapping dir 
   file: path="{{ item }}" state=absent
   with_items:
-    - "{{ indices_dir }}"
+    - "{{ templates_dir }}"
     - "{{ mapping_dir }}"
