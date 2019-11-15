@@ -151,7 +151,7 @@ public class BaseSearchActorsTest {
 		content.put("name", "check ends with value32");
 		addToIndex("do_10000032", content);
 
-		content = getContentTestRecord("do_10000033", 33, "test-channel");
+		content = getContentTestRecord("do_10000033", 33, "test-board");
 		content.put("name", "Content To Test Consumption");
 		addToIndex("10000033", content);
 
@@ -171,7 +171,7 @@ public class BaseSearchActorsTest {
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
 	
-	private static Map<String, Object> getContentTestRecord(String id, int index, String channel) {
+	private static Map<String, Object> getContentTestRecord(String id, int index, String board) {
 		String objectType = "Content";
 		Date d = new Date();
 		Map<String, Object> map = getTestRecord(id, index, "do", objectType);
@@ -180,8 +180,8 @@ public class BaseSearchActorsTest {
 		map.put("contentType", getContentType());
 		map.put("createdOn", new Date().toString());
 		map.put("lastUpdatedOn", new Date().toString());
-		if(StringUtils.isNotBlank(channel))
-			map.put("channel",channel);
+		if(StringUtils.isNotBlank(board))
+			map.put("board",board);
 		if (index % 5 == 0) {
 			map.put("lastPublishedOn", d.toString());
 			map.put("status", "Live");
