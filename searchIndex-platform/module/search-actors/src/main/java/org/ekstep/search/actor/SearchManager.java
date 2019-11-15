@@ -267,8 +267,8 @@ public class SearchManager extends SearchBaseActor {
 			searchObj.setSortBy(sortBy);
 			searchObj.setFacets(facets);
 			searchObj.setProperties(properties);
-			// Added Implicit Filter Properties To Support NCERT Textbook
-			setImplicitFilters(objectType, filters, searchObj);
+			// Added Implicit Filter Properties To Support Collection content tagging to reuse by tenants.
+			setImplicitFilters(filters, searchObj);
 			searchObj.setLimit(limit);
 			searchObj.setFields(fieldsSearch);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
@@ -745,12 +745,11 @@ private Integer getIntValue(Object num) {
 
 	}
 
-	private void setImplicitFilters(String objectType, Map<String, Object> filters, SearchDTO searchObj) throws Exception {
-		List<String> consumerProps = Platform.config.hasPath("relatedBoards.props") ?
-				Platform.config.getStringList("relatedBoards.props") : new ArrayList<String>();
+	private void setImplicitFilters(Map<String, Object> filters, SearchDTO searchObj) throws Exception {
+		List<String> consumerProps = Platform.config.hasPath("content.relatedBoards.properties") ?
+				Platform.config.getStringList("content.relatedBoards.properties") : new ArrayList<String>();
 		Map<String, Object> implicitFilter = new HashMap<String, Object>();
-		if (CollectionUtils.isNotEmpty(consumerProps) && MapUtils.isNotEmpty(filters) &&
-				StringUtils.equalsIgnoreCase("content", objectType) && (consumerProps.stream().anyMatch(filters::containsKey))) {
+		if (CollectionUtils.isNotEmpty(consumerProps) && MapUtils.isNotEmpty(filters) && (consumerProps.stream().anyMatch(filters::containsKey))) {
 			implicitFilter = consumerProps.stream().filter(filters::containsKey).collect(Collectors.toMap(prop -> "relatedBoards." + prop, filters::get, (a, b) -> b));
 			List<Map> implicitFilterProps = new ArrayList<Map>();
 			implicitFilterProps.addAll(getSearchFilterProperties(implicitFilter, false));

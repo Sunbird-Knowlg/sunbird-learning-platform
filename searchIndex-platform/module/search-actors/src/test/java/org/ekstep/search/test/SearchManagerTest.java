@@ -914,7 +914,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 			put("status",new ArrayList<String>());
 			put("objectType", objectTypes);
 			put("identifier","do_10000033");
-			put("channel","test-channel");
+			put("board","test-board");
 		}});
 
 		Response response = getSearchResponse(request);
@@ -928,7 +928,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 			Map<String, Object> content = (Map<String, Object>) obj;
 			Map<String, Object> relatedBoards = (Map<String, Object>) content.get("relatedBoards");
 			if (MapUtils.isNotEmpty(relatedBoards) && StringUtils.equalsIgnoreCase("do_10000034",(String)content.get("identifier"))
-					&& StringUtils.equalsIgnoreCase("test-channel",(String)relatedBoards.get("channel")))
+					&& StringUtils.equalsIgnoreCase("test-board",(String)relatedBoards.get("board")))
 				found = true;
 		}
 		Assert.assertTrue(found);

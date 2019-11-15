@@ -160,7 +160,7 @@ public class BaseSearchActorsTest {
 		content.put("description", "Textbook for other tenant");
 		content.put("status","Live");
 		content.put("relatedBoards", new HashMap<String, Object>() {{
-			put("channel", "test-channel");
+			put("board", "test-board");
 		}});
 		addToIndex("10000034", content);
 	}
