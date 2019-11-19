@@ -2,6 +2,7 @@ package org.ekstep.searchindex.processor;
 
 import akka.dispatch.Mapper;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -234,14 +235,9 @@ public class SearchProcessor {
 
 		searchSourceBuilder.size(searchDTO.getLimit());
 		searchSourceBuilder.from(searchDTO.getOffset());
-		QueryBuilder query = null;
-
-		if (searchDTO.isFuzzySearch()) {
-			query = prepareFilteredSearchQuery(searchDTO);
+		QueryBuilder query = getSearchQuery(searchDTO);
+		if (searchDTO.isFuzzySearch())
 			relevanceSort = true;
-		} else {
-			query = prepareSearchQuery(searchDTO);
-		}
 
 		searchSourceBuilder.query(query);
 
@@ -912,5 +908,28 @@ public class SearchProcessor {
         }
         return aggregationList;
     }
+
+	private QueryBuilder getSearchQuery(SearchDTO searchDTO) {
+		BoolQueryBuilder boolQuery = new BoolQueryBuilder();
+		QueryBuilder origFilterQry = getQuery(searchDTO);
+		QueryBuilder implFilterQuery = null;
+
+		if (CollectionUtils.isNotEmpty(searchDTO.getImplicitFilterProperties())) {
+			List<Map> properties = searchDTO.getProperties();
+			searchDTO.setProperties(searchDTO.getImplicitFilterProperties());
+			implFilterQuery = getQuery(searchDTO);
+			searchDTO.setProperties(properties);
+			boolQuery.should(origFilterQry);
+			boolQuery.should(implFilterQuery);
+			return boolQuery;
+		} else {
+			return origFilterQry;
+		}
+	}
+
+	private QueryBuilder getQuery(SearchDTO searchDTO) {
+		return searchDTO.isFuzzySearch() ? prepareFilteredSearchQuery(searchDTO) : prepareSearchQuery(searchDTO);
+	}
+
 
 }

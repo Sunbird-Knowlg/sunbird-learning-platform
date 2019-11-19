@@ -91,25 +91,28 @@ public class IssueCertificate {
         List<String> assessedUsers = new ArrayList<>();
         if(MapUtils.isNotEmpty(assessmentCriteria)) {
             Map<String, Double> userScores = fetchAssesedUsersFromDB(batchId, courseId);
-            Map<String, Double> criteria = getAssessmentOperation(assessmentCriteria);
+            Map<String, Object> criteria = getAssessmentOperation(assessmentCriteria);
             if(MapUtils.isNotEmpty(userScores)){
                 for(String user: userScores.keySet()) {
                     if(isValidAssessUser(userScores.get(user), criteria)){
                         assessedUsers.add(user);
                     }
                 }
+            } else {
+                LOGGER.info("No assessment score for batchID: " + batchId + " and courseId: " + courseId);
             }
         }
         if(CollectionUtils.isNotEmpty(userIds)){
             return (List<String>) CollectionUtils.intersection(assessedUsers, userIds);
         } else{
+            LOGGER.info("No users satisfy assessment criteria for batchID: " + batchId + " and courseID: " + courseId);
             return assessedUsers;
         }
     }
 
-    private boolean isValidAssessUser(Double actualScore, Map<String, Double> criteria) {
+    private boolean isValidAssessUser(Double actualScore, Map<String, Object> criteria) {
         String operation = (String) criteria.keySet().toArray()[0];
-        Double score = criteria.get(operation);
+        Double score = ((Number)criteria.get(operation)).doubleValue();
         switch (operation) {
             case "EQ":
             case "eq":
@@ -130,17 +133,17 @@ public class IssueCertificate {
         }
     }
 
-    private Map<String, Double> getAssessmentOperation(Map<String, Object> assessmentCriteria) {
+    private Map<String, Object> getAssessmentOperation(Map<String, Object> assessmentCriteria) {
         if (assessmentCriteria.get("score") instanceof Map) {
             return ((Map) assessmentCriteria.get("score"));
         } else {
-            return new HashMap<String, Double>(){{put("EQ", ((Number)assessmentCriteria.get("score")).doubleValue());}};
+            return new HashMap<String, Object>(){{put("EQ", ((Number)assessmentCriteria.get("score")).doubleValue());}};
         }
     }
 
     private Map<String, Double> fetchAssesedUsersFromDB(String batchId, String courseId) {
         String query = "SELECT user_id, max(total_score) as score, total_max_score FROM " + KEYSPACE +"." + ASSESSMENT_AGGREGATOR_TABLE +
-                " where course_id=' " +courseId + "' AND batch_id='" + batchId + "' " +
+                " where course_id='" +courseId + "' AND batch_id='" + batchId + "' " +
                 "GROUP BY course_id,batch_id,user_id,content_id ORDER BY batch_id,user_id,content_id;";
         ResultSet resultSet = SunbirdCassandraUtil.execute(query);
         Iterator<Row> rows = resultSet.iterator();
@@ -159,8 +162,9 @@ public class IssueCertificate {
                 }});
             }
         }
+        LOGGER.info("UserScores for batchId: " + batchId + " and courseID: " + courseId + " is :" + userScore);
         Map<String, Double> result = userScore.entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey(), entry -> ((entry.getValue().get("score") *100)/entry.getValue().get("maxScore"))));
-
+        LOGGER.info("The users scores for batchID: " + batchId + "  and courseID: " + courseId + " are : " + result);
         return result;
     }
 
@@ -218,6 +222,8 @@ public class IssueCertificate {
                 Map<String, Object> event = prepareCertificateEvent(batchId, courseId, userId, reIssue, certTemplate);
                 collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", topic), event));
             }
+        } else {
+            LOGGER.info("NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);
         }
     }
 
