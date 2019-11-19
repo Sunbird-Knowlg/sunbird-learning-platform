@@ -10,17 +10,22 @@ import org.sunbird.jobs.samza.util.CourseBatchParams;
 import org.sunbird.jobs.samza.util.ESUtil;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class BatchStatusUpdater extends BaseCourseBatchUpdater {
-
+	
+	private static String jobTimeZone = Platform.config.hasPath("job.time_zone") ? Platform.config.getString("job.time_zone"): "IST";
     private static final String keyspace = Platform.config.hasPath("courses.keyspace.name")
             ? Platform.config.getString("courses.keyspace.name")
             : "sunbird_courses";
     private static final String courseBatchTable = "course_batch";
     private static final String ES_INDEX_NAME = "course-batch";
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     private static String installation = Platform.config.hasPath("sunbird.installation") ? Platform.config.getString("sunbird.installation"): "sunbird";
 
     public BatchStatusUpdater() {
@@ -43,11 +48,16 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
         // Get the count of open batch and private batch
         final int[] openBatchCount = {0};
         final int[] privateBatchCount = {0};
-
+        Date currentDate = format.parse(format.format(new Date()));
+        format.setTimeZone(TimeZone.getTimeZone(jobTimeZone));
         rows.forEach(row-> {
             int status = row.getInt(CourseBatchParams.status.name());
+            Date enrollmentEndDate = null;
+            if (StringUtils.isNotBlank(row.getString("enrollmentenddate"))) {
+                Date enrollmentEndDate = format.parse(row.getString("enrollmentenddate"));
+            }
             String enrollmentType = row.getString(CourseBatchParams.enrollmentType.name());
-            if(StringUtils.equalsIgnoreCase(CourseBatchParams.open.name(), enrollmentType) && (1 == status))
+            if(StringUtils.equalsIgnoreCase(CourseBatchParams.open.name(), enrollmentType) && (1 == status) && (enrollmentEndDate==null || currentDate.compareTo(enrollmentEndDate) < 0))
                 openBatchCount[0] = openBatchCount[0] + 1;
             if(StringUtils.equalsIgnoreCase("invite-only", enrollmentType) && (1 == status))
                 privateBatchCount[0] = privateBatchCount[0] + 1;
