@@ -2,6 +2,7 @@ package org.ekstep.framework.manager.test;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -12,6 +13,7 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.framework.mgr.IChannelManager;
 import org.ekstep.framework.mgr.IFrameworkManager;
 import org.ekstep.framework.test.common.TestParams;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.Assert;
 import org.junit.Before;
@@ -205,6 +207,65 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 		Response resp = channelMgr.retireChannel("do_12456");
 		String responseCode = (String) resp.getResponseCode().toString();
 		assertTrue("CLIENT_ERROR".equals(responseCode));
+	}
+
+	@Test
+	public void updateChannelWithValidDefaultLicense() throws Exception {
+		String defaultLicense = "cc-by-0001";
+		Map<String, Object> updateRequest = new HashMap<String, Object>();
+		updateRequest.put("description", "testDescription");
+		updateRequest.put("identifier", channelId);
+		updateRequest.put("defaultLicense", defaultLicense);
+		RedisStoreUtil.saveList("license", new ArrayList<Object>(){{add(defaultLicense);}});
+		Response responseCode = channelMgr.updateChannel(channelId, updateRequest);
+		Assert.assertEquals(ResponseCode.OK, responseCode.getResponseCode());
+		RedisStoreUtil.delete("license");
+		Response readResp = channelMgr.readChannel(channelId);
+		Map<String, Object> map = readResp.getResult();
+		Map<String, Object> channelResult = (Map) map.get("channel");
+		Assert.assertEquals("testDescription", channelResult.get("description"));
+		Assert.assertEquals(defaultLicense, channelResult.get("defaultLicense"));
+	}
+
+	@Test
+	public void updateChannelWithInvalidDefaultLicense() throws Exception {
+		String defaultLicense = "cc-by-0001";
+		Map<String, Object> updateRequest = new HashMap<String, Object>();
+		updateRequest.put("description", "testDescription");
+		updateRequest.put("identifier", channelId);
+		updateRequest.put("defaultLicense", defaultLicense);
+		RedisStoreUtil.saveList("license", new ArrayList<Object>(){{add("creative-common-0001");}});
+		Response response = channelMgr.updateChannel(channelId, updateRequest);
+		RedisStoreUtil.delete("license");
+		Assert.assertEquals(ResponseCode.CLIENT_ERROR, response.getResponseCode());
+	}
+
+	@Test
+	public void createChannelWithValidDefaultLicense() throws Exception {
+		String defaultLicense = "cc-by-0001";
+		Map<String, Object> requestMap = mapper.readValue(createChannelValidRequest,
+				new TypeReference<Map<String, Object>>() {
+				});
+		requestMap.put("defaultLicense", defaultLicense);
+		RedisStoreUtil.saveList("license", new ArrayList<Object>(){{add(defaultLicense);}});
+		Response response = channelMgr.createChannel(requestMap);
+		Assert.assertEquals(ResponseCode.OK, response.getResponseCode());
+		RedisStoreUtil.delete("license");
+		Map<String, Object> result = response.getResult();
+		Assert.assertEquals(true, StringUtils.isNoneBlank((String) result.get("node_id")));
+	}
+
+	@Test
+	public void createChannelWithInvalidDefaultLicense() throws Exception {
+		String defaultLicense = "cc-by-0001";
+		Map<String, Object> requestMap = mapper.readValue(createChannelValidRequest,
+				new TypeReference<Map<String, Object>>() {
+				});
+		requestMap.put("defaultLicense", defaultLicense);
+		RedisStoreUtil.saveList("license", new ArrayList<Object>(){{add("creative-common-0001");}});
+		Response response = channelMgr.createChannel(requestMap);
+		RedisStoreUtil.delete("license");
+		Assert.assertEquals(ResponseCode.CLIENT_ERROR, response.getResponseCode());
 	}
 
 	private static int generateRandomNumber(int min, int max) {
