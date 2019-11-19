@@ -7,13 +7,20 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.framework.enums.ChannelEnum;
 import org.ekstep.framework.mgr.IChannelManager;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
+import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -39,6 +46,10 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		if (null == request.get(ChannelEnum.code.name()) || StringUtils.isBlank((String)request.get(ChannelEnum.code.name())))
 			return ERROR("ERR_CHANNEL_CODE_REQUIRED", "Unique code is mandatory for Channel", ResponseCode.CLIENT_ERROR);
 		request.put(ChannelEnum.identifier.name(), (String)request.get(ChannelEnum.code.name()));
+        Response res = validateLicense(request);
+        if(checkError(res)){
+            return res;
+        }
 		return create(request, CHANNEL_OBJECT_TYPE);
 	}
 
@@ -63,6 +74,10 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	public Response updateChannel(String channelId, Map<String, Object> map) {
 		if (null == map)
 			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+        Response res = validateLicense(map);
+        if(checkError(res)){
+            return res;
+        }
 		return update(channelId, CHANNEL_OBJECT_TYPE, map);
 	}
 
@@ -114,4 +129,42 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 
 		return properties;
 	}
+
+    private Response validateLicense(Map<String, Object> request) {
+        if (request.containsKey("defaultLicense")) {
+            List<Object> licenseList = RedisStoreUtil.getList("license");
+            if (CollectionUtils.isNotEmpty(licenseList)) {
+                if (!licenseList.contains(request.get("defaultLicense"))) {
+                    return ERROR("ERR_INVALID_LICENSE", "License Not Found With Name: [" + (String)request.get("defaultLicense") + "]", ResponseCode.CLIENT_ERROR);
+                }
+            } else {
+                List<Node> resultList = null;
+                Request searchReq = getRequest(GRAPH_ID, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType",
+                        GraphDACParams.object_type.name(), "license");
+                Response response = getResponse(searchReq);
+                if (!checkError(response)) {
+                    if (null != response && response.getResponseCode() == ResponseCode.OK) {
+                        Map<String, Object> result = response.getResult();
+                        resultList = (List<Node>) result.get("node_list");
+                        if ( resultList.size() > 0) {
+                            for (Node obj : resultList) {
+                                if(obj.getMetadata().get("status").equals("Live")){
+                                    String licenseName = (String) obj.getMetadata().get("name");
+                                    licenseList.add(licenseName);
+                                }
+                            }
+                            RedisStoreUtil.saveList("license", licenseList);
+                            if (!licenseList.contains(request.get("defaultLicense"))) {
+                                return ERROR("ERR_INVALID_LICENSE", "License Not Found With Name: [" + (String)request.get("defaultLicense") + "]", ResponseCode.CLIENT_ERROR);
+                            }
+                        }
+                    }
+                }
+                else {
+                    return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Something Went Wrong While Processing Your Request. Please Try Again After Sometime!", ResponseCode.SERVER_ERROR);
+                }
+            }
+        }
+        return OK();
+    }
 }
