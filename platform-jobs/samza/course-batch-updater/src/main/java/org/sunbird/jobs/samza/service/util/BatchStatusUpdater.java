@@ -54,7 +54,7 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
             int status = row.getInt(CourseBatchParams.status.name());
             Date enrollmentEndDate = null;
             if (StringUtils.isNotBlank(row.getString("enrollmentenddate"))) {
-                Date enrollmentEndDate = format.parse(row.getString("enrollmentenddate"));
+                enrollmentEndDate = format.parse(row.getString("enrollmentenddate"));
             }
             String enrollmentType = row.getString(CourseBatchParams.enrollmentType.name());
             if(StringUtils.equalsIgnoreCase(CourseBatchParams.open.name(), enrollmentType) && (1 == status) && (enrollmentEndDate==null || currentDate.compareTo(enrollmentEndDate) < 0))
