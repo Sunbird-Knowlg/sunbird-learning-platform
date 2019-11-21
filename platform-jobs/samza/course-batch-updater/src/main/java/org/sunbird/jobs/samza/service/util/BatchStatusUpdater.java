@@ -11,6 +11,7 @@ import org.sunbird.jobs.samza.util.ESUtil;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
 import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -41,31 +42,31 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
     }
 
 
-    private void updateBatchCount(String courseId) throws Exception {
+    private void updateBatchCount(String courseId) throws ParseException,Exception {
         //Get number of batches for courseID
         ResultSet resultSet = SunbirdCassandraUtil.read(keyspace, courseBatchTable, new HashMap<String, Object>(){{put(CourseBatchParams.courseId.name(), courseId);}});
         List<Row> rows = resultSet.all();
         // Get the count of open batch and private batch
         final int[] openBatchCount = {0};
         final int[] privateBatchCount = {0};
-        try {
-        	Date currentDate = format.parse(format.format(new Date()));
-            format.setTimeZone(TimeZone.getTimeZone(jobTimeZone));
-            rows.forEach(row-> {
-                int status = row.getInt(CourseBatchParams.status.name());
-                Date enrollmentEndDate = null;
-                if (StringUtils.isNotBlank(row.getString("enrollmentenddate"))) {
-                    enrollmentEndDate = format.parse(row.getString("enrollmentenddate"));
-                }
-                String enrollmentType = row.getString(CourseBatchParams.enrollmentType.name());
-                if(StringUtils.equalsIgnoreCase(CourseBatchParams.open.name(), enrollmentType) && (1 == status) && (enrollmentEndDate==null || currentDate.compareTo(enrollmentEndDate) < 0))
-                    openBatchCount[0] = openBatchCount[0] + 1;
-                if(StringUtils.equalsIgnoreCase("invite-only", enrollmentType) && (1 == status))
-                    privateBatchCount[0] = privateBatchCount[0] + 1;
-            });
-        }catch(Exception e) {
-        	e.printStackTrace();
-        }
+    	Date currentDate = format.parse(format.format(new Date()));
+        format.setTimeZone(TimeZone.getTimeZone(jobTimeZone));
+        rows.forEach(row-> {
+            int status = row.getInt(CourseBatchParams.status.name());
+            Date enrollmentEndDate = null;
+            if (StringUtils.isNotBlank(row.getString("enrollmentenddate"))) {
+            	try {
+            		enrollmentEndDate = format.parse(row.getString("enrollmentenddate"));
+            	}catch(ParseException ex) {
+            		ex.printStackTrace();
+            	}
+            }
+            String enrollmentType = row.getString(CourseBatchParams.enrollmentType.name());
+            if(StringUtils.equalsIgnoreCase(CourseBatchParams.open.name(), enrollmentType) && (1 == status) && (enrollmentEndDate==null || currentDate.compareTo(enrollmentEndDate) < 0))
+                openBatchCount[0] = openBatchCount[0] + 1;
+            if(StringUtils.equalsIgnoreCase("invite-only", enrollmentType) && (1 == status))
+                privateBatchCount[0] = privateBatchCount[0] + 1;
+        });
         
         // SystemUpdate batch count
         Request request = new Request();
