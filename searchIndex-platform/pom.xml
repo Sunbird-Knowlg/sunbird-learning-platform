@@ -22,10 +22,6 @@
 	</properties>
 
 	<modules>
-		<module>module/searchindex-elasticsearch</module>
-		<module>module/searchindex-common</module>
-		<module>module/search-actors</module>
-		<module>module/search-api</module>
 	</modules>
 
 	<dependencies>
