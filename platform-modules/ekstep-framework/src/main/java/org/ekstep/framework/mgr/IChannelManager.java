@@ -6,11 +6,11 @@ import org.ekstep.common.dto.Response;
 
 public interface IChannelManager {
 	
-	Response createChannel(Map<String,Object> request);
+	Response createChannel(Map<String,Object> request) throws Exception;
 
 	Response readChannel(String channelId) throws Exception;
 
-	Response updateChannel(String channelId, Map<String, Object> map);
+	Response updateChannel(String channelId, Map<String, Object> map) throws Exception;
 
 	Response listChannel(Map<String, Object> map);
 
