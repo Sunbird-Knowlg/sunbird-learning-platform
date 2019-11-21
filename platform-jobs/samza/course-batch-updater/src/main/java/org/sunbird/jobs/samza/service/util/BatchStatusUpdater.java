@@ -48,21 +48,25 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
         // Get the count of open batch and private batch
         final int[] openBatchCount = {0};
         final int[] privateBatchCount = {0};
-        Date currentDate = format.parse(format.format(new Date()));
-        format.setTimeZone(TimeZone.getTimeZone(jobTimeZone));
-        rows.forEach(row-> {
-            int status = row.getInt(CourseBatchParams.status.name());
-            Date enrollmentEndDate = null;
-            if (StringUtils.isNotBlank(row.getString("enrollmentenddate"))) {
-                enrollmentEndDate = format.parse(row.getString("enrollmentenddate"));
-            }
-            String enrollmentType = row.getString(CourseBatchParams.enrollmentType.name());
-            if(StringUtils.equalsIgnoreCase(CourseBatchParams.open.name(), enrollmentType) && (1 == status) && (enrollmentEndDate==null || currentDate.compareTo(enrollmentEndDate) < 0))
-                openBatchCount[0] = openBatchCount[0] + 1;
-            if(StringUtils.equalsIgnoreCase("invite-only", enrollmentType) && (1 == status))
-                privateBatchCount[0] = privateBatchCount[0] + 1;
-        });
-
+        try {
+        	Date currentDate = format.parse(format.format(new Date()));
+            format.setTimeZone(TimeZone.getTimeZone(jobTimeZone));
+            rows.forEach(row-> {
+                int status = row.getInt(CourseBatchParams.status.name());
+                Date enrollmentEndDate = null;
+                if (StringUtils.isNotBlank(row.getString("enrollmentenddate"))) {
+                    enrollmentEndDate = format.parse(row.getString("enrollmentenddate"));
+                }
+                String enrollmentType = row.getString(CourseBatchParams.enrollmentType.name());
+                if(StringUtils.equalsIgnoreCase(CourseBatchParams.open.name(), enrollmentType) && (1 == status) && (enrollmentEndDate==null || currentDate.compareTo(enrollmentEndDate) < 0))
+                    openBatchCount[0] = openBatchCount[0] + 1;
+                if(StringUtils.equalsIgnoreCase("invite-only", enrollmentType) && (1 == status))
+                    privateBatchCount[0] = privateBatchCount[0] + 1;
+            });
+        }catch(Exception e) {
+        	e.printStackTrace();
+        }
+        
         // SystemUpdate batch count
         Request request = new Request();
         request.put("content", new HashMap<String, Object>() {{
