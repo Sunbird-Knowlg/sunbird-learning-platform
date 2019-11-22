@@ -492,6 +492,7 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 	 * Expected: 400 - CLIENT_ERROR. Record Should not be updated with given
 	 * data.
 	 */
+	@Ignore
 	@Test
 	@Ignore
 	public void testItem_22() throws Exception {
