@@ -61,6 +61,10 @@ public class CopyOperation extends BaseContentManager {
         validateOrThrowExceptionForEmptyKeys(requestMap, "Content", Arrays.asList("createdBy", "createdFor",
                 "organisation", "framework"));
 
+        if(requestMap.containsKey("license")){
+            throw new ClientException("ERR_INVALID_REQUEST", "License can't be updated for copied content");
+        }
+
         Node node = getContentNode(TAXONOMY_ID, contentId, mode);
         List<String> notCoppiedContent = null;
         if (Platform.config.hasPath("learning.content.type.not.copied.list")) {
