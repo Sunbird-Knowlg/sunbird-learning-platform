@@ -134,41 +134,40 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		return properties;
 	}
 
-    private boolean validateLicense(Map<String, Object> request) throws Exception{
-        if (request.containsKey("defaultLicense")) {
-            List<Object> licenseList = RedisStoreUtil.getList("license");
-            if (CollectionUtils.isNotEmpty(licenseList)) {
-                if (!licenseList.contains(request.get("defaultLicense"))) {
-                    return false;
-                }
-            } else {
-                List<Node> resultList = null;
-                Request searchReq = getRequest(GRAPH_ID, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType",
-                        GraphDACParams.object_type.name(), "license");
-                Response response = getResponse(searchReq);
-                if (!checkError(response)) {
-                    if (null != response && response.getResponseCode() == ResponseCode.OK) {
-                        Map<String, Object> result = response.getResult();
-                        resultList = (List<Node>) result.get("node_list");
-                        if ( resultList.size() > 0) {
-                            for (Node obj : resultList) {
-                                if(obj.getMetadata().get("status").equals("Live")){
-                                    String licenseName = (String) obj.getMetadata().get("name");
-                                    licenseList.add(licenseName);
-                                }
-                            }
-                            RedisStoreUtil.saveList("license", licenseList);
-                            if (!licenseList.contains(request.get("defaultLicense"))) {
-                                return false;
-                            }
-                        }
-                    }
-                }
-                else {
-                    throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Something Went Wrong While Processing Your Request. Please Try Again After Sometime!", ResponseCode.SERVER_ERROR);
-                }
-            }
-        }
-        return true;
-    }
+	private boolean validateLicense(Map<String, Object> request) throws Exception {
+		if (request.containsKey("defaultLicense")) {
+			List<Object> licenseList = RedisStoreUtil.getList("license");
+			if (CollectionUtils.isNotEmpty(licenseList)) {
+				if (!licenseList.contains(request.get("defaultLicense"))) {
+					return false;
+				}
+			} else {
+				List<Node> resultList = null;
+				Request searchReq = getRequest(GRAPH_ID, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType",
+						GraphDACParams.object_type.name(), "License");
+				Response response = getResponse(searchReq);
+				if (!checkError(response) && null != response && response.getResponseCode() == ResponseCode.OK) {
+					Map<String, Object> result = response.getResult();
+					resultList = (List<Node>) result.get("node_list");
+					if (resultList.size() > 0) {
+						for (Node obj : resultList) {
+							if (obj.getMetadata().get("status").equals("Live")) {
+								String licenseName = (String) obj.getMetadata().get("name");
+								licenseList.add(licenseName);
+							}
+						}
+						RedisStoreUtil.saveList("license", licenseList);
+						if (!licenseList.contains(request.get("defaultLicense"))) {
+							return false;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					throw new ServerException(response.getResponseCode().name(), response.getParams().getErrmsg(), response.getResponseCode());
+				}
+			}
+		}
+		return true;
+	}
 }
