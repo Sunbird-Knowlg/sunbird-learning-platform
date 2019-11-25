@@ -53,13 +53,36 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 			String defaultLicense = (String) request.get("defaultLicense");
 			return ERROR("ERR_INVALID_LICENSE", "License Not Found With Name: " + defaultLicense , ResponseCode.CLIENT_ERROR);
 		}
-        return create(request, CHANNEL_OBJECT_TYPE);
+        Response response = create(request, CHANNEL_OBJECT_TYPE);
+		if(response.getResponseCode().equals(ResponseCode.OK)){
+			if(response.getResult().containsKey("node_id")){
+				String channelCache = RedisStoreUtil.get("channel_"+response.getResult().get("node_id"));
+				if(StringUtils.isEmpty(channelCache)){
+					Response responseNode = read((String) response.getResult().get("node_id"), CHANNEL_OBJECT_TYPE, ChannelEnum.channel.name());
+					Map<String, Object> channel = (Map<String, Object>) responseNode.getResult().get("channel");
+					RedisStoreUtil.save("channel_"+response.getResult().get("node_id"), mapper.writeValueAsString(channel),0);
+				}
+			}
+		}
+		return response;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response readChannel(String channelId) throws Exception{
-		Response response = read(channelId, CHANNEL_OBJECT_TYPE, ChannelEnum.channel.name());
+		Response response = new Response();
+		if (StringUtils.isNotEmpty(channelId)) {
+			String channelCache = RedisStoreUtil.get("channel_" + channelId);
+			if (StringUtils.isNotEmpty(channelCache)) {
+				Map<String, Object> channelDetails = mapper.readValue(channelCache, Map.class);
+				response.put("channel",channelDetails);
+				response.setParams(getSucessStatus());
+			} else {
+				response = read(channelId, CHANNEL_OBJECT_TYPE, ChannelEnum.channel.name());
+				Map<String, Object> channel = (Map<String, Object>) response.getResult().get("channel");
+				RedisStoreUtil.save("channel_"+channel.get("identifier"), mapper.writeValueAsString(channel),0);
+			}
+		}
 		if (Platform.config.hasPath("channel.fetch.suggested_frameworks") && Platform.config.getBoolean("channel.fetch.suggested_frameworks")) {
 			Map<String, Object> responseMap = (Map<String, Object>) response.get(ChannelEnum.channel.name());
 			List<Object> frameworkList = (List<Object>) responseMap.get(ChannelEnum.frameworks.name());
@@ -82,7 +105,15 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 			String defaultLicense = (String) map.get("defaultLicense");
 			return ERROR("ERR_INVALID_LICENSE", "License Not Found With Name: " + defaultLicense , ResponseCode.CLIENT_ERROR);
 		}
-		return update(channelId, CHANNEL_OBJECT_TYPE, map);
+		Response response = update(channelId, CHANNEL_OBJECT_TYPE, map);
+		if (response.getResponseCode().equals(ResponseCode.OK)) {
+			if (response.getResult().containsKey("node_id")) {
+				Response updatedNode = read(channelId, CHANNEL_OBJECT_TYPE, ChannelEnum.channel.name());
+				Map<String, Object> updatedChannel = (Map<String, Object>) updatedNode.getResult().get("channel");
+				RedisStoreUtil.save("channel_" + response.getResult().get("node_id"), mapper.writeValueAsString(updatedChannel), 0);
+			}
+		}
+		return response;
 	}
 
 	@Override
