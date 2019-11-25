@@ -146,7 +146,9 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 				Request searchReq = getRequest(GRAPH_ID, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType",
 						GraphDACParams.object_type.name(), "License");
 				Response response = getResponse(searchReq);
-				if (!checkError(response) && null != response && response.getResponseCode() == ResponseCode.OK) {
+				if (checkError(response)) {
+					throw new ServerException("ERR_FETCHING_LICENSE", "Error while fetching license.");
+				} else {
 					Map<String, Object> result = response.getResult();
 					resultList = (List<Node>) result.get("node_list");
 					if (resultList.size() > 0) {
@@ -160,11 +162,8 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 						if (!licenseList.contains(request.get("defaultLicense"))) {
 							return false;
 						}
-					} else {
+					} else
 						return false;
-					}
-				} else {
-					throw new ServerException(response.getResponseCode().name(), response.getParams().getErrmsg(), response.getResponseCode());
 				}
 			}
 		}
