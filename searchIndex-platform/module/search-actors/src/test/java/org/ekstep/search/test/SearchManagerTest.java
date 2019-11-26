@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ekstep.common.dto.Request;
@@ -910,28 +911,31 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Request request = getSearchRequest();
 		List<String> objectTypes = new ArrayList<String>();
 		objectTypes.add("Content");
-		request.put("filters",new HashMap<String, Object>(){{
-			put("status",new ArrayList<String>());
+		request.put("filters", new HashMap<String, Object>() {{
+			put("status", new ArrayList<String>());
 			put("objectType", objectTypes);
-			put("identifier","do_10000033");
-			put("board","test-board");
+			put("board", "test-board1");
 		}});
 
 		Response response = getSearchResponse(request);
 		Map<String, Object> result = response.getResult();
 		List<Object> list = (List<Object>) result.get("results");
-		System.out.println("list of result : "+list);
+		System.out.println("list of result : " + list);
 		Assert.assertNotNull(list);
 		Assert.assertTrue(list.size() == 2);
 		boolean found = false;
+		boolean foundOriginal = false;
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
-			Map<String, Object> relatedBoards = (Map<String, Object>) content.get("relatedBoards");
-			if (MapUtils.isNotEmpty(relatedBoards) && StringUtils.equalsIgnoreCase("do_10000034",(String)content.get("identifier"))
-					&& StringUtils.equalsIgnoreCase("test-board",(String)relatedBoards.get("board")))
+			List<String> relatedBoards = (List<String>) content.get("relatedBoards");
+			if (CollectionUtils.isNotEmpty(relatedBoards) && StringUtils.equalsIgnoreCase("do_10000034", (String) content.get("identifier"))
+					&& relatedBoards.contains("test-board1"))
 				found = true;
+			if (StringUtils.equalsIgnoreCase("do_10000033", (String) content.get("identifier")) && StringUtils.equalsIgnoreCase("test-board1", (String) content.get("board")))
+			foundOriginal = true;
 		}
 		Assert.assertTrue(found);
+		Assert.assertTrue(foundOriginal);
 	}
 
 }

@@ -3129,7 +3129,8 @@
 					"subject": 15,
 					"ageGroup": 1,
 					"gradeLevel": 7,
-					"board": 4
+					"board": 4,
+					"relatedBoards": 4
 				},
 				"versionCheckMode": "STRICT",
 				"allowupdate_status": false,
