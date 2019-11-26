@@ -144,6 +144,8 @@ public class SearchManager extends SearchBaseActor {
 					filters.put("keywords", tags);
 				}
 			}
+			if (filters.containsKey("relatedBoards"))
+				filters.remove("relatedBoards");
 
 			Object objectTypeFromFilter = filters.get(CompositeSearchParams.objectType.name());
 			String objectType = null;
@@ -251,6 +253,8 @@ public class SearchManager extends SearchBaseActor {
 				} catch (Exception e) {
 					TelemetryManager.warn("Invalid soft Constraints: " + e.getMessage());
 				}
+				if (MapUtils.isNotEmpty(softConstraintMap) && softConstraintMap.containsKey("board"))
+					softConstraintMap.put("relatedBoards", softConstraintMap.get("board"));
 				searchObj.setSoftConstraints(softConstraintMap);
 			}
 			TelemetryManager.log("SoftConstraints" + searchObj.getSoftConstraints());
@@ -746,11 +750,17 @@ private Integer getIntValue(Object num) {
 	}
 
 	private void setImplicitFilters(Map<String, Object> filters, SearchDTO searchObj) throws Exception {
-		List<String> consumerProps = Platform.config.hasPath("content.relatedBoards.properties") ?
-				Platform.config.getStringList("content.relatedBoards.properties") : new ArrayList<String>();
 		Map<String, Object> implicitFilter = new HashMap<String, Object>();
-		if (CollectionUtils.isNotEmpty(consumerProps) && MapUtils.isNotEmpty(filters) && (consumerProps.stream().anyMatch(filters::containsKey))) {
-			implicitFilter = consumerProps.stream().filter(filters::containsKey).collect(Collectors.toMap(prop -> "relatedBoards." + prop, filters::get, (a, b) -> b));
+		if (MapUtils.isNotEmpty(filters) && filters.containsKey("board")) {
+			for (String key : filters.keySet()) {
+				if (StringUtils.equalsIgnoreCase("board", key)) {
+					implicitFilter.put("relatedBoards", filters.get(key));
+				} else if (StringUtils.equalsIgnoreCase("status", key)) {
+					implicitFilter.put("status", "Live");
+				} else {
+					implicitFilter.put(key, filters.get(key));
+				}
+			}
 			List<Map> implicitFilterProps = new ArrayList<Map>();
 			implicitFilterProps.addAll(getSearchFilterProperties(implicitFilter, false));
 			searchObj.setImplicitFilterProperties(implicitFilterProps);

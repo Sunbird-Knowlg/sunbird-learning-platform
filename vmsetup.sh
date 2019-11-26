@@ -11,4 +11,5 @@ find ./ -type f -name "log4j2.xml" -print0 | xargs -0 sed -i -e 's/\/data\/logs/
 find ./ -type f -name "logback.xml" -print0 | xargs -0 sed -i -e 's/\/data\/logs/logs/g'
 find ./ -type f -name "application.conf" -print0 | xargs -0 sed -i -e 's/\/data\//~\//g'
 find ./ -type f -name "*.java" -print0 | xargs -0 sed -i -e 's/\/data\//~\//g'
-mvn clean install
+mvn clean install -DskipTests
+mvn verify sonar:sonar -Dsonar.projectKey=project-sunbird_sunbird-learning-platform -Dsonar.organization=project-sunbird -Dsonar.host.url=https://sonarcloud.io -Dsonar.coverage.jacoco.xmlReportPaths=/home/circleci/project/searchIndex-platform/module/search-api/search-manager/target/site/jacoco/jacoco.xml,/home/circleci/project/searchIndex-platform/module/searchindex-elasticsearch/target/site/jacoco/jacoco.xml,/home/circleci/project/searchIndex-platform/module/search-actors/target/site/jacoco/jacoco.xml,/home/circleci/project/platform-modules/actors/target/site/jacoco/jacoco.xml,/home/circleci/project/platform-core/graph-engine/module/graph-engine/target/site/jacoco/jacoco.xml,/home/circleci/project/platform-core/graph-engine/module/cache-manager/target/site/jacoco/jacoco.xml,/home/circleci/project/platform-core/graph-engine/module/graph-dac-api/target/site/jacoco/jacoco.xml 
