@@ -47,7 +47,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		String categoryId = category;
 		if (null != scopeId) {
 			categoryId = generateIdentifier(scopeId, categoryId);
-			validateRequest(scopeId, categoryId);
+			validateRequest(scopeId, categoryId, category);
 			// validateMasterTerm(categoryId, label); commented to remove term validation
 			// with master term
 		} else {
@@ -101,7 +101,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		String newCategoryId = categoryId;
 		if (null != scopeId) {
 			newCategoryId = generateIdentifier(scopeId, newCategoryId);
-			validateRequest(scopeId, newCategoryId);
+			validateRequest(scopeId, newCategoryId, categoryId);
 		} else {
 			validateCategoryId(newCategoryId);
 		}
@@ -128,7 +128,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		String categoryId = category;
 		if (null != scopeId) {
 			categoryId = generateIdentifier(scopeId, categoryId);
-			validateRequest(scopeId, categoryId);
+			validateRequest(scopeId, categoryId, category);
 		} else {
 			validateCategoryId(categoryId);
 		}
@@ -157,7 +157,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		String newCategoryId = categoryId;
 		if (null != scopeId) {
 			newCategoryId = generateIdentifier(scopeId, newCategoryId);
-			validateRequest(scopeId, newCategoryId);
+			validateRequest(scopeId, newCategoryId, categoryId);
 		} else {
 			validateCategoryId(newCategoryId);
 		}
@@ -172,7 +172,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		String newCategoryId = categoryId;
 		if (null != scopeId) {
 			newCategoryId = generateIdentifier(scopeId, newCategoryId);
-			validateRequest(scopeId, newCategoryId);
+			validateRequest(scopeId, newCategoryId, categoryId);
 		} else {
 			validateCategoryId(newCategoryId);
 		}
@@ -184,14 +184,16 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		}
 	}
 
-	public void validateRequest(String scope, String categoryId) {
+	public void validateRequest(String scope, String categoryId, String originalCategory) {
 		Boolean valid = false;
 		if (StringUtils.isNotBlank(scope) && StringUtils.isNotBlank(categoryId)
-				&& !StringUtils.equalsIgnoreCase(categoryId, "_")
-				&& !StringUtils.equalsIgnoreCase(categoryId, scope + "_")) {
+				&& !StringUtils.equals(categoryId, "_")
+				&& !StringUtils.equals(categoryId, scope + "_")) {
 			Response categoryResp = getDataNode(GRAPH_ID, categoryId);
 			if (!checkError(categoryResp)) {
 				Node node = (Node) categoryResp.get(GraphDACParams.node.name());
+				if(!StringUtils.equals(originalCategory, (String) node.getMetadata().get("code")))
+					throw new ClientException("ERR_INVALID_CATEGORY", "Please provide a valid category");
 				if (StringUtils.equalsIgnoreCase(categoryId, node.getIdentifier())) {
 					List<Relation> inRelation = node.getInRelations();
 					if (!inRelation.isEmpty()) {

@@ -1,5 +1,5 @@
 {
-  "index_patterns": "lp_audit_log",
+  "index_patterns": "dialcode",
   "settings": {
     "index": {
       "analysis": {
@@ -18,7 +18,7 @@
           }
         },
         "analyzer": {
-          "ah_search_analyzer": {
+          "dc_search_analyzer": {
             "filter": [
               "standard",
               "lowercase"
@@ -26,17 +26,17 @@
             "type": "custom",
             "tokenizer": "standard"
           },
-          "keylower": {
-            "filter": "lowercase",
-            "tokenizer": "keyword"
-          },
-          "ah_index_analyzer": {
+          "dc_index_analyzer": {
             "filter": [
               "lowercase",
               "mynGram"
             ],
             "type": "custom",
             "tokenizer": "standard"
+          },
+          "keylower": {
+            "filter": "lowercase",
+            "tokenizer": "keyword"
           }
         }
       }
@@ -44,7 +44,7 @@
     "number_of_shards": 5
   },
   "mappings": {
-    "ah": {
+    "dc": {
       "dynamic_templates": [
         {
           "longs": {
@@ -103,8 +103,8 @@
             "mapping": {
               "type": "text",
               "copy_to": "all_fields",
-              "analyzer": "ah_index_analyzer",
-              "search_analyzer": "ah_search_analyzer",
+              "analyzer": "dc_index_analyzer",
+              "search_analyzer": "dc_search_analyzer",
               "fields": {
                 "raw": {
                   "type": "text",
@@ -118,52 +118,72 @@
         }
       ],
       "properties": {
-        "@timestamp": {
-          "type": "date",
-          "fields": {
-            "raw": {
-              "type": "date",
-              "format": "strict_date_optional_time||epoch_millis"
-            }
-          },
-          "format": "strict_date_optional_time||epoch_millis"
-        },
-        "@version": {
-          "type": "text",
-          "fields": {
-            "raw": {
-              "type": "text",
-              "fielddata": true,
-              "analyzer": "keylower"
-            }
-          },
-          "copy_to": [
-            "all_fields"
-          ],
-          "analyzer": "ah_index_analyzer",
-          "search_analyzer": "ah_search_analyzer"
-        },
         "all_fields": {
           "type": "text",
           "fields": {
-            "raw": {
-              "type": "text",
-              "fielddata": true,
+              "raw": {
+                "type": "text",
+                "fielddata": true,
               "analyzer": "keylower"
             }
           },
-          "analyzer": "ah_index_analyzer",
-          "search_analyzer": "ah_search_analyzer"
+          "analyzer": "dc_index_analyzer",
+          "search_analyzer": "dc_search_analyzer"
         },
-        "audit_id": {
-          "type": "long",
+        "batchCode": {
+          "type": "text",
+          "fields": {
+              "raw": {
+                "type": "text",
+                "fielddata": true,
+              "analyzer": "keylower"
+            }
+          },
+          "copy_to": [
+            "all_fields"
+          ],
+          "analyzer": "dc_index_analyzer",
+          "search_analyzer": "dc_search_analyzer"
+        },
+        "batchcode": {
+          "type": "text",
+          "fields": {
+              "raw": {
+                "type": "text",
+                "fielddata": true,
+              "analyzer": "keylower"
+            }
+          },
+          "copy_to": [
+            "all_fields"
+          ],
+          "analyzer": "dc_index_analyzer",
+          "search_analyzer": "dc_search_analyzer"
+        },
+        "channel": {
+          "type": "text",
+          "fields": {
+              "raw": {
+                "type": "text",
+                "fielddata": true,
+              "analyzer": "keylower"
+            }
+          },
+          "copy_to": [
+            "all_fields"
+          ],
+          "analyzer": "dc_index_analyzer",
+          "search_analyzer": "dc_search_analyzer"
+        },
+        "dialcode_index": {
+          "type": "double",
           "fields": {
             "raw": {
-              "type": "long"
+              "type": "double"
             }
           }
         },
-        "createdOn": {
+        "generated_on": {
           "type": "date",
           "fields": {
             "raw": {
@@ -173,140 +193,75 @@
           },
           "format": "strict_date_optional_time||epoch_millis"
         },
-        "graphId": {
+        "identifier": {
           "type": "text",
           "fields": {
-            "raw": {
-              "type": "text",
-              "fielddata": true,
+              "raw": {
+                "type": "text",
+                "fielddata": true,
               "analyzer": "keylower"
             }
           },
           "copy_to": [
             "all_fields"
           ],
-          "analyzer": "ah_index_analyzer",
-          "search_analyzer": "ah_search_analyzer"
-        },
-        "label": {
-          "type": "text",
-          "fields": {
-            "raw": {
-              "type": "text",
-              "fielddata": true,
-              "analyzer": "keylower"
-            }
-          },
-          "copy_to": [
-            "all_fields"
-          ],
-          "analyzer": "ah_index_analyzer",
-          "search_analyzer": "ah_search_analyzer"
-        },
-        "logRecord": {
-          "type": "text",
-          "fields": {
-            "raw": {
-              "type": "text",
-              "fielddata": true,
-              "analyzer": "keylower"
-            }
-          },
-          "copy_to": [
-            "all_fields"
-          ],
-          "analyzer": "ah_index_analyzer",
-          "search_analyzer": "ah_search_analyzer"
-        },
-        "objectId": {
-          "type": "text",
-          "fields": {
-            "raw": {
-              "type": "text",
-              "fielddata": true,
-              "analyzer": "keylower"
-            }
-          },
-          "copy_to": [
-            "all_fields"
-          ],
-          "analyzer": "ah_index_analyzer",
-          "search_analyzer": "ah_search_analyzer"
+          "analyzer": "dc_index_analyzer",
+          "search_analyzer": "dc_search_analyzer"
         },
         "objectType": {
           "type": "text",
           "fields": {
-            "raw": {
-              "type": "text",
-              "fielddata": true,
+              "raw": {
+                "type": "text",
+                "fielddata": true,
               "analyzer": "keylower"
             }
           },
           "copy_to": [
             "all_fields"
           ],
-          "analyzer": "ah_index_analyzer",
-          "search_analyzer": "ah_search_analyzer"
+          "analyzer": "dc_index_analyzer",
+          "search_analyzer": "dc_search_analyzer"
         },
-        "operation": {
-          "type": "text",
+        "published_on": {
+          "type": "date",
           "fields": {
             "raw": {
-              "type": "text",
-              "fielddata": true,
-              "analyzer": "keylower"
+              "type": "date",
+              "format": "strict_date_optional_time||epoch_millis"
             }
           },
-          "copy_to": [
-            "all_fields"
-          ],
-          "analyzer": "ah_index_analyzer",
-          "search_analyzer": "ah_search_analyzer"
+          "format": "strict_date_optional_time||epoch_millis"
         },
-        "requestId": {
+        "publisher": {
           "type": "text",
           "fields": {
-            "raw": {
-              "type": "text",
-              "fielddata": true,
+              "raw": {
+                "type": "text",
+                "fielddata": true,
               "analyzer": "keylower"
             }
           },
           "copy_to": [
             "all_fields"
           ],
-          "analyzer": "ah_index_analyzer",
-          "search_analyzer": "ah_search_analyzer"
+          "analyzer": "dc_index_analyzer",
+          "search_analyzer": "dc_search_analyzer"
         },
-        "summary": {
+        "status": {
           "type": "text",
           "fields": {
-            "raw": {
-              "type": "text",
-              "fielddata": true,
+              "raw": {
+                "type": "text",
+                "fielddata": true,
               "analyzer": "keylower"
             }
           },
           "copy_to": [
             "all_fields"
           ],
-          "analyzer": "ah_index_analyzer",
-          "search_analyzer": "ah_search_analyzer"
-        },
-        "userId": {
-          "type": "text",
-          "fields": {
-            "raw": {
-              "type": "text",
-              "fielddata": true,
-              "analyzer": "keylower"
-            }
-          },
-          "copy_to": [
-            "all_fields"
-          ],
-          "analyzer": "ah_index_analyzer",
-          "search_analyzer": "ah_search_analyzer"
+          "analyzer": "dc_index_analyzer",
+          "search_analyzer": "dc_search_analyzer"
         }
       }
     }

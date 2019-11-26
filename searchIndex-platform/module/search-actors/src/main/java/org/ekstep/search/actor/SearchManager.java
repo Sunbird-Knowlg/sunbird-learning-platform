@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import akka.dispatch.OnFailure;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -266,6 +267,8 @@ public class SearchManager extends SearchBaseActor {
 			searchObj.setSortBy(sortBy);
 			searchObj.setFacets(facets);
 			searchObj.setProperties(properties);
+			// Added Implicit Filter Properties To Support Collection content tagging to reuse by tenants.
+			setImplicitFilters(filters, searchObj);
 			searchObj.setLimit(limit);
 			searchObj.setFields(fieldsSearch);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
@@ -287,7 +290,6 @@ public class SearchManager extends SearchBaseActor {
 		}
 		return searchObj;
 	}
-
 
 	private Map<String, Float> getWeightagesMap(String weightagesString)
 			throws JsonParseException, JsonMappingException, IOException {
@@ -741,6 +743,18 @@ private Integer getIntValue(Object num) {
 			searchObj.setAggregations((List<Map<String, Object>>) req.get("aggregations"));
 		}
 
+	}
+
+	private void setImplicitFilters(Map<String, Object> filters, SearchDTO searchObj) throws Exception {
+		List<String> consumerProps = Platform.config.hasPath("content.relatedBoards.properties") ?
+				Platform.config.getStringList("content.relatedBoards.properties") : new ArrayList<String>();
+		Map<String, Object> implicitFilter = new HashMap<String, Object>();
+		if (CollectionUtils.isNotEmpty(consumerProps) && MapUtils.isNotEmpty(filters) && (consumerProps.stream().anyMatch(filters::containsKey))) {
+			implicitFilter = consumerProps.stream().filter(filters::containsKey).collect(Collectors.toMap(prop -> "relatedBoards." + prop, filters::get, (a, b) -> b));
+			List<Map> implicitFilterProps = new ArrayList<Map>();
+			implicitFilterProps.addAll(getSearchFilterProperties(implicitFilter, false));
+			searchObj.setImplicitFilterProperties(implicitFilterProps);
+		}
 	}
 
 }

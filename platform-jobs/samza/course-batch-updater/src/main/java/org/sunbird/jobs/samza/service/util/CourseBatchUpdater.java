@@ -1,5 +1,6 @@
 package org.sunbird.jobs.samza.service.util;
 
+import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -54,7 +55,8 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 put("batchid", edata.get("batchId"));
                 put("userid", edata.get("userId"));
             }};
-            List<Row> rows =  SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
+            ResultSet resultSet =  SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
+            List<Row> rows = resultSet.all();
             if(CollectionUtils.isNotEmpty(rows)){
                 Map<String, Integer> contentStatusMap =  rows.get(0).getMap("contentStatus", String.class, Integer.class);
                 lastReadContent = rows.get(0).getString("lastreadcontentid");

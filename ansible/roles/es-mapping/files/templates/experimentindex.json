@@ -1,0 +1,185 @@
+{
+  "index_patterns": "experiment",
+  "settings": {
+    "index": {
+      "number_of_shards": "5",
+      "analysis": {
+        "analyzer": {
+          "exp_index_analyzer": {
+            "filter": [
+              "lowercase"
+            ],
+            "type": "custom",
+            "tokenizer": "standard"
+          },
+          "keylower": {
+            "filter": "lowercase",
+            "type": "custom",
+            "tokenizer": "keyword"
+          },
+          "exp_search_analyzer": {
+            "filter": [
+              "lowercase",
+              "standard"
+            ],
+            "type": "custom",
+            "tokenizer": "standard"
+          }
+        }
+      },
+      "number_of_replicas": "1"
+    }
+  },
+  "mappings" : {
+    "_doc" : {
+      "dynamic" : "false",
+      "properties" : {
+        "all_fields" : {
+          "type" : "text",
+          "fields" : {
+            "raw" : {
+              "type" : "text",
+              "analyzer" : "keylower"
+            }
+          },
+          "analyzer" : "exp_index_analyzer",
+          "search_analyzer" : "exp_search_analyzer"
+        },
+        "id" : {
+          "type" : "text",
+          "fields" : {
+            "raw" : {
+              "type" : "text",
+              "analyzer" : "keylower",
+              "fielddata" : true
+            }
+          },
+          "copy_to" : [
+            "all_fields"
+          ],
+          "analyzer" : "exp_index_analyzer",
+          "search_analyzer" : "exp_search_analyzer",
+          "fielddata" : true
+        },
+        "ver" : {
+          "type" : "text",
+          "fields" : {
+            "raw" : {
+              "type" : "text",
+              "analyzer" : "keylower",
+              "fielddata" : true
+            }
+          },
+          "copy_to" : [
+            "all_fields"
+          ],
+          "analyzer" : "exp_index_analyzer",
+          "search_analyzer" : "exp_search_analyzer",
+          "fielddata" : true
+        },
+        "expType" : {
+          "type" : "text",
+          "fields" : {
+            "raw" : {
+              "type" : "text",
+              "analyzer" : "keylower",
+              "fielddata" : true
+            }
+          },
+          "copy_to" : [
+            "all_fields"
+          ],
+          "analyzer" : "exp_index_analyzer",
+          "search_analyzer" : "exp_search_analyzer",
+          "fielddata" : true
+        },
+        "name" : {
+          "type" : "text",
+          "fields" : {
+            "raw" : {
+              "type" : "text",
+              "analyzer" : "keylower",
+              "fielddata" : true
+            }
+          },
+          "copy_to" : [
+            "all_fields"
+          ],
+          "analyzer" : "exp_index_analyzer",
+          "search_analyzer" : "exp_search_analyzer",
+          "fielddata" : true
+        },
+        "userId" : {
+          "type" : "keyword"
+        },
+        "userIdMod" : {
+          "type" : "long"
+        },
+        "extData" : {
+          "type" : "text",
+          "fields" : {
+            "raw" : {
+              "type" : "text",
+              "analyzer" : "keylower",
+              "fielddata" : true
+            }
+          },
+          "copy_to" : [
+            "all_fields"
+          ],
+          "analyzer" : "exp_index_analyzer",
+          "search_analyzer" : "exp_search_analyzer",
+          "fielddata" : true
+        },
+        "createdOn" : {
+          "type" : "date",
+          "fields" : {
+            "raw" : {
+              "type" : "date",
+              "format": "date_hour_minute_second"
+            }
+          }
+        },
+        "startDate" : {
+          "type" : "date",
+          "fields" : {
+            "raw" : {
+              "type" : "date",
+              "format": "date_hour_minute_second"
+            }
+          }
+        },
+        "endDate" : {
+          "type" : "date",
+          "fields" : {
+            "raw" : {
+              "type" : "date",
+              "format": "date_hour_minute_second"
+            }
+          }
+        },
+        "lastUpdatedOn" : {
+          "type" : "date",
+          "fields" : {
+            "raw" : {
+              "type" : "date",
+              "format": "date_hour_minute_second"
+            }
+          }
+        },
+        "deviceId" : {
+          "type" : "keyword"
+        },
+        "deviceIdMod" : {
+          "type" : "long"
+        },
+        "key" : {
+          "type" : "keyword"
+        },
+        "url" : {
+          "type" : "keyword"
+        }
+      }
+    }
+  }
+}

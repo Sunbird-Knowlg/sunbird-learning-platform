@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#### Creating the new indices:
+cd templates
+
+template_files=$(ls -l | awk 'NR>1{print $9}' | awk -F"." '{print $1}' | tr "\n" " ")
+for file in ${template_files[@]}
+do
+        curl  -X PUT http://localhost:9200/${file} -H 'Content-Type: application/json' -d @${file}.json
+done
+
+
+
