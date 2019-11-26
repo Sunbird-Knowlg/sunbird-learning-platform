@@ -7,7 +7,7 @@ jobs:
       - restore_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
       - run: 
-          name: Setup VM and Build
+          name: Setup VM, Build and update Sonar
           command: bash vmsetup.sh
 
       - run:
