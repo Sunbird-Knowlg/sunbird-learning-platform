@@ -9,6 +9,7 @@ import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.framework.mgr.IChannelManager;
 import org.ekstep.framework.mgr.IFrameworkManager;
@@ -227,7 +228,7 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 		Assert.assertEquals(defaultLicense, channelResult.get("defaultLicense"));
 	}
 
-	@Test
+	@Test(expected = ClientException.class)
 	public void updateChannelWithInvalidDefaultLicense() throws Exception {
 		String defaultLicense = "cc-by-0001";
 		Map<String, Object> updateRequest = new HashMap<String, Object>();
@@ -235,9 +236,8 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 		updateRequest.put("identifier", channelId);
 		updateRequest.put("defaultLicense", defaultLicense);
 		RedisStoreUtil.saveList("license", new ArrayList<Object>(){{add("creative-common-0001");}});
-		Response response = channelMgr.updateChannel(channelId, updateRequest);
+		channelMgr.updateChannel(channelId, updateRequest);
 		RedisStoreUtil.delete("license");
-		Assert.assertEquals(ResponseCode.CLIENT_ERROR, response.getResponseCode());
 	}
 
 	@Test
@@ -255,7 +255,7 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 		Assert.assertEquals(true, StringUtils.isNoneBlank((String) result.get("node_id")));
 	}
 
-	@Test
+	@Test(expected = ClientException.class)
 	public void createChannelWithInvalidDefaultLicense() throws Exception {
 		String defaultLicense = "cc-by-0001";
 		Map<String, Object> requestMap = mapper.readValue(createChannelValidRequest,
@@ -263,9 +263,8 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 				});
 		requestMap.put("defaultLicense", defaultLicense);
 		RedisStoreUtil.saveList("license", new ArrayList<Object>(){{add("creative-common-0001");}});
-		Response response = channelMgr.createChannel(requestMap);
+		channelMgr.createChannel(requestMap);
 		RedisStoreUtil.delete("license");
-		Assert.assertEquals(ResponseCode.CLIENT_ERROR, response.getResponseCode());
 	}
 
 	private static int generateRandomNumber(int min, int max) {

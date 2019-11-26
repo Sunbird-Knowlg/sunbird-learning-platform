@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -48,11 +49,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		if (null == request.get(ChannelEnum.code.name()) || StringUtils.isBlank((String)request.get(ChannelEnum.code.name())))
 			return ERROR("ERR_CHANNEL_CODE_REQUIRED", "Unique code is mandatory for Channel", ResponseCode.CLIENT_ERROR);
 		request.put(ChannelEnum.identifier.name(), (String)request.get(ChannelEnum.code.name()));
-		Boolean resp = validateLicense(request);
-		if (!resp) {
-			String defaultLicense = (String) request.get("defaultLicense");
-			return ERROR("ERR_INVALID_LICENSE", "License Not Found With Name: " + defaultLicense , ResponseCode.CLIENT_ERROR);
-		}
+		validateLicense(request);
         return create(request, CHANNEL_OBJECT_TYPE);
 	}
 
@@ -77,11 +74,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	public Response updateChannel(String channelId, Map<String, Object> map) throws Exception{
 		if (null == map)
 			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		Boolean resp = validateLicense(map);
-		if (!resp) {
-			String defaultLicense = (String) map.get("defaultLicense");
-			return ERROR("ERR_INVALID_LICENSE", "License Not Found With Name: " + defaultLicense , ResponseCode.CLIENT_ERROR);
-		}
+		validateLicense(map);
 		return update(channelId, CHANNEL_OBJECT_TYPE, map);
 	}
 
@@ -134,12 +127,12 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		return properties;
 	}
 
-	private boolean validateLicense(Map<String, Object> request) throws Exception {
+	private void validateLicense(Map<String, Object> request) throws Exception {
 		if (request.containsKey("defaultLicense")) {
 			List<Object> licenseList = RedisStoreUtil.getList("license");
 			if (CollectionUtils.isNotEmpty(licenseList)) {
 				if (!licenseList.contains(request.get("defaultLicense"))) {
-					return false;
+					throw new ClientException("ERR_INVALID_LICENSE", "License Not Found With Name: " + request.get("defaultLicense") , ResponseCode.CLIENT_ERROR);
 				}
 			} else {
 				List<Node> resultList = null;
@@ -152,21 +145,15 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 					Map<String, Object> result = response.getResult();
 					resultList = (List<Node>) result.get("node_list");
 					if (resultList.size() > 0) {
-						for (Node obj : resultList) {
-							if (obj.getMetadata().get("status").equals("Live")) {
-								String licenseName = (String) obj.getMetadata().get("name");
-								licenseList.add(licenseName);
-							}
-						}
+						licenseList.addAll(resultList.stream().map(node -> node.getMetadata().get("name")).collect(Collectors.toList()));
 						RedisStoreUtil.saveList("license", licenseList);
 						if (!licenseList.contains(request.get("defaultLicense"))) {
-							return false;
+							throw new ClientException("ERR_INVALID_LICENSE", "License Not Found With Name: " + request.get("defaultLicense") , ResponseCode.CLIENT_ERROR);
 						}
 					} else
-						return false;
+						throw new ClientException("ERR_INVALID_LICENSE", "License Not Found With Name: " + request.get("defaultLicense") , ResponseCode.CLIENT_ERROR);
 				}
 			}
 		}
-		return true;
 	}
 }
