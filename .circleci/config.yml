@@ -10,10 +10,6 @@ jobs:
           name: Setup VM, Build and update Sonar
           command: bash vmsetup.sh
 
-      - run:
-          name: Push coverage report to codecov
-          command: bash <(curl -s https://codecov.io/bash)
-
       - save_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
           paths: ~/.m2
