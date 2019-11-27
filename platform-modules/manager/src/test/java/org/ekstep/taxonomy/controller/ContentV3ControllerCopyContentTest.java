@@ -158,6 +158,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
+    @Ignore
 	@Test
 	public void copyContentTest_01() throws Exception {
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(basePath + "read/" + contentId + "?mode=edit")
