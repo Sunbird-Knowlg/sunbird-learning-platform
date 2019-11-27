@@ -35,6 +35,7 @@ import scala.concurrent.Await;
 public class ChannelManagerImpl extends BaseFrameworkManager implements IChannelManager {
 
 	private static final String CHANNEL_OBJECT_TYPE = "Channel";
+	private static final String LICENSE_NOT_FOUND_ERROR = "License Not Found With Name: ";
 	private SearchProcessor processor = null;
 	
 	@PostConstruct
@@ -43,7 +44,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	}
 	
 	@Override
-	public Response createChannel(Map<String, Object> request) throws MiddlewareException {
+	public Response createChannel(Map<String, Object> request) {
 		if (null == request)
 			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		if (null == request.get(ChannelEnum.code.name()) || StringUtils.isBlank((String)request.get(ChannelEnum.code.name())))
@@ -71,7 +72,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	}
 
 	@Override
-	public Response updateChannel(String channelId, Map<String, Object> map) throws MiddlewareException{
+	public Response updateChannel(String channelId, Map<String, Object> map){
 		if (null == map)
 			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		validateLicense(map);
@@ -127,8 +128,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		return properties;
 	}
 
-	private void validateLicense(Map<String, Object> request) throws MiddlewareException {
-		String LICENSE_NOT_FOUND_ERROR = "License Not Found With Name: ";
+	private void validateLicense(Map<String, Object> request) {
 		if (request.containsKey(ChannelEnum.defaultLicense.name())) {
 			List<Object> licenseList = RedisStoreUtil.getList("license");
 			if (CollectionUtils.isEmpty(licenseList)) {
