@@ -11,16 +11,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.framework.mgr.IChannelManager;
 import org.ekstep.framework.mgr.IFrameworkManager;
 import org.ekstep.framework.test.common.TestParams;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,9 +55,25 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 			+ rn + "\"}";
 	private String createChannelWithoutCode = "{\"name\":\"channel\",\"description\":\"sample description of channel\"}";
 
+	private static String createLicenseQuery = "create(n:domain {lastStatusChangedOn:\"2019-11-21T15:04:26.363+0530\",IL_SYS_NODE_TYPE:\"DATA_NODE\",IL_FUNC_OBJECT_TYPE:\"License\",name:\"cc-by-0001\",lastUpdatedOn:\"2019-11-21T15:04:26.363+0530\",createdOn:\"2019-11-21T15:04:26.363+0530\",IL_UNIQUE_ID:\"cc-by-0001\",url:\"kp-test-url\",versionKey:\"1574328866363\",status:\"Live\"});";
+
+	@Rule
+	public final ExpectedException exception = ExpectedException.none();
+
 	@BeforeClass()
 	public static void beforeClass() throws Exception {
 		loadDefinition("definitions/channel_definition.json", "definitions/framework_definition.json");
+		delay(2000);
+	}
+
+	private static void createLicense(String... querys) {
+		for(String query:querys){
+			try{
+				graphDb.execute(query);
+			}catch(Exception e){
+
+			}
+		}
 	}
 
 	@Before
@@ -228,8 +242,9 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 		Assert.assertEquals(defaultLicense, channelResult.get("defaultLicense"));
 	}
 
-	@Test(expected = ClientException.class)
+	@Test
 	public void updateChannelWithInvalidDefaultLicense() throws Exception {
+		exception.expect(ClientException.class);
 		String defaultLicense = "cc-by-0001";
 		Map<String, Object> updateRequest = new HashMap<String, Object>();
 		updateRequest.put("description", "testDescription");
@@ -255,8 +270,9 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 		Assert.assertEquals(true, StringUtils.isNoneBlank((String) result.get("node_id")));
 	}
 
-	@Test(expected = ClientException.class)
+	@Test
 	public void createChannelWithInvalidDefaultLicense() throws Exception {
+		exception.expect(ClientException.class);
 		String defaultLicense = "cc-by-0001";
 		Map<String, Object> requestMap = mapper.readValue(createChannelValidRequest,
 				new TypeReference<Map<String, Object>>() {
@@ -265,6 +281,33 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 		RedisStoreUtil.saveList("license", new ArrayList<Object>(){{add("creative-common-0001");}});
 		channelMgr.createChannel(requestMap);
 		RedisStoreUtil.delete("license");
+	}
+
+	@Test
+	public void createChannelWithValidNeo4jDefaultLicense() throws Exception {
+		createLicense(createLicenseQuery);
+		String defaultLicense = "cc-by-0001";
+		Map<String, Object> requestMap = mapper.readValue(createChannelValidRequest,
+				new TypeReference<Map<String, Object>>() {
+				});
+		requestMap.put("defaultLicense", defaultLicense);
+		Response response = channelMgr.createChannel(requestMap);
+		Assert.assertEquals(ResponseCode.OK, response.getResponseCode());
+		Map<String, Object> result = response.getResult();
+		Assert.assertEquals(true, StringUtils.isNoneBlank((String) result.get("node_id")));
+		RedisStoreUtil.delete("license");
+	}
+
+	@Test
+	public void createChannelWithInvalidNeo4jDefaultLicense() throws Exception {
+		exception.expect(ServerException.class);
+		RedisStoreUtil.delete("license");
+		String defaultLicense = "cc-by-0001";
+		Map<String, Object> requestMap = mapper.readValue(createChannelValidRequest,
+				new TypeReference<Map<String, Object>>() {
+				});
+		requestMap.put("defaultLicense", defaultLicense);
+		channelMgr.createChannel(requestMap);
 	}
 
 	private static int generateRandomNumber(int min, int max) {

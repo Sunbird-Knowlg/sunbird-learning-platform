@@ -42,7 +42,7 @@ public class GraphEngineTestSetup {
 
 	private static ClassLoader classLoader = GraphEngineTestSetup.class.getClassLoader();
 
-	private static GraphDatabaseService graphDb = null;
+	protected static GraphDatabaseService graphDb = null;
 
 	private static String NEO4J_SERVER_ADDRESS = "localhost:7687";
 	private static String GRAPH_DIRECTORY_PROPERTY_KEY = "graph.dir";
