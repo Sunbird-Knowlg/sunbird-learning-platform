@@ -13,8 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.router.RequestRouterPool;
@@ -43,7 +43,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	}
 	
 	@Override
-	public Response createChannel(Map<String, Object> request) throws Exception{
+	public Response createChannel(Map<String, Object> request) throws MiddlewareException {
 		if (null == request)
 			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		if (null == request.get(ChannelEnum.code.name()) || StringUtils.isBlank((String)request.get(ChannelEnum.code.name())))
@@ -71,7 +71,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	}
 
 	@Override
-	public Response updateChannel(String channelId, Map<String, Object> map) throws Exception{
+	public Response updateChannel(String channelId, Map<String, Object> map) throws MiddlewareException{
 		if (null == map)
 			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		validateLicense(map);
@@ -127,32 +127,25 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		return properties;
 	}
 
-	private void validateLicense(Map<String, Object> request) throws Exception {
-		if (request.containsKey("defaultLicense")) {
+	private void validateLicense(Map<String, Object> request) throws MiddlewareException {
+		String LICENSE_NOT_FOUND_ERROR = "License Not Found With Name: ";
+		if (request.containsKey(ChannelEnum.defaultLicense.name())) {
 			List<Object> licenseList = RedisStoreUtil.getList("license");
-			if (CollectionUtils.isNotEmpty(licenseList)) {
-				if (!licenseList.contains(request.get("defaultLicense"))) {
-					throw new ClientException("ERR_INVALID_LICENSE", "License Not Found With Name: " + request.get("defaultLicense") , ResponseCode.CLIENT_ERROR);
-				}
-			} else {
-				List<Node> resultList = null;
-				Request searchReq = getRequest(GRAPH_ID, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType",
-						GraphDACParams.object_type.name(), "License");
+			if (CollectionUtils.isEmpty(licenseList)) {
+				Request searchReq = getRequest(GRAPH_ID, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType", GraphDACParams.object_type.name(), "License");
 				Response response = getResponse(searchReq);
-				if (checkError(response)) {
+				if (checkError(response))
 					throw new ServerException("ERR_FETCHING_LICENSE", "Error while fetching license.");
-				} else {
-					Map<String, Object> result = response.getResult();
-					resultList = (List<Node>) result.get("node_list");
-					if (resultList.size() > 0) {
-						licenseList.addAll(resultList.stream().map(node -> node.getMetadata().get("name")).collect(Collectors.toList()));
-						RedisStoreUtil.saveList("license", licenseList);
-						if (!licenseList.contains(request.get("defaultLicense"))) {
-							throw new ClientException("ERR_INVALID_LICENSE", "License Not Found With Name: " + request.get("defaultLicense") , ResponseCode.CLIENT_ERROR);
-						}
-					} else
-						throw new ClientException("ERR_INVALID_LICENSE", "License Not Found With Name: " + request.get("defaultLicense") , ResponseCode.CLIENT_ERROR);
+				Map<String, Object> result = response.getResult();
+				List<Node> resultList = (List<Node>) result.get("node_list");
+				if (CollectionUtils.isEmpty(resultList)) {
+					throw new ClientException(ChannelEnum.ERR_INVALID_LICENSE.name(), LICENSE_NOT_FOUND_ERROR + request.get(ChannelEnum.defaultLicense.name()) , ResponseCode.CLIENT_ERROR);
 				}
+				licenseList.addAll(resultList.stream().map(node -> node.getMetadata().get("name")).collect(Collectors.toList()));
+				RedisStoreUtil.saveList("license", licenseList);
+			}
+			if (!licenseList.contains(request.get(ChannelEnum.defaultLicense.name()))) {
+				throw new ClientException(ChannelEnum.ERR_INVALID_LICENSE.name(), LICENSE_NOT_FOUND_ERROR + request.get(ChannelEnum.defaultLicense.name()) , ResponseCode.CLIENT_ERROR);
 			}
 		}
 	}
