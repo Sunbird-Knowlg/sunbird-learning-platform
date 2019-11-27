@@ -58,8 +58,8 @@ public class ContentV3Controller extends BaseController {
 	private List<String> preSignedObjTypes = Arrays.asList("assets", "artifact", "hierarchy");
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	@ResponseBody
+//	@RequestMapping(value = "/create", method = RequestMethod.POST)
+//	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap,
 			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
 		String apiId = "ekstep.learning.content.create";
@@ -76,8 +76,8 @@ public class ContentV3Controller extends BaseController {
 	}
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
-	@ResponseBody
+//	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
+//	@ResponseBody
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.content.update";
@@ -349,8 +349,8 @@ public class ContentV3Controller extends BaseController {
 	 *            The Content Id whose hierarchy needs to be fetched
 	 * @return The Response entity with Content hierarchy in the result set
 	 */
-	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
-	@ResponseBody
+//	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
+//	@ResponseBody
 	public ResponseEntity<Response> find(@PathVariable(value = "id") String contentId,
 			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestParam(value = "mode", required = false) String mode) {
