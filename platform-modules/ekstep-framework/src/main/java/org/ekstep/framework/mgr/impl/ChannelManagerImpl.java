@@ -4,16 +4,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.framework.enums.ChannelEnum;
 import org.ekstep.framework.mgr.IChannelManager;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
+import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -25,6 +34,7 @@ import scala.concurrent.Await;
 public class ChannelManagerImpl extends BaseFrameworkManager implements IChannelManager {
 
 	private static final String CHANNEL_OBJECT_TYPE = "Channel";
+	private static final String LICENSE_NOT_FOUND_ERROR = "License Not Found With Name: ";
 	private SearchProcessor processor = null;
 	
 	@PostConstruct
@@ -39,7 +49,8 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		if (null == request.get(ChannelEnum.code.name()) || StringUtils.isBlank((String)request.get(ChannelEnum.code.name())))
 			return ERROR("ERR_CHANNEL_CODE_REQUIRED", "Unique code is mandatory for Channel", ResponseCode.CLIENT_ERROR);
 		request.put(ChannelEnum.identifier.name(), (String)request.get(ChannelEnum.code.name()));
-		return create(request, CHANNEL_OBJECT_TYPE);
+		validateLicense(request);
+        return create(request, CHANNEL_OBJECT_TYPE);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -60,9 +71,10 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	}
 
 	@Override
-	public Response updateChannel(String channelId, Map<String, Object> map) {
+	public Response updateChannel(String channelId, Map<String, Object> map){
 		if (null == map)
 			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+		validateLicense(map);
 		return update(channelId, CHANNEL_OBJECT_TYPE, map);
 	}
 
@@ -113,5 +125,27 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		properties.add(property);
 
 		return properties;
+	}
+
+	private void validateLicense(Map<String, Object> request) {
+		if (request.containsKey(ChannelEnum.defaultLicense.name())) {
+			List<Object> licenseList = RedisStoreUtil.getList("license");
+			if (CollectionUtils.isEmpty(licenseList)) {
+				Request searchReq = getRequest(GRAPH_ID, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType", GraphDACParams.object_type.name(), "License");
+				Response response = getResponse(searchReq);
+				if (checkError(response))
+					throw new ServerException("ERR_FETCHING_LICENSE", "Error while fetching license.");
+				Map<String, Object> result = response.getResult();
+				List<Node> resultList = (List<Node>) result.get("node_list");
+				if (CollectionUtils.isEmpty(resultList)) {
+					throw new ClientException(ChannelEnum.ERR_INVALID_LICENSE.name(), LICENSE_NOT_FOUND_ERROR + request.get(ChannelEnum.defaultLicense.name()) , ResponseCode.CLIENT_ERROR);
+				}
+				licenseList.addAll(resultList.stream().map(node -> node.getMetadata().get("name")).collect(Collectors.toList()));
+				RedisStoreUtil.saveList("license", licenseList);
+			}
+			if (!licenseList.contains(request.get(ChannelEnum.defaultLicense.name()))) {
+				throw new ClientException(ChannelEnum.ERR_INVALID_LICENSE.name(), LICENSE_NOT_FOUND_ERROR + request.get(ChannelEnum.defaultLicense.name()) , ResponseCode.CLIENT_ERROR);
+			}
+		}
 	}
 }
