@@ -26,6 +26,7 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 import scala.concurrent.Await;
 
@@ -36,6 +37,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	private static final String CHANNEL_OBJECT_TYPE = "Channel";
 	private static final String LICENSE_NOT_FOUND_ERROR = "License Not Found With Name: ";
 	private static final String LICENSE_REDIS_KEY = "edge_license";
+	private static final String CHANNEL_REDIS_KEY = "channel_";
 	private SearchProcessor processor = null;
 	
 	@PostConstruct
@@ -51,7 +53,20 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 			return ERROR("ERR_CHANNEL_CODE_REQUIRED", "Unique code is mandatory for Channel", ResponseCode.CLIENT_ERROR);
 		request.put(ChannelEnum.identifier.name(), (String)request.get(ChannelEnum.code.name()));
 		validateLicense(request);
-        return create(request, CHANNEL_OBJECT_TYPE);
+		Response response = create(request, CHANNEL_OBJECT_TYPE);
+		try {
+			if (!checkError(response) && response.getResult().containsKey("node_id")) {
+				String channelCache = RedisStoreUtil.get(CHANNEL_REDIS_KEY + response.getResult().get("node_id"));
+				if (StringUtils.isEmpty(channelCache)) {
+					Response responseNode = read((String) response.getResult().get("node_id"), CHANNEL_OBJECT_TYPE, ChannelEnum.channel.name());
+					Map<String, Object> channel = (Map<String, Object>) responseNode.getResult().get("channel");
+					RedisStoreUtil.save(CHANNEL_REDIS_KEY + response.getResult().get("node_id"), mapper.writeValueAsString(channel), 0);
+				}
+			}
+		} catch (Exception e) {
+			TelemetryManager.error("Error while storing channel into redis cache."+e.getMessage(), e);
+		}
+		return response;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -59,7 +74,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	public Response readChannel(String channelId) throws Exception{
 		Response response = new Response();
 		if (StringUtils.isNotEmpty(channelId)) {
-			String channelCache = RedisStoreUtil.get("channel_" + channelId);
+			String channelCache = RedisStoreUtil.get(CHANNEL_REDIS_KEY + channelId);
 			if (StringUtils.isNotEmpty(channelCache)) {
 				Map<String, Object> channelDetails = mapper.readValue(channelCache, Map.class);
 				response.put("channel",channelDetails);
@@ -67,7 +82,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 			} else {
 				response = read(channelId, CHANNEL_OBJECT_TYPE, ChannelEnum.channel.name());
 				Map<String, Object> channel = (Map<String, Object>) response.getResult().get("channel");
-				RedisStoreUtil.save("channel_"+channel.get("identifier"), mapper.writeValueAsString(channel),0);
+				RedisStoreUtil.save(CHANNEL_REDIS_KEY+channel.get("identifier"), mapper.writeValueAsString(channel),0);
 			}
 		}
 		if (Platform.config.hasPath("channel.fetch.suggested_frameworks") && Platform.config.getBoolean("channel.fetch.suggested_frameworks")) {
@@ -84,11 +99,21 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	}
 
 	@Override
-	public Response updateChannel(String channelId, Map<String, Object> map){
+	public Response updateChannel(String channelId, Map<String, Object> map) {
 		if (null == map)
 			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		validateLicense(map);
-		return update(channelId, CHANNEL_OBJECT_TYPE, map);
+		Response response = update(channelId, CHANNEL_OBJECT_TYPE, map);
+		try {
+			if (!checkError(response) && response.getResult().containsKey("node_id")) {
+				Response updatedNode = read(channelId, CHANNEL_OBJECT_TYPE, ChannelEnum.channel.name());
+				Map<String, Object> updatedChannel = (Map<String, Object>) updatedNode.getResult().get("channel");
+				RedisStoreUtil.save(CHANNEL_REDIS_KEY + response.getResult().get("node_id"), mapper.writeValueAsString(updatedChannel), 0);
+			}
+		} catch (Exception e) {
+			TelemetryManager.error("Error while storing channel into redis cache."+e.getMessage(), e);
+		}
+		return response;
 	}
 
 	@Override
