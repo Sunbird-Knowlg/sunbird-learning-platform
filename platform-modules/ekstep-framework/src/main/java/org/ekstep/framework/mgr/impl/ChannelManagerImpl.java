@@ -35,6 +35,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 
 	private static final String CHANNEL_OBJECT_TYPE = "Channel";
 	private static final String LICENSE_NOT_FOUND_ERROR = "License Not Found With Name: ";
+	private static final String LICENSE_REDIS_KEY = "edge_license";
 	private SearchProcessor processor = null;
 	
 	@PostConstruct
@@ -141,7 +142,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 
 	private void validateLicense(Map<String, Object> request) {
 		if (request.containsKey(ChannelEnum.defaultLicense.name())) {
-			List<Object> licenseList = RedisStoreUtil.getList("license");
+			List<Object> licenseList = RedisStoreUtil.getList(LICENSE_REDIS_KEY);
 			if (CollectionUtils.isEmpty(licenseList)) {
 				Request searchReq = getRequest(GRAPH_ID, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType", GraphDACParams.object_type.name(), "License");
 				Response response = getResponse(searchReq);
@@ -153,7 +154,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 					throw new ClientException(ChannelEnum.ERR_INVALID_LICENSE.name(), LICENSE_NOT_FOUND_ERROR + request.get(ChannelEnum.defaultLicense.name()) , ResponseCode.CLIENT_ERROR);
 				}
 				licenseList.addAll(resultList.stream().map(node -> node.getMetadata().get("name")).collect(Collectors.toList()));
-				RedisStoreUtil.saveList("license", licenseList);
+				RedisStoreUtil.saveList(LICENSE_REDIS_KEY, licenseList);
 			}
 			if (!licenseList.contains(request.get(ChannelEnum.defaultLicense.name()))) {
 				throw new ClientException(ChannelEnum.ERR_INVALID_LICENSE.name(), LICENSE_NOT_FOUND_ERROR + request.get(ChannelEnum.defaultLicense.name()) , ResponseCode.CLIENT_ERROR);
