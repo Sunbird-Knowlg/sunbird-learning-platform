@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -12,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
@@ -34,6 +34,7 @@ import scala.concurrent.Await;
 public class ChannelManagerImpl extends BaseFrameworkManager implements IChannelManager {
 
 	private static final String CHANNEL_OBJECT_TYPE = "Channel";
+	private static final String LICENSE_NOT_FOUND_ERROR = "License Not Found With Name: ";
 	private SearchProcessor processor = null;
 	
 	@PostConstruct
@@ -42,29 +43,14 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	}
 	
 	@Override
-	public Response createChannel(Map<String, Object> request) throws Exception{
+	public Response createChannel(Map<String, Object> request) {
 		if (null == request)
 			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		if (null == request.get(ChannelEnum.code.name()) || StringUtils.isBlank((String)request.get(ChannelEnum.code.name())))
 			return ERROR("ERR_CHANNEL_CODE_REQUIRED", "Unique code is mandatory for Channel", ResponseCode.CLIENT_ERROR);
 		request.put(ChannelEnum.identifier.name(), (String)request.get(ChannelEnum.code.name()));
-		Boolean resp = validateLicense(request);
-		if (!resp) {
-			String defaultLicense = (String) request.get("defaultLicense");
-			return ERROR("ERR_INVALID_LICENSE", "License Not Found With Name: " + defaultLicense , ResponseCode.CLIENT_ERROR);
-		}
-        Response response = create(request, CHANNEL_OBJECT_TYPE);
-		if(response.getResponseCode().equals(ResponseCode.OK)){
-			if(response.getResult().containsKey("node_id")){
-				String channelCache = RedisStoreUtil.get("channel_"+response.getResult().get("node_id"));
-				if(StringUtils.isEmpty(channelCache)){
-					Response responseNode = read((String) response.getResult().get("node_id"), CHANNEL_OBJECT_TYPE, ChannelEnum.channel.name());
-					Map<String, Object> channel = (Map<String, Object>) responseNode.getResult().get("channel");
-					RedisStoreUtil.save("channel_"+response.getResult().get("node_id"), mapper.writeValueAsString(channel),0);
-				}
-			}
-		}
-		return response;
+		validateLicense(request);
+        return create(request, CHANNEL_OBJECT_TYPE);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -97,23 +83,11 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	}
 
 	@Override
-	public Response updateChannel(String channelId, Map<String, Object> map) throws Exception{
+	public Response updateChannel(String channelId, Map<String, Object> map){
 		if (null == map)
 			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		Boolean resp = validateLicense(map);
-		if (!resp) {
-			String defaultLicense = (String) map.get("defaultLicense");
-			return ERROR("ERR_INVALID_LICENSE", "License Not Found With Name: " + defaultLicense , ResponseCode.CLIENT_ERROR);
-		}
-		Response response = update(channelId, CHANNEL_OBJECT_TYPE, map);
-		if (response.getResponseCode().equals(ResponseCode.OK)) {
-			if (response.getResult().containsKey("node_id")) {
-				Response updatedNode = read(channelId, CHANNEL_OBJECT_TYPE, ChannelEnum.channel.name());
-				Map<String, Object> updatedChannel = (Map<String, Object>) updatedNode.getResult().get("channel");
-				RedisStoreUtil.save("channel_" + response.getResult().get("node_id"), mapper.writeValueAsString(updatedChannel), 0);
-			}
-		}
-		return response;
+		validateLicense(map);
+		return update(channelId, CHANNEL_OBJECT_TYPE, map);
 	}
 
 	@Override
@@ -165,41 +139,25 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		return properties;
 	}
 
-    private boolean validateLicense(Map<String, Object> request) throws Exception{
-        if (request.containsKey("defaultLicense")) {
-            List<Object> licenseList = RedisStoreUtil.getList("license");
-            if (CollectionUtils.isNotEmpty(licenseList)) {
-                if (!licenseList.contains(request.get("defaultLicense"))) {
-                    return false;
-                }
-            } else {
-                List<Node> resultList = null;
-                Request searchReq = getRequest(GRAPH_ID, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType",
-                        GraphDACParams.object_type.name(), "license");
-                Response response = getResponse(searchReq);
-                if (!checkError(response)) {
-                    if (null != response && response.getResponseCode() == ResponseCode.OK) {
-                        Map<String, Object> result = response.getResult();
-                        resultList = (List<Node>) result.get("node_list");
-                        if ( resultList.size() > 0) {
-                            for (Node obj : resultList) {
-                                if(obj.getMetadata().get("status").equals("Live")){
-                                    String licenseName = (String) obj.getMetadata().get("name");
-                                    licenseList.add(licenseName);
-                                }
-                            }
-                            RedisStoreUtil.saveList("license", licenseList);
-                            if (!licenseList.contains(request.get("defaultLicense"))) {
-                                return false;
-                            }
-                        }
-                    }
-                }
-                else {
-                    throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Something Went Wrong While Processing Your Request. Please Try Again After Sometime!", ResponseCode.SERVER_ERROR);
-                }
-            }
-        }
-        return true;
-    }
+	private void validateLicense(Map<String, Object> request) {
+		if (request.containsKey(ChannelEnum.defaultLicense.name())) {
+			List<Object> licenseList = RedisStoreUtil.getList("license");
+			if (CollectionUtils.isEmpty(licenseList)) {
+				Request searchReq = getRequest(GRAPH_ID, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType", GraphDACParams.object_type.name(), "License");
+				Response response = getResponse(searchReq);
+				if (checkError(response))
+					throw new ServerException("ERR_FETCHING_LICENSE", "Error while fetching license.");
+				Map<String, Object> result = response.getResult();
+				List<Node> resultList = (List<Node>) result.get("node_list");
+				if (CollectionUtils.isEmpty(resultList)) {
+					throw new ClientException(ChannelEnum.ERR_INVALID_LICENSE.name(), LICENSE_NOT_FOUND_ERROR + request.get(ChannelEnum.defaultLicense.name()) , ResponseCode.CLIENT_ERROR);
+				}
+				licenseList.addAll(resultList.stream().map(node -> node.getMetadata().get("name")).collect(Collectors.toList()));
+				RedisStoreUtil.saveList("license", licenseList);
+			}
+			if (!licenseList.contains(request.get(ChannelEnum.defaultLicense.name()))) {
+				throw new ClientException(ChannelEnum.ERR_INVALID_LICENSE.name(), LICENSE_NOT_FOUND_ERROR + request.get(ChannelEnum.defaultLicense.name()) , ResponseCode.CLIENT_ERROR);
+			}
+		}
+	}
 }
