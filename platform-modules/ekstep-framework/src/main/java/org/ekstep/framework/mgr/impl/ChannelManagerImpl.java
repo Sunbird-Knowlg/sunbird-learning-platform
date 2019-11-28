@@ -51,7 +51,14 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 			return ERROR("ERR_CHANNEL_CODE_REQUIRED", "Unique code is mandatory for Channel", ResponseCode.CLIENT_ERROR);
 		request.put(ChannelEnum.identifier.name(), (String)request.get(ChannelEnum.code.name()));
 		validateLicense(request);
-        return create(request, CHANNEL_OBJECT_TYPE);
+		Response response = create(request, CHANNEL_OBJECT_TYPE);
+			if (!checkError(response) && response.getResult().containsKey("node_id") && request.containsKey("defaultLicense")) {
+				String channelCache = RedisStoreUtil.get("channel_" + response.getResult().get("node_id") + "_license");
+				if (StringUtils.isEmpty(channelCache)) {
+					RedisStoreUtil.save("channel_" + response.getResult().get("node_id") + "_license", (String) request.get("defaultLicense"), 0);
+				}
+			}
+		return response;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -76,7 +83,11 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		if (null == map)
 			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		validateLicense(map);
-		return update(channelId, CHANNEL_OBJECT_TYPE, map);
+		Response response = update(channelId, CHANNEL_OBJECT_TYPE, map);
+			if (!checkError(response) && response.getResult().containsKey("node_id") && map.containsKey("defaultLicense")) {
+				RedisStoreUtil.save("channel_" + response.getResult().get("node_id") + "_license", (String) map.get("defaultLicense"), 0);
+			}
+		return response;
 	}
 
 	@Override
