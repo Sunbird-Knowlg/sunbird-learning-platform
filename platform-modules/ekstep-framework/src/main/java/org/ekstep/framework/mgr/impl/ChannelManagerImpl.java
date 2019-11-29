@@ -52,12 +52,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		request.put(ChannelEnum.identifier.name(), (String)request.get(ChannelEnum.code.name()));
 		validateLicense(request);
 		Response response = create(request, CHANNEL_OBJECT_TYPE);
-			if (!checkError(response) && response.getResult().containsKey(ChannelEnum.node_id.name()) && request.containsKey(ChannelEnum.defaultLicense.name())) {
-				String channelCache = RedisStoreUtil.get(ChannelEnum.channel_.name() + response.getResult().get(ChannelEnum.node_id.name()) + ChannelEnum._license.name());
-				if (StringUtils.isEmpty(channelCache)) {
-					RedisStoreUtil.save(ChannelEnum.channel_.name() + response.getResult().get(ChannelEnum.node_id.name()) + ChannelEnum._license.name(), (String) request.get(ChannelEnum.defaultLicense.name()), 0);
-				}
-			}
+		channelLicenseCache(response,request);
 		return response;
 	}
 
@@ -84,9 +79,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		validateLicense(map);
 		Response response = update(channelId, CHANNEL_OBJECT_TYPE, map);
-			if (!checkError(response) && response.getResult().containsKey(ChannelEnum.node_id.name()) && map.containsKey(ChannelEnum.defaultLicense.name())) {
-				RedisStoreUtil.save(ChannelEnum.channel_.name() + response.getResult().get(ChannelEnum.node_id.name()) + ChannelEnum._license.name(), (String) map.get(ChannelEnum.defaultLicense.name()), 0);
-			}
+		channelLicenseCache(response,map);
 		return response;
 	}
 
@@ -158,6 +151,12 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 			if (!licenseList.contains(request.get(ChannelEnum.defaultLicense.name()))) {
 				throw new ClientException(ChannelEnum.ERR_INVALID_LICENSE.name(), LICENSE_NOT_FOUND_ERROR + request.get(ChannelEnum.defaultLicense.name()) , ResponseCode.CLIENT_ERROR);
 			}
+		}
+	}
+
+	private void channelLicenseCache(Response response, Map<String, Object> request){
+		if (!checkError(response) && response.getResult().containsKey(ChannelEnum.node_id.name()) && request.containsKey(ChannelEnum.defaultLicense.name())) {
+			RedisStoreUtil.save(ChannelEnum.channel_.name() + response.getResult().get(ChannelEnum.node_id.name()) + ChannelEnum._license.name(), (String) request.get(ChannelEnum.defaultLicense.name()), 0);
 		}
 	}
 }
