@@ -52,10 +52,10 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		request.put(ChannelEnum.identifier.name(), (String)request.get(ChannelEnum.code.name()));
 		validateLicense(request);
 		Response response = create(request, CHANNEL_OBJECT_TYPE);
-			if (!checkError(response) && response.getResult().containsKey("node_id") && request.containsKey("defaultLicense")) {
-				String channelCache = RedisStoreUtil.get("channel_" + response.getResult().get("node_id") + "_license");
+			if (!checkError(response) && response.getResult().containsKey(ChannelEnum.node_id.name()) && request.containsKey(ChannelEnum.defaultLicense.name())) {
+				String channelCache = RedisStoreUtil.get(ChannelEnum.channel_.name() + response.getResult().get(ChannelEnum.node_id.name()) + ChannelEnum._license.name());
 				if (StringUtils.isEmpty(channelCache)) {
-					RedisStoreUtil.save("channel_" + response.getResult().get("node_id") + "_license", (String) request.get("defaultLicense"), 0);
+					RedisStoreUtil.save(ChannelEnum.channel_.name() + response.getResult().get(ChannelEnum.node_id.name()) + ChannelEnum._license.name(), (String) request.get(ChannelEnum.defaultLicense.name()), 0);
 				}
 			}
 		return response;
@@ -84,8 +84,8 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		validateLicense(map);
 		Response response = update(channelId, CHANNEL_OBJECT_TYPE, map);
-			if (!checkError(response) && response.getResult().containsKey("node_id") && map.containsKey("defaultLicense")) {
-				RedisStoreUtil.save("channel_" + response.getResult().get("node_id") + "_license", (String) map.get("defaultLicense"), 0);
+			if (!checkError(response) && response.getResult().containsKey(ChannelEnum.node_id.name()) && map.containsKey(ChannelEnum.defaultLicense.name())) {
+				RedisStoreUtil.save(ChannelEnum.channel_.name() + response.getResult().get(ChannelEnum.node_id.name()) + ChannelEnum._license.name(), (String) map.get(ChannelEnum.defaultLicense.name()), 0);
 			}
 		return response;
 	}
