@@ -57,6 +57,8 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 
 	private static String createLicenseQuery = "create(n:domain {lastStatusChangedOn:\"2019-11-21T15:04:26.363+0530\",IL_SYS_NODE_TYPE:\"DATA_NODE\",IL_FUNC_OBJECT_TYPE:\"License\",name:\"cc-by-0001\",lastUpdatedOn:\"2019-11-21T15:04:26.363+0530\",createdOn:\"2019-11-21T15:04:26.363+0530\",IL_UNIQUE_ID:\"cc-by-0001\",url:\"kp-test-url\",versionKey:\"1574328866363\",status:\"Live\"});";
 
+	private static final String LICENSE_REDIS_KEY = "edge_license";
+
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
 
@@ -231,10 +233,10 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 		updateRequest.put("description", "testDescription");
 		updateRequest.put("identifier", channelId);
 		updateRequest.put("defaultLicense", defaultLicense);
-		RedisStoreUtil.saveList("license", new ArrayList<Object>(){{add(defaultLicense);}});
+		RedisStoreUtil.saveList(LICENSE_REDIS_KEY, new ArrayList<Object>(){{add(defaultLicense);}});
 		Response responseCode = channelMgr.updateChannel(channelId, updateRequest);
 		Assert.assertEquals(ResponseCode.OK, responseCode.getResponseCode());
-		RedisStoreUtil.delete("license");
+		RedisStoreUtil.delete(LICENSE_REDIS_KEY);
 		Response readResp = channelMgr.readChannel(channelId);
 		Map<String, Object> map = readResp.getResult();
 		Map<String, Object> channelResult = (Map) map.get("channel");
@@ -250,9 +252,9 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 		updateRequest.put("description", "testDescription");
 		updateRequest.put("identifier", channelId);
 		updateRequest.put("defaultLicense", defaultLicense);
-		RedisStoreUtil.saveList("license", new ArrayList<Object>(){{add("creative-common-0001");}});
+		RedisStoreUtil.saveList(LICENSE_REDIS_KEY, new ArrayList<Object>(){{add("creative-common-0001");}});
 		channelMgr.updateChannel(channelId, updateRequest);
-		RedisStoreUtil.delete("license");
+		RedisStoreUtil.delete(LICENSE_REDIS_KEY);
 	}
 
 	@Test
@@ -262,10 +264,10 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 				new TypeReference<Map<String, Object>>() {
 				});
 		requestMap.put("defaultLicense", defaultLicense);
-		RedisStoreUtil.saveList("license", new ArrayList<Object>(){{add(defaultLicense);}});
+		RedisStoreUtil.saveList(LICENSE_REDIS_KEY, new ArrayList<Object>(){{add(defaultLicense);}});
 		Response response = channelMgr.createChannel(requestMap);
 		Assert.assertEquals(ResponseCode.OK, response.getResponseCode());
-		RedisStoreUtil.delete("license");
+		RedisStoreUtil.delete(LICENSE_REDIS_KEY);
 		Map<String, Object> result = response.getResult();
 		Assert.assertEquals(true, StringUtils.isNoneBlank((String) result.get("node_id")));
 	}
@@ -278,9 +280,9 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 				new TypeReference<Map<String, Object>>() {
 				});
 		requestMap.put("defaultLicense", defaultLicense);
-		RedisStoreUtil.saveList("license", new ArrayList<Object>(){{add("creative-common-0001");}});
+		RedisStoreUtil.saveList(LICENSE_REDIS_KEY, new ArrayList<Object>(){{add("creative-common-0001");}});
 		channelMgr.createChannel(requestMap);
-		RedisStoreUtil.delete("license");
+		RedisStoreUtil.delete(LICENSE_REDIS_KEY);
 	}
 
 	@Test
@@ -295,13 +297,13 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 		Assert.assertEquals(ResponseCode.OK, response.getResponseCode());
 		Map<String, Object> result = response.getResult();
 		Assert.assertEquals(true, StringUtils.isNoneBlank((String) result.get("node_id")));
-		RedisStoreUtil.delete("license");
+		RedisStoreUtil.delete(LICENSE_REDIS_KEY);
 	}
 
 	@Test
 	public void createChannelWithInvalidNeo4jDefaultLicense() throws Exception {
 		exception.expect(ServerException.class);
-		RedisStoreUtil.delete("license");
+		RedisStoreUtil.delete(LICENSE_REDIS_KEY);
 		String defaultLicense = "cc-by-0001";
 		Map<String, Object> requestMap = mapper.readValue(createChannelValidRequest,
 				new TypeReference<Map<String, Object>>() {
