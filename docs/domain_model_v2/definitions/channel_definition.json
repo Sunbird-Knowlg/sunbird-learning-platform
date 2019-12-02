@@ -198,7 +198,7 @@
         },
         {
           "required": false,
-          "dataType": "String",
+          "dataType": "Text",
           "propertyName": "defaultLicense",
           "title": "Default License",
           "description": "Default License for Channel",
