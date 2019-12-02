@@ -201,7 +201,8 @@ public class BasePlaySearchManager extends Results {
 						}else {
 							prop = mapper.readValue((String) value, List.class);
 						}
-						content.put(contentTagKey, prop.get(0));
+					    if (CollectionUtils.isNotEmpty(prop))
+							content.put(contentTagKey, prop.get(0));
 					} catch (IOException e) {
 						content.put(contentTagKey, (String) content.get(contentTagKey));
 					}
