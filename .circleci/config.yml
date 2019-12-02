@@ -14,13 +14,14 @@ jobs:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
           paths: ~/.m2
 
-      - run: mkdir temp && cp platform-modules/service/target/learning-service.war temp/
-      - run: cp searchIndex-platform/module/search-api/search-manager/target/search-manager-1.0-SNAPSHOT.jar temp/
-      - run: cp platform-tools/spikes/sync-tool/target/sync-tool-0.0.1-SNAPSHOT.jar temp/
+      - run: cd searchIndex-platform/module/search-api && mvn play2:dist -pl search-manager
+      - run: mkdir artifacts && cp platform-modules/service/target/learning-service.war artifacts/
+      - run: cp searchIndex-platform/module/search-api/search-manager/target/search-manager-1.0-SNAPSHOT-dist.zip artifacts/
+      - run: cp platform-tools/spikes/sync-tool/target/sync-tool-0.0.1-SNAPSHOT.jar artifacts/
 
       - store_artifacts:
-         path: temp
-         destination: temp/
+         path: artifacts
+         destination: artifacts/
      
 workflows:
   version: 2.1
