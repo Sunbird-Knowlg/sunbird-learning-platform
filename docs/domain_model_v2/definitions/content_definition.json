@@ -927,7 +927,7 @@
 					],
 					"category": "Ownership",
 					"displayProperty": "Editable",
-					"defaultValue": "Creative Commons Attribution (CC BY)",
+					"defaultValue": "CC BY 4.0",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false

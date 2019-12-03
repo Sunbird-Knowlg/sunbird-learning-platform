@@ -35,6 +35,9 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 
 	private static final String CHANNEL_OBJECT_TYPE = "Channel";
 	private static final String LICENSE_NOT_FOUND_ERROR = "License Not Found With Name: ";
+	private static final String LICENSE_REDIS_KEY = "edge_license";
+	private static final String CHANNEL_LICENSE_CACHE_PREFIX = "channel_";
+	private static final String CHANNEL_LICENSE_CACHE_SUFFIX = "_license";
 	private SearchProcessor processor = null;
 	
 	@PostConstruct
@@ -50,7 +53,9 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 			return ERROR("ERR_CHANNEL_CODE_REQUIRED", "Unique code is mandatory for Channel", ResponseCode.CLIENT_ERROR);
 		request.put(ChannelEnum.identifier.name(), (String)request.get(ChannelEnum.code.name()));
 		validateLicense(request);
-        return create(request, CHANNEL_OBJECT_TYPE);
+		Response response = create(request, CHANNEL_OBJECT_TYPE);
+		channelLicenseCache(response,request);
+		return response;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -75,7 +80,9 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		if (null == map)
 			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		validateLicense(map);
-		return update(channelId, CHANNEL_OBJECT_TYPE, map);
+		Response response = update(channelId, CHANNEL_OBJECT_TYPE, map);
+		channelLicenseCache(response,map);
+		return response;
 	}
 
 	@Override
@@ -129,7 +136,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 
 	private void validateLicense(Map<String, Object> request) {
 		if (request.containsKey(ChannelEnum.defaultLicense.name())) {
-			List<Object> licenseList = RedisStoreUtil.getList("license");
+			List<Object> licenseList = RedisStoreUtil.getList(LICENSE_REDIS_KEY);
 			if (CollectionUtils.isEmpty(licenseList)) {
 				Request searchReq = getRequest(GRAPH_ID, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType", GraphDACParams.object_type.name(), "License");
 				Response response = getResponse(searchReq);
@@ -141,11 +148,17 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 					throw new ClientException(ChannelEnum.ERR_INVALID_LICENSE.name(), LICENSE_NOT_FOUND_ERROR + request.get(ChannelEnum.defaultLicense.name()) , ResponseCode.CLIENT_ERROR);
 				}
 				licenseList.addAll(resultList.stream().map(node -> node.getMetadata().get("name")).collect(Collectors.toList()));
-				RedisStoreUtil.saveList("license", licenseList);
+				RedisStoreUtil.saveList(LICENSE_REDIS_KEY, licenseList);
 			}
 			if (!licenseList.contains(request.get(ChannelEnum.defaultLicense.name()))) {
 				throw new ClientException(ChannelEnum.ERR_INVALID_LICENSE.name(), LICENSE_NOT_FOUND_ERROR + request.get(ChannelEnum.defaultLicense.name()) , ResponseCode.CLIENT_ERROR);
 			}
+		}
+	}
+
+	private void channelLicenseCache(Response response, Map<String, Object> request){
+		if (!checkError(response) && response.getResult().containsKey(ChannelEnum.node_id.name()) && request.containsKey(ChannelEnum.defaultLicense.name())) {
+			RedisStoreUtil.save(CHANNEL_LICENSE_CACHE_PREFIX + response.getResult().get(ChannelEnum.node_id.name()) + CHANNEL_LICENSE_CACHE_SUFFIX, (String) request.get(ChannelEnum.defaultLicense.name()), 0);
 		}
 	}
 }
