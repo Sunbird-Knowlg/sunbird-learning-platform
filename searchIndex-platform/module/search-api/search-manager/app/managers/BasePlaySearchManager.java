@@ -48,6 +48,7 @@ public class BasePlaySearchManager extends Results {
 	private static List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
 			Platform.config.getStringList("content.tagging.property"):
 			new ArrayList<>(Arrays.asList("subject","medium"));
+	private static final String JSON_TYPE = "application/json";
 
 	protected Promise<Result> getSearchResponse(Request request) {
 		ActorRef router = SearchRequestRouterPool.getRequestRouter();
@@ -74,13 +75,13 @@ public class BasePlaySearchManager extends Results {
 									writeTelemetryLog(request, response);
 									return searchResult.get(SearchRequestRouterPool.REQ_TIMEOUT);
 								}
-								return ok(getResult(response, request, null, correlationId)).as("application/json");
+								return ok(getResult(response, request, null, correlationId)).as(JSON_TYPE);
 							}
 							ResponseParams params = new ResponseParams();
 							params.setErrmsg("Invalid Response object");
 							Response error = new Response();
 							error.setParams(params);
-							return ok(getResult(error, request, null, correlationId)).as("application/json");
+							return ok(getResult(error, request, null, correlationId)).as(JSON_TYPE);
 						}
 					});
 			res.onRedeem(new F.Callback<Result>() {
@@ -390,14 +391,14 @@ public class BasePlaySearchManager extends Results {
 	private Result getErrorResult(Response response) {
 		try {
 			if (response.getResponseCode().compareTo(ResponseCode.CLIENT_ERROR) == 0) {
-				return badRequest(mapper.writeValueAsString(response)).as("application/json");
+				return badRequest(mapper.writeValueAsString(response)).as(JSON_TYPE);
 			} else if (response.getResponseCode().compareTo(ResponseCode.RESOURCE_NOT_FOUND) == 0) {
-				return notFound(mapper.writeValueAsString(response)).as("application/json");
+				return notFound(mapper.writeValueAsString(response)).as(JSON_TYPE);
 			} else {
-				return internalServerError(mapper.writeValueAsString(response)).as("application/json");
+				return internalServerError(mapper.writeValueAsString(response)).as(JSON_TYPE);
 			}
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			TelemetryManager.error("Error occurred while handling error response: ", e);
 			return null;
 		}
 	}
