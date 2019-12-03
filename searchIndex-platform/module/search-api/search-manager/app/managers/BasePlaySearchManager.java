@@ -64,12 +64,8 @@ public class BasePlaySearchManager extends Results {
 							String correlationId = UUID.randomUUID().toString();
 							if (result instanceof Response) {
 								Response response = (Response) result;
-								if(response.getResponseCode().name().equals("CLIENT_ERROR")){
-                                    return badRequest(getResult(response,request.getId(), request.getVer(), null, correlationId)).as("application/json");
-                                }
 								if (checkError(response)) {
-									String errMsg = getMessage(response);
-									return notFound(getErrorMsg(errMsg)).as("application/json");
+									return getErrorResult(response);
 								} else if (request.getOperation()
 										.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name())) {
 									Promise<Result> searchResult = getSearchResponse(response, request);
@@ -389,6 +385,21 @@ public class BasePlaySearchManager extends Results {
 		}
 
 		return count;
+	}
+
+	private Result getErrorResult(Response response) {
+		try {
+			if (response.getResponseCode().compareTo(ResponseCode.CLIENT_ERROR) == 0) {
+				return badRequest(mapper.writeValueAsString(response)).as("application/json");
+			} else if (response.getResponseCode().compareTo(ResponseCode.RESOURCE_NOT_FOUND) == 0) {
+				return notFound(mapper.writeValueAsString(response)).as("application/json");
+			} else {
+				return internalServerError(mapper.writeValueAsString(response)).as("application/json");
+			}
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }
