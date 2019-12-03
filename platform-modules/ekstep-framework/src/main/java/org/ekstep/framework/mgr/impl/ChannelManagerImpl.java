@@ -36,6 +36,8 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	private static final String CHANNEL_OBJECT_TYPE = "Channel";
 	private static final String LICENSE_NOT_FOUND_ERROR = "License Not Found With Name: ";
 	private static final String LICENSE_REDIS_KEY = "edge_license";
+	private static final String CHANNEL_LICENSE_CACHE_PREFIX = "channel_";
+	private static final String CHANNEL_LICENSE_CACHE_SUFFIX = "_license";
 	private SearchProcessor processor = null;
 	
 	@PostConstruct
@@ -156,7 +158,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 
 	private void channelLicenseCache(Response response, Map<String, Object> request){
 		if (!checkError(response) && response.getResult().containsKey(ChannelEnum.node_id.name()) && request.containsKey(ChannelEnum.defaultLicense.name())) {
-			RedisStoreUtil.save(ChannelEnum.channel_.name() + response.getResult().get(ChannelEnum.node_id.name()) + ChannelEnum._license.name(), (String) request.get(ChannelEnum.defaultLicense.name()), 0);
+			RedisStoreUtil.save(CHANNEL_LICENSE_CACHE_PREFIX + response.getResult().get(ChannelEnum.node_id.name()) + CHANNEL_LICENSE_CACHE_SUFFIX, (String) request.get(ChannelEnum.defaultLicense.name()), 0);
 		}
 	}
 }
