@@ -1,3 +1,8 @@
+- import_playbook: artifacts-download.yml
+  vars:
+    artifact: "{{ neo4j_zip }}"
+    artifact_path: "{{ playbook_dir }}/artifacts/{{ artifact }}"
+
 - hosts: learning-neo4j-cluster
   vars_files:
     - "{{inventory_dir}}/secrets.yml"

@@ -84,6 +84,6 @@ sunbird_platform_installation: "{{ sunbird_installation }}"
 # DIAL Image Container Name
 dial_image_storage_container: "dial"
 
-learner_service_base_url: "http://{{private_ingressgateway_ip}}/learner"
-cert_service_base_url: "http://{{private_ingressgateway_ip}}/cert"
+learner_service_base_url: "http://{{swarm_manager_lb_ip}}:9000"
+cert_service_base_url: "http://{{swarm_manager_lb_ip}}:9011"
 certificate_base_path: "https://{{domain_name}}/certs"
