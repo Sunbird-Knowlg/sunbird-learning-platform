@@ -1,0 +1,10 @@
+- name: copy logback.xml file to cassandra trigger path
+  template:
+    src: "logback.j2"
+    dest: "/etc/cassandra/triggers/logback.xml"
+    mode: 0755
+
+- name: restart the cassandra
+  service:
+    name: "cassandra"
+    state: "restarted"

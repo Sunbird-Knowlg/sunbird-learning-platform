@@ -7,12 +7,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.compositesearch.enums.SearchActorNames;
+import org.ekstep.search.router.SearchRequestRouterPool;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -238,7 +242,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Map<String, Object> result = response.getResult();
 		List<Object> list = (List<Object>) result.get("results");
 		Assert.assertNotNull(list);
-		Assert.assertTrue(list.size() == 32);
+		Assert.assertTrue(list.size() == 34);
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
 			String objectType = (String) content.get("objectType");
@@ -707,11 +711,11 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Assert.assertTrue(list.size() == 2);
 		Map<String, Object> content1 = (Map<String, Object>) list.get(0);
 		String id1 = (String) content1.get("identifier");
-		Assert.assertEquals("do_10000032", id1);
+		Assert.assertEquals("do_10000034", id1);
 		
 		Map<String, Object> content2 = (Map<String, Object>) list.get(1);
 		String id2 = (String) content2.get("identifier");
-		Assert.assertEquals("do_10000031", id2);
+		Assert.assertEquals("do_10000033", id2);
 	}
 	
 	@Test
@@ -741,7 +745,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Response response = getSearchResponse(request);
 		Map<String, Object> result = response.getResult();
 		Integer count = (Integer) result.get("count");
-		Assert.assertTrue(count == 32);
+		Assert.assertTrue(count == 34);
 	}
 	
 	@Test
@@ -899,6 +903,39 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Map<String, Object> result = response.getResult();
 		List<Object> list = (List<Object>) result.get("results");
 		Assert.assertNotNull(list);
+	}
+
+
+	@Test
+	public void testSearchImplicitFilter() {
+		Request request = getSearchRequest();
+		List<String> objectTypes = new ArrayList<String>();
+		objectTypes.add("Content");
+		request.put("filters", new HashMap<String, Object>() {{
+			put("status", new ArrayList<String>());
+			put("objectType", objectTypes);
+			put("board", "test-board1");
+		}});
+
+		Response response = getSearchResponse(request);
+		Map<String, Object> result = response.getResult();
+		List<Object> list = (List<Object>) result.get("results");
+		System.out.println("list of result : " + list);
+		Assert.assertNotNull(list);
+		Assert.assertTrue(list.size() == 2);
+		boolean found = false;
+		boolean foundOriginal = false;
+		for (Object obj : list) {
+			Map<String, Object> content = (Map<String, Object>) obj;
+			List<String> relatedBoards = (List<String>) content.get("relatedBoards");
+			if (CollectionUtils.isNotEmpty(relatedBoards) && StringUtils.equalsIgnoreCase("do_10000034", (String) content.get("identifier"))
+					&& relatedBoards.contains("test-board1"))
+				found = true;
+			if (StringUtils.equalsIgnoreCase("do_10000033", (String) content.get("identifier")) && StringUtils.equalsIgnoreCase("test-board1", (String) content.get("board")))
+			foundOriginal = true;
+		}
+		Assert.assertTrue(found);
+		Assert.assertTrue(foundOriginal);
 	}
 
 }

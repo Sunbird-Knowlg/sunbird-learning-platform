@@ -15,6 +15,7 @@ import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.service.util.CertificateGenerator;
+import org.sunbird.jobs.samza.service.util.IssueCertificate;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
 
 import java.util.Map;
@@ -26,6 +27,7 @@ public class CertificateGeneratorService implements ISamzaService {
     private Config config = null;
     private static int MAXITERTIONCOUNT = 2;
     private CertificateGenerator certificateGenerator =null;
+    private IssueCertificate issueCertificate = null;
     /**
      * @param config
      * @throws Exception
@@ -37,6 +39,7 @@ public class CertificateGeneratorService implements ISamzaService {
         LOGGER.info("Service config initialized");
         systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
         certificateGenerator = new CertificateGenerator();
+        issueCertificate = new IssueCertificate();
     }
 
     /**
@@ -69,6 +72,11 @@ public class CertificateGeneratorService implements ISamzaService {
                         LOGGER.info("Certificate generation process started ");
                         certificateGenerator.generate(edata);
                         LOGGER.info("Certificate is generated");
+                        break;
+                    case "issue-certificate":
+                        LOGGER.info("Certificate issue process started ");
+                        issueCertificate.issue(edata, collector);
+                        LOGGER.info("Pushed certificate generation event");
                         break;
                 }
             }

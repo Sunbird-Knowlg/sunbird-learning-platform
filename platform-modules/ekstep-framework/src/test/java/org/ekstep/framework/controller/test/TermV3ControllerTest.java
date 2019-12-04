@@ -254,6 +254,19 @@ public class TermV3ControllerTest extends GraphEngineTestSetup {
 			e.getCause();
 		}
 	}
+	@Test
+	public void testA12() {
+		String request = "{ \"request\": { \"term\": [{ \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" }, { \"name\": \"Standard3\", \"description\":\"Third Standard\" }] } }";
+		try {
+			String path = base_category_path + "/create?category=" + categoryId.toUpperCase();
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
 
 	/**
 	 * readCategoryTerm

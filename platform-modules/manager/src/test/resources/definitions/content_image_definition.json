@@ -916,7 +916,8 @@
 						"Open Audio License",
 						"Open Game License",
 						"Standard YouTube License",
-						"Other"
+						"Other",
+						"CC BY 4.0"
 					],
 					"category": "Ownership",
 					"displayProperty": "Editable",
