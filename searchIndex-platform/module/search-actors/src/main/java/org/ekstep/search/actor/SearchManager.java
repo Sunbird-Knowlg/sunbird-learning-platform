@@ -638,8 +638,10 @@ private Integer getIntValue(Object num) {
 				return "words";
 			else if (StringUtils.equalsIgnoreCase("Synset", objectType))
 				return "synsets";
+			else if (StringUtils.equalsIgnoreCase("License", objectType))
+				return "license";
 			else
-				return objectType.toLowerCase();
+				return objectType;
 		}
 		return null;
 	}
