@@ -639,7 +639,7 @@ private Integer getIntValue(Object num) {
 			else if (StringUtils.equalsIgnoreCase("Synset", objectType))
 				return "synsets";
 			else
-				return objectType;
+				return objectType.toLowerCase();
 		}
 		return null;
 	}
