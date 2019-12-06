@@ -34,7 +34,7 @@ public class AssetEnrichmentFinalizer extends BaseFinalizer {
             node = (Node) response.get(GraphDACParams.node.name());
         }
         if ((null != node) && (node.getObjectType().equalsIgnoreCase(AssetEnrichmentEnums.content.name()))) {
-            getMediaEnrichmentMap(node, file).get((String) node.getMetadata().get("mediaType")).run();
+            getMediaEnrichmentMap(node, file).get(((String) node.getMetadata().get("mediaType")).toLowerCase()).run();
         } else
             throw new ClientException(AssetEnrichmentEnums.ERR_NODE_CANT_BE_NULL.name(), "The node is null for identifier" + node.getIdentifier());
     }
@@ -50,7 +50,7 @@ public class AssetEnrichmentFinalizer extends BaseFinalizer {
         String identifier = node.getIdentifier();
         try {
             TelemetryManager.info("Processing image enrichment for node:" + identifier);
-            Map<String, String> variantsMap = OptimizerUtil.optimizeImage(identifier, node);
+            Map<String, String> variantsMap = OptimizerUtil.optimizeImage(identifier, tempFileLocation, node);
             if (null == variantsMap)
                 variantsMap = new HashMap<String, String>();
             if (StringUtils.isBlank(variantsMap.get(AssetEnrichmentEnums.medium.name()))) {

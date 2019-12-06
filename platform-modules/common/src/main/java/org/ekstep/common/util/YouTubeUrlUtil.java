@@ -163,37 +163,37 @@ public class YouTubeUrlUtil {
 	 */
 	public static Map<String, Object> getVideoInfo(String videoUrl, String apiParams, String... metadata) {
 		Map<String, Object> result = new HashMap<String, Object>();
-		/*Video video = null;
+		Video video = null;
 
 		String videoId = getIdFromUrl(videoUrl);
 		List<Video> videoList = getVideoList(videoId, apiParams);
 		if (null != videoList && !videoList.isEmpty()) {
 			video = videoList.get(0);
 		}
-		if (null != video) {*/
+		if (null != video) {
 			for (String str : metadata) {
 				if ("license".equalsIgnoreCase(str)) {
-					//String license = video.getStatus().getLicense().toString();
-					String license ="creativeCommon";
+					String license = video.getStatus().getLicense().toString();
+					//String license ="creativeCommon";
 					if (StringUtils.isNotBlank(license))
 						result.put(str, license);
 				}
 
 				if ("thumbnail".equalsIgnoreCase(str)) {
-					//String thumbnailUrl = video.getSnippet().getThumbnails().getMedium().getUrl();
-					String thumbnailUrl = "https://i.ytimg.com/vi/WM4ys_PnrUY/mqdefault.jpg";
+					String thumbnailUrl = video.getSnippet().getThumbnails().getMedium().getUrl();
+					//String thumbnailUrl = "https://i.ytimg.com/vi/WM4ys_PnrUY/mqdefault.jpg";
 					if (StringUtils.isNotBlank(thumbnailUrl))
 						result.put(str, thumbnailUrl);
 				}
 
 				if ("duration".equalsIgnoreCase(str)) {
-					//String duration = computeVideoDuration(video.getContentDetails().getDuration());
-					String duration = "1918";
+					String duration = computeVideoDuration(video.getContentDetails().getDuration());
+					//String duration = "1918";
 					if (StringUtils.isNotBlank(duration))
 						result.put(str, duration);
 				}
 			}
-		//}
+		}
 		return result;
 	}
 

@@ -15,7 +15,6 @@ import org.ekstep.common.optimizr.image.ResizeImagemagickProcessor;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.graph.dac.model.Path;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
@@ -59,9 +58,9 @@ public class OptimizerUtil {
 	 * @throws Exception the exception
 	 */
 	@SuppressWarnings("unchecked")
-	public static Map<String, String> optimizeImage(String contentId, Node node) throws Exception {
+	public static Map<String, String> optimizeImage(String contentId, String tempFileLocation, Node node) throws Exception {
+
 		String originalURL = (String) node.getMetadata().get(ContentAPIParams.downloadUrl.name());
-		TelemetryManager.info("Optimizing image - " + contentId + " | URL:" + originalURL);
 		Map<String, String> variantsMap = new HashMap<String, String>();
 		// get content definition to get configured resolution
 		DefinitionDTO contentDefinition = controllerUtil.getDefinition("domain", "Content");
@@ -69,8 +68,10 @@ public class OptimizerUtil {
 		Map<String, Object> variants = mapper.readValue(variantsStr, Map.class);
 
 		if (variants != null && variants.size() > 0) {
-//			org.apache.commons.io.FileUtils.toFile(new URL(originalURL));
-			File originalFile = org.apache.commons.io.FileUtils.toFile(new URL(originalURL));
+
+			String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
+			File originalFile = HttpDownloadUtility.downloadFile(originalURL, tempFolder);
+
 			// run for each resolution
 			for (Map.Entry<String, Object> entry : variants.entrySet()) {
 				String resolution = entry.getKey();
@@ -89,10 +90,19 @@ public class OptimizerUtil {
 					if (null != optimisedFile && optimisedFile.exists()) {
 						String[] optimisedURLArray = uploadToAWS(optimisedFile, contentId);
 						variantsMap.put(resolution, optimisedURLArray[1]);
+						delete(optimisedFile);
 					}
-				} else
+				} else {
 					variantsMap.put(resolution, originalURL);
+				}
 			}
+
+			if (null != originalFile && originalFile.exists()) {
+				delete(originalFile);
+			}
+			// delete folder created for downloading asset file
+			delete(new File(tempFolder));
+
 		} else {
 			TelemetryManager.info("No variants found for optimization" + contentId);
 		}
@@ -219,5 +229,31 @@ public class OptimizerUtil {
         }
         return colorSet.size();
     }
+
+	private static void delete(File file) throws IOException {
+		if (file.isDirectory()) {
+			// directory is empty, then delete it
+			if (file.list().length == 0) {
+				file.delete();
+			} else {
+				// list all the directory contents
+				String files[] = file.list();
+				for (String temp : files) {
+					// construct the file structure
+					File fileDelete = new File(file, temp);
+					// recursive delete
+					delete(fileDelete);
+				}
+				// check the directory again, if empty then delete it
+				if (file.list().length == 0) {
+					file.delete();
+				}
+			}
+
+		} else {
+			// if file, then delete it
+			file.delete();
+		}
+	}
 
 }
