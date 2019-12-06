@@ -1,5 +1,6 @@
 package org.sunbird.jobs.samza.service.util;
 
+import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -37,7 +38,8 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
 
     private void updateBatchCount(String courseId) throws Exception {
         //Get number of batches for courseID
-        List<Row> rows = SunbirdCassandraUtil.read(keyspace, courseBatchTable, new HashMap<String, Object>(){{put(CourseBatchParams.courseId.name(), courseId);}});
+        ResultSet resultSet = SunbirdCassandraUtil.read(keyspace, courseBatchTable, new HashMap<String, Object>(){{put(CourseBatchParams.courseId.name(), courseId);}});
+        List<Row> rows = resultSet.all();
         // Get the count of open batch and private batch
         final int[] openBatchCount = {0};
         final int[] privateBatchCount = {0};
@@ -54,8 +56,8 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
         // SystemUpdate batch count
         Request request = new Request();
         request.put("content", new HashMap<String, Object>() {{
-            put("c_" + installation + "_open_batch_count".toLowerCase(), openBatchCount[0]);
-            put("c_" + installation + "_private_batch_count".toLowerCase(), privateBatchCount[0]);
+            put("c_" + installation.toLowerCase() + "_open_batch_count".toLowerCase(), openBatchCount[0]);
+            put("c_" + installation.toLowerCase() + "_private_batch_count".toLowerCase(), privateBatchCount[0]);
         }});
         systemUpdate(courseId, request);
     }

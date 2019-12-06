@@ -88,13 +88,13 @@ public class AssessmentItemController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "ifields", required = false) String[] ifields,
-            @RequestHeader(value = "user-id") String userId) {
+            @RequestHeader(value = "user-id") String userId, @RequestParam(value = "fields", required = false) String[] fields) {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "ekstep.learning.item.info";
         TelemetryManager.log("Find Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + ifields + " | user-id: "
                 + userId);
         try {
-            Response response = assessmentManager.getAssessmentItem(id, taxonomyId, ifields);
+            Response response = assessmentManager.getAssessmentItem(id, taxonomyId, ifields, fields);
             TelemetryManager.log("Find Item | Response: " , response.getResult());
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {

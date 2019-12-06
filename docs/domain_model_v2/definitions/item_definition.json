@@ -210,7 +210,7 @@
         },
         {
           "required": false,
-          "dataType": "Text",
+          "dataType": "external",
           "propertyName": "question",
           "title": "Question Text",
           "description": "",
@@ -1021,7 +1021,7 @@
         },
         {
           "required": false,
-          "dataType": "List",
+          "dataType": "external",
           "propertyName": "solutions",
           "title": "Solutions",
           "description": "R2.0",
@@ -1171,7 +1171,7 @@
         },
         {
           "required": false,
-          "dataType": "JSON",
+          "dataType": "external",
           "propertyName": "editorState",
           "title": "EditorState",
           "description": "QuML: EditorState",

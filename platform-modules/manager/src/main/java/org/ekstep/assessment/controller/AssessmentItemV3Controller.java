@@ -1,6 +1,7 @@
 package org.ekstep.assessment.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -109,12 +110,15 @@ public class AssessmentItemV3Controller extends BaseController {
     @RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
-            @RequestParam(value = "ifields", required = false) String[] ifields) {
+                                         @RequestParam(value = "ifields", required = false) String[] ifields,
+                                         @RequestParam(value = "fields", required = false) String[] fields) {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "ekstep.learning.item.read";
         TelemetryManager.log("Find Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + ifields);
+        TelemetryManager.log("Find Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | fields: " + fields);
+
         try {
-            Response response = assessmentManager.getAssessmentItem(id, taxonomyId, ifields);
+            Response response = assessmentManager.getAssessmentItem(id, taxonomyId, ifields, fields);
             TelemetryManager.log("Find Item | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {

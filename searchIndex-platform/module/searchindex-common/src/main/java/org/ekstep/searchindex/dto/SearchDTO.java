@@ -1,5 +1,6 @@
 package org.ekstep.searchindex.dto;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,9 @@ public class SearchDTO {
 	boolean fuzzySearch = false;
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 	private Map<String, Object> softConstraints = new HashMap<String, Object>();
+	private List<Map<String, Object>> aggregations = new ArrayList<>();
+	private List<Map> implicitFilterProperties;
+
 	
 	
 	public SearchDTO() {
@@ -101,4 +105,19 @@ public class SearchDTO {
 		this.softConstraints = softConstraints;
 	}
 
+	public void setAggregations(List<Map<String, Object>> aggregations) {
+		this.aggregations.addAll(aggregations);
+	}
+
+	public List<Map<String, Object>> getAggregations() {
+		return this.aggregations;
+	}
+
+	public List<Map> getImplicitFilterProperties() {
+		return implicitFilterProperties;
+	}
+
+	public void setImplicitFilterProperties(List<Map> implicitFilterProperties) {
+		this.implicitFilterProperties = implicitFilterProperties;
+	}
 }

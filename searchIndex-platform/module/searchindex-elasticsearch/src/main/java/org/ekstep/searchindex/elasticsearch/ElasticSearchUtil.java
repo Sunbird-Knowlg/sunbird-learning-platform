@@ -117,6 +117,8 @@ public class ElasticSearchUtil {
 	private static RestHighLevelClient getClient(String indexName) {
 		if (StringUtils.isBlank(indexName))
 			indexName = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
+		if (StringUtils.startsWith(indexName,"kp_audit_log"))
+			return esClient.get("kp_audit_log");
 		return esClient.get(indexName);
 	}
 
@@ -185,8 +187,8 @@ public class ElasticSearchUtil {
 
 	public static void addDocument(String indexName, String documentType, String document) {
 		try {
-			Map<String, Object> doc = mapper.readValue(document, new TypeReference<Map<String, Object>>() {
-			});
+			Map<String, Object> doc = mapper.readValue(document, new TypeReference<Map<String, Object>>() {});
+
 			IndexResponse response = getClient(indexName).index(new IndexRequest(indexName, documentType).source(doc));
 			TelemetryManager.log("Added " + response.getId() + " to index " + response.getIndex());
 		} catch (IOException e) {

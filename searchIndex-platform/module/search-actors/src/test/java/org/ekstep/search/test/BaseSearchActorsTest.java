@@ -1,6 +1,6 @@
 package org.ekstep.search.test;
 
-import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,7 +25,6 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.springframework.test.web.servlet.ResultActions;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -139,18 +138,32 @@ public class BaseSearchActorsTest {
 	
 	private static void insertTestRecords() throws Exception {
 		for (int i=1; i<=30; i++) {
-			Map<String, Object> content = getContentTestRecord(null, i);
+			Map<String, Object> content = getContentTestRecord(null, i, null);
 			String id = (String) content.get("identifier");
 			addToIndex(id, content);
 		}
-		Map<String, Object> content = getContentTestRecord("do_10000031", 31);
+		Map<String, Object> content = getContentTestRecord("do_10000031", 31, null);
 		content.put("name", "31 check name match");
 		content.put("description", "हिन्दी description");
 		addToIndex("do_10000031", content);
 		
-		content = getContentTestRecord("do_10000032", 32);
+		content = getContentTestRecord("do_10000032", 32, null);
 		content.put("name", "check ends with value32");
 		addToIndex("do_10000032", content);
+
+		content = getContentTestRecord("do_10000033", 33, "test-board1");
+		content.put("name", "Content To Test Consumption");
+		addToIndex("10000033", content);
+
+		content = getContentTestRecord("do_10000034", 34, "test-board3");
+		content.put("name", "Textbook-10000034");
+		content.put("description", "Textbook for other tenant");
+		content.put("status","Live");
+		content.put("relatedBoards", new ArrayList<String>(){{
+			add("test-board1");
+			add("test-board2");
+		}});
+		addToIndex("10000034", content);
 	}
 	
 	private static void addToIndex(String uniqueId, Map<String, Object> doc) throws Exception {
@@ -159,7 +172,7 @@ public class BaseSearchActorsTest {
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
 	
-	private static Map<String, Object> getContentTestRecord(String id, int index) {
+	private static Map<String, Object> getContentTestRecord(String id, int index, String board) {
 		String objectType = "Content";
 		Date d = new Date();
 		Map<String, Object> map = getTestRecord(id, index, "do", objectType);
@@ -168,6 +181,8 @@ public class BaseSearchActorsTest {
 		map.put("contentType", getContentType());
 		map.put("createdOn", new Date().toString());
 		map.put("lastUpdatedOn", new Date().toString());
+		if(StringUtils.isNotBlank(board))
+			map.put("board",board);
 		if (index % 5 == 0) {
 			map.put("lastPublishedOn", d.toString());
 			map.put("status", "Live");
@@ -210,4 +225,5 @@ public class BaseSearchActorsTest {
 		}
 		return list;
 	}
+
 }

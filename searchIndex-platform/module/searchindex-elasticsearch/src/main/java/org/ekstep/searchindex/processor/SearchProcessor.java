@@ -1,12 +1,8 @@
 package org.ekstep.searchindex.processor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import akka.dispatch.Mapper;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -30,15 +26,23 @@ import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder.Fil
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-
-import akka.dispatch.Mapper;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SearchProcessor {
 
@@ -79,8 +83,13 @@ public class SearchProcessor {
 				Aggregations aggregations = searchResult.getAggregations();
 				if (null != aggregations) {
 					AggregationsResultTransformer transformer = new AggregationsResultTransformer();
-					resp.put("facets", (List<Map<String, Object>>) ElasticSearchUtil
-							.getCountFromAggregation(aggregations, groupByFinalList, transformer));
+					if(CollectionUtils.isNotEmpty(searchDTO.getFacets())) {
+						resp.put("facets", (List<Map<String, Object>>) ElasticSearchUtil
+								.getCountFromAggregation(aggregations, groupByFinalList, transformer));
+					} else if(CollectionUtils.isNotEmpty(searchDTO.getAggregations())){
+						resp.put("aggregations", aggregateResult(aggregations));
+					}
+
 				}
 				resp.put("count", (int) searchResult.getHits().getTotalHits());
 				return resp;
@@ -203,8 +212,6 @@ public class SearchProcessor {
 	/**
 	 * @param searchDTO
 	 * @param groupByFinalList
-	 * @param type
-	 * @param b
 	 * @return
 	 */
 	private SearchSourceBuilder processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList,
@@ -228,14 +235,9 @@ public class SearchProcessor {
 
 		searchSourceBuilder.size(searchDTO.getLimit());
 		searchSourceBuilder.from(searchDTO.getOffset());
-		QueryBuilder query = null;
-
-		if (searchDTO.isFuzzySearch()) {
-			query = prepareFilteredSearchQuery(searchDTO);
+		QueryBuilder query = getSearchQuery(searchDTO);
+		if (searchDTO.isFuzzySearch())
 			relevanceSort = true;
-		} else {
-			query = prepareSearchQuery(searchDTO);
-		}
 
 		searchSourceBuilder.query(query);
 
@@ -252,13 +254,14 @@ public class SearchProcessor {
 						getSortOrder(sorting.get(key)));
 		}
 		setAggregations(groupByFinalList, searchSourceBuilder);
+		setAggregations(searchSourceBuilder, searchDTO.getAggregations());
 		searchSourceBuilder.trackScores(true);
 		return searchSourceBuilder;
 	}
 
 	/**
 	 * @param groupByList
-	 * @param searchRequestBuilder
+	 * @param searchSourceBuilder
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -286,7 +289,6 @@ public class SearchProcessor {
 
 	/**
 	 * @param searchDTO
-	 * @param totalOperation
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -636,13 +638,12 @@ public class SearchProcessor {
 	/**
 	 * @param propertyName
 	 * @param values
-	 * @param searchOperationGreaterThan
 	 * @return
 	 */
-	private QueryBuilder getRangeQuery(String propertyName, List<Object> values, String opertation) {
+	private QueryBuilder getRangeQuery(String propertyName, List<Object> values, String operation) {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
-			switch (opertation) {
+			switch (operation) {
 			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN: {
 				queryBuilder.should(QueryBuilders
 						.rangeQuery(propertyName).gt(value));
@@ -672,7 +673,6 @@ public class SearchProcessor {
 	/**
 	 * @param propertyName
 	 * @param values
-	 * @param b
 	 * @return
 	 */
 	private QueryBuilder getExistsQuery(String propertyName, List<Object> values, boolean exists) {
@@ -754,7 +754,6 @@ public class SearchProcessor {
 	/**
 	 * @param propertyName
 	 * @param values
-	 * @param weightages
 	 * @param match
 	 * @return
 	 */
@@ -802,7 +801,7 @@ public class SearchProcessor {
 	}
 
 	/**
-	 * @param string
+	 * @param value
 	 * @return
 	 */
 	private SortOrder getSortOrder(String value) {
@@ -852,5 +851,85 @@ public class SearchProcessor {
 		TelemetryManager.log("search result from elastic search" + searchResult);
 		return searchResult;
 	}
+
+	private void setAggregations(SearchSourceBuilder searchSourceBuilder, List<Map<String, Object>> aggregations) {
+		if(CollectionUtils.isNotEmpty(aggregations)){
+			for(Map<String, Object> aggregate: aggregations){
+				TermsAggregationBuilder termBuilder = AggregationBuilders.terms((String)aggregate.get("l1"))
+						.field(aggregate.get("l1") + CompositeSearchConstants.RAW_FIELD_EXTENSION)
+						.size(ElasticSearchUtil.defaultResultLimit);
+				int level = 2;
+				termBuilder.subAggregation(getNextLevelAggregation(aggregate, level));
+				searchSourceBuilder.aggregation(termBuilder);
+			}
+		}
+	}
+
+	private AggregationBuilder getNextLevelAggregation(Map<String, Object> aggregate, int level) {
+        TermsAggregationBuilder termBuilder = AggregationBuilders.terms((String)aggregate.get("l" + level))
+                .field(aggregate.get("l" + level) + CompositeSearchConstants.RAW_FIELD_EXTENSION)
+                .size(ElasticSearchUtil.defaultResultLimit);
+
+
+		if(level == aggregate.keySet().size()){
+			return termBuilder;
+		}else {
+		    level += 1;
+			return termBuilder.subAggregation(getNextLevelAggregation(aggregate, level));
+		}
+	}
+
+    private List<Map<String,Object>> aggregateResult(Aggregations aggregations) {
+        List<Map<String, Object>> aggregationList = new ArrayList<>();
+	    if(null != aggregations){
+            Map<String, Aggregation> aggregationMap = aggregations.getAsMap();
+            for(String key: aggregationMap.keySet()){
+                Terms terms = (Terms) aggregationMap.get(key);
+                List<Terms.Bucket> buckets = (List<Terms.Bucket>) terms.getBuckets();
+                List<Map<String, Object>> values = new ArrayList<>();
+                if(CollectionUtils.isNotEmpty(buckets)) {
+                    for(Terms.Bucket bucket: buckets) {
+                        Map<String, Object> termBucket = new HashMap<String, Object>() {{
+                            put("count", bucket.getDocCount());
+                            put("name", bucket.getKey());
+                            List<Map<String,Object>> subAggregations = aggregateResult(bucket.getAggregations());
+                            if(CollectionUtils.isNotEmpty(subAggregations))
+                                put("aggregations", subAggregations);
+                        }};
+                        values.add(termBucket);
+                    }
+                    aggregationList.add(new HashMap<String, Object>(){{
+                        put("values", values);
+                        put("name", key);
+                    }});
+                }
+            }
+
+        }
+        return aggregationList;
+    }
+
+	private QueryBuilder getSearchQuery(SearchDTO searchDTO) {
+		BoolQueryBuilder boolQuery = new BoolQueryBuilder();
+		QueryBuilder origFilterQry = getQuery(searchDTO);
+		QueryBuilder implFilterQuery = null;
+
+		if (CollectionUtils.isNotEmpty(searchDTO.getImplicitFilterProperties())) {
+			List<Map> properties = searchDTO.getProperties();
+			searchDTO.setProperties(searchDTO.getImplicitFilterProperties());
+			implFilterQuery = getQuery(searchDTO);
+			searchDTO.setProperties(properties);
+			boolQuery.should(origFilterQry);
+			boolQuery.should(implFilterQuery);
+			return boolQuery;
+		} else {
+			return origFilterQry;
+		}
+	}
+
+	private QueryBuilder getQuery(SearchDTO searchDTO) {
+		return searchDTO.isFuzzySearch() ? prepareFilteredSearchQuery(searchDTO) : prepareSearchQuery(searchDTO);
+	}
+
 
 }

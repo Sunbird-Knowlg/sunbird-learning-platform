@@ -65,13 +65,8 @@ public class Filter implements Serializable {
             property = SystemProperties.IL_UNIQUE_ID.name();
         }
         if (SearchConditions.OP_EQUAL.equals(getOperator())) {
-            if (value instanceof String) {
-                sb.append(" ").append(param).append(property).append(" =~ {").append(pIndex).append("} ");
-                sc.params.put("" + pIndex, "(?i)" + value);
-            } else {
-                sb.append(" ").append(param).append(property).append(" = {").append(pIndex).append("} ");
-                sc.params.put("" + pIndex, value);
-            }
+            sb.append(" ").append(param).append(property).append(" = {").append(pIndex).append("} ");
+            sc.params.put("" + pIndex, value);
             pIndex += 1;
         } else if (SearchConditions.OP_LIKE.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" =~ {").append(pIndex).append("} ");

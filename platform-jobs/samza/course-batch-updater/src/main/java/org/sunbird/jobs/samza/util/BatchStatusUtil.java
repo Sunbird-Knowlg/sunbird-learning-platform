@@ -1,5 +1,6 @@
 package org.sunbird.jobs.samza.util;
 
+import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +39,8 @@ public class BatchStatusUtil {
             Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
                 put("status", 0);
             }};
-            List<Row> rows = SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
+            ResultSet resultSet = SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
+            List<Row> rows = resultSet.all();
             if(CollectionUtils.isNotEmpty(rows)) {
                 List<String> batchIds = new ArrayList<>();
                 for (Row row : rows) {
@@ -69,13 +71,14 @@ public class BatchStatusUtil {
             Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
                 put("status", 1);
             }};
-            List<Row> rows = SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
+            ResultSet resultSet = SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
+            List<Row> rows = resultSet.all();
             if(CollectionUtils.isNotEmpty(rows)) {
                 List<String> batchIds = new ArrayList<>();
                 for (Row row : rows) {
                     if (StringUtils.isNotBlank(row.getString("enddate"))) {
                         Date startDate = format.parse(row.getString("enddate"));
-                        if (currentDate.compareTo(startDate) >= 0) {
+                        if (currentDate.compareTo(startDate) > 0) {
                             batchIds.add(row.getString("batchid"));
                             Map<String, Object> event = getBatchStatusEvent(row.getString("batchid"), row.getString("courseid"), 2);
                             collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", topic), event));

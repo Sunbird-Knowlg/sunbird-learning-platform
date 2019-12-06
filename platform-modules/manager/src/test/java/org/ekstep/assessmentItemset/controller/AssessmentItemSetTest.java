@@ -9,9 +9,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
+import org.ekstep.test.common.CommonTestSetup;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -38,7 +40,7 @@ import org.springframework.web.context.WebApplicationContext;
  * test senarios have been specified for each of the operation
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AssessmentItemSetTest extends GraphEngineTestSetup {
+public class AssessmentItemSetTest extends CommonTestSetup {
 
 	@Autowired
 	private WebApplicationContext context;
@@ -59,6 +61,7 @@ public class AssessmentItemSetTest extends GraphEngineTestSetup {
 
 	// Create assessmentItemset
 	// expect 200 response
+	@Ignore
 	@Test
 	public void createItemsetWithValidRequest() throws InterruptedException {
 		MockMvc mockMvc;

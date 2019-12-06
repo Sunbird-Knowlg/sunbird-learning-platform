@@ -507,6 +507,10 @@ public abstract class BaseContentManager extends BaseManager {
                                     + "' does not Exist.]");
 
                 String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
+                if(equalsIgnoreCase(operation, "updateHierarchy")) {
+                		node.setOutRelations(null);
+                }
+                
                 if (StringUtils.isNotBlank(status)
                         && (equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
                         || equalsIgnoreCase(TaxonomyAPIParams.Unlisted.name(), status)
@@ -617,8 +621,11 @@ public abstract class BaseContentManager extends BaseManager {
             String licenseType = YouTubeUrlUtil.getLicense(artifactUrl);
             if (equalsIgnoreCase("youtube", licenseType))
                 node.getMetadata().put("license", "Standard YouTube License");
-            else if (equalsIgnoreCase("creativeCommon", licenseType))
-                node.getMetadata().put("license", "Creative Commons Attribution (CC BY)");
+            else if (equalsIgnoreCase("creativeCommon", licenseType)) {
+            		String creativeCommonLicenseType = Platform.config.hasPath("content.license") 
+            				? Platform.config.getString("content.license") : "Creative Commons Attribution (CC BY)";
+                node.getMetadata().put("license", creativeCommonLicenseType);
+            }
             else {
                 TelemetryManager.log("Got Unsupported Youtube License Type : " + licenseType + " | [Content ID: "
                         + node.getIdentifier() + "]");

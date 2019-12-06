@@ -1,3 +1,4 @@
+@Library('deploy-conf') _
 node() {
     try {
         String ANSI_GREEN = "\u001B[32m"
@@ -53,10 +54,12 @@ node() {
             currentBuild.description = "${artifact_version}"
         }
     }
-
     catch (err) {
         currentBuild.result = "FAILURE"
         throw err
     }
-
+    finally {
+        slack_notify(currentBuild.result)
+        email_notify()
+    }
 }

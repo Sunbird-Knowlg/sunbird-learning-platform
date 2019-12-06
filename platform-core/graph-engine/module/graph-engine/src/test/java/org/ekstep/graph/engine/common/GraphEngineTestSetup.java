@@ -42,7 +42,7 @@ public class GraphEngineTestSetup {
 
 	private static ClassLoader classLoader = GraphEngineTestSetup.class.getClassLoader();
 
-	private static GraphDatabaseService graphDb = null;
+	protected static GraphDatabaseService graphDb = null;
 
 	private static String NEO4J_SERVER_ADDRESS = "localhost:7687";
 	private static String GRAPH_DIRECTORY_PROPERTY_KEY = "graph.dir";
@@ -50,8 +50,8 @@ public class GraphEngineTestSetup {
 
 	public static ActorRef reqRouter = null;
 
-	protected static long timeout = 50000;
-	protected static Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
+	protected static long timeout = 120000;
+	protected static Timeout t = new Timeout(Duration.create(300, TimeUnit.SECONDS));
 	protected static Set<String> graphIds = new HashSet<>();
 
 	@AfterClass

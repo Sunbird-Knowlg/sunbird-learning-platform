@@ -32,6 +32,7 @@
         -  'framework_definition'
         -  'term_definition'
         -  'misconception_definition'
+        -  'license_definition'
       register: definition_update_status
       tags:
       - update-definition
