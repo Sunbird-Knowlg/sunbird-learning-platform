@@ -40,14 +40,14 @@ public class CertificateGenerator {
     private static final String KEYSPACE = Platform.config.hasPath("courses.keyspace.name")
             ? Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
     private static final String USER_COURSES_TABLE = "user_courses";
-    protected static final String KP_LEARNING_BASE_URL = Platform.config.hasPath("kp.learning_service.base_url")
-            ? Platform.config.getString("kp.learning_service.base_url"): "http://localhost:8080/learning-service";
     private SimpleDateFormat formatter = null;
     private SimpleDateFormat dateFormatter = null;
     private static final String ES_INDEX_NAME = "user-courses";
     private static final String ES_DOC_TYPE = "_doc";
     private static final String CERTIFICATE_BASE_PATH = Platform.config.hasPath("certificate.base_path")
             ? Platform.config.getString("certificate.base_path"): "http://localhost:9000/certs";
+    protected static final String KP_CONTENT_SERVICE_BASE_URL = Platform.config.hasPath("kp.content_service.base_url")
+            ? Platform.config.getString("kp.content_service.base_url"): "http://localhost:9000";
 
     private static JobLogger LOGGER = new JobLogger(CertificateGenerator.class);
 
@@ -253,7 +253,7 @@ public class CertificateGenerator {
 
     private Map<String,Object> getContent(String courseId, String fields) {
         try {
-            String url = KP_LEARNING_BASE_URL + "/content/v3/read/" + courseId;
+            String url = KP_CONTENT_SERVICE_BASE_URL + "/content/v3/read/" + courseId;
             if(StringUtils.isNotBlank(fields))
                 url += "?fields=" + fields;
 
