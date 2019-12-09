@@ -1,9 +1,0 @@
-node registerScript.js api/api_v3/create-API.tcl api/api_v2/json/register-create-api.json update
-
-node registerScript.js api/api_v3/update-API.tcl api/api_v2/json/register-update-api.json update
-
-node registerScript.js api/api_v3/get-API.tcl api/api_v2/json/register-get-api.json update
-
-node registerScript.js api/api_v3/list-API.tcl api/api_v2/json/register-list-api.json update
-
-node registerScript.js api/api_v3/search-API.tcl api/api_v2/json/register-search-api.json update

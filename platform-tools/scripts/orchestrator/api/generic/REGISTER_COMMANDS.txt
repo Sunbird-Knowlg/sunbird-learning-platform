@@ -1,9 +1,0 @@
-node registerScript.js api/generic/create-object.tcl api/generic/json/register-create-object.json register
-
-node registerScript.js api/generic/update-object.tcl api/generic/json/register-update-object.json register
-
-node registerScript.js api/generic/get-object.tcl api/generic/json/register-get-object.json register
-
-node registerScript.js api/generic/get-all-objects.tcl api/generic/json/register-get-all-objects.json register
-
-node registerScript.js api/generic/search-objects.tcl api/generic/json/register-search-objects.json register
