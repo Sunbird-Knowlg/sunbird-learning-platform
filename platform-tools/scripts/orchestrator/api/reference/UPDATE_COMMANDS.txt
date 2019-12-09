@@ -1,9 +1,0 @@
-node registerScript.js api/reference/create-reference.tcl api/reference/json/register-create-reference.json update
-
-node registerScript.js api/reference/update-reference.tcl api/reference/json/register-update-reference.json update
-
-node registerScript.js api/reference/get-reference.tcl api/reference/json/register-get-reference.json update
-
-node registerScript.js api/reference/get-all-references.tcl api/reference/json/register-get-all-references.json update
-
-node registerScript.js api/reference/search-references.tcl api/reference/json/register-search-references.json update

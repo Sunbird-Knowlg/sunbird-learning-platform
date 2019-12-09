@@ -1,9 +1,0 @@
-node registerScript.js api/library/create-library.tcl api/library/json/register-create-library.json update
-
-node registerScript.js api/library/update-library.tcl api/library/json/register-update-library.json update
-
-node registerScript.js api/library/get-library.tcl api/library/json/register-get-library.json update
-
-node registerScript.js api/library/get-all-libraries.tcl api/library/json/register-get-all-libraries.json update
-
-node registerScript.js api/library/search-libraries.tcl api/library/json/register-search-libraries.json update
