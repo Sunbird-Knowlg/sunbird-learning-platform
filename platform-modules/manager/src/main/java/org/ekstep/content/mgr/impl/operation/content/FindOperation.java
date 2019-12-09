@@ -13,7 +13,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.kafka.KafkaClient;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.taxonomy.common.LanguageCodeMap;
+import org.ekstep.content.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;

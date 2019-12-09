@@ -1,4 +1,4 @@
-package org.ekstep.taxonomy.controller;
+package org.ekstep.content.controller;
 
 import java.io.File;
 
