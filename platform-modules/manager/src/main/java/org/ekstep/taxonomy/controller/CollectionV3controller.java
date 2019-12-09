@@ -1,4 +1,4 @@
-package org.ekstep.content.controller;
+package org.ekstep.taxonomy.controller;
 
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Request;

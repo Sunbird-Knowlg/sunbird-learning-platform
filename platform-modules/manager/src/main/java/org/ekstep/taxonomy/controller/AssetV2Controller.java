@@ -1,4 +1,4 @@
-package org.ekstep.content.controller;
+package org.ekstep.taxonomy.controller;
 
 import java.io.BufferedInputStream;
 import java.io.File;

@@ -1,4 +1,4 @@
-package org.ekstep.content.controller;
+package org.ekstep.taxonomy.controller;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;

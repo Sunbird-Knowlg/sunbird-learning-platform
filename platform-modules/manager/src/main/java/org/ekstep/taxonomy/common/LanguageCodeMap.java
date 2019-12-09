@@ -1,4 +1,4 @@
-package org.ekstep.content.common;
+package org.ekstep.taxonomy.common;
 
 import java.util.HashMap;
 import java.util.Map;
