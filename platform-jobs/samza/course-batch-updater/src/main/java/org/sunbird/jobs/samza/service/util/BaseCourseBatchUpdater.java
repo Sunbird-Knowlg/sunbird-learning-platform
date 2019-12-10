@@ -21,7 +21,7 @@ public class BaseCourseBatchUpdater {
             ? Platform.config.getString("kp.content_service.base_url"): "http://localhost:9000";
 
     protected Map<String,Object> getContent(String courseId, String fields) throws Exception {
-        String url = KP_LEARNING_BASE_URL + "/content/v3/read/" + courseId;
+        String url = KP_CONTENT_SERVICE_BASE_URL + "/content/v3/read/" + courseId;
         if(StringUtils.isNotBlank(fields))
             url += "?fields=" + fields;
 
