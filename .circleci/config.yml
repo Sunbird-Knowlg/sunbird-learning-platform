@@ -6,22 +6,28 @@ jobs:
       - checkout
       - restore_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
-      - run: 
-          name: Setup VM, Build and update Sonar
-          command: bash vmsetup.sh
+      - run:
+          name: Build
+          command: mvn clean install -DskipTests=true
 
       - save_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
           paths: ~/.m2
 
-      - run: cd searchIndex-platform/module/search-api && mvn play2:dist -pl search-manager
-      - run: mkdir artifacts && cp platform-modules/service/target/learning-service.war artifacts/
-      - run: cp searchIndex-platform/module/search-api/search-manager/target/search-manager-1.0-SNAPSHOT-dist.zip artifacts/
-      - run: cp platform-tools/spikes/sync-tool/target/sync-tool-0.0.1-SNAPSHOT.jar artifacts/
+      - run:
+          name: Prepare search-api artifact
+          command: cd searchIndex-platform/module/search-api && mvn play2:dist -pl search-manager
+      - run:
+          name: Copy artifacts to one location
+          command: mkdir artifacts && cp platform-modules/service/target/learning-service.war artifacts/ && cp searchIndex-platform/module/search-api/search-manager/target/search-manager-1.0-SNAPSHOT-dist.zip artifacts/ && cp platform-tools/spikes/sync-tool/target/sync-tool-0.0.1-SNAPSHOT.jar artifacts/
 
       - store_artifacts:
          path: artifacts
          destination: artifacts/
+
+      - run: 
+          name: Setup VM, Test and Update Sonar
+          command: bash vmsetup.sh
      
 workflows:
   version: 2.1
