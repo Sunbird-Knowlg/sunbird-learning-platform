@@ -1023,9 +1023,10 @@ public class PublishFinalizer extends BaseFinalizer {
 					List<Map<String, Object>> nextLevelLeafNodes = getLeafNodes(nextChildren, nextDepth);
 					leafNodes.addAll(nextLevelLeafNodes);
 				}else {
-					child.put("index", index);
-					child.put("depth", depth);
-					leafNodes.add(child);
+					Map<String, Object> leafNode = new HashMap<>(child);
+					leafNode.put("index", index);
+					leafNode.put("depth", depth);
+					leafNodes.add(leafNode);
 					index++;
 				}
 			}
