@@ -94,7 +94,7 @@ public class LearningRequestRouter extends UntypedActor {
 		ActorRef localCacheUpdaterActor = system.actorOf(new SmallestMailboxPool(poolSize).props(localCacheUpdaterProps));
 		LearningActorPool.addActorRefToPool(LearningActorNames.CONTENT_STORE_ACTOR.name(), contentStoreActor);
 		LearningActorPool.addActorRefToPool(LearningActorNames.FRAMEWORK_HIERARCHY_ACTOR.name(), fwHierarchyActor);
-		LearningActorPool.addActorRefToPool(LearningActorNames.CACHE_UPDATE_ACTOR.name(), localCacheUpdaterActor);
+		//LearningActorPool.addActorRefToPool(LearningActorNames.CACHE_UPDATE_ACTOR.name(), localCacheUpdaterActor);
 	}
 
 	/**
