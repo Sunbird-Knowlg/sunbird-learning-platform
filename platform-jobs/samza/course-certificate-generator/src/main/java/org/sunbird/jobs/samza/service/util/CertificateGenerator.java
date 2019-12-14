@@ -178,8 +178,8 @@ public class CertificateGenerator {
     }
 
     private boolean notifyUser(String userId, Map<String, Object> certTemplate, String courseName, Map<String, Object> userResponse, Date issuedOn) {
-        if(MapUtils.isNotEmpty(((Map) certTemplate.get("notifyTemplate")))) {
-            Map<String, Object> notifyTemplate = ((Map) certTemplate.get("notifyTemplate"));
+        if(certTemplate.containsKey("notifyTemplate")) {
+            Map<String, Object> notifyTemplate = getNotificationTemplate(certTemplate);
             String url = LEARNER_SERVICE_PRIVATE_URL + "/v1/notification/email";
             Request request = new Request();
             notifyTemplate.entrySet().forEach(entry -> request.put(entry.getKey(), entry.getValue()));
@@ -208,6 +208,20 @@ public class CertificateGenerator {
             return true;
         }
         return false;
+    }
+
+    private Map<String, Object> getNotificationTemplate(Map<String, Object> certTemplate)  {
+        Object notifyTemplate = certTemplate.get("notifyTemplate");
+        if(notifyTemplate instanceof String) {
+            try {
+            return mapper.readValue((String) notifyTemplate, Map.class);
+            } catch (Exception e) {
+                LOGGER.error("Error while fetching notify template : " , e);
+                return new HashMap<>();
+            }
+        }else {
+            return (Map)notifyTemplate;
+        }
     }
 
     private Map<String,Object> prepareCertServiceRequest(String courseName, String batchId, String userId, Map<String, Object> userResponse, Map<String, Object> certTemplate, Date issuedOn) {
