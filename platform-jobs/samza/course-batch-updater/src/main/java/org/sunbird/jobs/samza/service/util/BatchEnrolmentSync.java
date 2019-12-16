@@ -59,6 +59,8 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
 
                     if(null != dataToUpdate.get("status") && (2 == ((Number)dataToUpdate.get("status")).intValue()))
                         dataToUpdate.put("completedOn", new Timestamp(new Date().getTime()));
+                    else
+                        dataToUpdate.put("completedOn", null);
 
                     SunbirdCassandraUtil.update(keyspace, table, dataToUpdate, dataToSelect);
                 }
