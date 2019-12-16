@@ -3,8 +3,8 @@ Description=Redis In-Memory Data Store
 After=network.target
 
 [Service]
-User=learning
-Group=learning
+User={{ learner_user }}
+Group={{ learner_user }}
 ExecStart={{ redis_dir }}/redis-stable/src/redis-server {{ redis_dir }}/redis-stable/redis.conf
 ExecStop={{ redis_dir }}/redis-stable/src/redis-cli shutdown
 Restart=always
