@@ -377,6 +377,11 @@ public class PublishFinalizer extends BaseFinalizer {
 
 									String nodeString = mapper.writeValueAsString(ConvertGraphNode.convertGraphNode(resNode, TAXONOMY_ID, definition, null));
 									Map<String, Object> resourceNode = mapper.readValue(nodeString, Map.class);
+									resourceNode.put("index", child.get(ContentWorkflowPipelineParams.index.name()));
+									resourceNode.put("depth", child.get(ContentWorkflowPipelineParams.depth.name()));
+									resourceNode.put("parent", child.get(ContentWorkflowPipelineParams.parent.name()));
+									resourceNode.remove(ContentWorkflowPipelineParams.collections.name());
+									resourceNode.remove(ContentWorkflowPipelineParams.children.name());
 									children.add(resourceNode);
 								} else {
 									childNodes.remove((String) child.get(ContentWorkflowPipelineParams.identifier.name()));
