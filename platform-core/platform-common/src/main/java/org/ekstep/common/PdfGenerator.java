@@ -17,8 +17,10 @@ public class PdfGenerator {
      * @param htmlString
      * @return
      */
+
+    private static final String tempFileLocation = "/tmp/";
     public static File convertHtmlStringToPdfFile(String htmlString) {
-        File file = new File("/data/" + getPdfFileName() + ".pdf");
+        File file = new File( tempFileLocation + getPdfFileName() + ".pdf");
         try {
             file.createNewFile();
             OutputStream os = new FileOutputStream(file);
@@ -37,7 +39,7 @@ public class PdfGenerator {
     }
 
     public static File convertHtmlFileToPdfFile(File htmlFile) {
-        File file = new File("/data/" + getPdfFileName() + ".pdf");
+        File file = new File(tempFileLocation + getPdfFileName() + ".pdf");
         try{
             file.createNewFile();
             Document document = new Document();
