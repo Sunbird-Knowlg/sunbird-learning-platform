@@ -1,73 +1,76 @@
-- name: Download and extract hadoop tarball
-  unarchive:
-    src: "{{hadoop_download_url}}"
-    dest: "/usr/local/"
-    owner: hduser 
-    group: hadoop 
-    creates: "{{hadoop_yarn_home}}"
-    remote_src: yes
+- name: Common tasks for yarn master and slave
+  block:
+  - name: Download and extract hadoop tarball
+    unarchive:
+      src: "{{hadoop_download_url}}"
+      dest: "/usr/local/"
+      owner: hduser
+      group: hadoop
+      creates: "{{hadoop_yarn_home}}"
+      remote_src: yes
 
-- name: Creates symlink
-  file: 
-    src: /usr/local/hadoop-{{hadoop_version}}
-    dest: /usr/local/hadoop
-    owner: hduser 
-    group: hadoop 
-    state: link
+  - name: Creates symlink
+    file:
+      src: /usr/local/hadoop-{{hadoop_version}}
+      dest: /usr/local/hadoop
+      owner: hduser
+      group: hadoop
+      state: link
 
-- name: creating conf dir
-  file: 
-    path: "{{hadoop_yarn_home}}/conf"
-    owner: hduser 
-    group: hadoop 
-    recurse: yes 
-    state: directory
+  - name: creating conf dir
+    file:
+      path: "{{hadoop_yarn_home}}/conf"
+      owner: hduser
+      group: hadoop
+      recurse: yes
+      state: directory
 
-- name: Templating configs
-  template: 
-    src: "{{item}}" 
-    dest: "{{hadoop_yarn_home}}/conf/{{item}}"
-    owner: hduser 
-    group: hadoop
-  with_items:
-    - yarn-site.xml
-    - capacity-scheduler.xml
-    - core-site.xml
-    - log4j.properties
-    - hadoop-env.sh
+  - name: Templating configs
+    template:
+      src: "{{item}}"
+      dest: "{{hadoop_yarn_home}}/conf/{{item}}"
+      owner: hduser
+      group: hadoop
+    with_items:
+      - yarn-site.xml
+      - capacity-scheduler.xml
+      - core-site.xml
+      - log4j.properties
+      - hadoop-env.sh
 
-- name: Downloading artifacts
-  get_url: 
-    url: "http://search.maven.org/remotecontent?filepath=org/{{item}}"
-    dest: "{{hadoop_yarn_home}}/share/hadoop/hdfs/lib/"
-    owner: hduser
-    group: hadoop
-  with_items:
-    - clapper/grizzled-slf4j_2.10/1.0.1/grizzled-slf4j_2.10-1.0.1.jar
-    - apache/samza/samza-yarn_2.10/0.8.0/samza-yarn_2.10-0.8.0.jar
-    - apache/samza/samza-core_2.10/0.8.0/samza-core_2.10-0.8.0.jar
+  - name: Downloading artifacts
+    get_url:
+      url: "http://search.maven.org/remotecontent?filepath=org/{{item}}"
+      dest: "{{hadoop_yarn_home}}/share/hadoop/hdfs/lib/"
+      owner: hduser
+      group: hadoop
+    with_items:
+      - clapper/grizzled-slf4j_2.10/1.0.1/grizzled-slf4j_2.10-1.0.1.jar
+      - apache/samza/samza-yarn_2.10/0.8.0/samza-yarn_2.10-0.8.0.jar
+      - apache/samza/samza-core_2.10/0.8.0/samza-core_2.10-0.8.0.jar
 
-- name: Download and extract scala
-  unarchive:
-    src: "{{scala_download_url}}"
-    dest: "/usr/local/"
-    owner: hduser 
-    group: hadoop 
-    remote_src: yes
+  - name: Download and extract scala
+    unarchive:
+      src: "{{scala_download_url}}"
+      dest: "/usr/local/"
+      owner: hduser
+      group: hadoop
+      remote_src: yes
 
-- name: Creates symlink
-  file: 
-    src: "/usr/local/scala-{{scala_version}}" 
-    dest: /usr/local/scala 
-    owner: hduser 
-    group: hadoop 
-    state: link
+  - name: Creates symlink
+    file:
+      src: "/usr/local/scala-{{scala_version}}"
+      dest: /usr/local/scala
+      owner: hduser
+      group: hadoop
+      state: link
 
-- name: copying scala files
-  copy:
-    src: "/usr/local/scala-{{scala_version}}/lib/{{item}}" 
-    dest: "{{hadoop_yarn_home}}/share/hadoop/hdfs/lib/"
-    remote_src: true
-  with_items:
-    - scala-compiler.jar
-    - scala-library.jar
+  - name: copying scala files
+    copy:
+      src: "/usr/local/scala-{{scala_version}}/lib/{{item}}"
+      dest: "{{hadoop_yarn_home}}/share/hadoop/hdfs/lib/"
+      remote_src: true
+    with_items:
+      - scala-compiler.jar
+      - scala-library.jar
+  delegate_to: "{{slave|default(inventory_hostname)}}"

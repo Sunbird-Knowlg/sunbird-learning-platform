@@ -38,6 +38,14 @@
     <name>yarn.nodemanager.log.retain-seconds</name>
     <value>3600</value>
   </property>
+    <property>
+    <name>yarn.nodemanager.recovery.enabled</name>
+    <value>true</value>
+  </property>
+  <property>
+      <name>yarn.nodemanager.address</name>
+    <value>0.0.0.0:45454</value>
+  </property>
   <property>
     <name>yarn.nodemanager.resource.cpu-vcores</name>
     <value>{{yarn_vcores}}</value>
