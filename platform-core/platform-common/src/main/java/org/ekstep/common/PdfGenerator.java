@@ -25,30 +25,21 @@ public class PdfGenerator {
      * @param htmlString
      * @return
      */
-    public static File convertHtmlStringToPdfFile(String htmlString, String pdfFileName) {
-        try {
-            return convertFile(pdfFileName, getInputStream(htmlString));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public static File convertHtmlStringToPdfFile(String htmlString, String pdfFileName) throws Exception {
+        return convertFile(pdfFileName, getInputStream(htmlString));
     }
 
-    public static File convertHtmlFileToPdfFile(File htmlFile, String pdfFileName) {
-        try {
-            return convertFile(pdfFileName, getInputStream(htmlFile));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public static File convertHtmlFileToPdfFile(File htmlFile, String pdfFileName) throws Exception{
+            return convertFile(pdfFileName, htmlFile);
     }
 
-    private static File convertFile(String pdfFileName, InputStream is) throws Exception {
+    private static File convertFile(String pdfFileName, Object htmlObject) throws Exception {
+        InputStream is = getInputStream(htmlObject);
         File pdfFile = new File(TEMP_FILE_LOCATION + pdfFileName + ".pdf");
         Document document = null;
         OutputStream os = null;
         try {
-            if (pdfFile.createNewFile()) {
+            if (pdfFile.createNewFile() && null != is) {
                 document = new Document();
                 os = new FileOutputStream(pdfFile);
                 PdfWriter writer = PdfWriter.getInstance(document, os);
