@@ -1,7 +1,6 @@
 package org.ekstep.taxonomy.mgr.impl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.assessment.mgr.IAssessmentManager;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
@@ -11,9 +10,7 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.taxonomy.mgr.IObjectManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

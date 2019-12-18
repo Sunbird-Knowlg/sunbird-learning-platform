@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" packages="">
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
+		</Console>
+		<RollingFile name="DefaultLogAppender" fileName="/data/logs/learning_service_mw.log"
+			filePattern="/data/logs/learning_service_mw-%d{MM-dd-yyyy-hh}-%i.log">
+			<PatternLayout>
+				<Pattern>%d %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="250 MB" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
+				<OnStartupTriggeringPolicy />
+			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="learning_service_mw-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+		</RollingFile>
+		<RollingFile name="PerfLogAppender" fileName="/data/logs/learning_perf_mw.log"
+			filePattern="/data/logs/learning_perf_mw-%d{MM-dd-yyyy-hh}-%i.log">
+			<PatternLayout>
+				<Pattern>%d [%t] - %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="250 MB" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
+				<OnStartupTriggeringPolicy />
+			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="learning_perf_mw-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+		</RollingFile>
+		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/learning_graph_event_mw.log"
+			filePattern="/data/logs/learning_graph_event_mw-%d{MM-dd-yyyy-hh}-%i.log">
+			<PatternLayout>
+				<Pattern>%d %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="250 MB" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
+				<OnStartupTriggeringPolicy />
+			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="learning_graph_event_mw-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+		</RollingRandomAccessFile>
+		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/learning_telemetry_event_mw.log"
+			filePattern="/data/logs/learning_telemetry_event_mw-%d{MM-dd-yyyy-hh}-%i.log">
+			<PatternLayout>
+				<Pattern>%d %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="250 MB" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
+				<OnStartupTriggeringPolicy />
+			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="learning_telemetry_event_mw-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+		</RollingRandomAccessFile>
+	</Appenders>
+	<Loggers>
+		<Logger name="TelemetryEventLogger" level="INFO" additivity="false">
+			<AppenderRef ref="TelemetryEventAppender" />
+		</Logger>
+		<Logger name="GraphEventLogger" level="INFO" additivity="false">
+			<AppenderRef ref="GraphEventAppender" />
+		</Logger>
+		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
+			<AppenderRef ref="PerfLogAppender" />
+		</Logger>
+		<Logger name="DefaultPlatformLogger" level="INFO" additivity="false">
+			<AppenderRef ref="DefaultLogAppender" />
+		</Logger>
+	</Loggers>
+</Configuration>

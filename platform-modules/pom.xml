@@ -23,6 +23,8 @@
 
 	<modules>
 		<module>common</module>
+		<module>taxonomy-manager</module>
+		<module>assessment-manager</module>
 		<module>manager</module>
 		<module>service</module>
 		<module>actors</module>
