@@ -12,78 +12,75 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class PdfGenerator {
+
+    private PdfGenerator() {
+
+    }
+
+    private static final String TEMP_FILE_LOCATION = Platform.config.hasPath("lp.assessment.tmp_file_location") ? Platform.config.getString("lp.assessment.tmp_file_location") : "/tmp/";
+
     /**
      * Converts a Html String to a Pdf file
      *
      * @param htmlString
      * @return
      */
-
-    private static final String TEMP_FILE_LOCATION = "/tmp/";
-
-    public static File convertHtmlStringToPdfFile(String htmlString) {
-        File file = new File(TEMP_FILE_LOCATION + getPdfFileName() + ".pdf");
-        OutputStream os = null;
-        InputStream is = null;
+    public static File convertHtmlStringToPdfFile(String htmlString, String pdfFileName) {
         try {
-            if (file.createNewFile()) {
-                os = new FileOutputStream(file);
-                Document document = new Document();
-                PdfWriter writer = PdfWriter.getInstance(document, os);
-                document.open();
-                is = new ByteArrayInputStream(htmlString.getBytes());
-                XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
-                document.close();
-            }
-            return file;
-        } catch (Exception e) {
-
-            return null;
-        } finally {
-            try {
-                if (null != os)
-                    os.close();
-                if(null != is)
-                    is.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public static File convertHtmlFileToPdfFile(File htmlFile) {
-        File file = new File(TEMP_FILE_LOCATION + getPdfFileName() + ".pdf");
-        OutputStream os = null;
-        InputStream is = null;
-        try {
-            if (file.createNewFile()) {
-                os = new FileOutputStream(file);
-                Document document = new Document();
-                PdfWriter writer = PdfWriter.getInstance(document, os);
-                document.open();
-                is = new FileInputStream(htmlFile);
-                XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
-                document.close();
-            }
-            return file;
+            return convertFile(pdfFileName, getInputStream(htmlString));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
-        } finally {
-            try {
-                if (null != os)
-                    os.close();
-                if(null != is)
-                    is.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 
-    private static String getPdfFileName() {
-        return "pdf_" + System.currentTimeMillis();
+    public static File convertHtmlFileToPdfFile(File htmlFile, String pdfFileName) {
+        try {
+            return convertFile(pdfFileName, getInputStream(htmlFile));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
+    private static File convertFile(String pdfFileName, InputStream is) throws Exception {
+        File pdfFile = new File(TEMP_FILE_LOCATION + pdfFileName + ".pdf");
+        Document document = null;
+        OutputStream os = null;
+        try {
+            if (pdfFile.createNewFile()) {
+                document = new Document();
+                os = new FileOutputStream(pdfFile);
+                PdfWriter writer = PdfWriter.getInstance(document, os);
+                document.open();
+                XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+            }
+            return pdfFile;
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (null != document)
+                document.close();
+            if (null != is)
+                is.close();
+            if (null != os)
+                os.close();
+        }
+    }
+
+    /**
+     * This method takes input html string or file object and returns an InputStream
+     *
+     * @param object
+     * @return
+     */
+    private static InputStream getInputStream(Object object) throws Exception {
+        if (object instanceof String) {
+            return new ByteArrayInputStream(((String) object).getBytes());
+        } else if (object instanceof File) {
+            return new FileInputStream((File) object);
+        }
+        return null;
+    }
 
 }

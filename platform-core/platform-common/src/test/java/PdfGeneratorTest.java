@@ -60,7 +60,7 @@ public class PdfGeneratorTest {
 
     @Test
     public void convertHtmlStringToPdfFile() {
-        pdfFile = PdfGenerator.convertHtmlStringToPdfFile(htmlString);
+        pdfFile = PdfGenerator.convertHtmlStringToPdfFile(htmlString, "do_313179738_pdf_1");
         Assert.assertNotNull(pdfFile);
         Assert.assertEquals(PDF_EXTENSION, pdfFile.getName().split("\\.")[1]);
 
@@ -68,20 +68,20 @@ public class PdfGeneratorTest {
 
     @Test
     public void convertHtmlFileToPdfFile() {
-        pdfFile = PdfGenerator.convertHtmlFileToPdfFile(htmlFile);
+        pdfFile = PdfGenerator.convertHtmlFileToPdfFile(htmlFile, "do_313179738_pdf_2");
         Assert.assertNotNull(pdfFile);
         Assert.assertEquals(PDF_EXTENSION, pdfFile.getName().split("\\.")[1]);
     }
 
     @Test
     public void convertHtmlStringToPdfFileMalformedHtml() {
-        pdfFile = PdfGenerator.convertHtmlStringToPdfFile(malFormedHtmlString);
+        pdfFile = PdfGenerator.convertHtmlStringToPdfFile(malFormedHtmlString, "do_313179738_pdf_3");
         Assert.assertNull(pdfFile);
     }
 
     @Test
-    public void convertHtmlFileToPdfFileDoesntExist() {
-        pdfFile = PdfGenerator.convertHtmlFileToPdfFile(htmlNonExistentFile);
+    public void convertHtmlFileToPdfFileDoesNotExist() {
+        pdfFile = PdfGenerator.convertHtmlFileToPdfFile(htmlNonExistentFile, "do_313179738_pdf_4");
         Assert.assertNull(pdfFile);
     }
 
