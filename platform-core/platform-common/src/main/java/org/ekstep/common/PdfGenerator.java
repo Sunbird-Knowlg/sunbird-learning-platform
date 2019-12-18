@@ -14,46 +14,70 @@ import java.io.OutputStream;
 public class PdfGenerator {
     /**
      * Converts a Html String to a Pdf file
+     *
      * @param htmlString
      * @return
      */
 
-    private static final String tempFileLocation = "/tmp/";
+    private static final String TEMP_FILE_LOCATION = "/tmp/";
+
     public static File convertHtmlStringToPdfFile(String htmlString) {
-        File file = new File( tempFileLocation + getPdfFileName() + ".pdf");
+        File file = new File(TEMP_FILE_LOCATION + getPdfFileName() + ".pdf");
+        OutputStream os = null;
+        InputStream is = null;
         try {
-            file.createNewFile();
-            OutputStream os = new FileOutputStream(file);
-            Document document = new Document();
-            PdfWriter writer = PdfWriter.getInstance(document, os);
-            document.open();
-            InputStream is = new ByteArrayInputStream(htmlString.getBytes());
-            XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
-            document.close();
-            os.close();
+            if (file.createNewFile()) {
+                os = new FileOutputStream(file);
+                Document document = new Document();
+                PdfWriter writer = PdfWriter.getInstance(document, os);
+                document.open();
+                is = new ByteArrayInputStream(htmlString.getBytes());
+                XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+                document.close();
+            }
             return file;
         } catch (Exception e) {
-            e.printStackTrace();
+
             return null;
+        } finally {
+            try {
+                if (null != os)
+                    os.close();
+                if(null != is)
+                    is.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public static File convertHtmlFileToPdfFile(File htmlFile) {
-        File file = new File(tempFileLocation + getPdfFileName() + ".pdf");
-        try{
-            file.createNewFile();
-            Document document = new Document();
-            OutputStream os = new FileOutputStream(file);
-            PdfWriter writer = PdfWriter.getInstance(document, os);
-            document.open();
-            InputStream is = new FileInputStream(htmlFile);
-            XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
-            document.close();
-            os.close();
+        File file = new File(TEMP_FILE_LOCATION + getPdfFileName() + ".pdf");
+        OutputStream os = null;
+        InputStream is = null;
+        try {
+            if (file.createNewFile()) {
+                os = new FileOutputStream(file);
+                Document document = new Document();
+                PdfWriter writer = PdfWriter.getInstance(document, os);
+                document.open();
+                is = new FileInputStream(htmlFile);
+                XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+                document.close();
+            }
             return file;
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
+        } finally {
+            try {
+                if (null != os)
+                    os.close();
+                if(null != is)
+                    is.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

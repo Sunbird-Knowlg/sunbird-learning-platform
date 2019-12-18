@@ -12,6 +12,7 @@ public class PdfGeneratorTest {
     private String malFormedHtmlString;
     private File htmlNonExistentFile;
     private File pdfFile;
+    private static final String PDF_EXTENSION = "pdf";
 
     @Before
     public void createInputFile() {
@@ -51,7 +52,7 @@ public class PdfGeneratorTest {
 
     @After
     public void deleteOutputFile() {
-        if(pdfFile != null && pdfFile.exists())
+        if (pdfFile != null && pdfFile.exists())
             pdfFile.delete();
         htmlString = null;
         malFormedHtmlString = null;
@@ -61,7 +62,7 @@ public class PdfGeneratorTest {
     public void convertHtmlStringToPdfFile() {
         pdfFile = PdfGenerator.convertHtmlStringToPdfFile(htmlString);
         Assert.assertNotNull(pdfFile);
-        Assert.assertEquals(pdfFile.getName().split("\\.")[1], "pdf");
+        Assert.assertEquals(PDF_EXTENSION, pdfFile.getName().split("\\.")[1]);
 
     }
 
@@ -69,7 +70,7 @@ public class PdfGeneratorTest {
     public void convertHtmlFileToPdfFile() {
         pdfFile = PdfGenerator.convertHtmlFileToPdfFile(htmlFile);
         Assert.assertNotNull(pdfFile);
-        Assert.assertEquals(pdfFile.getName().split("\\.")[1], "pdf");
+        Assert.assertEquals(PDF_EXTENSION, pdfFile.getName().split("\\.")[1]);
     }
 
     @Test
