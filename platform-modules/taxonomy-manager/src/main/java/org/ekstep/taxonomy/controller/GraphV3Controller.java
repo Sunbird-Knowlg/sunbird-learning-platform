@@ -153,21 +153,4 @@ public class GraphV3Controller extends BaseController {
 		}
 	}
 
-	// TODO: move this to ekstep-manager (ContentSystemController)
-//	@SuppressWarnings("unchecked")
-//	@RequestMapping(value = "/content/update/{id:.+}", method = RequestMethod.PATCH)
-//	@ResponseBody
-//	public ResponseEntity<Response> internalObjectUpdate(@PathVariable(value = "id") String contentId,
-//			@RequestBody Map<String, Object> requestMap) {
-//		String apiId = "ekstep.learning.system.content.update";
-//		Request request = getRequest(requestMap);
-//		try {
-//			Map<String, Object> map = (Map<String, Object>) request.get("content");
-//			Response response = contentManager.updateAllContents(contentId, map);
-//			return getResponseEntity(response, apiId, null);
-//		} catch (Exception e) {
-//			TelemetryManager.error("Exception: " + e.getMessage(), e);
-//			return getExceptionResponseEntity(e, apiId, null);
-//		}
-//	}
 }
