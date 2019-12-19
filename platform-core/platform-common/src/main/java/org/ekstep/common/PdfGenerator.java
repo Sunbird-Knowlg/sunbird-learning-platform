@@ -18,6 +18,7 @@ public class PdfGenerator {
     }
 
     private static final String TEMP_FILE_LOCATION = Platform.config.hasPath("lp.assessment.tmp_file_location") ? Platform.config.getString("lp.assessment.tmp_file_location") : "/tmp/";
+    private static final String PDF_EXTENSION = ".pdf";
 
     /**
      * Converts a Html String to a Pdf file
@@ -44,7 +45,7 @@ public class PdfGenerator {
     }
 
     private static File convertFile(String pdfFileName, InputStream is) throws Exception {
-        File pdfFile = new File(TEMP_FILE_LOCATION + pdfFileName + ".pdf");
+        File pdfFile = new File(TEMP_FILE_LOCATION + pdfFileName + PDF_EXTENSION);
         Document document = null;
         OutputStream os = null;
         try {
