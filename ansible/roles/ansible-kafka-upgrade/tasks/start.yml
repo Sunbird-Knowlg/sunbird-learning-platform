@@ -4,7 +4,7 @@
   when: verify
 
 - name: Enable and Start Kafka
-  service: name=kafka state=started enabled=yes
+  systemd: name=kafka state=started enabled=yes
   become: yes
 
 - name: wait for kafka port
