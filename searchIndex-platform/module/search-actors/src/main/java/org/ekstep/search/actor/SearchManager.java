@@ -574,7 +574,6 @@ private Integer getIntValue(Object num) {
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> getCompositeSearchResponse(Map<String, Object> searchResponse) {
 		Map<String, Object> respResult = new HashMap<String, Object>();
-		TelemetryManager.log("Logging search Response :", searchResponse);
 		for (Map.Entry<String, Object> entry : searchResponse.entrySet()) {
 			if (entry.getKey().equalsIgnoreCase("results")) {
 				List<Object> lstResult = (List<Object>) entry.getValue();
@@ -612,7 +611,6 @@ private Integer getIntValue(Object num) {
 				respResult.put(entry.getKey(), entry.getValue());
 			}
 		}
-		TelemetryManager.log("Search Result", respResult);
 		return respResult;
 	}
 
