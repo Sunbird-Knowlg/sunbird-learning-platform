@@ -11,10 +11,13 @@ public class AssessmentItemFactory {
             case "mcq": manager = MCQHandler.getInstance();
                 break;
             case "sa":
+                System.out.println("Implementation for sa");
                 break;
             case "vsa":
+                System.out.println("Implementation for vsa");
                 break;
             case "la":
+                System.out.println("Implementation for la");
                 break;
             default: break;
         }
