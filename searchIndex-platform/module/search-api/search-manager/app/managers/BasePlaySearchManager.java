@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import akka.dispatch.ExecutionContexts;
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
+import akka.util.Timeout;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
@@ -21,9 +22,9 @@ import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
-import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static akka.pattern.Patterns.ask;
@@ -42,9 +44,9 @@ public class BasePlaySearchManager {
 	protected ObjectMapper mapper = new ObjectMapper();
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
 	private static final String JSON_TYPE = "application/json";
+	private static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30000, TimeUnit.MILLISECONDS));
 
-	protected Future<Response> getSearchResponse(Request request) {
-		ActorRef router = SearchRequestRouterPool.getRequestRouter();
+	protected Future<Response> getSearchResponse(Request request, ActorRef actor) {
 		Future<Response> res = null;
 		try {
 			long startTime = System.currentTimeMillis();
@@ -52,7 +54,7 @@ public class BasePlaySearchManager {
 			perfLogger.info(request.getContext().get("scenario_name") + ","
 					+ request.getContext().get("request_id") + "," + request.getManagerName()
 					+ "," + request.getOperation() + ",STARTTIME," + startTime);
-			res = ask(router, request, SearchRequestRouterPool.REQ_TIMEOUT)
+			res = ask(actor, request, WAIT_TIMEOUT)
 					.map(new Mapper<Object, Future<Response>>() {
 						public Future<Response> apply(Object result) {
 							String correlationId = UUID.randomUUID().toString();
@@ -62,7 +64,7 @@ public class BasePlaySearchManager {
 									return Futures.successful(response);
 								} else if (request.getOperation()
 										.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name())) {
-									Future<Response> searchResult = getSearchResponse(response, request);
+									Future<Response> searchResult = getSearchResponse(response, request, actor);
 									writeTelemetryLog(request, response);
 									return searchResult;
 								}
@@ -262,13 +264,13 @@ public class BasePlaySearchManager {
 		return list;
 	}
 
-	public Future<Response> getSearchResponse(Response searchResult, Request req) {
+	public Future<Response> getSearchResponse(Response searchResult, Request req, ActorRef actor) {
 		Request request = getSearchRequest(SearchActorNames.SEARCH_MANAGER.name(),
 				SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name());
 		request.put("searchResult", searchResult.getResult());
 		request.setId(req.getId());
 		request.setVer(req.getVer());
-		Future<Response> getRes = getSearchResponse(request);
+		Future<Response> getRes = getSearchResponse(request, actor);
 		return getRes;
 	}
 
@@ -356,20 +358,5 @@ public class BasePlaySearchManager {
 
 		return count;
 	}
-
-//	private Result getErrorResult(Response response) {
-//		try {
-//			if (response.getResponseCode().compareTo(ResponseCode.CLIENT_ERROR) == 0) {
-//				return badRequest(mapper.writeValueAsString(response)).as(JSON_TYPE);
-//			} else if (response.getResponseCode().compareTo(ResponseCode.RESOURCE_NOT_FOUND) == 0) {
-//				return notFound(mapper.writeValueAsString(response)).as(JSON_TYPE);
-//			} else {
-//				return internalServerError(mapper.writeValueAsString(response)).as(JSON_TYPE);
-//			}
-//		} catch (JsonProcessingException e) {
-//			TelemetryManager.error("Error occurred while handling error response: ", e);
-//			return null;
-//		}
-//	}
 
 }

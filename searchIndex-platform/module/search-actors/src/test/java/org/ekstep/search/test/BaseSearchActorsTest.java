@@ -20,7 +20,6 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
-import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.junit.AfterClass;
@@ -41,7 +40,6 @@ public class BaseSearchActorsTest {
 	
 	@BeforeClass
 	public static void beforeTest() throws Exception {
-		SearchRequestRouterPool.init();
 		createCompositeSearchIndex();
 		Thread.sleep(3000);
 	}
@@ -51,22 +49,7 @@ public class BaseSearchActorsTest {
 		System.out.println("deleting index: " + CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
 		ElasticSearchUtil.deleteIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
 	}
-	
-//	protected Response jsonToObject(ResultActions actions) {
-//		String content = null;
-//		Response resp = null;
-//		try {
-//			content = actions.andReturn().getResponse().getContentAsString();
-//			ObjectMapper objectMapper = new ObjectMapper();
-//			if (StringUtils.isNotBlank(content))
-//				resp = objectMapper.readValue(content, Response.class);
-//		} catch (UnsupportedEncodingException e) {
-//			e.printStackTrace();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return resp;
-//	}
+
 	
 	protected Request getSearchRequest() {
         Request request = new Request();
@@ -95,18 +78,19 @@ public class BaseSearchActorsTest {
     }
 	
 	protected Response getSearchResponse(Request request) {
-        ActorRef router = SearchRequestRouterPool.getRequestRouter();
-        try {
-            Future<Object> future = Patterns.ask(router, request, SearchRequestRouterPool.REQ_TIMEOUT);
-            Object obj = Await.result(future, SearchRequestRouterPool.WAIT_TIMEOUT.duration());
-            if (obj instanceof Response) {
-                return (Response) obj;
-            } else {
-                return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
-            }
-        } catch (Exception e) {
-            throw new ServerException(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
-        }
+//        ActorRef router = SearchRequestRouterPool.getRequestRouter();
+//        try {
+//            Future<Object> future = Patterns.ask(router, request, SearchRequestRouterPool.REQ_TIMEOUT);
+//            Object obj = Await.result(future, SearchRequestRouterPool.WAIT_TIMEOUT.duration());
+//            if (obj instanceof Response) {
+//                return (Response) obj;
+//            } else {
+//                return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
+//            }
+//        } catch (Exception e) {
+//            throw new ServerException(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+//        }
+		return new Response();
     }
 	
 	protected Response ERROR(String errorCode, String errorMessage, ResponseCode responseCode) {
