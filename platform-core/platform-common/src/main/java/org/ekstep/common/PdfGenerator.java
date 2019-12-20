@@ -26,7 +26,7 @@ public class PdfGenerator {
      * @return
      */
     public static File convertHtmlStringToPdfFile(String htmlString, String pdfFileName) throws Exception {
-        return convertFile(pdfFileName, getInputStream(htmlString));
+        return convertFile(pdfFileName, htmlString);
     }
 
     public static File convertHtmlFileToPdfFile(File htmlFile, String pdfFileName) throws Exception{
