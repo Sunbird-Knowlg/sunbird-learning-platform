@@ -96,21 +96,23 @@ public class QuestionPaperGenerator {
     private static void populateData(Map<String, Object> assessmentHtmlMap, String key, Object value) {
         Map<String, Object> valueMap = (Map<String, Object>) value;
         IAssessmentHandler handler = AssessmentItemFactory.getHandler((String) (valueMap.get(TYPE)));
-        try {
-            String bodyString = (String) valueMap.get(BODY);
-            if(StringUtils.isNotEmpty(bodyString) && StringUtils.isNotBlank(bodyString)) {
-                Map<String, Object> bodyMap = mapper.readValue(bodyString, new TypeReference<Map<String, String>>() {
-                });
-                Map<String, Object> htmlDataMap = new HashMap<String, Object>() {{
-                    put("question", handler.populateQuestion(bodyMap));
-                    put("answer", handler.populateAnswer(bodyMap));
-                    put("options", handler.populateOptions(bodyMap));
-                }};
-                assessmentHtmlMap.put(key, htmlDataMap);
-            } else
-                assessmentHtmlMap.put(key, new HashMap<>());
-        } catch (Exception e) {
-            e.printStackTrace();
+        if(null != handler) {
+            try {
+                String bodyString = (String) valueMap.get(BODY);
+                if(StringUtils.isNotEmpty(bodyString) && StringUtils.isNotBlank(bodyString)) {
+                    Map<String, Object> bodyMap = mapper.readValue(bodyString, new TypeReference<Map<String, String>>() {
+                    });
+                    Map<String, Object> htmlDataMap = new HashMap<String, Object>() {{
+                        put("question", handler.populateQuestion(bodyMap));
+                        put("answer", handler.populateAnswer(bodyMap));
+                        put("options", handler.populateOptions(bodyMap));
+                    }};
+                    assessmentHtmlMap.put(key, htmlDataMap);
+                } else
+                    assessmentHtmlMap.put(key, new HashMap<>());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
