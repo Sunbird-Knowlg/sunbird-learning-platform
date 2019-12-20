@@ -17,6 +17,7 @@ import org.ekstep.learning.util.ControllerUtil;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -35,32 +36,34 @@ public class QuestionPaperGenerator {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String TEMP_FILE_LOCATION = Platform.config.hasPath("lp.assessment.tmp_file_location") ? Platform.config.getString("lp.assessment.tmp_file_location") : "/tmp/";
     private static final String HTML_PREFIX = "html_";
+    private static final String INDEX = "index";
 
     public static File generateQuestionPaper(Node node) {
-        List<String> questionIds = fetchChildIds(node);
-        if (CollectionUtils.isNotEmpty(questionIds)) {
-            Map<String, Object> assessmentData = getAssessmentDataMap(questionIds);
+        Map<String, Object> childDetails = fetchChildDetails(node);
+        if (MapUtils.isNotEmpty(childDetails)) {
+            Map<String, Object> assessmentData = getAssessmentDataMap(childDetails);
             Map<String, Object> htmlData = populateAssessmentData(assessmentData);
             String htmlString = generateHtmlString(null, htmlData);
             if (StringUtils.isNotEmpty(htmlString) && StringUtils.isNotBlank(htmlString))
-               return generateHtmlFile(htmlString, node.getIdentifier());
+                return generateHtmlFile(htmlString, node.getIdentifier());
         }
         return null;
     }
 
-    private static List<String> fetchChildIds(Node node) {
+    private static Map<String, Object> fetchChildDetails(Node node) {
         return node.getOutRelations().stream()
                 .filter(relation -> StringUtils.equalsIgnoreCase(ASSESSMENT_OBJECT_TYPE, relation.getEndNodeObjectType()))
-                .map(Relation::getEndNodeId)
-                .collect(Collectors.toList());
+                .collect(Collectors.toMap(Relation::getEndNodeId, entry -> entry.getMetadata().get(INDEX)));
     }
 
-    private static Map<String, Object> getAssessmentDataMap(List<String> identifiers) {
-        Map<String, Object> nodeMap = getMetadataFromNeo4j(identifiers);
-        Map<String, Object> cassandraMap = getExternalPropsData(identifiers);
-        if (MapUtils.isNotEmpty(nodeMap) && MapUtils.isNotEmpty(cassandraMap)) {
-            Map<String, Object> assessmentMap = new HashMap<>(cassandraMap);
-            assessmentMap.forEach((key, value) -> nodeMap.merge(key, value, (v1, v2) -> ((Map<String, Object>) cassandraMap.get(key)).put(TYPE, v2)));
+    private static Map<String, Object> getAssessmentDataMap(Map<String, Object> childData) {
+        List<String> identifiers = new ArrayList<>(childData.keySet());
+        Map<String, Object> typeMap = getMetadataFromNeo4j(identifiers);
+        Map<String, Object> bodyMap = getExternalPropsData(identifiers);
+        if (MapUtils.isNotEmpty(typeMap) && MapUtils.isNotEmpty(bodyMap)) {
+            Map<String, Object> assessmentMap = new HashMap<>(bodyMap);
+            assessmentMap.forEach((key, value) -> typeMap.merge(key, value, (v1, v2) -> ((Map<String, Object>) bodyMap.get(key)).put(TYPE, v2)));
+            assessmentMap.forEach((key, value) -> childData.merge(key, value, (v1, v2) -> ((Map<String, Object>) bodyMap.get(key)).put(INDEX, v2)));
             return assessmentMap;
         }
         return new HashMap<>();
@@ -88,7 +91,7 @@ public class QuestionPaperGenerator {
      */
     private static Map<String, Object> populateAssessmentData(Map<String, Object> assessmentMap) {
         Map<String, Object> assessmentHtmlMap = new HashMap<>();
-        if(MapUtils.isNotEmpty( assessmentMap))
+        if (MapUtils.isNotEmpty(assessmentMap))
             assessmentMap.forEach((key, value) -> populateData(assessmentHtmlMap, key, value));
         return assessmentHtmlMap;
     }
@@ -96,17 +99,16 @@ public class QuestionPaperGenerator {
     private static void populateData(Map<String, Object> assessmentHtmlMap, String key, Object value) {
         Map<String, Object> valueMap = (Map<String, Object>) value;
         IAssessmentHandler handler = AssessmentItemFactory.getHandler((String) (valueMap.get(TYPE)));
-        if(null != handler) {
+        if (null != handler) {
             try {
                 String bodyString = (String) valueMap.get(BODY);
-                if(StringUtils.isNotEmpty(bodyString) && StringUtils.isNotBlank(bodyString)) {
+                if (StringUtils.isNotEmpty(bodyString) && StringUtils.isNotBlank(bodyString)) {
                     Map<String, Object> bodyMap = mapper.readValue(bodyString, new TypeReference<Map<String, String>>() {
                     });
-                    Map<String, Object> htmlDataMap = new HashMap<String, Object>() {{
-                        put("question", handler.populateQuestion(bodyMap));
-                        put("answer", handler.populateAnswer(bodyMap));
-                        put("options", handler.populateOptions(bodyMap));
-                    }};
+                    Map<String, Object> htmlDataMap = new HashMap<String, Object>();
+                    htmlDataMap.put("question", handler.populateQuestion(bodyMap));
+                    htmlDataMap.put("answer", handler.populateAnswer(bodyMap));
+                    htmlDataMap.put("options", handler.populateOptions(bodyMap));
                     assessmentHtmlMap.put(key, htmlDataMap);
                 } else
                     assessmentHtmlMap.put(key, new HashMap<>());
@@ -116,7 +118,7 @@ public class QuestionPaperGenerator {
         }
     }
 
-
+    // TODO: Need to use index for questions and options
     private static String generateHtmlString(File htmlTemp, Map<String, Object> assessmentMap) {
         String htmlTemplate = "      <div class=\"questions\">\n" +
                 "            q_placeholder\n" +

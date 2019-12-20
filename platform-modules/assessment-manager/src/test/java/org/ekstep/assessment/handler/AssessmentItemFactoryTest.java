@@ -1,4 +1,4 @@
-package org.ekstep.itemset.handler;
+package org.ekstep.assessment.handler;
 
 import org.ekstep.assessment.handler.AssessmentItemFactory;
 import org.ekstep.assessment.handler.IAssessmentHandler;

@@ -1,4 +1,4 @@
-package org.ekstep.itemset.handler.impl;
+package org.ekstep.assessment.handler.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -101,6 +101,12 @@ public class MCQHandlerTest {
         List<Map<String, Object>> optionMap = handler.populateOptions(bodyMap);
         Assert.assertNotNull(optionMap);
         Assert.assertTrue(CollectionUtils.isEmpty(optionMap));
+    }
+
+    @Test
+    public void getInstanceTest() {
+        IAssessmentHandler handler = MCQHandler.getInstance();
+        Assert.assertTrue(handler instanceof MCQHandler);
     }
 
 }

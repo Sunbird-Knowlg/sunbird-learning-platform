@@ -1,4 +1,4 @@
-package org.ekstep.itemset.handler.impl;
+package org.ekstep.assessment.handler.impl;
 
 public class HandlerImplData {
 
