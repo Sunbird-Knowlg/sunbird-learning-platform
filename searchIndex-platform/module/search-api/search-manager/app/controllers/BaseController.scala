@@ -64,7 +64,7 @@ class BaseController(protected val cc: ControllerComponents)(implicit exec: Exec
 
     def requestBody()(implicit request: play.api.mvc.Request[AnyContent]) = {
         val body = request.body.asJson.getOrElse("{}").toString
-        deserialize[java.util.Map[String, Object]](body).getOrDefault("request", new java.util.HashMap()).asInstanceOf[java.util.Map[String, Object]]
+        deserialize[java.util.Map[String, Object]](body)
     }
 
     protected def getRequest(apiId: String)(implicit playRequest: play.api.mvc.Request[AnyContent]): Request = {
