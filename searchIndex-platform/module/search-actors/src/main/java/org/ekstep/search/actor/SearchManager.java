@@ -327,7 +327,8 @@ public class SearchManager extends SearchBaseActor {
 			paramList = (List<String>) param;
 		} catch (Exception e) {
 			String str = (String) param;
-			paramList = Arrays.asList(str);
+			paramList = new ArrayList<String>();
+			paramList.add(str);
 		}
 		return paramList;
 	}
