@@ -1,7 +1,7 @@
 - name: Make sure cassandra is up and listening
   wait_for:
     port: 9042
-    timeout: 60
+    timeout: 180
     sleep: 10
 
 - name: Copy DB script
