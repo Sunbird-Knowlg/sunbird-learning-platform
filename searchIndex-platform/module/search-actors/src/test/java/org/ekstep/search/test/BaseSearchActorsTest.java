@@ -1,12 +1,11 @@
 package org.ekstep.search.test;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+import akka.testkit.TestKit;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -20,7 +19,7 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
-import org.ekstep.search.router.SearchRequestRouterPool;
+import org.ekstep.search.actor.SearchManager;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.junit.AfterClass;
@@ -30,6 +29,7 @@ import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
 
 /**
  * @author rayulu
@@ -38,10 +38,11 @@ import scala.concurrent.Future;
 public class BaseSearchActorsTest {
 	
 	private static ObjectMapper mapper = new ObjectMapper();
+	private static ActorSystem system = null;
 	
 	@BeforeClass
 	public static void beforeTest() throws Exception {
-		SearchRequestRouterPool.init();
+		system = ActorSystem.create();
 		createCompositeSearchIndex();
 		Thread.sleep(3000);
 	}
@@ -50,23 +51,10 @@ public class BaseSearchActorsTest {
 	public static void afterTest() throws Exception {
 		System.out.println("deleting index: " + CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
 		ElasticSearchUtil.deleteIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
+		TestKit.shutdownActorSystem(system, Duration.create(2, TimeUnit.SECONDS), true);
+		system = null;
 	}
-	
-//	protected Response jsonToObject(ResultActions actions) {
-//		String content = null;
-//		Response resp = null;
-//		try {
-//			content = actions.andReturn().getResponse().getContentAsString();
-//			ObjectMapper objectMapper = new ObjectMapper();
-//			if (StringUtils.isNotBlank(content))
-//				resp = objectMapper.readValue(content, Response.class);
-//		} catch (UnsupportedEncodingException e) {
-//			e.printStackTrace();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return resp;
-//	}
+
 	
 	protected Request getSearchRequest() {
         Request request = new Request();
@@ -93,20 +81,23 @@ public class BaseSearchActorsTest {
         request.setOperation(operation);
         return request;
     }
-	
+
 	protected Response getSearchResponse(Request request) {
-        ActorRef router = SearchRequestRouterPool.getRequestRouter();
-        try {
-            Future<Object> future = Patterns.ask(router, request, SearchRequestRouterPool.REQ_TIMEOUT);
-            Object obj = Await.result(future, SearchRequestRouterPool.WAIT_TIMEOUT.duration());
-            if (obj instanceof Response) {
-                return (Response) obj;
-            } else {
-                return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
-            }
-        } catch (Exception e) {
-            throw new ServerException(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
-        }
+		try {
+			final Props props = Props.create(SearchManager.class);
+			final ActorRef searchMgr = system.actorOf(props);
+			Future<Object>  future = Patterns.ask(searchMgr, request, 30000);
+			Object obj = Await.result(future, Duration.create(30.0, TimeUnit.SECONDS));
+			Response response = null;
+			if (obj instanceof Response) {
+				response = (Response) obj;
+			} else {
+				response = ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
+			}
+			return response;
+		} catch (Exception e) {
+			throw new ServerException(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+		}
     }
 	
 	protected Response ERROR(String errorCode, String errorMessage, ResponseCode responseCode) {

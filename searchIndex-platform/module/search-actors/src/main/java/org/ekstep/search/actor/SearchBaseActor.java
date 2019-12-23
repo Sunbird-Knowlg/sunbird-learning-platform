@@ -3,6 +3,9 @@ package org.ekstep.search.actor;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import akka.actor.AbstractActor;
+import akka.dispatch.Futures;
+import akka.pattern.Patterns;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -16,32 +19,74 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 
 import akka.actor.ActorRef;
-import akka.actor.UntypedActor;
+import scala.concurrent.Future;
 
-public abstract class SearchBaseActor extends UntypedActor {
-    
-    @Override
-    public void onReceive(Object message) throws Exception {
-        if (message instanceof Request) {
-            Request request = (Request) message;
-            invokeMethod(request, getSender());
-        } else if (message instanceof Response) {
-            // do nothing
-        } else {
-            unhandled(message);
+public abstract class SearchBaseActor extends AbstractActor {
+
+//    public void onReceive(Object message) throws Exception {
+//        if (message instanceof Request) {
+//            Request request = (Request) message;
+//            invokeMethod(request, getSender());
+//        } else if (message instanceof Response) {
+//            // do nothing
+//        } else {
+//            unhandled(message);
+//        }
+//    }
+
+    public abstract Future<Response> onReceive(Request request) throws Throwable;
+
+    private Future<Response> internalOnReceive(Request request) {
+        try {
+            return onReceive(request);
+        } catch (Throwable e) {
+            return ERROR(request.getOperation(), e);
         }
     }
 
-    protected abstract void invokeMethod(Request request, ActorRef parent);
+    @Override
+    public Receive createReceive() {
+        return receiveBuilder().match(Request.class, message -> {
+            Patterns.pipe(internalOnReceive(message), getContext().dispatcher()).to(sender());
+        }).build();
+    }
 
-    public void OK(String responseIdentifier, Object vo, ActorRef parent) {
+    public Future<Response> ERROR(String operation) {
+        Response response = getErrorResponse(new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid operation provided in request to process: " + operation));
+        return Futures.successful(response);
+    }
+
+    protected Future<Response> ERROR(String operation, Throwable exception) {
+        return Futures.successful(getErrorResponse(exception));
+    }
+
+    private Response getErrorResponse(Throwable e) {
+        Response response = new Response();
+        ResponseParams params = new ResponseParams();
+        params.setStatus(ResponseParams.StatusType.failed.name());
+        if (e instanceof MiddlewareException) {
+            MiddlewareException mwException = (MiddlewareException) e;
+            params.setErr(mwException.getErrCode());
+            response.put("messages", mwException.getMessage());
+        } else {
+            e.printStackTrace();
+            params.setErr("ERR_SYSTEM_EXCEPTION");
+        }
+        System.out.println("Exception occurred - class :" + e.getClass().getName() + " with message :" + e.getMessage());
+        params.setErrmsg(setErrMessage(e));
+        response.setParams(params);
+        setResponseCode(response, e);
+        return response;
+    }
+
+    public Response OK(String responseIdentifier, Object vo) {
         Response response = new Response();
         response.put(responseIdentifier, vo);
         response.setParams(getSucessStatus());
-        parent.tell(response, getSelf());
+        return response;
     }
 
-    public void OK(Map<String, Object> responseObjects, ActorRef parent) {
+    public Response OK(Map<String, Object> responseObjects) {
         Response response = new Response();
         if (null != responseObjects && responseObjects.size() > 0) {
             for (Entry<String, Object> entry : responseObjects.entrySet()) {
@@ -49,16 +94,16 @@ public abstract class SearchBaseActor extends UntypedActor {
             }
         }
         response.setParams(getSucessStatus());
-        parent.tell(response, getSelf());
+        return response;
     }
 
-    public void ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier, Object vo, ActorRef parent) {
+    public Response ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier, Object vo) {
         TelemetryManager.log("ErrorCode: "+ errorCode + " :: Error message: " + errorMessage);
         Response response = new Response();
         response.put(responseIdentifier, vo);
         response.setParams(getErrorStatus(errorCode, errorMessage));
         response.setResponseCode(code);
-        parent.tell(response, getSelf());
+        return response;
     }
 
     public void handleException(Throwable e, ActorRef parent) {

@@ -1,14 +1,12 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
-GET		/health						@controllers.HealthCheckController.search()
+GET		/health						controllers.HealthCheckController.health()
 
-POST    /v2/search						@controllers.SearchController.search()
-POST    /v3/search						@controllers.SearchController.search()
-POST    /v2/search/count				@controllers.SearchController.count()
-POST    /v3/count						@controllers.SearchController.count()
-POST    /v2/metrics						@controllers.MetricsController.search()
-POST    /v3/metrics						@controllers.MetricsController.search()
-POST    /v3/loadDefinitionCache         @controllers.LoadDefinitionCacheController.loadDefinitionCache()
-POST		/vocabulary/v3/term/create		@controllers.VocabularyTermController.create()
-POST		/vocabulary/v3/term/suggest		@controllers.VocabularyTermController.suggest()
+POST    /v2/search						controllers.SearchController.search()
+POST    /v3/search						controllers.SearchController.search()
+POST    /v2/search/count				controllers.SearchController.count()
+POST    /v3/count						controllers.SearchController.count()
+POST    /v2/metrics						controllers.MetricsController.search()
+POST    /v3/metrics						controllers.MetricsController.search()
+POST    /v3/loadDefinitionCache         controllers.LoadDefinitionCacheController.loadDefinitionCache()

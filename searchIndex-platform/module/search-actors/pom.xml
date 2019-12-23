@@ -30,6 +30,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+	  <dependency>
+		  <groupId>com.typesafe.akka</groupId>
+		  <artifactId>akka-testkit_2.11</artifactId>
+		  <version>2.5.22</version>
+		  <scope>test</scope>
+	  </dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>unit-tests</artifactId>
