@@ -243,4 +243,39 @@ public class AssessmentStore {
 		return sb.toString();
 	}
 
+	public Map<String, Object> getItems(List<String> identifiers, List<String> properties) {
+		TelemetryManager.log("Bulk Get Items for identifiers: " + identifiers + " | Properties: " + properties);
+		Session session = CassandraConnector.getSession();
+		String query = getSelectStatement(identifiers, properties);
+		PreparedStatement ps = session.prepare(query);
+		BoundStatement bound = new BoundStatement(ps);
+		try {
+			ResultSet rs = session.execute(bound);
+			Map<String, Object> itemsMap = new HashMap<>();
+			if (null != rs) {
+				Map<String, Object> propertyMap = new HashMap<String, Object>();
+				while (rs.iterator().hasNext()) {
+					Row row = rs.iterator().next();
+					properties.forEach(prop -> propertyMap.put((String) prop, row.getString(prop + PROPERTY_SUFFIX)));
+					itemsMap.put(row.getString("question_id"), propertyMap);
+				}
+				return itemsMap;
+			}
+		} catch (Exception e) {
+			TelemetryManager.error("Error! Executing get items: " + e.getMessage(), e);
+			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(),
+					"Error fetching items from cassandra.");
+		}
+		return new HashMap<>();
+	}
+
+
+	private static String getSelectStatement(List<String> ids, List<String> properties) {
+		StringBuilder query = new StringBuilder(
+				Constants.SELECT + " ");
+		query.append(String.join(",", properties));
+		query.append(Constants.FROM + keyspace + Constants.DOT + table + Constants.WHERE + "question_id " + Constants.IN
+				+ " ('" + String.join("','", ids) + "'); ");
+		return query.toString();
+	}
 }
