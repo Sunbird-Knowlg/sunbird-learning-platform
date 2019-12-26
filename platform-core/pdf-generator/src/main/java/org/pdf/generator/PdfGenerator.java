@@ -1,4 +1,4 @@
-package org.ekstep.common;
+package org.pdf.generator;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -11,13 +11,15 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.ekstep.common.Platform;
+
 public class PdfGenerator {
 
-    private PdfGenerator() {
+    private PdfGenerator() {}
 
-    }
-
-    private static final String TEMP_FILE_LOCATION = Platform.config.hasPath("lp.assessment.tmp_file_location") ? Platform.config.getString("lp.assessment.tmp_file_location") : "/tmp/";
+    private static final String TEMP_FILE_LOCATION = Platform.config.hasPath("lp.assessment.tmp_file_location") ? 
+    		Platform.config.getString("lp.assessment.tmp_file_location") : 
+    			"/tmp/";
     private static final String PDF_EXTENSION = ".pdf";
 
     /**
@@ -30,7 +32,7 @@ public class PdfGenerator {
         try {
             return convertFile(pdfFileName, getInputStream(htmlString));
         } catch (Exception e) {
-            e.printStackTrace();
+        		e.printStackTrace();
             return null;
         }
     }
@@ -58,6 +60,8 @@ public class PdfGenerator {
             }
             return pdfFile;
         } catch (Exception e) {
+        		if(pdfFile.exists())
+        			pdfFile.delete();
             throw e;
         } finally {
             if (null != document)

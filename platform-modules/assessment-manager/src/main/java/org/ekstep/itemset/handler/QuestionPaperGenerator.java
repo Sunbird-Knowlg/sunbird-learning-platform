@@ -14,6 +14,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -36,7 +37,8 @@ public class QuestionPaperGenerator {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String TEMP_FILE_LOCATION = Platform.config.hasPath("lp.assessment.tmp_file_location") ? Platform.config.getString("lp.assessment.tmp_file_location") : "/tmp/";
     private static final String HTML_PREFIX = "html_";
-    private static final String INDEX = "index";
+    private static final String INDEX = "IL_SEQUENCE_INDEX";
+    private static final String HTMLEXT = ".html";
 
     public static File generateQuestionPaper(Node node) {
         Map<String, Object> childDetails = fetchChildDetails(node);
@@ -44,7 +46,7 @@ public class QuestionPaperGenerator {
             Map<String, Object> assessmentData = getAssessmentDataMap(childDetails);
             Map<String, Object> htmlData = populateAssessmentData(assessmentData);
             String htmlString = generateHtmlString(null, htmlData);
-            if (StringUtils.isNotEmpty(htmlString) && StringUtils.isNotBlank(htmlString))
+            if ( StringUtils.isNotBlank(htmlString))
                 return generateHtmlFile(htmlString, node.getIdentifier());
         }
         return null;
@@ -66,7 +68,8 @@ public class QuestionPaperGenerator {
             assessmentMap.forEach((key, value) -> childData.merge(key, value, (v1, v2) -> ((Map<String, Object>) bodyMap.get(key)).put(INDEX, v2)));
             return assessmentMap;
         }
-        return new HashMap<>();
+        TelemetryManager.error("Question Paper not generated because : typeMap and/or bodyMap is null.");
+        return null;
     }
 
     private static Map<String, Object> getMetadataFromNeo4j(List<String> identifiers) {
@@ -75,7 +78,7 @@ public class QuestionPaperGenerator {
         if (CollectionUtils.isNotEmpty(nodes)) {
             return nodes.stream().collect(Collectors.toMap(node -> node.getIdentifier(), node -> (String) ((Node) node).getMetadata().get(TYPE)));
         }
-        return new HashMap<>();
+        return null;
     }
 
     private static Map<String, Object> getExternalPropsData(List<String> identifiers) {
@@ -102,7 +105,7 @@ public class QuestionPaperGenerator {
         if (null != handler) {
             try {
                 String bodyString = (String) valueMap.get(BODY);
-                if (StringUtils.isNotEmpty(bodyString) && StringUtils.isNotBlank(bodyString)) {
+                if (StringUtils.isNotBlank(bodyString)) {
                     Map<String, Object> bodyMap = mapper.readValue(bodyString, new TypeReference<Map<String, String>>() {
                     });
                     Map<String, Object> htmlDataMap = new HashMap<String, Object>();
@@ -153,11 +156,13 @@ public class QuestionPaperGenerator {
     }
 
     private static File generateHtmlFile(String htmlString, String assessmentSetId) {
-        File htmlFile = new File(TEMP_FILE_LOCATION + assessmentSetId + "_" + getFileName(HTML_PREFIX));
+        File htmlFile = new File(TEMP_FILE_LOCATION + assessmentSetId + "_" + getFileName(HTML_PREFIX) + HTMLEXT);
         try (FileWriter fw = new FileWriter(htmlFile)) {
             fw.write(htmlString);
         } catch (Exception e) {
             e.printStackTrace();
+            if(htmlFile.exists())
+            		htmlFile.delete();
         }
         return htmlFile;
     }

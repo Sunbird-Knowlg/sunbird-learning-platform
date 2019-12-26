@@ -266,7 +266,7 @@ public class AssessmentStore {
 			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(),
 					"Error fetching items from cassandra.");
 		}
-		return new HashMap<>();
+		return null;
 	}
 
 
