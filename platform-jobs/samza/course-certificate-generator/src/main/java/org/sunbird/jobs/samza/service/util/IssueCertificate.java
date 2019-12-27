@@ -85,7 +85,10 @@ public class IssueCertificate {
                     if (MapUtils.isNotEmpty(criteria) && CollectionUtils.isNotEmpty(CollectionUtils.intersection(criteria.keySet(), certFilterKeys))) {
                         List<String> enrollmentList = getUserFromEnrolmentCriteria((Map<String, Object>) criteria.get("enrollment"), batchId, courseId, userIds);
                         List<String> assessmentList = getUsersFromAssessmentCriteria((Map<String, Object>) criteria.get("assessment"), batchId, courseId, userIds);
-                        List<String> userList = getUsersFromUserCriteria((Map<String, Object>) criteria.get("user"), userIds);
+                        List<String> userList = getUsersFromUserCriteria((Map<String, Object>) criteria.get("user"), new ArrayList<String>() {{
+                            addAll(enrollmentList);
+                            addAll(assessmentList);
+                        }});
                         List<String> templateFilterKeys = (List<String>) CollectionUtils.intersection(criteria.keySet(), certFilterKeys);
                         Map<String, List<String>> usersMap = new HashMap<String, List<String>>();
                         usersMap.put("enrollment", enrollmentList);
@@ -114,16 +117,6 @@ public class IssueCertificate {
         String url = LEARNER_SERVICE_PRIVATE_URL + "/private/user/v1/search";
         List<List<String>> batchList = ListUtils.partition(userIds, batchSize);
         LOGGER.info("Users as batches: " + batchList);
-
-        Request testReq = new Request();
-        Map<String, Object> tempFilter = new HashMap<String, Object>();
-        tempFilter.putAll(criteria);
-        tempFilter.put("identifier", userIds);
-        testReq.put("filters", tempFilter);
-        testReq.put("limit", batchSize);
-        String tempBody = mapper.writeValueAsString(testReq);
-        LOGGER.info("Request body: " + tempBody);
-
         List<String> filteredUsers =  batchList.stream().map(batch -> {
             try {
                 Request request = new Request();
@@ -133,7 +126,6 @@ public class IssueCertificate {
                 request.put("filters", filters);
                 request.put("limit", batchSize);
                 String requestBody = mapper.writeValueAsString(request);
-                System.out.println("requestBody for user search: " + requestBody);
                 LOGGER.info("requestBody for user search: " + requestBody);
                 HttpResponse<String> httpResponse = Unirest.post(url).header("Content-Type", "application/json").body(requestBody).asString();
                 if(200 == httpResponse.getStatus()) {
@@ -143,7 +135,6 @@ public class IssueCertificate {
                     Map<String, Object> respResult = (Map<String, Object>)  responseMap.getOrDefault("result", new HashMap<String, Object>());
                     Map<String, Object> response =  (Map<String, Object>)  respResult.getOrDefault("response", new HashMap<String, Object>());
                     List<Map<String, Object>> users = (List<Map<String, Object>>) response.getOrDefault("content", new ArrayList<Map<String, Object>>());
-                    System.out.println("Users fetched from user search: " + users);
                     LOGGER.info("Users fetched from user search: " + users);
                     return users.stream()
                             .map(user -> (String) user.getOrDefault("identifier", ""))
