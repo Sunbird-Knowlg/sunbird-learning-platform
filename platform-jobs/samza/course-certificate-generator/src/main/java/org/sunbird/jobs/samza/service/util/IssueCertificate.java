@@ -122,6 +122,7 @@ public class IssueCertificate {
                 request.put("filters", filters);
                 request.put("limit", batchSize);
                 String requestBody = mapper.writeValueAsString(request);
+                LOGGER.info("requestBody for user search: " + requestBody);
                 HttpResponse<String> httpResponse = Unirest.post(url).header("Content-Type", "application/json").body(requestBody).asString();
                 if(200 == httpResponse.getStatus()) {
                     String responseBody = httpResponse.getBody();
@@ -130,7 +131,10 @@ public class IssueCertificate {
                     Map<String, Object> respResult = (Map<String, Object>)  responseMap.getOrDefault("result", new HashMap<String, Object>());
                     Map<String, Object> response =  (Map<String, Object>)  respResult.getOrDefault("response", new HashMap<String, Object>());
                     List<Map<String, Object>> users = (List<Map<String, Object>>) response.getOrDefault("content", new ArrayList<Map<String, Object>>());
-                    return users.stream().map(user -> (String) user.getOrDefault("identifier", "")).filter(identifier -> StringUtils.isNotBlank(identifier)).collect(Collectors.toList());
+                    LOGGER.info("Users fetched from user search: " + users);
+                    return users.stream()
+                            .map(user -> (String) user.getOrDefault("identifier", ""))
+                            .filter(identifier -> StringUtils.isNotBlank(identifier)).collect(Collectors.toList());
                 } else {
                     LOGGER.error("Search users for given criteria failed to fetch data: "+  httpResponse, null);
                     return new ArrayList<String>();
@@ -247,7 +251,7 @@ public class IssueCertificate {
         } catch (Exception e) {
             LOGGER.error("Error while fetching users", e);
         }
-
+        LOGGER.info("Users filtered after applying enrollment criteria: " + enrolledUsers.size());
         return enrolledUsers;
     }
 
