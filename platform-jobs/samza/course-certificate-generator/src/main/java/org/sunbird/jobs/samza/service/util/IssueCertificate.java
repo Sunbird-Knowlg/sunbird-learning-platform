@@ -12,6 +12,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
@@ -90,9 +91,12 @@ public class IssueCertificate {
                         usersMap.put("enrollment", enrollmentList);
                         usersMap.put("assessment", assessmentList);
                         usersMap.put("user", userList);
-                        List<String> usersToIssue = templateFilterKeys.stream().map(templateFilterKey -> usersMap.get(templateFilterKey)).reduce((a, b) -> {
-                            return (List<String>) CollectionUtils.intersection(a, b).stream().collect(Collectors.toList());
-                        }).orElse(Arrays.asList());
+                        List<String> usersToIssue = templateFilterKeys.stream()
+                                .filter(templateFilterKey -> criteria.containsKey(templateFilterKey))
+                                .map(templateFilterKey -> usersMap.get(templateFilterKey))
+                                .reduce((a, b) -> {
+                                    return (List<String>) CollectionUtils.intersection(a, b).stream().collect(Collectors.toList());
+                                }).orElse(Arrays.asList());
 
                         generateCertificatesForEnrollment(usersToIssue, batchId, courseId, reIssue, template, collector);
                     } else {
@@ -105,27 +109,38 @@ public class IssueCertificate {
         }
     }
 
-    private static List<String> getUsersFromUserCriteria(Map<String, Object> criteria, List<String> userIds) throws IOException, UnirestException {
+    private static List<String> getUsersFromUserCriteria(Map<String, Object> criteria, List<String> userIds) {
+        Integer batchSize = 50;
         String url = LEARNER_SERVICE_PRIVATE_URL + "/private/user/v1/search";
-        Request request = new Request();
-        Map<String, Object> filters = new HashMap<String, Object>();
-        filters.putAll(criteria);
-        filters.put("identifier", userIds);
-        request.put("filters", filters);
-        String requestBody = mapper.writeValueAsString(request);
-        HttpResponse<String> httpResponse = Unirest.post(url).header("Content-Type", "application/json").body(requestBody).asString();
-        if(200 == httpResponse.getStatus()) {
-            String responseBody = httpResponse.getBody();
-            Map<String, Object> responseMap = mapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {
-            });
-            Map<String, Object> respResult = (Map<String, Object>)  responseMap.getOrDefault("result", new HashMap<String, Object>());
-            Map<String, Object> response =  (Map<String, Object>)  respResult.getOrDefault("response", new HashMap<String, Object>());
-            List<Map<String, Object>> users = (List<Map<String, Object>>) response.getOrDefault("content", new ArrayList<Map<String, Object>>());
-            return users.stream().map(user -> (String) user.getOrDefault("identifier", "")).filter(identifier -> StringUtils.isNotBlank(identifier)).collect(Collectors.toList());
-        } else {
-            LOGGER.error("Search users for given criteria failed to fetch data: "+  httpResponse, null);
-            return new ArrayList<>();
-        }
+        List<List<String>> batchList = ListUtils.partition(userIds, batchSize);
+        List<String> filteredUsers =  batchList.stream().map(batch -> {
+            try {
+                Request request = new Request();
+                Map<String, Object> filters = new HashMap<String, Object>();
+                filters.putAll(criteria);
+                filters.put("identifier", batch);
+                request.put("filters", filters);
+                request.put("limit", batchSize);
+                String requestBody = mapper.writeValueAsString(request);
+                HttpResponse<String> httpResponse = Unirest.post(url).header("Content-Type", "application/json").body(requestBody).asString();
+                if(200 == httpResponse.getStatus()) {
+                    String responseBody = httpResponse.getBody();
+                    Map<String, Object> responseMap = mapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {
+                    });
+                    Map<String, Object> respResult = (Map<String, Object>)  responseMap.getOrDefault("result", new HashMap<String, Object>());
+                    Map<String, Object> response =  (Map<String, Object>)  respResult.getOrDefault("response", new HashMap<String, Object>());
+                    List<Map<String, Object>> users = (List<Map<String, Object>>) response.getOrDefault("content", new ArrayList<Map<String, Object>>());
+                    return users.stream().map(user -> (String) user.getOrDefault("identifier", "")).filter(identifier -> StringUtils.isNotBlank(identifier)).collect(Collectors.toList());
+                } else {
+                    LOGGER.error("Search users for given criteria failed to fetch data: "+  httpResponse, null);
+                    return new ArrayList<String>();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).flatMap(List::stream).collect(Collectors.toList());
+        LOGGER.info(" No. of users after applied user criteria: " + filteredUsers.size());
+        return filteredUsers;
     }
 
     private List<String> getUsersFromAssessmentCriteria(Map<String, Object> assessmentCriteria, String batchId, String courseId, List<String> userIds) {
