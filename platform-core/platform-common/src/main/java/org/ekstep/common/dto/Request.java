@@ -117,6 +117,10 @@ public class Request implements Serializable {
         request.put(key, vo);
     }
 
+    public void putAll(Map<String, Object> data) {
+        request.putAll(data);
+    }
+
     public String getManagerName() {
         return managerName;
     }
