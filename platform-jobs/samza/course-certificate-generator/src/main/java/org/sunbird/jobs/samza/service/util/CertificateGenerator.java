@@ -173,6 +173,8 @@ public class CertificateGenerator {
                 put(CourseCertificateParams.courseId.name(), courseId);
                 put(CourseCertificateParams.batchId.name(), batchId);
             }});
+            if(StringUtils.isNotBlank(oldId))
+                request.put(CourseCertificateParams.oldId.name(), oldId);
             HttpResponse<String> response = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
             return (200 == response.getStatus());
         } catch(Exception e) {
