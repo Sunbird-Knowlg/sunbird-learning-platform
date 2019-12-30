@@ -35,6 +35,8 @@ public class CertificateGenerator {
             ? Platform.config.getString("learner_service.base_url"): "http://localhost:9000";
     private static final String CERT_SERVICE_URL = Platform.config.hasPath("cert_service.base_url")
             ? Platform.config.getString("cert_service.base_url"): "http://localhost:9000";
+    private static final String CERT_REG_SERVICE_BASE_URL = Platform.config.hasPath("cert_reg_service.base_url")
+            ? Platform.config.getString("cert_reg_service.base_url"): "http://localhost:9000";;
     protected static ObjectMapper mapper = new ObjectMapper();
 
     private static final String KEYSPACE = Platform.config.hasPath("courses.keyspace.name")
@@ -124,7 +126,8 @@ public class CertificateGenerator {
             if(reIssue) {
                 oldId = certificates.stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), cert.get("name"))).map(cert -> {return  cert.get("name");}).findFirst().orElse("");
             }
-            Map<String, Object> certServiceRequest = prepareCertServiceRequest(courseName, batchId, userId, userResponse, certTemplate, issuedOn);
+            String recipientName = getRecipientName(userResponse);
+            Map<String, Object> certServiceRequest = prepareCertServiceRequest(courseName, batchId, userId, recipientName, userResponse, certTemplate, issuedOn);
             String url = CERT_SERVICE_URL + "/v1/certs/generate";
             HttpResponse<String> httpResponse = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(certServiceRequest)).asString();
             if(200 == httpResponse.getStatus()) {
@@ -144,7 +147,7 @@ public class CertificateGenerator {
                     SunbirdCassandraUtil.update(KEYSPACE, USER_COURSES_TABLE, dataToUpdate, dataToSelect);
                     updatedES(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
                 }
-                if(addCertificateToUser(certificate, courseId, batchId, oldId)) {
+                if(addCertificateToUser(certificate, courseId, batchId, oldId, recipientName)) {
                     notifyUser(userId, certTemplate, courseName, userResponse, issuedOn);
                 }
             } else {
@@ -155,20 +158,21 @@ public class CertificateGenerator {
         }
     }
 
-    private boolean addCertificateToUser(Map<String, Object> certificate, String courseId, String batchId, String oldId) {
+    private boolean addCertificateToUser(Map<String, Object> certificate, String courseId, String batchId, String oldId, String recipientName) {
         try{
-            String url = LEARNER_SERVICE_PRIVATE_URL + "/private/user/v1/certs/add";
+            String url = CERT_REG_SERVICE_BASE_URL + "/certs/v1/registry/add";
             Request request = new Request();
-            request.put(CourseCertificateParams.userId.name(), certificate.get(CourseCertificateParams.recipientId.name()));
+            request.put(CourseCertificateParams.recipientId.name(), certificate.get(CourseCertificateParams.recipientId.name()));
+            request.put(CourseCertificateParams.recipientName.name(), recipientName);
             request.put(CourseCertificateParams.accessCode.name(), certificate.get(CourseCertificateParams.accessCode.name()));
             request.put(CourseCertificateParams.jsonData.name(), certificate.get(CourseCertificateParams.jsonData.name()));
             request.put(CourseCertificateParams.jsonUrl.name(), certificate.get(CourseCertificateParams.jsonUrl.name()));
             request.put(CourseCertificateParams.id.name(), certificate.get(CourseCertificateParams.id.name()));
             request.put("pdfURL", certificate.get(CourseCertificateParams.pdfUrl.name()));
-            request.put(CourseCertificateParams.courseId.name(), courseId);
-            request.put(CourseCertificateParams.batchId.name(), batchId);
-            if(StringUtils.isNotBlank(oldId))
-                request.put(CourseCertificateParams.oldId.name(), oldId);
+            request.put("related", new HashMap<String, Object>(){{
+                put(CourseCertificateParams.courseId.name(), courseId);
+                put(CourseCertificateParams.batchId.name(), batchId);
+            }});
             HttpResponse<String> response = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
             return (200 == response.getStatus());
         } catch(Exception e) {
@@ -224,8 +228,7 @@ public class CertificateGenerator {
         }
     }
 
-    private Map<String,Object> prepareCertServiceRequest(String courseName, String batchId, String userId, Map<String, Object> userResponse, Map<String, Object> certTemplate, Date issuedOn) {
-        String recipientName = getRecipientName(userResponse);
+    private Map<String,Object> prepareCertServiceRequest(String courseName, String batchId, String userId, String recipientName, Map<String, Object> userResponse, Map<String, Object> certTemplate, Date issuedOn) {
         String rootOrgId = (String) userResponse.get("rootOrgId");
         Map<String, Object> keys = getKeysFromOrg(rootOrgId);
         Map<String, Object> request = new HashMap<String, Object>() {{
@@ -369,7 +372,7 @@ public class CertificateGenerator {
 
     /**
      * Get Certificate Template
-     * @param courseMetadata
+     * @param template
      * @return
      */
     private Map<String,Object> getCertTemplate(Map<String, Object> template) {
