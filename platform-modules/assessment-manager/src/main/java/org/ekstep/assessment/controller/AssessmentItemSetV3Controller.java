@@ -169,6 +169,25 @@ public class AssessmentItemSetV3Controller extends BaseController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
+    
+    @RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> publish(@RequestBody Map<String, Object> map, @PathVariable(value = "id") String id) {
+    	String taxonomyId = V2_GRAPH_ID;
+        String apiId = "ekstep.learning.itemset.publish";
+        Request request = getRequestObject(map);
+        TelemetryManager.log("Create | TaxonomyId: " + taxonomyId + " | Request: " + request);
+        try {
+            Response response = assessmentManager.publishItemSet(taxonomyId, request, id);
+            TelemetryManager.log("Create | Response: " + response.getResponseCode());
+            return getResponseEntity(response, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        } catch (Exception e) {
+            TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
 
     private Request getSearchRequest(Map<String, Object> requestMap) {
         Request request = getRequest(requestMap);

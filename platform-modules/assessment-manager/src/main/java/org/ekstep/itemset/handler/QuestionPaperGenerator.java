@@ -45,7 +45,7 @@ public class QuestionPaperGenerator {
         if (MapUtils.isNotEmpty(childDetails)) {
             Map<String, Object> assessmentData = getAssessmentDataMap(childDetails);
             Map<String, Object> htmlData = populateAssessmentData(assessmentData);
-            String htmlString = generateHtmlString(null, htmlData);
+            String htmlString = generateHtmlString(null, htmlData, node);
             if ( StringUtils.isNotBlank(htmlString))
                 return generateHtmlFile(htmlString, node.getIdentifier());
         }
@@ -64,8 +64,10 @@ public class QuestionPaperGenerator {
         Map<String, Object> bodyMap = getExternalPropsData(identifiers);
         if (MapUtils.isNotEmpty(typeMap) && MapUtils.isNotEmpty(bodyMap)) {
             Map<String, Object> assessmentMap = new HashMap<>(bodyMap);
-            assessmentMap.forEach((key, value) -> typeMap.merge(key, value, (v1, v2) -> ((Map<String, Object>) bodyMap.get(key)).put(TYPE, v2)));
-            assessmentMap.forEach((key, value) -> childData.merge(key, value, (v1, v2) -> ((Map<String, Object>) bodyMap.get(key)).put(INDEX, v2)));
+            assessmentMap.forEach((key, value) -> ((Map<String, Object>)assessmentMap.get(key)).put(TYPE, typeMap.get(key)));
+            assessmentMap.forEach((key, value) -> ((Map<String, Object>)assessmentMap.get(key)).put(INDEX, childData.get(key)));
+            //assessmentMap.forEach((key, value) -> typeMap.merge(key, value, (v1, v2) -> ((Map<String, Object>) bodyMap.get(key)).put(TYPE, v2)));
+            //assessmentMap.forEach((key, value) -> childData.merge(key, value, (v1, v2) -> ((Map<String, Object>) bodyMap.get(key)).put(INDEX, v2)));
             return assessmentMap;
         }
         TelemetryManager.error("Question Paper not generated because : typeMap and/or bodyMap is null.");
@@ -106,12 +108,13 @@ public class QuestionPaperGenerator {
             try {
                 String bodyString = (String) valueMap.get(BODY);
                 if (StringUtils.isNotBlank(bodyString)) {
-                    Map<String, Object> bodyMap = mapper.readValue(bodyString, new TypeReference<Map<String, String>>() {
+                    Map<String, Object> bodyMap = mapper.readValue(bodyString, new TypeReference<Map<String, Object>>() {
                     });
                     Map<String, Object> htmlDataMap = new HashMap<String, Object>();
                     htmlDataMap.put("question", handler.populateQuestion(bodyMap));
                     htmlDataMap.put("answer", handler.populateAnswer(bodyMap));
                     htmlDataMap.put("options", handler.populateOptions(bodyMap));
+                    htmlDataMap.put("index", valueMap.get(INDEX));
                     assessmentHtmlMap.put(key, htmlDataMap);
                 } else
                     assessmentHtmlMap.put(key, new HashMap<>());
@@ -122,8 +125,94 @@ public class QuestionPaperGenerator {
     }
 
     // TODO: Need to use index for questions and options
-    private static String generateHtmlString(File htmlTemp, Map<String, Object> assessmentMap) {
-        String htmlTemplate = "      <div class=\"questions\">\n" +
+    private static String generateHtmlString(File htmlTemp, Map<String, Object> assessmentMap, Node itemSet) {
+    		
+		String htmlTemplate = "<header>\n" + 
+			"	<style type=\"text/css\">\n" + 
+			"		.questions-paper {\n" + 
+			"			padding: 50px;\n" + 
+			"		}\n" + 
+			"		.question-title{\n" + 
+			"			margin-bottom: 30px;\n" + 
+			"			margin-top: 30px\n" + 
+			"		}\n" + 
+			"		.mcq-option {\n" + 
+			"			padding-left: 20px;\n" + 
+			"			line-height: 10px;\n" + 
+			"		}\n" + 
+			"		.mcq-option p:before {\n" + 
+			"		  content: '\\2022';\n" + 
+			"		  margin-right: 8px;\n" + 
+			"		}\n" + 
+			"		.answer{\n" + 
+			"			padding-left: 20px;\n" + 
+			"		}\n" + 
+			"		.answer p:before {\n" + 
+			"			content: '\\2023';\n" + 
+			"		  	margin-right: 8px;\n" + 
+			"		}\n" + 
+			"		.question-header {\n" + 
+			"			text-align: center;\n" + 
+			"\n" + 
+			"		}\n" + 
+			"		.answer-sheet{\n" + 
+			"			page-break-before: always;\n" + 
+			"		}\n" + 
+			"		#hr {\n" + 
+			"			border: 1px solid red;\n" + 
+			"		}\n" + 
+			"\n" + 
+			"	</style>\n" + 
+			"</header>\n" + 
+			"<div class=\"questions-paper\">\n" + 
+			"	<div class=\"question-sheet\">q_placeholder</div>\n" + 
+			"	<div class=\"answer-sheet\">a_placeholder</div>\n" + 
+			"</div>";
+	    	
+	    	StringBuilder questionString = new StringBuilder();
+	    	questionString.append("<div class=\"question-header\">\n" + 
+	    			"			<h3>" + 
+	    			(String)itemSet.getMetadata().get("title") + 
+	    			"</h3>\n" + 
+	    			"			<hr>\n" + 
+	    			"		</div>");
+	    	assessmentMap.entrySet().forEach(question -> {
+	    		questionString.append("<div class='question-title'>\n" + 
+	    				((Map<String, String>) ((Map<String, Object>) question.getValue()).get("question")).get("text") +
+	    				"		</div>");
+	    		((List<Map<String, Object>>) ((Map<String, Object>) question.getValue()).get("options")).forEach(option -> {
+		    		questionString.append("<div data-simple-choice-interaction data-response-variable='responseValue' class='mcq-option'>\n" + 
+		    				option.get("text") + "<img src=\"" + option.get("image") + "\" alt = \"\"/>\n" +
+		    				"		</div>");	
+	    		});
+	    	});
+	    	htmlTemplate = htmlTemplate.replace("q_placeholder", questionString.toString());
+	    	
+	    	StringBuilder answerString = new StringBuilder();
+	    	answerString.append("<div class=\"question-header\">\n" + 
+	    			"			<h3>Answer Sheet</h3>\n" + 
+	    			"			<hr>\n" + 
+	    			"		</div>");
+	    	assessmentMap.keySet().forEach(key -> {
+	    		answerString.append("<div class='question-title'>\n" + 
+	    				((Map<String, String>)((Map<String, Object>) assessmentMap.get(key)).get("question")).get("text") + 
+	    				"		</div>");
+	    		answerString.append("<div class=\"answer\">\n" + 
+	    				((Map<String, String>)((Map<String, Object>) assessmentMap.get(key)).get("answer")).get("text") + 
+	    				"		</div>");
+	    	});
+	    	htmlTemplate = htmlTemplate.replace("a_placeholder", answerString.toString());
+    	
+	    	
+		
+    	
+    	
+    	
+    	
+    	
+    	
+    	
+        /*String htmlTemplate = "      <div class=\"questions\">\n" +
                 "            q_placeholder\n" +
                 "      </div>\n" +
                 "      <div class=\"answers\" style=\"page-break-before: always\">\n" +
@@ -131,27 +220,24 @@ public class QuestionPaperGenerator {
                 "      </div>\n";
         StringBuilder questionString = new StringBuilder();
         assessmentMap.entrySet().forEach(question -> {
-            questionString.append("<div class=\"question\">\n")
-                    .append(((Map<String, String>) ((Map<String, Object>) question.getValue()).get("question")).get("text"))
-                    .append("<img src=\"" + ((Map<String, Object>) ((Map<String, Object>) question.getValue()).get("question")).get("image") + "\" alt = \"\"/>\n")
-                    .append("<div class=\"row\">\n");
-            ((List<Map<String, Object>>) ((Map<String, Object>) question.getValue()).get("options")).forEach(option -> {
-                questionString.append("<div class=\"column\">\n").append(option.get("text")).append("<img src=\"" + option.get("image") + "\" alt = \"\"/>\n").append("</div>\n");
+            questionString.append(((Map<String, Object>) question.getValue()).get("index") + ". " + ((Map<String, String>) ((Map<String, Object>) question.getValue()).get("question")).get("text"))
+        		        .append("<img src=\"" + ((Map<String, Object>) ((Map<String, Object>) question.getValue()).get("question")).get("image") + "\" alt = \"\"/>\n")
+                    .append("<div class=\"row\">\n<ol style=\"list-style-type: lower-alpha;\">");
+        		((List<Map<String, Object>>) ((Map<String, Object>) question.getValue()).get("options")).forEach(option -> {
+                questionString.append("<li>").append(option.get("text")).append("<img src=\"" + option.get("image") + "\" alt = \"\"/>\n</li>");
             });
-            questionString.append("</div>\n");
-            questionString.append("</div>\n");
+            questionString.append("</ol></div>\n");
         });
         htmlTemplate = htmlTemplate.replace("q_placeholder", questionString.toString());
         StringBuilder answersString = new StringBuilder();
+        answersString.append("<div class=\"answer\">Answer Sheet:");
         assessmentMap.keySet().forEach(key -> {
-            answersString.append("<div class=\"answer\">")
-                    .append(((Map<String, String>) ((Map<String, Object>) assessmentMap.get(key)).get("question")).get("text"))
-                    .append("<img src=\"" + ((Map<String, Object>) ((Map<String, Object>) assessmentMap.get(key)).get("question")).get("image") + "\" alt = \"\"/>\n")
-                    .append("<p>" + ((Map<String, Object>) assessmentMap.get(key)).get("text") + "</p>\n")
-                    .append("<img src=\"" + ((Map<String, Object>) assessmentMap.get(key)).get("image") + " \" alt=\"\"/>\n")
-                    .append("</div>\n");
+            
+        	answersString.append(((Map<String, Object>) assessmentMap.get(key)).get("index") + ". " + ((Map<String, String>)((Map<String, Object>) assessmentMap.get(key)).get("answer")).get("text") + "\n");
+                    
         });
-        htmlTemplate = htmlTemplate.replace("a_placeholder", answersString.toString());
+        answersString.append("</div>\n");
+        htmlTemplate = htmlTemplate.replace("a_placeholder", answersString.toString());*/
         return htmlTemplate;
     }
 

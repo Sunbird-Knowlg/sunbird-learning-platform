@@ -7,6 +7,7 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.itemset.handler.QuestionPaperGenerator;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
@@ -15,7 +16,7 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 import java.io.File;
 import java.util.List;
 
-public class PublishManager {
+public class ItemsetPublishManager {
     private static final ControllerUtil controllerUtil = new ControllerUtil();
     private static final String TAXONOMY_ID = "domain";
     private static final String ITEMSET_FOLDER = "cloud_storage.itemset.folder";
@@ -23,6 +24,10 @@ public class PublishManager {
     public static String publish(List<String> itemSetIdetifiers) throws Exception {
         if (CollectionUtils.isNotEmpty(itemSetIdetifiers)) {
             Node itemSet = controllerUtil.getNode(TAXONOMY_ID, itemSetIdetifiers.get(0));
+            List<Relation> questions = itemSet.getOutRelations();
+            
+            
+            
             File previewFile = QuestionPaperGenerator.generateQuestionPaper(itemSet);
             if (null != previewFile) {
                 String previewUrl = uploadFileToCloud(previewFile, itemSet.getIdentifier());

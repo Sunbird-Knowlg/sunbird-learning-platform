@@ -87,5 +87,108 @@ public class PdfGenerator {
         }
         return null;
     }
+    
+    public static void main(String[] args) {
+    	
+    	String s = "<header>\n" + 
+    			"	<style type=\"text/css\">\n" + 
+    			"		.questions-paper {\n" + 
+    			"			padding: 50px;\n" + 
+    			"		}\n" + 
+    			"		.question-title{\n" + 
+    			"			\n" + 
+    			"		}\n" + 
+    			"		#abc {\n" + 
+    			"			margin-bottom: 100px;\n" + 
+    			"			margin-top: 100px;\n" + 
+    			"			color: red;\n" + 
+    			"		}\n" + 
+    			"		.mcq-option {\n" + 
+    			"			padding-left: 20px;\n" + 
+    			"			line-height: 10px;\n" + 
+    			"		}\n" + 
+    			"		.mcq-option p:before {\n" + 
+    			"		  content: '\\2022';\n" + 
+    			"		  margin-right: 8px;\n" + 
+    			"		}\n" + 
+    			"		.answer{\n" + 
+    			"			padding-left: 20px;\n" + 
+    			"		}\n" + 
+    			"		.answer p:before {\n" + 
+    			"			content: '\\2023';\n" + 
+    			"		  	margin-right: 8px;\n" + 
+    			"		}\n" + 
+    			"		.question-header {\n" + 
+    			"			text-align: center;\n" + 
+    			"\n" + 
+    			"		}\n" + 
+    			"		.answer-sheet{\n" + 
+    			"			page-break-before: always;\n" + 
+    			"		}\n" + 
+    			"	</style>\n" + 
+    			"</header>\n" + 
+    			"<div class=\"questions-paper\">\n" + 
+    			"	<div class='mcq-vertical cheveron-helper'>\n" + 
+    			"		<div class=\"question-sheet\">\n" + 
+    			"			<div class=\"question-header\">\n" + 
+    			"				<h3>Question Sheet</h3>\n" + 
+    			"			</div>\n" + 
+    			"			<div class='question-title' id=\"abc\" align=\"margin-bottom:100; margin-top:100;\">\n" + 
+    			"				<p>Which of the following sets of tests would be LEAST urgently indicated for a patient presenting with intraocular pressures of R 22mmHg and L 46mmHg?</p>\n" + 
+    			"			</div>\n" + 
+    			"			<div class='mcq-options'>\n" + 
+    			"				<div data-simple-choice-interaction data-response-variable='responseValue' class='mcq-option'>\n" + 
+    			"					<p>Visual field examination and dilated optic nerve head assessment</p>\n" + 
+    			"				</div>\n" + 
+    			"				<div data-simple-choice-interaction data-response-variable='responseValue' class='mcq-option'>\n" + 
+    			"					<p>Examination of the irides and anterior chamber assessment for cells and flare</p>\n" + 
+    			"				</div>\n" + 
+    			"				<div data-simple-choice-interaction data-response-variable='responseValue' class='mcq-option'>\n" + 
+    			"					<p>Gonioscopy and assessment of the lens capsule</p>\n" + 
+    			"				</div>\n" + 
+    			"				<div data-simple-choice-interaction data-response-variable='responseValue' class='mcq-option'>\n" + 
+    			"					<p>Assessment of the corneal endothelium and iris transillumination</p>\n" + 
+    			"				</div>\n" + 
+    			"			</div>\n" + 
+    			"			<div class='question-title'>\n" + 
+    			"				<p>The primary cause of blindness in Australia and New Zealand for people over the age of 55 years is</p>\n" + 
+    			"			</div>\n" + 
+    			"			<div class='mcq-options'>\n" + 
+    			"				<div data-simple-choice-interaction data-response-variable='responseValue' class='mcq-option'>\n" + 
+    			"					<p>Cataract</p>\n" + 
+    			"				</div>\n" + 
+    			"				<div data-simple-choice-interaction data-response-variable='responseValue' class='mcq-option'>\n" + 
+    			"					<p>Glaucoma</p>\n" + 
+    			"				</div>\n" + 
+    			"				<div data-simple-choice-interaction data-response-variable='responseValue' class='mcq-option'>\n" + 
+    			"					<p>Macular degeneration</p>\n" + 
+    			"				</div>\n" + 
+    			"				<div data-simple-choice-interaction data-response-variable='responseValue' class='mcq-option'>\n" + 
+    			"					<p>Diabetic retinopathy</p>\n" + 
+    			"				</div>\n" + 
+    			"			</div>\n" + 
+    			"		</div>\n" + 
+    			"		<div class=\"answer-sheet\">\n" + 
+    			"			<div class=\"question-header\">\n" + 
+    			"				<h3>Answer Sheet</h3>\n" + 
+    			"			</div>\n" + 
+    			"			<div class='question-title'>\n" + 
+    			"				<p>Which of the following sets of tests would be LEAST urgently indicated for a patient presenting with intraocular pressures of R 22mmHg and L 46mmHg?</p>\n" + 
+    			"			</div>\n" + 
+    			"			<div class=\"answer\">\n" + 
+    			"				<p>Gonioscopy and assessment of the lens capsule</p>\n" + 
+    			"			</div>\n" + 
+    			"			<div class='question-title'>\n" + 
+    			"				<p>The primary cause of blindness in Australia and New Zealand for people over the age of 55 years is</p>\n" + 
+    			"			</div>\n" + 
+    			"			<div class=\"answer\">\n" + 
+    			"				<p>Diabetic retinopathy</p>\n" + 
+    			"			</div>\n" + 
+    			"		</div>\n" + 
+    			"	</div>\n" + 
+    			"</div>";
+    	File f = convertHtmlStringToPdfFile(s, "abc");
+    	System.out.println(f.getPath());
+    }
 
 }

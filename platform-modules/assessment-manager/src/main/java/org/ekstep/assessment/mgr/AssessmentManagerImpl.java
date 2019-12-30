@@ -28,10 +28,13 @@ import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.BaseManager;
+import org.ekstep.common.util.DefinitionUtil;
 import org.ekstep.graph.common.JSONUtils;
+import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
@@ -446,6 +449,39 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 			}
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public Response publishItemSet(String taxonomyId, Request request, String id) {
+		Node node = null;
+		if (StringUtils.isBlank(taxonomyId))
+			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
+					"Taxonomy Id is blank");
+		try {
+			Response response = getDataNode(taxonomyId, id);
+			if (checkError(response))
+                throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+                        "Error! While Fetching the Content for Operation | [Itemset Id: " + id + "]");
+			node = (Node) response.get(GraphDACParams.node.name()); 
+		} catch (Exception e) {
+			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_REQUEST_FORMAT.name(),
+					"Invalid request format");
+		}
+		if (null == node)
+			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(),
+					"AssessmentItemSet Object is blank");
+		List<String> ids = new ArrayList<>();
+		ids.add(id);
+		String previewUrl = null;
+		try {
+			previewUrl = ItemsetPublishManager.publish(ids);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("previewUrl: " + previewUrl);
+		return null;
+		
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -786,4 +822,5 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		metadata.keySet().removeAll(externalPropsList);
 		return externalProps;
 	}
+	//@Override
 }

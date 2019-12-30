@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rits.cloning.Cloner;
+
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -11,14 +13,15 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
-import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
+import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.common.ContentErrorMessageConstants;
@@ -40,8 +43,8 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
+import org.ekstep.itemset.publish.ItemsetPublishManager;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.contentstore.VideoStreamingJobRequest;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.CloudStore;
@@ -97,6 +100,9 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final String  ES_INDEX_NAME = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
 	private static final String DOCUMENT_TYPE = Platform.config.hasPath("search.document.type") ? Platform.config.getString("search.document.type") : CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE;
 	private static final List<String> PUBLISHED_STATUS_LIST = Arrays.asList("Live", "Unlisted");
+	
+	protected static final String PDF_GENERATE_URI = Platform.config.hasPath("pdf.api.generate.url")
+			? Platform.config.getString("pdf.api.generate.url") : "http://localhost:5001/v1/print/preview/generate";
 
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -174,7 +180,13 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		node.setIdentifier(contentId);
 		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
-
+		
+		/*
+		 * String itemsetPreviewUrl = generateItemsetPreviewUrl(node);
+		 */
+		
+		
+		
 		boolean isCompressionApplied = (boolean) parameterMap.get(ContentWorkflowPipelineParams.isCompressionApplied.name());
 		TelemetryManager.log("Compression Applied ? " + isCompressionApplied);
 
@@ -1267,5 +1279,49 @@ public class PublishFinalizer extends BaseFinalizer {
                 leafNodeIds.add((String) data.get(ContentAPIParams.identifier.name()));
             }
         }
+    }
+    
+    private String getItemsetPreviewUrl(Node node) {
+    	
+    	List<String> outRelations = node.getOutRelations().stream().filter(r -> StringUtils.equalsIgnoreCase(r.getEndNodeObjectType(), "ItemSet")).map(x -> x.getEndNodeId()).collect(Collectors.toList());
+		/*for(Relation r : node.getOutRelations()) {
+			if(StringUtils.equalsIgnoreCase(r.getEndNodeObjectType(), "ItemSet"))
+				outRelations.add(r.getEndNodeId());
+		}*/
+		if(CollectionUtils.isNotEmpty(outRelations))
+		{
+			try {
+				String questionBankHtml = ItemsetPublishManager.publish(outRelations);
+				System.out.println("*******  questionBankHtml: " + questionBankHtml);
+				if(StringUtils.isNotBlank(questionBankHtml)) {
+					Response generateResponse = HttpRestUtil.makePostRequest(PDF_GENERATE_URI + "?fileUrl=" + questionBankHtml, new HashMap<>(), new HashMap<>());
+					
+					if (generateResponse.getResponseCode() == ResponseCode.OK) {
+			            Map<String, Object> result = generateResponse.getResult();
+			            String itemsetPreviewUrl = (String)result.get(ContentAPIParams.pdfUrl.name());
+			            if(!itemsetPreviewUrl.isEmpty())
+			                return itemsetPreviewUrl;
+			            else
+			                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+			                        "Itemset generated previewUrl is empty. Please Try Again After Sometime!");
+			        }else {
+			            if (generateResponse.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+			                TelemetryManager.error("Client Error during Generate Itemset previewUrl: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
+			                throw new ClientException(generateResponse.getParams().getErr(), generateResponse.getParams().getErrmsg());
+			            }
+			            else {
+			                TelemetryManager.error("Server Error during Generate Itemset preiewUrl: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
+			                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+			                        "Error During generate Dialcode. Please Try Again After Sometime!");
+			            }
+			        }
+					
+				}
+				
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+    		return null;
     }
 }

@@ -3,6 +3,7 @@
  */
 package org.ekstep.assessment.store;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -246,20 +247,27 @@ public class AssessmentStore {
 	public Map<String, Object> getItems(List<String> identifiers, List<String> properties) {
 		TelemetryManager.log("Bulk Get Items for identifiers: " + identifiers + " | Properties: " + properties);
 		Session session = CassandraConnector.getSession();
-		String query = getSelectStatement(identifiers, properties);
+		List<String> propertiesTofetch = new ArrayList<String>(properties);
+		if(propertiesTofetch.contains("body")) {
+			propertiesTofetch.add("blobAsText(body) as body");
+			propertiesTofetch.remove("body");
+		}
+		if(!propertiesTofetch.contains("question_id"))
+			propertiesTofetch.add("question_id");
+		String query = getSelectStatement(identifiers, propertiesTofetch);
 		PreparedStatement ps = session.prepare(query);
 		BoundStatement bound = new BoundStatement(ps);
 		try {
 			ResultSet rs = session.execute(bound);
 			Map<String, Object> itemsMap = new HashMap<>();
 			if (null != rs) {
-				Map<String, Object> propertyMap = new HashMap<String, Object>();
 				while (rs.iterator().hasNext()) {
 					Row row = rs.iterator().next();
-					properties.forEach(prop -> propertyMap.put((String) prop, row.getString(prop + PROPERTY_SUFFIX)));
+					Map<String, Object> propertyMap = new HashMap<String, Object>();
+					properties.forEach(prop -> propertyMap.put((String) prop, row.getString(prop)));
 					itemsMap.put(row.getString("question_id"), propertyMap);
 				}
-				return itemsMap;
+				return itemsMap;//blobAsText(body) as data
 			}
 		} catch (Exception e) {
 			TelemetryManager.error("Error! Executing get items: " + e.getMessage(), e);

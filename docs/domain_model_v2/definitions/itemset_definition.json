@@ -479,7 +479,7 @@
       "inRelations": [],
       "outRelations": [
         {
-          "relationName": "hasMember",
+          "relationName": "hasSequenceMember",
           "objectTypes": [
             "AssessmentItem"
           ],
