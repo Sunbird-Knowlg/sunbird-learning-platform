@@ -1317,7 +1317,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				}
 				
 			}catch(Exception e) {
-				TelemetryManager.error("Server Error during Itemset publish.");
+				TelemetryManager.error("Server Error during Itemset publish. :: " + e.getMessage());
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
                         "Error During Itemset Publish. Please Try Again After Sometime!");
 			}
