@@ -26,7 +26,6 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.BaseManager;
@@ -44,7 +43,6 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.model.node.MetadataDefinition;
-import org.ekstep.itemset.publish.ItemsetPublishManager;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.taxonomy.mgr.impl.TaxonomyManagerImpl;
 import org.ekstep.telemetry.logger.TelemetryManager;
@@ -447,38 +445,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		}
 	}
 	
-	@Override
-	public Response publishItemSet(String taxonomyId, Request request, String id) {
-		Node node = null;
-		if (StringUtils.isBlank(taxonomyId))
-			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
-					"Taxonomy Id is blank");
-		try {
-			Response response = getDataNode(taxonomyId, id);
-			if (checkError(response))
-                throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
-                        "Error! While Fetching the Content for Operation | [Itemset Id: " + id + "]");
-			node = (Node) response.get(GraphDACParams.node.name()); 
-		} catch (Exception e) {
-			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_REQUEST_FORMAT.name(),
-					"Invalid request format");
-		}
-		if (null == node)
-			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(),
-					"AssessmentItemSet Object is blank");
-		List<String> ids = new ArrayList<>();
-		ids.add(id);
-		String previewUrl = null;
-		try {
-			previewUrl = ItemsetPublishManager.publish(ids);
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		System.out.println("previewUrl: " + previewUrl);
-		return null;
-		
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response updateItemSet(String id, String taxonomyId, Request request) {

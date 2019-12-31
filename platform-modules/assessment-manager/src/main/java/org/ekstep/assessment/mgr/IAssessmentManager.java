@@ -97,7 +97,6 @@ public interface IAssessmentManager {
      *           input does not have identifier specified.
      */
     public Response createItemSet(String taxonomyId, Request request);
-    public Response publishItemSet(String taxonomyId, Request request, String id);
     
     /**
      * Saves AssessmentItem Set. If identifier is not provided, it will be

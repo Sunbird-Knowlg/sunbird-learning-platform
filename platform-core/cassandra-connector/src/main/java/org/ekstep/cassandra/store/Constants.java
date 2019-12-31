@@ -34,6 +34,4 @@ public interface Constants {
 	public static final String IF_NOT_EXISTS = " IF NOT EXISTS;";
 	public static final String SELECT = "SELECT";
 	public static final String IN = "IN";
-
-
 }
