@@ -48,7 +48,9 @@ public class QuestionPaperGenerator {
             String htmlString = generateHtmlString(null, htmlData, node);
             if ( StringUtils.isNotBlank(htmlString))
                 return generateHtmlFile(htmlString, node.getIdentifier());
+            TelemetryManager.error("HTML String is not generated for ItemSet :: " +  node.getIdentifier() + " :: " + htmlString);
         }
+        TelemetryManager.error("ItemSet childDetails are empty for Itemset :: " +  node.getIdentifier() + childDetails);
         return null;
     }
 
@@ -66,8 +68,6 @@ public class QuestionPaperGenerator {
             Map<String, Object> assessmentMap = new HashMap<>(bodyMap);
             assessmentMap.forEach((key, value) -> ((Map<String, Object>)assessmentMap.get(key)).put(TYPE, typeMap.get(key)));
             assessmentMap.forEach((key, value) -> ((Map<String, Object>)assessmentMap.get(key)).put(INDEX, childData.get(key)));
-            //assessmentMap.forEach((key, value) -> typeMap.merge(key, value, (v1, v2) -> ((Map<String, Object>) bodyMap.get(key)).put(TYPE, v2)));
-            //assessmentMap.forEach((key, value) -> childData.merge(key, value, (v1, v2) -> ((Map<String, Object>) bodyMap.get(key)).put(INDEX, v2)));
             return assessmentMap;
         }
         TelemetryManager.error("Question Paper not generated because : typeMap and/or bodyMap is null.");
@@ -127,7 +127,11 @@ public class QuestionPaperGenerator {
     // TODO: Need to use index for questions and options
     private static String generateHtmlString(File htmlTemp, Map<String, Object> assessmentMap, Node itemSet) {
     		
-		String htmlTemplate = "<header>\n" + 
+    		String htmlTemplate = null;
+    		if(MapUtils.isEmpty(assessmentMap)) {
+    			return htmlTemplate;
+    		}
+		htmlTemplate = "<header>\n" + 
 			"	<style type=\"text/css\">\n" + 
 			"		.questions-paper {\n" + 
 			"			padding: 50px;\n" + 
@@ -202,42 +206,7 @@ public class QuestionPaperGenerator {
 	    				"		</div>");
 	    	});
 	    	htmlTemplate = htmlTemplate.replace("a_placeholder", answerString.toString());
-    	
-	    	
-		
-    	
-    	
-    	
-    	
-    	
-    	
-    	
-        /*String htmlTemplate = "      <div class=\"questions\">\n" +
-                "            q_placeholder\n" +
-                "      </div>\n" +
-                "      <div class=\"answers\" style=\"page-break-before: always\">\n" +
-                "            a_placeholder\n" +
-                "      </div>\n";
-        StringBuilder questionString = new StringBuilder();
-        assessmentMap.entrySet().forEach(question -> {
-            questionString.append(((Map<String, Object>) question.getValue()).get("index") + ". " + ((Map<String, String>) ((Map<String, Object>) question.getValue()).get("question")).get("text"))
-        		        .append("<img src=\"" + ((Map<String, Object>) ((Map<String, Object>) question.getValue()).get("question")).get("image") + "\" alt = \"\"/>\n")
-                    .append("<div class=\"row\">\n<ol style=\"list-style-type: lower-alpha;\">");
-        		((List<Map<String, Object>>) ((Map<String, Object>) question.getValue()).get("options")).forEach(option -> {
-                questionString.append("<li>").append(option.get("text")).append("<img src=\"" + option.get("image") + "\" alt = \"\"/>\n</li>");
-            });
-            questionString.append("</ol></div>\n");
-        });
-        htmlTemplate = htmlTemplate.replace("q_placeholder", questionString.toString());
-        StringBuilder answersString = new StringBuilder();
-        answersString.append("<div class=\"answer\">Answer Sheet:");
-        assessmentMap.keySet().forEach(key -> {
-            
-        	answersString.append(((Map<String, Object>) assessmentMap.get(key)).get("index") + ". " + ((Map<String, String>)((Map<String, Object>) assessmentMap.get(key)).get("answer")).get("text") + "\n");
-                    
-        });
-        answersString.append("</div>\n");
-        htmlTemplate = htmlTemplate.replace("a_placeholder", answersString.toString());*/
+   
         return htmlTemplate;
     }
 

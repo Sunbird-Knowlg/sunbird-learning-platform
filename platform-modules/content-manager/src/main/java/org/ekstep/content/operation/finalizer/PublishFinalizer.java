@@ -101,8 +101,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final String DOCUMENT_TYPE = Platform.config.hasPath("search.document.type") ? Platform.config.getString("search.document.type") : CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE;
 	private static final List<String> PUBLISHED_STATUS_LIST = Arrays.asList("Live", "Unlisted");
 	
-	protected static final String PDF_GENERATE_URI = Platform.config.hasPath("pdf.api.generate.url")
-			? Platform.config.getString("pdf.api.generate.url") : "http://localhost:5001/v1/print/preview/generate";
+	protected static final String PRINT_SERVICE_BASE_URL = Platform.config.hasPath("kp.print.service.base.url")
+			? Platform.config.getString("kp.print.service.base.url") : "http://localhost:5001";
 
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -181,12 +181,11 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.setIdentifier(contentId);
 		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
 		
-		/*
-		 * String itemsetPreviewUrl = generateItemsetPreviewUrl(node);
-		 */
 		
-		
-		
+		String itemsetPreviewUrl = getItemsetPreviewUrl(node);
+		if(StringUtils.isNoneBlank(itemsetPreviewUrl))
+			node.getMetadata().put(ContentWorkflowPipelineParams.itemSetPreviewUrl.name(), itemsetPreviewUrl);
+		 
 		boolean isCompressionApplied = (boolean) parameterMap.get(ContentWorkflowPipelineParams.isCompressionApplied.name());
 		TelemetryManager.log("Compression Applied ? " + isCompressionApplied);
 
@@ -1283,22 +1282,22 @@ public class PublishFinalizer extends BaseFinalizer {
     
     private String getItemsetPreviewUrl(Node node) {
     	
-    	List<String> outRelations = node.getOutRelations().stream().filter(r -> StringUtils.equalsIgnoreCase(r.getEndNodeObjectType(), "ItemSet")).map(x -> x.getEndNodeId()).collect(Collectors.toList());
-		/*for(Relation r : node.getOutRelations()) {
-			if(StringUtils.equalsIgnoreCase(r.getEndNodeObjectType(), "ItemSet"))
-				outRelations.add(r.getEndNodeId());
-		}*/
-		if(CollectionUtils.isNotEmpty(outRelations))
-		{
+    		List<String> outRelations = node.getOutRelations()
+    				.stream()
+    				.filter(r -> StringUtils.equalsIgnoreCase(r.getEndNodeObjectType(), "ItemSet"))
+    				.map(x -> x.getEndNodeId()).collect(Collectors.toList());
+		if(CollectionUtils.isNotEmpty(outRelations)){
 			try {
 				String questionBankHtml = ItemsetPublishManager.publish(outRelations);
-				System.out.println("*******  questionBankHtml: " + questionBankHtml);
+				//System.out.println("*******  questionBankHtml: " + questionBankHtml);
 				if(StringUtils.isNotBlank(questionBankHtml)) {
-					Response generateResponse = HttpRestUtil.makePostRequest(PDF_GENERATE_URI + "?fileUrl=" + questionBankHtml, new HashMap<>(), new HashMap<>());
+					Response generateResponse = HttpRestUtil.makePostRequest(PRINT_SERVICE_BASE_URL + "/v1/print/preview/generate?fileUrl=" 
+				+ questionBankHtml, new HashMap<>(), new HashMap<>());
+					//Response generateResponse = new Response();
 					
 					if (generateResponse.getResponseCode() == ResponseCode.OK) {
-			            Map<String, Object> result = generateResponse.getResult();
-			            String itemsetPreviewUrl = (String)result.get(ContentAPIParams.pdfUrl.name());
+			            String itemsetPreviewUrl = (String)generateResponse.getResult().get(ContentAPIParams.pdfUrl.name());
+			            //String itemsetPreviewUrl = "https://sunbirddev.blob.core.windows.net/sunbird-content-dev/print-service/54e4d520-2b37-11ea-82b6-3b7426a24ce8.pdf";
 			            if(!itemsetPreviewUrl.isEmpty())
 			                return itemsetPreviewUrl;
 			            else
@@ -1312,14 +1311,15 @@ public class PublishFinalizer extends BaseFinalizer {
 			            else {
 			                TelemetryManager.error("Server Error during Generate Itemset preiewUrl: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
 			                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-			                        "Error During generate Dialcode. Please Try Again After Sometime!");
+			                        "Error During generate Itemset previewUrl. Please Try Again After Sometime!");
 			            }
 			        }
-					
 				}
 				
 			}catch(Exception e) {
-				e.printStackTrace();
+				TelemetryManager.error("Server Error during Itemset publish.");
+				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+                        "Error During Itemset Publish. Please Try Again After Sometime!");
 			}
 		}
     		return null;

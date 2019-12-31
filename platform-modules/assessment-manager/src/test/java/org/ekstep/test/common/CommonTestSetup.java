@@ -15,6 +15,7 @@ import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.graph.engine.router.ActorBootstrap;
 import org.ekstep.graph.engine.router.GraphEngineActorPoolMgr;
 import org.ekstep.graph.service.util.DriverUtil;
+import org.ekstep.taxonomy.mgr.impl.TaxonomyManagerImpl;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -37,7 +38,7 @@ public class CommonTestSetup {
 
 	static ClassLoader classLoader = CommonTestSetup.class.getClassLoader();
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static AssessmentManagerImpl assessmentMgr = new AssessmentManagerImpl();
+	private static TaxonomyManagerImpl taxonomyMgr = new TaxonomyManagerImpl();
 	private static GraphDatabaseService graphDb = null;
 
 	private static String NEO4J_SERVER_ADDRESS = "localhost:7687";
@@ -148,7 +149,7 @@ public class CommonTestSetup {
 	}
 
 	private static void createDefinition(String graphId, String definition) throws Exception {
-		Response resp = assessmentMgr.updateDefinition(graphId, definition);
+		Response resp = taxonomyMgr.updateDefinition(graphId, definition);
 		if (!resp.getParams().getStatus().equalsIgnoreCase(TestParams.successful.name())) {
 			System.out.println(resp.getParams().getErr() + " :: " + resp.getParams().getErrmsg());
 		}

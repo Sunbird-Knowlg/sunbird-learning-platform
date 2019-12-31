@@ -23,8 +23,6 @@ import org.ekstep.assessment.enums.AssessmentErrorCodes;
 import org.ekstep.assessment.store.AssessmentStore;
 import org.ekstep.assessment.util.AssessmentValidator;
 import org.ekstep.common.Platform;
-import org.ekstep.common.dto.ExecutionContext;
-import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -32,9 +30,7 @@ import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.BaseManager;
-import org.ekstep.common.util.DefinitionUtil;
 import org.ekstep.graph.common.JSONUtils;
-import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
@@ -48,6 +44,7 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.model.node.MetadataDefinition;
+import org.ekstep.itemset.publish.ItemsetPublishManager;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.taxonomy.mgr.impl.TaxonomyManagerImpl;
 import org.ekstep.telemetry.logger.TelemetryManager;
@@ -450,7 +447,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public Response publishItemSet(String taxonomyId, Request request, String id) {
 		Node node = null;
@@ -781,8 +777,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 	}
 
 	private String getDefaultFramework() {
-		String channel = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
-		// TODO: check channel for default framework.
 		if (Platform.config.hasPath("platform.framework.default"))
 			return Platform.config.getString("platform.framework.default");
 		else
@@ -822,5 +816,5 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		metadata.keySet().removeAll(externalPropsList);
 		return externalProps;
 	}
-	//@Override
+
 }
