@@ -119,7 +119,7 @@ public class QuestionPaperGenerator {
                 } else
                     assessmentHtmlMap.put(key, new HashMap<>());
             } catch (Exception e) {
-                e.printStackTrace();
+                TelemetryManager.error("Exception while fetching question data from body :: " + e.getMessage());
             }
         }
     }
@@ -132,79 +132,134 @@ public class QuestionPaperGenerator {
     			return htmlTemplate;
     		}
 		htmlTemplate = "<header>\n" + 
-			"	<style type=\"text/css\">\n" + 
-			"		.questions-paper {\n" + 
-			"			padding: 50px;\n" + 
-			"		}\n" + 
-			"		.question-title{\n" + 
-			"			margin-bottom: 30px;\n" + 
-			"			margin-top: 30px\n" + 
-			"		}\n" + 
-			"		.mcq-option {\n" + 
-			"			padding-left: 20px;\n" + 
-			"			line-height: 10px;\n" + 
-			"		}\n" + 
-			"		.mcq-option p:before {\n" + 
-			"		  content: '\\2022';\n" + 
-			"		  margin-right: 8px;\n" + 
-			"		}\n" + 
-			"		.answer{\n" + 
-			"			padding-left: 20px;\n" + 
-			"		}\n" + 
-			"		.answer p:before {\n" + 
-			"			content: '\\2023';\n" + 
-			"		  	margin-right: 8px;\n" + 
-			"		}\n" + 
-			"		.question-header {\n" + 
-			"			text-align: center;\n" + 
-			"\n" + 
-			"		}\n" + 
-			"		.answer-sheet{\n" + 
-			"			page-break-before: always;\n" + 
-			"		}\n" + 
-			"		#hr {\n" + 
-			"			border: 1px solid red;\n" + 
-			"		}\n" + 
-			"\n" + 
-			"	</style>\n" + 
-			"</header>\n" + 
-			"<div class=\"questions-paper\">\n" + 
-			"	<div class=\"question-sheet\">q_placeholder</div>\n" + 
-			"	<div class=\"answer-sheet\">a_placeholder</div>\n" + 
-			"</div>";
+				"	<style type=\"text/css\">\n" + 
+				"		body {\n" + 
+				"			padding: 0;\n" + 
+				"			margin: 0;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		p {\n" + 
+				"			margin: 0;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		.questions-paper {\n" + 
+				"			padding: 50px;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		.question-header {\n" + 
+				"			text-align: center;\n" + 
+				"			padding: 16px 0;\n" + 
+				"			border-bottom: 1px solid #999;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		.question-header h2 {\n" + 
+				"			margin: 0;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		.main-container .question-section {\n" + 
+				"			display: flex;\n" + 
+				"			padding-top: 16px;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		.main-container .question-section:last-child {\n" + 
+				"			display: flex;\n" + 
+				"			padding-bottom: 16px;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		.question-count {\n" + 
+				"			font-weight: 600;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		.question-content {\n" + 
+				"			padding: 0 8px;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		.question-title {\n" + 
+				"			font-size: 16px;\n" + 
+				"			font-weight: 600;\n" + 
+				"			padding-bottom: 8px;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		.mcq-option {\n" + 
+				"			padding-left: 16px;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		.mcq-option p {\n" + 
+				"			line-height: 24px;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		.mcq-option p:before {\n" + 
+				"			content: '\\2022';\n" + 
+				"			margin-right: 8px;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		.answer {\n" + 
+				"			padding-left: 20px;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		.answer p:before {\n" + 
+				"			content: '\\2022';\n" + 
+				"			margin-right: 8px;\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		.answer-sheet {\n" + 
+				"			page-break-before: always;\n" + 
+				"		}\n" + 
+				"	</style>\n" + 
+				"</header>\n" + 
+				"\n" + 
+				"\n" + 
+				"<div class=\"questions-paper\">\n" + 
+				"	<div class=\"question-sheet\">q_placeholder</div>\n" + 
+				"\n" + 
+				"	<div class=\"answer-sheet\">a_placeholder</div>\n" + 
+				"</div>";
 	    	
 	    	StringBuilder questionString = new StringBuilder();
-	    	questionString.append("<div class=\"question-header\">\n" + 
-	    			"			<h3>" + 
-	    			(String)itemSet.getMetadata().get("title") + 
-	    			"</h3>\n" + 
-	    			"			<hr>\n" + 
-	    			"		</div>");
-	    	assessmentMap.entrySet().forEach(question -> {
-	    		questionString.append("<div class='question-title'>\n" + 
-	    				((Map<String, String>) ((Map<String, Object>) question.getValue()).get("question")).get("text") +
-	    				"		</div>");
-	    		((List<Map<String, Object>>) ((Map<String, Object>) question.getValue()).get("options")).forEach(option -> {
-		    		questionString.append("<div data-simple-choice-interaction data-response-variable='responseValue' class='mcq-option'>\n" + 
-		    				option.get("text") + "<img src=\"" + option.get("image") + "\" alt = \"\"/>\n" +
-		    				"		</div>");	
-	    		});
-	    	});
+	    	questionString.append("<div class='question-header'>" + "<h2>" + (String)itemSet.getMetadata().get("title") + "</h2></div>");
+	    	questionString.append("<div class='main-container'>");
+		    
+		    	assessmentMap.entrySet().forEach(question -> {
+		    		questionString.append("<div class='question-section'>");
+			    		questionString.append("<div class='question-count'>" 
+			    				+  ((Map<String, Object>) question.getValue()).get("index")
+			    				+ ".</div>");
+			    		questionString.append("<div class='question-content'>");
+				    		questionString.append("<div class='question-title'>\n" + 
+				    				((Map<String, String>) ((Map<String, Object>) question.getValue()).get("question")).get("text") +
+				    				"		</div>");
+				    		((List<Map<String, Object>>) ((Map<String, Object>) question.getValue()).get("options")).forEach(option -> {
+					    		questionString.append("<div data-simple-choice-interaction data-response-variable='responseValue' class='mcq-option'>\n" + 
+					    				option.get("text") + "<img src=\"" + option.get("image") + "\" alt = \"\"/>\n" +
+					    				"		</div>");	
+				    		});
+			    		questionString.append("</div>");
+		    		questionString.append("</div>");
+		    	});
+		    
+	    	questionString.append("</div>");
 	    	htmlTemplate = htmlTemplate.replace("q_placeholder", questionString.toString());
 	    	
+	    	
 	    	StringBuilder answerString = new StringBuilder();
-	    	answerString.append("<div class=\"question-header\">\n" + 
-	    			"			<h3>Answer Sheet</h3>\n" + 
-	    			"			<hr>\n" + 
-	    			"		</div>");
-	    	assessmentMap.keySet().forEach(key -> {
-	    		answerString.append("<div class='question-title'>\n" + 
-	    				((Map<String, String>)((Map<String, Object>) assessmentMap.get(key)).get("question")).get("text") + 
-	    				"		</div>");
-	    		answerString.append("<div class=\"answer\">\n" + 
-	    				((Map<String, String>)((Map<String, Object>) assessmentMap.get(key)).get("answer")).get("text") + 
-	    				"		</div>");
-	    	});
+	    	answerString.append("<div class='question-header'><h3>Answers</h3></div>");
+	    	answerString.append("<div class=\"main-container\">");
+		    	assessmentMap.keySet().forEach(key -> {
+		    		answerString.append("<div class='question-section'>");
+		    			answerString.append("<div class='question-count'>" 
+			    				+  ((Map<String, Object>) assessmentMap.get(key)).get("index")
+			    				+ ".</div>");
+		    			answerString.append("<div class='question-content'>");
+				    		answerString.append("<div class='question-title'><p>" + 
+				    				((Map<String, String>)((Map<String, Object>) assessmentMap.get(key)).get("question")).get("text") + 
+				    				"</p></div>");
+				    		answerString.append("<div class='answer<p>'>" + 
+				    				((Map<String, String>)((Map<String, Object>) assessmentMap.get(key)).get("answer")).get("text") + 
+				    				"</div></p>");
+			    		answerString.append("</div>");
+		    		answerString.append("</div>");
+		    	});
+		answerString.append("</div>");
 	    	htmlTemplate = htmlTemplate.replace("a_placeholder", answerString.toString());
    
         return htmlTemplate;
