@@ -44,9 +44,9 @@ public class BatchSyncUtil {
             if(1 == row.getInt("status")) {
                 List<Row> userCoursesRows = read("user_courses", Arrays.asList(row.getString("batchid")));
                 pushEventsToKafka(userCoursesRows, collector);
+                LOGGER.info("Pushed the events to sync courseBatch enrollment for : " + courseId);
             }
         }
-        LOGGER.info("Pushed the events to sync courseBatch enrollment for : " + courseId);
     }
 
 
