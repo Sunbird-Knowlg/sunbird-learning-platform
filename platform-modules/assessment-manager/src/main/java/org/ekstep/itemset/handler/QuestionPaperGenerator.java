@@ -38,6 +38,7 @@ public class QuestionPaperGenerator {
     private static final String TEMP_FILE_LOCATION = Platform.config.hasPath("lp.assessment.tmp_file_location") ? Platform.config.getString("lp.assessment.tmp_file_location") : "/tmp/";
     private static final String HTML_PREFIX = "html_";
     private static final String INDEX = "IL_SEQUENCE_INDEX";
+    private static final String ANSWER = "answer";
     private static final String HTMLEXT = ".html";
 
     public static File generateQuestionPaper(Node node) {
@@ -62,12 +63,13 @@ public class QuestionPaperGenerator {
 
     private static Map<String, Object> getAssessmentDataMap(Map<String, Object> childData) {
         List<String> identifiers = new ArrayList<>(childData.keySet());
-        Map<String, Object> typeMap = getMetadataFromNeo4j(identifiers);
+        Map<String, Object> nodeMap = getMetadataFromNeo4j(identifiers);
         Map<String, Object> bodyMap = getExternalPropsData(identifiers);
-        if (MapUtils.isNotEmpty(typeMap) && MapUtils.isNotEmpty(bodyMap)) {
+        if (MapUtils.isNotEmpty(nodeMap) && MapUtils.isNotEmpty(bodyMap)) {
             Map<String, Object> assessmentMap = new HashMap<>(bodyMap);
-            assessmentMap.forEach((key, value) -> ((Map<String, Object>)assessmentMap.get(key)).put(TYPE, typeMap.get(key)));
+            assessmentMap.forEach((key, value) -> ((Map<String, Object>)assessmentMap.get(key)).put(TYPE, ((String)((Node)nodeMap.get(key)).getMetadata().get("type")) ));
             assessmentMap.forEach((key, value) -> ((Map<String, Object>)assessmentMap.get(key)).put(INDEX, childData.get(key)));
+            assessmentMap.forEach((key, value) -> ((Map<String, Object>)assessmentMap.get(key)).put(ANSWER, ((Node)nodeMap.get(key)).getMetadata().get("responseDeclaration")));
             return assessmentMap;
         }
         TelemetryManager.error("Question Paper not generated because : typeMap and/or bodyMap is null.");
@@ -78,7 +80,7 @@ public class QuestionPaperGenerator {
         Response response = controllerUtil.getDataNodes(TAXONOMY_ID, identifiers);
         List<Node> nodes = (List<Node>) response.get(NODE_LIST);
         if (CollectionUtils.isNotEmpty(nodes)) {
-            return nodes.stream().collect(Collectors.toMap(node -> node.getIdentifier(), node -> (String) ((Node) node).getMetadata().get(TYPE)));
+            return nodes.stream().collect(Collectors.toMap(node -> node.getIdentifier(), node -> (Node) node));
         }
         return null;
     }
@@ -108,12 +110,10 @@ public class QuestionPaperGenerator {
             try {
                 String bodyString = (String) valueMap.get(BODY);
                 if (StringUtils.isNotBlank(bodyString)) {
-                    Map<String, Object> bodyMap = mapper.readValue(bodyString, new TypeReference<Map<String, Object>>() {
-                    });
                     Map<String, Object> htmlDataMap = new HashMap<String, Object>();
-                    htmlDataMap.put("question", handler.populateQuestion(bodyMap));
-                    htmlDataMap.put("answer", handler.populateAnswer(bodyMap));
-                    htmlDataMap.put("options", handler.populateOptions(bodyMap));
+                    htmlDataMap.put("question", handler.populateQuestion(bodyString));
+                    Map<String, Object> answerMap = mapper.readValue((String)valueMap.get(ANSWER), new TypeReference<Map<String, Object>>(){});
+                    htmlDataMap.put("answer", handler.populateAnswer(answerMap));
                     htmlDataMap.put("index", valueMap.get(INDEX));
                     assessmentHtmlMap.put(key, htmlDataMap);
                 } else
@@ -218,46 +218,23 @@ public class QuestionPaperGenerator {
 	    	StringBuilder questionString = new StringBuilder();
 	    	questionString.append("<div class='question-header'>" + "<h2>" + (String)itemSet.getMetadata().get("title") + "</h2></div>");
 	    	questionString.append("<div class='main-container'>");
-		    
 		    	assessmentMap.entrySet().forEach(question -> {
 		    		questionString.append("<div class='question-section'>");
-			    		questionString.append("<div class='question-count'>" 
-			    				+  ((Map<String, Object>) question.getValue()).get("index")
-			    				+ ".</div>");
-			    		questionString.append("<div class='question-content'>");
-				    		questionString.append("<div class='question-title'>\n" + 
-				    				((Map<String, String>) ((Map<String, Object>) question.getValue()).get("question")).get("text") +
-				    				"		</div>");
-				    		((List<Map<String, Object>>) ((Map<String, Object>) question.getValue()).get("options")).forEach(option -> {
-					    		questionString.append("<div data-simple-choice-interaction data-response-variable='responseValue' class='mcq-option'>\n" + 
-					    				option.get("text") + "<img src=\"" + option.get("image") + "\" alt = \"\"/>\n" +
-					    				"		</div>");	
-				    		});
-			    		questionString.append("</div>");
-		    		questionString.append("</div>");
+			    		questionString.append("<div class='question-count'>" +  ((Map<String, Object>) question.getValue()).get("index") + ".</div>");
+			    		questionString.append(((Map<String, Object>) question.getValue()).get("question"));
+			    	questionString.append("</div>");
 		    	});
-		    
-	    	questionString.append("</div>");
+		questionString.append("</div>");
 	    	htmlTemplate = htmlTemplate.replace("q_placeholder", questionString.toString());
 	    	
-	    	
 	    	StringBuilder answerString = new StringBuilder();
-	    	answerString.append("<div class='question-header'><h3>Answers</h3></div>");
+	    	answerString.append("<div class='question-header'><h2>Answers</h2></div>");
 	    	answerString.append("<div class=\"main-container\">");
 		    	assessmentMap.keySet().forEach(key -> {
 		    		answerString.append("<div class='question-section'>");
-		    			answerString.append("<div class='question-count'>" 
-			    				+  ((Map<String, Object>) assessmentMap.get(key)).get("index")
-			    				+ ".</div>");
-		    			answerString.append("<div class='question-content'>");
-				    		answerString.append("<div class='question-title'><p>" + 
-				    				((Map<String, String>)((Map<String, Object>) assessmentMap.get(key)).get("question")).get("text") + 
-				    				"</p></div>");
-				    		answerString.append("<div class='answer<p>'>" + 
-				    				((Map<String, String>)((Map<String, Object>) assessmentMap.get(key)).get("answer")).get("text") + 
-				    				"</div></p>");
-			    		answerString.append("</div>");
-		    		answerString.append("</div>");
+		    			answerString.append("<div class='question-count'>" +  ((Map<String, Object>) assessmentMap.get(key)).get("index") + ".</div>");
+		    			answerString.append("<div class='answer'>" + (((Map<String, Object>) assessmentMap.get(key)).get("answer")) + "</div>");
+			    	answerString.append("</div>");
 		    	});
 		answerString.append("</div>");
 	    	htmlTemplate = htmlTemplate.replace("a_placeholder", answerString.toString());
@@ -281,5 +258,4 @@ public class QuestionPaperGenerator {
     public static String getFileName(String prefix) {
         return prefix + System.currentTimeMillis();
     }
-
 }

@@ -1289,15 +1289,12 @@ public class PublishFinalizer extends BaseFinalizer {
 		if(CollectionUtils.isNotEmpty(outRelations)){
 			try {
 				String questionBankHtml = ItemsetPublishManager.publish(outRelations);
-				//System.out.println("*******  questionBankHtml: " + questionBankHtml);
 				if(StringUtils.isNotBlank(questionBankHtml)) {
 					Response generateResponse = HttpRestUtil.makePostRequest(PRINT_SERVICE_BASE_URL + "/v1/print/preview/generate?fileUrl=" 
 				+ questionBankHtml, new HashMap<>(), new HashMap<>());
-					//Response generateResponse = new Response();
 					
 					if (generateResponse.getResponseCode() == ResponseCode.OK) {
 			            String itemsetPreviewUrl = (String)generateResponse.getResult().get(ContentAPIParams.pdfUrl.name());
-			            //String itemsetPreviewUrl = "https://sunbirddev.blob.core.windows.net/sunbird-content-dev/print-service/54e4d520-2b37-11ea-82b6-3b7426a24ce8.pdf";
 			            if(!itemsetPreviewUrl.isEmpty())
 			                return itemsetPreviewUrl;
 			            else
