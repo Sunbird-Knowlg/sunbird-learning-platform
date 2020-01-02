@@ -28,7 +28,6 @@
 		<module>graph-engine</module>
 		<module>audit-history</module>
 		<module>platform-telemetry</module>
-    <module>pdf-generator</module>
   </modules>
 
 	<dependencies>

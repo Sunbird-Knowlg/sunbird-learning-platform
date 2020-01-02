@@ -199,16 +199,6 @@ public class AssessmentStore {
 		return session.execute(boundStatement.bind(objects));
 	}
 
-	private String getSelectQuery(String property) {
-		StringBuilder sb = new StringBuilder();
-		if (StringUtils.isNotBlank(property)) {
-			sb.append("select blobAsText(").append(property).append(") as ");
-			sb.append(property.trim()).append(PROPERTY_SUFFIX)
-					.append(" from " + keyspace + Constants.DOT + table + " where question_id = ?");
-		}
-		return sb.toString();
-	}
-
 	private String getSelectQuery(List<String> properties) {
 		StringBuilder sb = new StringBuilder();
 		if (null != properties && !properties.isEmpty()) {
@@ -255,9 +245,10 @@ public class AssessmentStore {
 		if(!propertiesTofetch.contains("question_id"))
 			propertiesTofetch.add("question_id");
 		String query = getSelectStatement(identifiers, propertiesTofetch);
+		try {
 		PreparedStatement ps = session.prepare(query);
 		BoundStatement bound = new BoundStatement(ps);
-		try {
+		
 			ResultSet rs = session.execute(bound);
 			Map<String, Object> itemsMap = new HashMap<>();
 			if (null != rs) {
