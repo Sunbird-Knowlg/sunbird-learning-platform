@@ -66,6 +66,9 @@ public class ItemsetPublishManager {
                 if (response.getResponseCode() != ResponseCode.OK) {
                 		previewFile.delete();
                 		TelemetryManager.error("Itemset publish operation failed for :: " + itemSet.getIdentifier());
+                		TelemetryManager.error("response.getParams() :: " + response.getParams());
+                		TelemetryManager.error("response.getResponseCode() :: " + response.getResponseCode());
+                		TelemetryManager.error("response.getResult() :: " + response.getResult());
                     throw new ServerException(AssessmentErrorCodes.ERR_ASSESSMENT_UPDATE.name(), "AssessmentItem with identifier: " + itemSet + "couldn't be updated");
                 }
                 return previewUrl;
