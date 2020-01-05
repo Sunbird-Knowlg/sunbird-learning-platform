@@ -25,7 +25,7 @@ public class ItemsetPublishManager {
     private static final ControllerUtil controllerUtil = new ControllerUtil();
     private static final String TAXONOMY_ID = "domain";
     private static final String ITEMSET_FOLDER = "cloud_storage.itemset.folder";
-    private static final List<String> assessmentItemAcceptedStatus = Arrays.asList("Draft", "Review", "Live", "Retired");
+    private static final List<String> assessmentItemAcceptedStatus = Arrays.asList("Draft", "Review", "Live");
 
     public static String publish(List<String> itemSetIdetifiers) throws Exception {
         if (CollectionUtils.isNotEmpty(itemSetIdetifiers)) {
