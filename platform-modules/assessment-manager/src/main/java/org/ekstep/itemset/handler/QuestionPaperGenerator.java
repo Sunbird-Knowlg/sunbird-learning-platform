@@ -20,7 +20,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,7 +50,8 @@ public class QuestionPaperGenerator {
         if (MapUtils.isNotEmpty(childDetails)) {
             Map<String, Object> assessmentData = getAssessmentDataMap(childDetails);
             Map<String, Object> htmlData = populateAssessmentData(assessmentData);
-            String htmlString = generateHtmlString(null, htmlData, node);
+            Map<String, Object> sortedHtmlData = sortByIndex(htmlData);
+            String htmlString = generateHtmlString(null, sortedHtmlData, node);
             if ( StringUtils.isNotBlank(htmlString))
                 return generateHtmlFile(htmlString, node.getIdentifier());
             TelemetryManager.error("HTML String is not generated for ItemSet :: " +  node.getIdentifier() + " :: " + htmlString);
@@ -75,6 +80,28 @@ public class QuestionPaperGenerator {
         TelemetryManager.error("Question Paper not generated because : typeMap and/or bodyMap is null.");
         return null;
     }
+    
+    public static Map<String, Object> sortByIndex(Map<String, Object> hm) 
+    { 
+        // Create a list from elements of HashMap 
+        List<Map.Entry<String, Object> > list = new LinkedList(hm.entrySet()); 
+  
+        // Sort the list 
+        Collections.sort(list, new Comparator<Map.Entry<String, Object> >() { 
+            public int compare(Map.Entry<String, Object> o1,  
+                               Map.Entry<String, Object> o2) 
+            { 
+                return ((Integer)((Map<String, Object>)o1.getValue()).get("index")).compareTo((Integer)((Map<String, Object>)o2.getValue()).get("index")); 
+            } 
+        }); 
+          
+        // put data from sorted list to hashmap  
+        HashMap<String, Object> temp = new LinkedHashMap<String, Object>(); 
+        for (Map.Entry<String, Object> aa : list) { 
+            temp.put(aa.getKey(), aa.getValue()); 
+        } 
+        return temp; 
+    } 
 
     private static Map<String, Object> getMetadataFromNeo4j(List<String> identifiers) {
         Response response = controllerUtil.getDataNodes(TAXONOMY_ID, identifiers);
