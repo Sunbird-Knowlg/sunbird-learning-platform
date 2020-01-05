@@ -19,7 +19,6 @@
         -  'content_image_definition'
         -  'item_definition'
         -  'itemset_definition'
-        -  'api_definition'
         -  'channel_definition'
         -  'reference_definition'
         -  'concept_definition'
