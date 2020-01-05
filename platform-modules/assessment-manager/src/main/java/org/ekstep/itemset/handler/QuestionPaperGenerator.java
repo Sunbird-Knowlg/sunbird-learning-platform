@@ -91,7 +91,7 @@ public class QuestionPaperGenerator {
             public int compare(Map.Entry<String, Object> o1,  
                                Map.Entry<String, Object> o2) 
             { 
-                return ((Integer)((Map<String, Object>)o1.getValue()).get("index")).compareTo((Integer)((Map<String, Object>)o2.getValue()).get("index")); 
+                return ((Long)((Map<String, Object>)o1.getValue()).get("index")).compareTo((Long)((Map<String, Object>)o2.getValue()).get("index")); 
             } 
         }); 
           
