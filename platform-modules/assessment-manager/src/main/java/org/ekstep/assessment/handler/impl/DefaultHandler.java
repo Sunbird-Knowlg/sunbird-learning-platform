@@ -26,9 +26,6 @@ public class DefaultHandler implements IAssessmentHandler {
 
     @Override
     public String populateAnswer(Map<String, Object> answerMap) {
-        Map<String, Object> responseValueMap = (Map<String, Object>) answerMap.getOrDefault("responseValue", new HashMap<>());
-        if (MapUtils.isNotEmpty(responseValueMap))
-            return (String) ((Map<String, Object>) responseValueMap.get("correct_response")).get("value");
-        return "";
+       return  (String)((Map<String, Object>)((Map<String, Object>)answerMap.getOrDefault("responseValue", new HashMap<>())).getOrDefault("correct_response", new HashMap<>())).getOrDefault("value", "");
     }
 }

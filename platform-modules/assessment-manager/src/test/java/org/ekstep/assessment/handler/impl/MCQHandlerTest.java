@@ -1,5 +1,6 @@
 package org.ekstep.assessment.handler.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.assessment.handler.AssessmentItemFactory;
@@ -9,6 +10,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.Map;
+
 
 public class MCQHandlerTest {
     private static IAssessmentHandler handler;
@@ -16,8 +19,8 @@ public class MCQHandlerTest {
 
     @BeforeClass
     public static void create() {
-        handler = AssessmentItemFactory.getHandler("mcq");
         mapper = new ObjectMapper();
+        handler = AssessmentItemFactory.getHandler("mcq");
     }
 
     @AfterClass
@@ -27,51 +30,27 @@ public class MCQHandlerTest {
     }
 
    @Test
-    public void populateQuestions() throws Exception {
-        String questionMap = handler.populateQuestion(HandlerImplData.mcqBodyString);
-        Assert.assertNotNull(questionMap);
-        Assert.assertTrue(StringUtils.isNoneBlank(questionMap));
-    }
-
-    /*@Test
-    public void populateQuestionsEmptyResponse() throws Exception {
-        Map<String, Object> bodyMap = mapper.readValue(HandlerImplData.mcqQuestionNotPresentBodyString, new TypeReference<Map<String, Object>>() {});
-        Map<String, Object> questionMap = handler.populateQuestion(bodyMap);
-        Assert.assertNotNull(questionMap);
-        Assert.assertTrue(MapUtils.isEmpty(questionMap));
-    }
-
-    @Test
-    public void populateQuestionsDataNotPresent() throws Exception {
-        Map<String, Object> bodyMap = mapper.readValue(HandlerImplData.mcqDataNotPresentBodyString, new TypeReference<Map<String, Object>>() {});
-        Map<String, Object> questionMap = handler.populateQuestion(bodyMap);
-        Assert.assertNotNull(questionMap);
-        Assert.assertTrue(MapUtils.isEmpty(questionMap));
+    public void populateQuestion() throws Exception {
+        String questionString = handler.populateQuestion(HandlerImplData.mcqBodyString);
+        Assert.assertNotNull(questionString);
+        Assert.assertTrue(StringUtils.isNoneBlank(questionString));
     }
 
     @Test
     public void populateAnswer() throws Exception {
-        Map<String, Object> bodyMap = mapper.readValue(HandlerImplData.mcqBodyString, new TypeReference<Map<String, Object>>() {});
-        Map<String, Object> answerMap = handler.populateAnswer(bodyMap);
-        Assert.assertNotNull(answerMap);
-        Assert.assertTrue(MapUtils.isNotEmpty(answerMap));
+        Map<String, Object> answersMap = mapper.readValue(HandlerImplData.mcqAnswerMap, new TypeReference<Map<String, Object>>(){});
+        String answerString = handler.populateAnswer((Map<String, Object>) answersMap.get("responseDeclaration"));
+        Assert.assertNotNull(answerString);
+        Assert.assertTrue(StringUtils.isNoneBlank(answerString));
     }
 
     @Test
-    public void populateAnswerEmptyResponse() throws Exception {
-        Map<String, Object> bodyMap = mapper.readValue(HandlerImplData.mcqAnswerNotPresentBodyString, new TypeReference<Map<String, Object>>() {});
-        Map<String, Object> answerMap = handler.populateAnswer(bodyMap);
-        Assert.assertNotNull(answerMap);
-        Assert.assertTrue(MapUtils.isEmpty(answerMap));
+    public void populateMalformedAnswer() throws Exception {
+        Map<String, Object> answersMap = mapper.readValue(HandlerImplData.mcqAnswerMapMalFormed, new TypeReference<Map<String, Object>>(){});
+        String answerString = handler.populateAnswer((Map<String, Object>) answersMap.get("responseDeclaration"));
+        Assert.assertNotNull(answerString);
+        Assert.assertTrue(StringUtils.isBlank(answerString));
     }
-
-    @Test
-    public void populateAnswerDataNotPresent() throws Exception {
-        Map<String, Object> bodyMap = mapper.readValue(HandlerImplData.mcqDataNotPresentBodyString, new TypeReference<Map<String, Object>>() {});
-        Map<String, Object> answerMap = handler.populateAnswer(bodyMap);
-        Assert.assertNotNull(answerMap);
-        Assert.assertTrue(MapUtils.isEmpty(answerMap));
-    }*/
 
     @Test
     public void getInstanceTest() {
