@@ -6,6 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
+import org.apache.velocity.app.VelocityEngine;
 import org.ekstep.assessment.handler.AssessmentItemFactory;
 import org.ekstep.assessment.handler.IAssessmentHandler;
 import org.ekstep.assessment.store.AssessmentStore;
@@ -18,6 +22,7 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class QuestionPaperGenerator {
@@ -44,7 +50,11 @@ public class QuestionPaperGenerator {
     private static final String INDEX = "IL_SEQUENCE_INDEX";
     private static final String ANSWER = "answer";
     private static final String HTMLEXT = ".html";
+    private static final String TEMPLATE_NAME = Platform.config.hasPath("lp.assessment.template_name") ? Platform.config.getString("lp.assessment.template_name") :"questionSetTemplate.vm";
 
+    static {
+        initVelocityEngine();
+    }
     public static File generateQuestionPaper(Node node) {
         Map<String, Object> childDetails = fetchChildDetails(node);
         if (MapUtils.isNotEmpty(childDetails)) {
@@ -153,120 +163,38 @@ public class QuestionPaperGenerator {
 
     // TODO: Need to use index for questions and options
     private static String generateHtmlString(File htmlTemp, Map<String, Object> assessmentMap, Node itemSet) {
-    		
-    		String htmlTemplate = null;
-    		if(MapUtils.isEmpty(assessmentMap)) {
-    			return htmlTemplate;
-    		}
-		htmlTemplate = "<header>\n" + 
-				"	<style type=\"text/css\">\n" + 
-				"		body {\n" + 
-				"			padding: 0;\n" + 
-				"			margin: 0;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		p {\n" + 
-				"			margin: 0;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		.questions-paper {\n" + 
-				"			padding: 50px;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		.question-header {\n" + 
-				"			text-align: center;\n" + 
-				"			padding: 16px 0;\n" + 
-				"			border-bottom: 1px solid #999;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		.question-header h2 {\n" + 
-				"			margin: 0;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		.main-container .question-section {\n" + 
-				"			display: flex;\n" + 
-				"			padding-top: 16px;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		.main-container .question-section:last-child {\n" + 
-				"			display: flex;\n" + 
-				"			padding-bottom: 16px;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		.question-count {\n" + 
-				"			font-weight: 600;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		.question-content {\n" + 
-				"			padding: 0 8px;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		.question-title {\n" + 
-				"			font-size: 16px;\n" + 
-				"			font-weight: 600;\n" + 
-				"			padding-bottom: 8px;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		.mcq-option {\n" + 
-				"			padding-left: 16px;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		.mcq-option p {\n" + 
-				"			line-height: 24px;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		.mcq-option p:before {\n" + 
-				"			content: '\\2022';\n" + 
-				"			margin-right: 8px;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		.answer {\n" + 
-				"			padding-left: 20px;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		.answer p:before {\n" + 
-				"			content: '\\2022';\n" + 
-				"			margin-right: 8px;\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		.answer-sheet {\n" + 
-				"			page-break-before: always;\n" + 
-				"		}\n" + 
-				"	</style>\n" + 
-				"</header>\n" + 
-				"\n" + 
-				"\n" + 
-				"<div class=\"questions-paper\">\n" + 
-				"	<div class=\"question-sheet\">q_placeholder</div>\n" + 
-				"\n" + 
-				"	<div class=\"answer-sheet\">a_placeholder</div>\n" + 
-				"</div>";
-	    	
-	    	StringBuilder questionString = new StringBuilder();
-	    	questionString.append("<div class='question-header'>" + "<h2>" + (String)itemSet.getMetadata().get("title") + "</h2></div>");
-	    	questionString.append("<div class='main-container'>");
-		    	assessmentMap.entrySet().forEach(question -> {
-		    		questionString.append("<div class='question-section'>");
-			    		questionString.append("<div class='question-count'>" +  ((Map<String, Object>) question.getValue()).get("index") + ".</div>");
-			    		questionString.append(((Map<String, Object>) question.getValue()).get("question"));
-			    	questionString.append("</div>");
-		    	});
-		questionString.append("</div>");
-	    	htmlTemplate = htmlTemplate.replace("q_placeholder", questionString.toString());
-	    	
-	    	StringBuilder answerString = new StringBuilder();
-	    	answerString.append("<div class='question-header'><h2>Answers</h2></div>");
-	    	answerString.append("<div class=\"main-container\">");
-		    	assessmentMap.keySet().forEach(key -> {
-		    		answerString.append("<div class='question-section'>");
-		    			answerString.append("<div class='question-count'>" +  ((Map<String, Object>) assessmentMap.get(key)).get("index") + ".</div>");
-		    			answerString.append("<div class='answer'>" + (((Map<String, Object>) assessmentMap.get(key)).get("answer")) + "</div>");
-			    	answerString.append("</div>");
-		    	});
-		answerString.append("</div>");
-	    	htmlTemplate = htmlTemplate.replace("a_placeholder", answerString.toString());
-   
-        return htmlTemplate;
+        if(MapUtils.isEmpty(assessmentMap)) {
+            return null;
+        }
+        VelocityContext veContext = new VelocityContext();
+        StringWriter w = new StringWriter();
+        StringBuilder strBuilder = new StringBuilder();
+        veContext.put("title", (String)itemSet.getMetadata().get("title"));
+        assessmentMap.entrySet().forEach(question -> {
+            strBuilder.append("<div class='question-section'>");
+            strBuilder.append("<div class='question-count'>" + ((Map<String, Object>) question.getValue()).get("index") + ".</div>");
+            strBuilder.append(((Map<String, Object>) question.getValue()).get("question"));
+            strBuilder.append("</div>");
+        });
+
+		veContext.put("questions", strBuilder.toString());
+        StringBuilder answerString = new StringBuilder();
+        assessmentMap.keySet().forEach(key -> {
+            answerString.append("<div class='question-section'>");
+            answerString.append("<div class='question-count'>" + ((Map<String, Object>) assessmentMap.get(key)).get("index") + ".</div>");
+            answerString.append("<div class='answer'>" + (((Map<String, Object>) assessmentMap.get(key)).get("answer")) + "</div>");
+            answerString.append("</div>");
+        });
+        veContext.put("answers", answerString.toString());
+        Velocity.mergeTemplate("questionSetTemplate.vm", "UTF-8", veContext, w);
+        return w.toString();
+    }
+
+    private static void initVelocityEngine() {
+        Properties p = new Properties();
+        p.setProperty("resource.loader", "class");
+        p.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        Velocity.init(p);
     }
 
     private static File generateHtmlFile(String htmlString, String assessmentSetId) {
