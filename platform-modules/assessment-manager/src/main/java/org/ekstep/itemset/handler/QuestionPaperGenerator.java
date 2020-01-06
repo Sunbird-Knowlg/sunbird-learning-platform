@@ -232,6 +232,9 @@ public class QuestionPaperGenerator {
 				"		.answer-sheet {\n" + 
 				"			page-break-before: always;\n" + 
 				"		}\n" + 
+				"		.question-section {" +
+							"page-break-inside: avoid;" +
+				"		}\n" +
 				"	</style>\n" + 
 				"</header>\n" + 
 				"\n" + 
