@@ -6,13 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
-import org.apache.velocity.app.VelocityEngine;
 import org.ekstep.assessment.handler.AssessmentItemFactory;
 import org.ekstep.assessment.handler.IAssessmentHandler;
 import org.ekstep.assessment.store.AssessmentStore;
+import org.ekstep.assessment.util.QuestionTemplateHandler;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.dac.model.Node;
@@ -22,7 +20,6 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,9 +49,6 @@ public class QuestionPaperGenerator {
     private static final String HTMLEXT = ".html";
     private static final String TEMPLATE_NAME = Platform.config.hasPath("lp.assessment.template_name") ? Platform.config.getString("lp.assessment.template_name") :"questionSetTemplate.vm";
 
-    static {
-        initVelocityEngine();
-    }
     public static File generateQuestionPaper(Node node) {
         Map<String, Object> childDetails = fetchChildDetails(node);
         if (MapUtils.isNotEmpty(childDetails)) {
@@ -166,10 +160,9 @@ public class QuestionPaperGenerator {
         if(MapUtils.isEmpty(assessmentMap)) {
             return null;
         }
-        VelocityContext veContext = new VelocityContext();
-        StringWriter w = new StringWriter();
+        Map<String, Object> velocityContext = new HashMap<>();
         StringBuilder strBuilder = new StringBuilder();
-        veContext.put("title", (String)itemSet.getMetadata().get("title"));
+        velocityContext.put("title", (String)itemSet.getMetadata().get("title"));
         assessmentMap.entrySet().forEach(question -> {
             strBuilder.append("<div class='question-section'>");
             strBuilder.append("<div class='question-count'>" + ((Map<String, Object>) question.getValue()).get("index") + ".</div>");
@@ -177,7 +170,7 @@ public class QuestionPaperGenerator {
             strBuilder.append("</div>");
         });
 
-		veContext.put("questions", strBuilder.toString());
+        velocityContext.put("questions", strBuilder.toString());
         StringBuilder answerString = new StringBuilder();
         assessmentMap.keySet().forEach(key -> {
             answerString.append("<div class='question-section'>");
@@ -185,16 +178,8 @@ public class QuestionPaperGenerator {
             answerString.append("<div class='answer'>" + (((Map<String, Object>) assessmentMap.get(key)).get("answer")) + "</div>");
             answerString.append("</div>");
         });
-        veContext.put("answers", answerString.toString());
-        Velocity.mergeTemplate("questionSetTemplate.vm", "UTF-8", veContext, w);
-        return w.toString();
-    }
-
-    private static void initVelocityEngine() {
-        Properties p = new Properties();
-        p.setProperty("resource.loader", "class");
-        p.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
-        Velocity.init(p);
+        velocityContext.put("answers", answerString.toString());
+        return QuestionTemplateHandler.handleHtmlTemplate(TEMPLATE_NAME, velocityContext);
     }
 
     private static File generateHtmlFile(String htmlString, String assessmentSetId) {
