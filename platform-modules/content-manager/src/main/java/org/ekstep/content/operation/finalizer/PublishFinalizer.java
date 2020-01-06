@@ -9,6 +9,7 @@ import com.rits.cloning.Cloner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -21,6 +22,7 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
+import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentConfigurationConstants;
@@ -95,11 +97,13 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 	private static final String ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive";
 	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
+	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
 	private static final List<String> LEVEL4_MIME_TYPES = Arrays.asList("video/x-youtube","application/pdf","application/msword","application/epub","application/vnd.ekstep.h5p-archive","text/x-url");
 	private static final List<String> LEVEL4_CONTENT_TYPES = Arrays.asList("Course","CourseUnit","LessonPlan","LessonPlanUnit");
 	private static final String  ES_INDEX_NAME = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
 	private static final String DOCUMENT_TYPE = Platform.config.hasPath("search.document.type") ? Platform.config.getString("search.document.type") : CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE;
 	private static final List<String> PUBLISHED_STATUS_LIST = Arrays.asList("Live", "Unlisted");
+	private static final Boolean ITEMSET_GENERATE_PDF = Platform.config.hasPath("itemset.generate.pdf") ? Platform.config.getBoolean("itemset.generate.pdf") : true;
 	
 	protected static final String PRINT_SERVICE_BASE_URL = Platform.config.hasPath("kp.print.service.base.url")
 			? Platform.config.getString("kp.print.service.base.url") : "http://localhost:5001";
@@ -183,7 +187,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		
 		
 		String itemsetPreviewUrl = getItemsetPreviewUrl(node);
-		if(StringUtils.isNoneBlank(itemsetPreviewUrl))
+		if(StringUtils.isNotBlank(itemsetPreviewUrl))
 			node.getMetadata().put(ContentWorkflowPipelineParams.itemSetPreviewUrl.name(), itemsetPreviewUrl);
 		 
 		boolean isCompressionApplied = (boolean) parameterMap.get(ContentWorkflowPipelineParams.isCompressionApplied.name());
@@ -1290,27 +1294,32 @@ public class PublishFinalizer extends BaseFinalizer {
 			try {
 				String questionBankHtml = ItemsetPublishManager.publish(outRelations);
 				if(StringUtils.isNotBlank(questionBankHtml)) {
-					Response generateResponse = HttpRestUtil.makePostRequest(PRINT_SERVICE_BASE_URL + "/v1/print/preview/generate?fileUrl=" 
-				+ questionBankHtml, new HashMap<>(), new HashMap<>());
+					if(ITEMSET_GENERATE_PDF) {
+						Response generateResponse = HttpRestUtil.makePostRequest(PRINT_SERVICE_BASE_URL + "/v1/print/preview/generate?fileUrl=" 
+								+ questionBankHtml, new HashMap<>(), new HashMap<>());
+						
+						if (generateResponse.getResponseCode() == ResponseCode.OK) {
+				            String itemsetPreviewUrl = (String)generateResponse.getResult().get(ContentAPIParams.pdfUrl.name());
+				            if(!itemsetPreviewUrl.isEmpty())
+				            		return uploadFile(itemsetPreviewUrl, node);
+				            else
+				                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+				                        "Itemset generated previewUrl is empty. Please Try Again After Sometime!");
+				        }else {
+				            if (generateResponse.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+				                TelemetryManager.error("Client Error during Generate Itemset previewUrl: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
+				                throw new ClientException(generateResponse.getParams().getErr(), generateResponse.getParams().getErrmsg());
+				            }
+				            else {
+				                TelemetryManager.error("Server Error during Generate Itemset preiewUrl: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
+				                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+				                        "Error During generate Itemset previewUrl. Please Try Again After Sometime!");
+				            }
+				        }
+					}else {
+						return uploadFile(questionBankHtml, node);
+					}
 					
-					if (generateResponse.getResponseCode() == ResponseCode.OK) {
-			            String itemsetPreviewUrl = (String)generateResponse.getResult().get(ContentAPIParams.pdfUrl.name());
-			            if(!itemsetPreviewUrl.isEmpty())
-			                return itemsetPreviewUrl;
-			            else
-			                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-			                        "Itemset generated previewUrl is empty. Please Try Again After Sometime!");
-			        }else {
-			            if (generateResponse.getResponseCode() == ResponseCode.CLIENT_ERROR) {
-			                TelemetryManager.error("Client Error during Generate Itemset previewUrl: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
-			                throw new ClientException(generateResponse.getParams().getErr(), generateResponse.getParams().getErrmsg());
-			            }
-			            else {
-			                TelemetryManager.error("Server Error during Generate Itemset preiewUrl: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
-			                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-			                        "Error During generate Itemset previewUrl. Please Try Again After Sometime!");
-			            }
-			        }
 				}
 				
 			}catch(Exception e) {
@@ -1321,4 +1330,37 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
     		return null;
     }
+    
+    private String uploadFile(String fileUrl, Node node) {
+    	
+    		File file = HttpDownloadUtility.downloadFile(fileUrl, basePath + File.separator + "itemset");
+    		if (null != file) {
+    			String newFileName = node.getIdentifier() + "_" + System.currentTimeMillis() + "." + FilenameUtils.getExtension(file.getName());
+        		boolean renameStatus = file.renameTo(new File(file.getParentFile(),newFileName));
+    			
+			try {
+				String folder = S3PropertyReader.getProperty(CONTENT_FOLDER);
+				folder = folder + "/" + Slug.makeSlug(node.getIdentifier(), true) + "/" + S3PropertyReader.getProperty(ARTEFACT_FOLDER);
+				String[] url = null;
+				if(renameStatus)
+					url = CloudStore.uploadFile(folder, new File(file.getParent() + "/" + newFileName), true);
+				else
+					url = CloudStore.uploadFile(folder, file, true);
+				return url[1];
+			} catch (Throwable e) {
+				TelemetryManager.error("Error during uploading question paper pdf file for content:: " + node.getIdentifier() + " Error:: " + e.getStackTrace());
+				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+	                    "Error during uploading question paper pdf file for content :" + node.getIdentifier()+". Please Try Again After Sometime!");
+			} finally {
+				try {
+					if(null != file)
+						delete(file);
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return null;
+	}
 }

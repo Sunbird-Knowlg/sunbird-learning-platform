@@ -97,6 +97,7 @@ public class ContentBundle {
 			urlFields.add("appIcon");
 			urlFields.add("grayScaleAppIcon");
 			urlFields.add("artifactUrl");
+			urlFields.add("itemSetPreviewUrl");
 		}
 
 		Map<Object, List<String>> downloadUrls = new HashMap<Object, List<String>>();
