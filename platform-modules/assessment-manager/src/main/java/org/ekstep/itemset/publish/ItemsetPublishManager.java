@@ -58,7 +58,7 @@ public class ItemsetPublishManager {
             
             File previewFile = QuestionPaperGenerator.generateQuestionPaper(itemSet);
             if (null != previewFile) {
-                String previewUrl = uploadFileToCloud(previewFile, itemSet.getIdentifier());
+                String previewUrl = ItemsetPublishManagerUtil.uploadFileToCloud(previewFile, itemSet.getIdentifier());
                 itemSet.getMetadata().put("previewUrl", previewUrl);
                 itemSet.getMetadata().put("status", "Live");
                 
@@ -73,17 +73,5 @@ public class ItemsetPublishManager {
         }
         TelemetryManager.error("Itemset List is empty :: " + itemSetIdetifiers.size());
         return null;
-    }
-
-    private static String uploadFileToCloud(File file, String identifier) {
-        try {
-            String folder = S3PropertyReader.getProperty(ITEMSET_FOLDER) + "/" + identifier;
-            String[] urlArray = CloudStore.uploadFile(folder, file, true);
-            return urlArray[1];
-        } catch (Exception e) {
-            TelemetryManager.error("Error while uploading the file.", e);
-            throw new ServerException(AssessmentErrorCodes.ERR_ASSESSMENT_UPLOAD_FILE.name(),
-                    "Error while uploading the File.", e);
-        }
     }
 }

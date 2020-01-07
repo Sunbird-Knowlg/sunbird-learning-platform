@@ -31,13 +31,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class QuestionPaperGenerator {
-    private static ControllerUtil controllerUtil = new ControllerUtil();
-    private static AssessmentStore assessmentStore = new AssessmentStore();
     private static final String ASSESSMENT_OBJECT_TYPE = "AssessmentItem";
-    private static final String TAXONOMY_ID = "domain";
-    private static final String NODE_LIST = "node_list";
     private static final String BODY = "body";
-    private static final List<String> externalPropsToFetch = Arrays.asList(BODY);
     private static final String TYPE = "type";
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String TEMP_FILE_LOCATION = Platform.config.hasPath("lp.assessment.tmp_file_location") ? Platform.config.getString("lp.assessment.tmp_file_location") : "/tmp/";
@@ -85,10 +80,8 @@ public class QuestionPaperGenerator {
     
     private static Map<String, Object> sortByIndex(Map<String, Object> hm) 
     { 
-        // Create a list from elements of HashMap 
         List<Map.Entry<String, Object> > list = new LinkedList(hm.entrySet()); 
   
-        // Sort the list 
         Collections.sort(list, new Comparator<Map.Entry<String, Object> >() { 
             public int compare(Map.Entry<String, Object> o1,  
                                Map.Entry<String, Object> o2) 
@@ -97,7 +90,6 @@ public class QuestionPaperGenerator {
             } 
         }); 
           
-        // put data from sorted list to hashmap  
         HashMap<String, Object> temp = new LinkedHashMap<String, Object>(); 
         for (Map.Entry<String, Object> aa : list) { 
             temp.put(aa.getKey(), aa.getValue()); 
