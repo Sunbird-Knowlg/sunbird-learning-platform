@@ -93,19 +93,13 @@ public class AssessmentStoreTest extends CommonTestSetup{
 	
 	@Rule
 	public ExpectedException exceptionRule = ExpectedException.none();
-	
 	@Test(expected = ServerException.class)
 	public void assessmentStoreTest_05() throws Exception {
-		//exceptionRule.expect(ServerException.class);
-		//exceptionRule.expectMessage("Error fetching items from cassandra.");
 		List<String> questIds = new ArrayList<>();
 		questIds.add("A127");
 		questIds.add("A126");
 		List<String> properties = new ArrayList<>();
 		properties.add("body1");
 		Map<String, Object> itemsMap = assessmentStore.getItems(questIds, properties);
-		
 	}
-
-
 }

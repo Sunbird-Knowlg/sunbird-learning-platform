@@ -1286,13 +1286,16 @@ public class PublishFinalizer extends BaseFinalizer {
     
     private String getItemsetPreviewUrl(Node node) {
     	
-    		List<String> outRelations = node.getOutRelations()
-    				.stream()
+    		List<Relation> outRelations = node.getOutRelations();
+    		if(CollectionUtils.isEmpty(outRelations)) {
+    			return null;
+    		}
+    		List<String> itemSetRelations = outRelations.stream()
     				.filter(r -> StringUtils.equalsIgnoreCase(r.getEndNodeObjectType(), "ItemSet"))
     				.map(x -> x.getEndNodeId()).collect(Collectors.toList());
-		if(CollectionUtils.isNotEmpty(outRelations)){
+		if(CollectionUtils.isNotEmpty(itemSetRelations)){
 			try {
-				String questionBankHtml = ItemsetPublishManager.publish(outRelations);
+				String questionBankHtml = ItemsetPublishManager.publish(itemSetRelations);
 				if(StringUtils.isNotBlank(questionBankHtml)) {
 					if(ITEMSET_GENERATE_PDF) {
 						Response generateResponse = HttpRestUtil.makePostRequest(PRINT_SERVICE_BASE_URL + "/v1/print/preview/generate?fileUrl=" 
