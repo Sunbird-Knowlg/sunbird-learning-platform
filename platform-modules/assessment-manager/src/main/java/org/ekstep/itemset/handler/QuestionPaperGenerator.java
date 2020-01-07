@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.velocity.app.Velocity;
 import org.ekstep.assessment.handler.AssessmentItemFactory;
 import org.ekstep.assessment.handler.IAssessmentHandler;
 import org.ekstep.assessment.store.AssessmentStore;
@@ -29,7 +28,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class QuestionPaperGenerator {
@@ -64,7 +62,7 @@ public class QuestionPaperGenerator {
         return null;
     }
 
-    private static Map<String, Object> fetchChildDetails(Node node) {
+    public static Map<String, Object> fetchChildDetails(Node node) {
         return node.getOutRelations().stream()
                 .filter(relation -> StringUtils.equalsIgnoreCase(ASSESSMENT_OBJECT_TYPE, relation.getEndNodeObjectType()))
                 .collect(Collectors.toMap(Relation::getEndNodeId, entry -> entry.getMetadata().get(INDEX)));
@@ -72,8 +70,8 @@ public class QuestionPaperGenerator {
 
     private static Map<String, Object> getAssessmentDataMap(Map<String, Object> childData) {
         List<String> identifiers = new ArrayList<>(childData.keySet());
-        Map<String, Object> nodeMap = getMetadataFromNeo4j(identifiers);
-        Map<String, Object> bodyMap = getExternalPropsData(identifiers);
+        Map<String, Object> nodeMap = QuestionPaperGeneratorUtil.getMetadataFromNeo4j(identifiers);
+        Map<String, Object> bodyMap = QuestionPaperGeneratorUtil.getExternalPropsData(identifiers);
         if (MapUtils.isNotEmpty(nodeMap) && MapUtils.isNotEmpty(bodyMap)) {
             Map<String, Object> assessmentMap = new HashMap<>(bodyMap);
             assessmentMap.forEach((key, value) -> ((Map<String, Object>)assessmentMap.get(key)).put(TYPE, ((String)((Node)nodeMap.get(key)).getMetadata().get("type")) ));
@@ -85,7 +83,7 @@ public class QuestionPaperGenerator {
         return null;
     }
     
-    public static Map<String, Object> sortByIndex(Map<String, Object> hm) 
+    private static Map<String, Object> sortByIndex(Map<String, Object> hm) 
     { 
         // Create a list from elements of HashMap 
         List<Map.Entry<String, Object> > list = new LinkedList(hm.entrySet()); 
@@ -107,18 +105,7 @@ public class QuestionPaperGenerator {
         return temp; 
     } 
 
-    private static Map<String, Object> getMetadataFromNeo4j(List<String> identifiers) {
-        Response response = controllerUtil.getDataNodes(TAXONOMY_ID, identifiers);
-        List<Node> nodes = (List<Node>) response.get(NODE_LIST);
-        if (CollectionUtils.isNotEmpty(nodes)) {
-            return nodes.stream().collect(Collectors.toMap(node -> node.getIdentifier(), node -> (Node) node));
-        }
-        return null;
-    }
-
-    private static Map<String, Object> getExternalPropsData(List<String> identifiers) {
-        return assessmentStore.getItems(identifiers, externalPropsToFetch);
-    }
+   
 
 
     /**
