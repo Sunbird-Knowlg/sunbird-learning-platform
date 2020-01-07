@@ -21,20 +21,20 @@ public class AssessmentItemFactoryTest {
 
     @Test
     public void assessmentItemFactorySATest() {
-        IAssessmentHandler handler = AssessmentItemFactory.getHandler("sa");
+        IAssessmentHandler handler = AssessmentItemFactory.getHandler("reference");
         Assert.assertNotNull(handler);
         Assert.assertTrue(handler instanceof DefaultHandler);
     }
 
     @Test
     public void assessmentItemFactoryVSATest() {
-        IAssessmentHandler handler = AssessmentItemFactory.getHandler("vsa");
+        IAssessmentHandler handler = AssessmentItemFactory.getHandler("reference");
         Assert.assertNotNull(handler);
         Assert.assertTrue(handler instanceof DefaultHandler);     }
 
     @Test
     public void assessmentItemFactoryLATest() {
-        IAssessmentHandler handler = AssessmentItemFactory.getHandler("la");
+        IAssessmentHandler handler = AssessmentItemFactory.getHandler("reference");
         Assert.assertNotNull(handler);
         Assert.assertTrue(handler instanceof DefaultHandler);     }
 
