@@ -2,6 +2,7 @@ package org.ekstep.assessment.handler.impl;
 
 import org.ekstep.assessment.handler.IAssessmentHandler;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class MCQHandler implements IAssessmentHandler {
@@ -25,8 +26,7 @@ public class MCQHandler implements IAssessmentHandler {
 
     @Override
     public String populateAnswer(Map<String, Object> answerMap) {
-        String answer = (String)((Map<String, Object>)((Map<String, Object>)answerMap.get("responseValue")).get("correct_response")).get("value");
-        return answer;
+        return  (String)((Map<String, Object>)((Map<String, Object>)answerMap.getOrDefault("responseValue", new HashMap<String, Object>())).getOrDefault("correct_response", new HashMap<String, Object>())).getOrDefault("value", "");
     }
 
 }
