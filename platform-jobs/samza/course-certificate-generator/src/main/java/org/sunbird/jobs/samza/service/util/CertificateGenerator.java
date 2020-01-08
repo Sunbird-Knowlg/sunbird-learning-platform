@@ -216,21 +216,8 @@ public class CertificateGenerator {
         return false;
     }
 
-    private Map<String, Object> getNotificationTemplate(Map<String, Object> certTemplate)  {
-        Object notifyTemplate = certTemplate.get("notifyTemplate");
-        if(notifyTemplate instanceof String) {
-            try {
-            return mapper.readValue((String) notifyTemplate, Map.class);
-            } catch (Exception e) {
-                LOGGER.error("Error while fetching notify template : " , e);
-                return new HashMap<>();
-            }
-        }else {
-            return (Map)notifyTemplate;
-        }
-    }
-
-    private Map<String,Object> prepareCertServiceRequest(String courseName, String batchId, String userId, String recipientName, Map<String, Object> userResponse, Map<String, Object> certTemplate, Date issuedOn) {
+    private Map<String,Object> prepareCertServiceRequest(String courseName, String batchId, String userId, Map<String, Object> userResponse, Map<String, Object> certTemplate, Date issuedOn) {
+        String recipientName = getRecipientName(userResponse);
         String rootOrgId = (String) userResponse.get("rootOrgId");
         Map<String, Object> keys = getKeysFromOrg(rootOrgId);
         Map<String, Object> request = new HashMap<String, Object>() {{
