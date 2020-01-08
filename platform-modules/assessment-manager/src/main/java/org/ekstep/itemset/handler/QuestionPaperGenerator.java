@@ -3,24 +3,19 @@ package org.ekstep.itemset.handler;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.assessment.handler.AssessmentItemFactory;
 import org.ekstep.assessment.handler.IAssessmentHandler;
-import org.ekstep.assessment.store.AssessmentStore;
 import org.ekstep.assessment.util.QuestionTemplateHandler;
 import org.ekstep.common.Platform;
-import org.ekstep.common.dto.Response;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
-import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
