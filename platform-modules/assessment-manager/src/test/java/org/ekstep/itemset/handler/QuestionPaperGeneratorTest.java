@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({QuestionPaperGenerator.class, QuestionPaperGeneratorUtil.class})
+@PrepareForTest({QuestionPaperGeneratorUtil.class})
 @PowerMockIgnore({"javax.management.*", "sun.security.ssl.*", "javax.net.ssl.*" , "javax.crypto.*"})
 public class QuestionPaperGeneratorTest extends GraphEngineTestSetup{
 
