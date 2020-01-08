@@ -14,6 +14,8 @@ import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,7 +28,7 @@ public class ItemsetPublishManager {
     private static final String TAXONOMY_ID = "domain";
     private static final String ITEMSET_FOLDER = "cloud_storage.itemset.folder";
     private static final List<String> assessmentItemAcceptedStatus = Arrays.asList("Draft", "Review", "Live");
-
+    ObjectMapper mapper = new ObjectMapper();
     public static String publish(List<String> itemSetIdetifiers) throws Exception {
         if (CollectionUtils.isNotEmpty(itemSetIdetifiers)) {
             Node itemSet = controllerUtil.getNode(TAXONOMY_ID, itemSetIdetifiers.get(0));
@@ -54,24 +56,26 @@ public class ItemsetPublishManager {
             			List<Relation> outRelationForPublish = itemSet.getOutRelations().stream().filter(x -> !assessmentItemNotAcceptedPublish.contains(x.getEndNodeId())).collect(Collectors.toList());
             			itemSet.setOutRelations(outRelationForPublish);
             		}
-            }
-            
-            File previewFile = QuestionPaperGenerator.generateQuestionPaper(itemSet);
-            if (null != previewFile) {
-                String previewUrl = ItemsetPublishManagerUtil.uploadFileToCloud(previewFile, itemSet.getIdentifier());
-                itemSet.getMetadata().put("previewUrl", previewUrl);
-                itemSet.getMetadata().put("status", "Live");
-                
-                response = controllerUtil.updateNode(itemSet);
-                if (response.getResponseCode() != ResponseCode.OK) {
-                		previewFile.delete();
-                		TelemetryManager.error("Itemset publish operation failed for :: " + itemSet.getIdentifier() + " ::::: " + response.getParams() + " ::::: " + response.getResponseCode() + " ::::::: " + response.getResult());
-                		throw new ServerException(AssessmentErrorCodes.ERR_ASSESSMENT_UPDATE.name(), "AssessmentItem with identifier: " + itemSet + "couldn't be updated");
+            		
+            		File previewFile = QuestionPaperGenerator.generateQuestionPaper(itemSet);
+                if (null != previewFile) {
+                    String previewUrl = ItemsetPublishManagerUtil.uploadFileToCloud(previewFile, itemSet.getIdentifier());
+                    itemSet.getMetadata().put("previewUrl", previewUrl);
+                    itemSet.getMetadata().put("status", "Live");
+                    
+                    response = controllerUtil.updateNode(itemSet);
+                    if(previewFile.exists())
+                    		previewFile.delete();
+                    if (response.getResponseCode() != ResponseCode.OK) {
+                    		
+                    		TelemetryManager.error("Itemset publish operation failed for :: " + itemSet.getIdentifier() + " ::::: " + response.getParams() + " ::::: " + response.getResponseCode() + " ::::::: " + response.getResult());
+                    		throw new ServerException(AssessmentErrorCodes.ERR_ASSESSMENT_UPDATE.name(), "AssessmentItem with identifier: " + itemSet + "couldn't be updated");
+                    }
+                    return previewUrl;
                 }
-                return previewUrl;
             }
         }
-        TelemetryManager.error("Itemset List is empty :: " + itemSetIdetifiers.size());
+        TelemetryManager.error("Itemset List is empty :: " + itemSetIdetifiers);
         return null;
     }
 }
