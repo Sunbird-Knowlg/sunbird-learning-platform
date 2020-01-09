@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
+import org.ekstep.assessment.mgr.AssessmentManagerImpl;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;

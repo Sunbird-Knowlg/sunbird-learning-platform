@@ -3,6 +3,7 @@
  */
 package org.ekstep.assessment.store;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -198,16 +199,6 @@ public class AssessmentStore {
 		return session.execute(boundStatement.bind(objects));
 	}
 
-	private String getSelectQuery(String property) {
-		StringBuilder sb = new StringBuilder();
-		if (StringUtils.isNotBlank(property)) {
-			sb.append("select blobAsText(").append(property).append(") as ");
-			sb.append(property.trim()).append(PROPERTY_SUFFIX)
-					.append(" from " + keyspace + Constants.DOT + table + " where question_id = ?");
-		}
-		return sb.toString();
-	}
-
 	private String getSelectQuery(List<String> properties) {
 		StringBuilder sb = new StringBuilder();
 		if (null != properties && !properties.isEmpty()) {
@@ -243,4 +234,47 @@ public class AssessmentStore {
 		return sb.toString();
 	}
 
+	public Map<String, Object> getItems(List<String> identifiers, List<String> properties) {
+		TelemetryManager.log("Bulk Get Items for identifiers: " + identifiers + " | Properties: " + properties);
+		Session session = CassandraConnector.getSession();
+		List<String> propertiesTofetch = new ArrayList<String>(properties);
+		if(propertiesTofetch.contains("body")) {
+			propertiesTofetch.add("blobAsText(body) as body");
+			propertiesTofetch.remove("body");
+		}
+		if(!propertiesTofetch.contains("question_id"))
+			propertiesTofetch.add("question_id");
+		String query = getSelectStatement(identifiers, propertiesTofetch);
+		try {
+		PreparedStatement ps = session.prepare(query);
+		BoundStatement bound = new BoundStatement(ps);
+		
+			ResultSet rs = session.execute(bound);
+			Map<String, Object> itemsMap = new HashMap<>();
+			if (null != rs) {
+				while (rs.iterator().hasNext()) {
+					Row row = rs.iterator().next();
+					Map<String, Object> propertyMap = new HashMap<String, Object>();
+					properties.forEach(prop -> propertyMap.put((String) prop, row.getString(prop)));
+					itemsMap.put(row.getString("question_id"), propertyMap);
+				}
+				return itemsMap;//blobAsText(body) as data
+			}
+		} catch (Exception e) {
+			TelemetryManager.error("Error! Executing get items: " + e.getMessage(), e);
+			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(),
+					"Error fetching items from cassandra.");
+		}
+		return null;
+	}
+
+
+	private static String getSelectStatement(List<String> ids, List<String> properties) {
+		StringBuilder query = new StringBuilder(
+				Constants.SELECT + " ");
+		query.append(String.join(",", properties));
+		query.append(Constants.FROM + keyspace + Constants.DOT + table + Constants.WHERE + "question_id " + Constants.IN
+				+ " ('" + String.join("','", ids) + "'); ");
+		return query.toString();
+	}
 }

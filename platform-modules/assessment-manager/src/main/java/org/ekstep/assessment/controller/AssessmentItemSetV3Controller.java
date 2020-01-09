@@ -169,7 +169,7 @@ public class AssessmentItemSetV3Controller extends BaseController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
-
+    
     private Request getSearchRequest(Map<String, Object> requestMap) {
         Request request = getRequest(requestMap);
         Map<String, Object> map = request.getRequest();

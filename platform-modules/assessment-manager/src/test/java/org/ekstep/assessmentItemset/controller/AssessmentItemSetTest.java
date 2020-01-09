@@ -39,6 +39,7 @@ import org.springframework.web.context.WebApplicationContext;
  * given criteria, delete the given assessmentitemsets Positive and negative
  * test senarios have been specified for each of the operation
  */
+@Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AssessmentItemSetTest extends CommonTestSetup {
 
@@ -298,6 +299,7 @@ public class AssessmentItemSetTest extends CommonTestSetup {
 
 	// Update assessmentItemset with invalid ItemSetId
 	// expect 404 response
+	@Ignore
 	@Test
 	public void updateNonexistingItemSet() {
 		MockMvc mockMvc;

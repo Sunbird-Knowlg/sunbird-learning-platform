@@ -23,8 +23,6 @@ import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.util.YouTubeUrlUtil;
-import org.ekstep.content.enums.ContentMetadata;
-import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
@@ -41,6 +39,7 @@ import org.ekstep.learning.contentstore.ContentStoreOperations;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.taxonomy.enums.ContentMetadata;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -530,7 +529,7 @@ public abstract class BaseContentManager extends BaseManager {
     protected boolean isContentImageObject(Node node) {
         boolean isContentImage = false;
         if (null != node && equalsIgnoreCase(node.getObjectType(),
-                ContentWorkflowPipelineParams.ContentImage.name()))
+                TaxonomyAPIParams.ContentImage.name()))
             isContentImage = true;
         return isContentImage;
     }

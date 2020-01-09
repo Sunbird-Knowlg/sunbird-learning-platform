@@ -15,6 +15,7 @@ import org.ekstep.test.common.CommonTestSetup;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -40,6 +41,7 @@ import org.springframework.web.context.WebApplicationContext;
  * given criteria, delete the given assessmentitemsets Positive and negative
  * test senarios have been specified for each of the operation
  */
+@Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AssessmentItemSetV3Test extends CommonTestSetup {
 
@@ -66,6 +68,7 @@ public class AssessmentItemSetV3Test extends CommonTestSetup {
 
 	// Create assessmentItemset
 	// expect 200 response
+	@Ignore
 	@Test
 	public void createItemsetWithValidRequest() {
 		MockMvc mockMvc;
@@ -212,6 +215,7 @@ public class AssessmentItemSetV3Test extends CommonTestSetup {
 
 	// Gets AssessmentItemSet with valid SetId
 	// expect 200 response
+	@Ignore
 	@Test
 	public void getValidItemset() {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -263,6 +267,7 @@ public class AssessmentItemSetV3Test extends CommonTestSetup {
 
 	// Update assessmentItemset with valid ItemSetId and valid request
 	// expect 200 response
+	@Ignore
 	@Test
 	public void updateItemSetWithValidRequest() {
 		MockMvc mockMvc;
