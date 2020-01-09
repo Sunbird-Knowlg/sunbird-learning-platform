@@ -9,7 +9,6 @@ import com.rits.cloning.Cloner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -22,7 +21,6 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
-import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentConfigurationConstants;
@@ -35,6 +33,7 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.util.ContentBundle;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
 import org.ekstep.content.util.GraphUtil;
+import org.ekstep.content.util.PublishFinalizeUtil;
 import org.ekstep.content.util.SyncMessageGenerator;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -112,6 +111,15 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private HierarchyStore hierarchyStore = new HierarchyStore();
 	private ControllerUtil util = new ControllerUtil();
+	private ItemsetPublishManager itemsetPublishManager = new ItemsetPublishManager(util);
+	private PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil();
+	public void setItemsetPublishManager(ItemsetPublishManager itemsetPublishManager) {
+		this.itemsetPublishManager = itemsetPublishManager;
+	}
+	
+	public void setPublishFinalizeUtil(PublishFinalizeUtil publishFinalizeUtil) {
+		this.publishFinalizeUtil = publishFinalizeUtil;
+	}
 
 	static {
 		ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
@@ -185,10 +193,13 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.setIdentifier(contentId);
 		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
 		
-		
-		String itemsetPreviewUrl = getItemsetPreviewUrl(node);
-		if(StringUtils.isNotBlank(itemsetPreviewUrl))
-			node.getMetadata().put(ContentWorkflowPipelineParams.itemSetPreviewUrl.name(), itemsetPreviewUrl);
+		try {
+			String itemsetPreviewUrl = getItemsetPreviewUrl(node);
+			if(StringUtils.isNotBlank(itemsetPreviewUrl))
+				node.getMetadata().put(ContentWorkflowPipelineParams.itemSetPreviewUrl.name(), itemsetPreviewUrl);
+		}catch(Exception e) {
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage() + ". Please Try Again After Sometime!");
+		}
 		 
 		boolean isCompressionApplied = (boolean) parameterMap.get(ContentWorkflowPipelineParams.isCompressionApplied.name());
 		TelemetryManager.log("Compression Applied ? " + isCompressionApplied);
@@ -1284,7 +1295,7 @@ public class PublishFinalizer extends BaseFinalizer {
         }
     }
     
-    private String getItemsetPreviewUrl(Node node) {
+    protected String getItemsetPreviewUrl(Node node) throws Exception {
     	
     		List<Relation> outRelations = node.getOutRelations();
     		if(CollectionUtils.isEmpty(outRelations)) {
@@ -1294,76 +1305,36 @@ public class PublishFinalizer extends BaseFinalizer {
     				.filter(r -> StringUtils.equalsIgnoreCase(r.getEndNodeObjectType(), "ItemSet"))
     				.map(x -> x.getEndNodeId()).collect(Collectors.toList());
 		if(CollectionUtils.isNotEmpty(itemSetRelations)){
-			try {
-				String questionBankHtml = ItemsetPublishManager.publish(itemSetRelations);
-				if(StringUtils.isNotBlank(questionBankHtml)) {
-					if(ITEMSET_GENERATE_PDF) {
-						Response generateResponse = HttpRestUtil.makePostRequest(PRINT_SERVICE_BASE_URL + "/v1/print/preview/generate?fileUrl=" 
-								+ questionBankHtml, new HashMap<>(), new HashMap<>());
-						
-						if (generateResponse.getResponseCode() == ResponseCode.OK) {
-				            String itemsetPreviewUrl = (String)generateResponse.getResult().get(ContentAPIParams.pdfUrl.name());
-				            if(!itemsetPreviewUrl.isEmpty())
-				            		return uploadFile(itemsetPreviewUrl, node);
-				            else
-				                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-				                        "Itemset generated previewUrl is empty. Please Try Again After Sometime!");
-				        }else {
-				            if (generateResponse.getResponseCode() == ResponseCode.CLIENT_ERROR) {
-				                TelemetryManager.error("Client Error during Generate Itemset previewUrl: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
-				                throw new ClientException(generateResponse.getParams().getErr(), generateResponse.getParams().getErrmsg());
-				            }
-				            else {
-				                TelemetryManager.error("Server Error during Generate Itemset preiewUrl: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
-				                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-				                        "Error During generate Itemset previewUrl. Please Try Again After Sometime!");
-				            }
-				        }
-					}else {
-						return uploadFile(questionBankHtml, node);
-					}
+			String questionBankHtml = itemsetPublishManager.publish(itemSetRelations);
+			if(StringUtils.isNotBlank(questionBankHtml)) {
+				if(ITEMSET_GENERATE_PDF) {
+					Response generateResponse = HttpRestUtil.makePostRequest(PRINT_SERVICE_BASE_URL + "/v1/print/preview/generate?fileUrl=" 
+							+ questionBankHtml, new HashMap<>(), new HashMap<>());
 					
+					if (generateResponse.getResponseCode() == ResponseCode.OK) {
+			            String itemsetPreviewUrl = (String)generateResponse.getResult().get(ContentAPIParams.pdfUrl.name());
+			            if(StringUtils.isNotBlank(itemsetPreviewUrl))
+			            		return publishFinalizeUtil.uploadFile(itemsetPreviewUrl, node, basePath);
+			            else
+			                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+			                        "Itemset generated previewUrl is empty. Please Try Again After Sometime!");
+			        }else {
+			            if (generateResponse.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+			                TelemetryManager.error("Client Error during Generate Itemset previewUrl: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
+			                throw new ClientException(generateResponse.getParams().getErr(), generateResponse.getParams().getErrmsg());
+			            }
+			            else {
+			                TelemetryManager.error("Server Error during Generate Itemset preiewUrl: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
+			                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+			                        "Error During generate Itemset previewUrl. Please Try Again After Sometime!");
+			            }
+			        }
+				}else {
+					return publishFinalizeUtil.uploadFile(questionBankHtml, node, basePath);
 				}
 				
-			}catch(Exception e) {
-				TelemetryManager.error("Server Error during Itemset publish. :: " + e.getMessage());
-				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-                        "Error During Itemset Publish. Please Try Again After Sometime!");
 			}
 		}
     		return null;
     }
-    
-    private String uploadFile(String fileUrl, Node node) {
-    	
-    		File file = HttpDownloadUtility.downloadFile(fileUrl, basePath + File.separator + "itemset");
-    		if (null != file) {
-    			String newFileName = node.getIdentifier() + "_" + System.currentTimeMillis() + "." + FilenameUtils.getExtension(file.getName());
-        		boolean renameStatus = file.renameTo(new File(file.getParentFile(),newFileName));
-    			
-			try {
-				String folder = S3PropertyReader.getProperty(CONTENT_FOLDER);
-				folder = folder + "/" + Slug.makeSlug(node.getIdentifier(), true) + "/" + S3PropertyReader.getProperty(ARTEFACT_FOLDER);
-				String[] url = null;
-				if(renameStatus)
-					url = CloudStore.uploadFile(folder, new File(file.getParent() + "/" + newFileName), true);
-				else
-					url = CloudStore.uploadFile(folder, file, true);
-				return url[1];
-			} catch (Throwable e) {
-				TelemetryManager.error("Error during uploading question paper pdf file for content:: " + node.getIdentifier() + " Error:: " + e.getStackTrace());
-				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-	                    "Error during uploading question paper pdf file for content :" + node.getIdentifier()+". Please Try Again After Sometime!");
-			} finally {
-				try {
-					if(null != file)
-						delete(file);
-					
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return null;
-	}
 }
