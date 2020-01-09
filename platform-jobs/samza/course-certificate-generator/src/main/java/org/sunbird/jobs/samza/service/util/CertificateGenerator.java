@@ -127,7 +127,7 @@ public class CertificateGenerator {
                 oldId = certificates.stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), cert.get("name"))).map(cert -> {return  cert.get("name");}).findFirst().orElse("");
             }
             String recipientName = getRecipientName(userResponse);
-            Map<String, Object> certServiceRequest = prepareCertServiceRequest(courseName, batchId, userId, recipientName, userResponse, certTemplate, issuedOn);
+            Map<String, Object> certServiceRequest = prepareCertServiceRequest(courseName, batchId, userId, userResponse, certTemplate, issuedOn);
             String url = CERT_SERVICE_URL + "/v1/certs/generate";
             HttpResponse<String> httpResponse = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(certServiceRequest)).asString();
             if(200 == httpResponse.getStatus()) {
@@ -214,6 +214,20 @@ public class CertificateGenerator {
             return true;
         }
         return false;
+    }
+
+    private Map<String, Object> getNotificationTemplate(Map<String, Object> certTemplate)  {
+        Object notifyTemplate = certTemplate.get("notifyTemplate");
+        if(notifyTemplate instanceof String) {
+            try {
+                return mapper.readValue((String) notifyTemplate, Map.class);
+            } catch (Exception e) {
+                LOGGER.error("Error while fetching notify template : " , e);
+                return new HashMap<>();
+            }
+        }else {
+            return (Map)notifyTemplate;
+        }
     }
 
     private Map<String,Object> prepareCertServiceRequest(String courseName, String batchId, String userId, Map<String, Object> userResponse, Map<String, Object> certTemplate, Date issuedOn) {
