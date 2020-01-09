@@ -24,15 +24,19 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ItemsetPublishManager {
-    private static final ControllerUtil controllerUtil = new ControllerUtil();
-    private static final String TAXONOMY_ID = "domain";
-    private static final String ITEMSET_FOLDER = "cloud_storage.itemset.folder";
+	private ControllerUtil controllerUtil;
+	public ItemsetPublishManager(ControllerUtil controllerUtil) {
+		this.controllerUtil = controllerUtil;
+	} 
+	private static final String TAXONOMY_ID = "domain";
     private static final List<String> assessmentItemAcceptedStatus = Arrays.asList("Draft", "Review", "Live");
     ObjectMapper mapper = new ObjectMapper();
-    public static String publish(List<String> itemSetIdetifiers) throws Exception {
+    public String publish(List<String> itemSetIdetifiers) throws Exception {
         if (CollectionUtils.isNotEmpty(itemSetIdetifiers)) {
             Node itemSet = controllerUtil.getNode(TAXONOMY_ID, itemSetIdetifiers.get(0));
             List<Relation> outRelations = itemSet.getOutRelations();
+            if(CollectionUtils.isEmpty(outRelations))
+            		return null;
             List<String> assessmentItemIds = outRelations.stream().filter(r -> StringUtils.equalsIgnoreCase(r.getEndNodeObjectType(), "AssessmentItem")).map(x -> x.getEndNodeId()).collect(Collectors.toList());
             Response response = null;
             if(CollectionUtils.isNotEmpty(assessmentItemIds)) {
@@ -58,8 +62,17 @@ public class ItemsetPublishManager {
             		}
             		
             		File previewFile = QuestionPaperGenerator.generateQuestionPaper(itemSet);
+            		if(null == previewFile) {
+            			TelemetryManager.error("Itemset questionPeper generated null file :: " + itemSetIdetifiers.get(0));
+            			throw new ServerException(AssessmentErrorCodes.ERR_QUESTIONPAPER_FILE_GENERATE.name(), "Question paper for identifier: " + itemSet + "couldn't be generated.");
+            		}
+            			
                 if (null != previewFile) {
                     String previewUrl = ItemsetPublishManagerUtil.uploadFileToCloud(previewFile, itemSet.getIdentifier());
+                    if(null == previewUrl) {
+                    		TelemetryManager.error("QuestionPeper - upload file - failed for Itemset :: " + itemSetIdetifiers.get(0));
+                    		throw new ServerException(AssessmentErrorCodes.ERR_QUESTIONPAPER_UPLOAD_FAILED.name(), "QuestionPaper upload failed for identifier: " + itemSet + ".");
+                    }
                     itemSet.getMetadata().put("previewUrl", previewUrl);
                     itemSet.getMetadata().put("status", "Live");
                     
@@ -67,7 +80,6 @@ public class ItemsetPublishManager {
                     if(previewFile.exists())
                     		previewFile.delete();
                     if (response.getResponseCode() != ResponseCode.OK) {
-                    		
                     		TelemetryManager.error("Itemset publish operation failed for :: " + itemSet.getIdentifier() + " ::::: " + response.getParams() + " ::::: " + response.getResponseCode() + " ::::::: " + response.getResult());
                     		throw new ServerException(AssessmentErrorCodes.ERR_ASSESSMENT_UPDATE.name(), "AssessmentItem with identifier: " + itemSet + "couldn't be updated");
                     }
