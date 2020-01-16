@@ -53,37 +53,17 @@ public class DefaultHandlerTest {
     @Test
     public void populateVSAAnswer() throws Exception {
         handler = AssessmentItemFactory.getHandler("reference");
-        Map<String, Object> answersMap = mapper.readValue(HandlerImplData.vsaAnswerString, new TypeReference<Map<String, Object>>() {
-        });
-        String answerString = handler.populateAnswer((Map<String, Object>) answersMap.get("responseDeclaration"));
+        String passedAnswerString = "Answer";
+        String answerString = handler.populateAnswer(passedAnswerString);
         Assert.assertNotNull(answerString);
         Assert.assertTrue(StringUtils.isNoneBlank(answerString));
+        Assert.assertTrue(StringUtils.equals(passedAnswerString, answerString));
     }
 
     @Test
     public void populateSAAnswer() throws Exception {
         handler = AssessmentItemFactory.getHandler("reference");
-        Map<String, Object> answersMap = mapper.readValue(HandlerImplData.saAnswerString, new TypeReference<Map<String, Object>>() {
-        });
-        String answerString = handler.populateAnswer((Map<String, Object>) answersMap.get("responseDeclaration"));
-        Assert.assertNotNull(answerString);
-        Assert.assertTrue(StringUtils.isNoneBlank(answerString));
+        String answerString = handler.populateAnswer(null);
+        Assert.assertNull(answerString);
     }
-
-    @Test
-    public void populateLAAnswer() throws Exception {
-        handler = AssessmentItemFactory.getHandler("reference");
-        Map<String, Object> answersMap = mapper.readValue(HandlerImplData.laAnswerString, new TypeReference<Map<String, Object>>() {
-        });
-        String answerString = handler.populateAnswer((Map<String, Object>) answersMap.get("responseDeclaration"));
-        Assert.assertNotNull(answerString);
-        Assert.assertTrue(StringUtils.isNoneBlank(answerString));
-    }
-
-    @Test
-    public void getInstanceTest() {
-        IAssessmentHandler handler = MCQHandler.getInstance();
-        Assert.assertTrue(handler instanceof MCQHandler);
-    }
-
 }
