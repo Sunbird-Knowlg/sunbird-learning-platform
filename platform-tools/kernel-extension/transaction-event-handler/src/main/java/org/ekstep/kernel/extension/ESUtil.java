@@ -5,13 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ESUtil {
 
-    private static final String BASE_URL = "http://localhost:9200";
+    private static final String BASE_URL = Platform.config.hasPath("lp_es_ip_port")?Platform.config.getString("lp_es_ip_port"): "http://localhost:9200";
     private static ObjectMapper mapper = new ObjectMapper();
 
     public static void addIndex(String index, String type, String settings, String mappings) throws Exception {
