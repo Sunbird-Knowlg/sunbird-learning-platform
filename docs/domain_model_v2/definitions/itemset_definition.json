@@ -283,7 +283,7 @@
         },
         {
           "required": false,
-          "dataType": "String",
+          "dataType": "Text",
           "propertyName": "channel",
           "title": "Channel",
           "description": "Channel",
