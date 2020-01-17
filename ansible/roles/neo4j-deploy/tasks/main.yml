@@ -16,6 +16,12 @@
   become_user: "{{learner_user}}"
   template: src=logstash-lp.j2  dest={{learner_user_home}}/logstash-{{logstash_version}}/logstash-lp.conf
 
+- name: Setting composite search ip address in env
+  lineinfile:
+    path: '/etc/environment'
+    line: 'lp_es_ip_port={{lp_es_ip_port}}'
+    regexp: "lp_es_ip_port"
+
 - name: remove existing kernel extension jar file
   become: yes
   become_user: "{{learner_user}}"
