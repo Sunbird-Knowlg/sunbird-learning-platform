@@ -1,7 +1,9 @@
 package org.ekstep.itemset.handler;
 
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +17,7 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,7 +40,7 @@ public class QuestionPaperGenerator {
     private static final String HTMLEXT = ".html";
     private static final String TEMPLATE_NAME = Platform.config.hasPath("lp.assessment.template_name") ? Platform.config.getString("lp.assessment.template_name") :"questionSetTemplate.vm";
 
-    public static File generateQuestionPaper(Node node) {
+    public static File generateQuestionPaper(Node node) throws JsonParseException, JsonMappingException, IOException {
         Map<String, Object> childDetails = fetchChildDetails(node);
         if (MapUtils.isNotEmpty(childDetails)) {
             Map<String, Object> assessmentData = getAssessmentDataMap(childDetails);
@@ -58,15 +61,42 @@ public class QuestionPaperGenerator {
                 .collect(Collectors.toMap(Relation::getEndNodeId, entry -> entry.getMetadata().get(INDEX)));
     }
 
-    private static Map<String, Object> getAssessmentDataMap(Map<String, Object> childData) {
+    public static Map<String, Object> getAssessmentDataMap(Map<String, Object> childData) throws JsonParseException, JsonMappingException, IOException {
         List<String> identifiers = new ArrayList<>(childData.keySet());
         Map<String, Object> nodeMap = QuestionPaperGeneratorUtil.getMetadataFromNeo4j(identifiers);
-        Map<String, Object> bodyMap = QuestionPaperGeneratorUtil.getExternalPropsData(identifiers);
-        if (MapUtils.isNotEmpty(nodeMap) && MapUtils.isNotEmpty(bodyMap)) {
-            Map<String, Object> assessmentMap = new HashMap<>(bodyMap);
-            assessmentMap.forEach((key, value) -> ((Map<String, Object>)assessmentMap.get(key)).put(TYPE, ((String)((Node)nodeMap.get(key)).getMetadata().get("type")) ));
-            assessmentMap.forEach((key, value) -> ((Map<String, Object>)assessmentMap.get(key)).put(INDEX, childData.get(key)));
-            assessmentMap.forEach((key, value) -> ((Map<String, Object>)assessmentMap.get(key)).put(ANSWER, ((Node)nodeMap.get(key)).getMetadata().get("responseDeclaration")));
+        Map<String, Object> externalPropMap = QuestionPaperGeneratorUtil.getExternalPropsData(identifiers);
+        if (MapUtils.isNotEmpty(nodeMap) && MapUtils.isNotEmpty(externalPropMap)) {
+            Map<String, Object> assessmentMap = new HashMap<>(externalPropMap);
+            for(String id : assessmentMap.keySet()) {
+            		String type = ((String)((Node)nodeMap.get(id)).getMetadata().get("type"));
+            		Map<String, Object> editorState = mapper.readValue((String)((Map<String, Object>) externalPropMap.get(id)).get("editorstate"), new TypeReference<Map<String, Object>>(){});//(Map<String, Object>)((Node)nodeMap.get(id)).getMetadata().get("editorState");
+            		String answer = null;
+            		if(StringUtils.isNotBlank((String)((Node)nodeMap.get(id)).getMetadata().get("responseDeclaration"))) {
+            			Map<String, Object> answerMap = mapper.readValue((String)((Node)nodeMap.get(id)).getMetadata().get("responseDeclaration"), new TypeReference<Map<String, Object>>(){});
+                		answer =  (String) ((Map<String, Object>) ((Map<String, Object>) answerMap.
+            					getOrDefault("responseValue", new HashMap<String, Object>())).
+            					getOrDefault("correct_response", new HashMap<String, Object>())).
+            					getOrDefault("value", null);
+            		}
+            		
+            		if(StringUtils.equalsIgnoreCase(type, "mcq") && MapUtils.isNotEmpty(editorState)) {
+            			if(StringUtils.isNoneBlank(answer)) {
+            				((Map<String, Object>)assessmentMap.get(id)).put(ANSWER, 
+            						((Map<String, Object>)
+            								((Map<String, Object>)
+            										((List<Map<String, Object>>)editorState.get("options")).
+            										get(Integer.parseInt(answer))).
+            								getOrDefault("value", new HashMap<String, Object>())).
+            						getOrDefault("body", ""));
+            			}else {
+            				((Map<String, Object>)assessmentMap.get(id)).put(ANSWER, "");
+            			}
+            		}else {
+            			((Map<String, Object>)assessmentMap.get(id)).put(ANSWER, null != answer ? answer : "");
+            		}
+            		((Map<String, Object>)assessmentMap.get(id)).put(TYPE, type);
+            		((Map<String, Object>)assessmentMap.get(id)).put(INDEX, childData.get(id));
+            }
             return assessmentMap;
         }
         TelemetryManager.error("Question Paper not generated because : typeMap and/or bodyMap is null.");
@@ -117,8 +147,7 @@ public class QuestionPaperGenerator {
                 if (StringUtils.isNotBlank(bodyString)) {
                     Map<String, Object> htmlDataMap = new HashMap<String, Object>();
                     htmlDataMap.put("question", handler.populateQuestion(bodyString));
-                    Map<String, Object> answerMap = mapper.readValue((String)valueMap.get(ANSWER), new TypeReference<Map<String, Object>>(){});
-                    htmlDataMap.put("answer", handler.populateAnswer(answerMap));
+                    htmlDataMap.put("answer", handler.populateAnswer((String)valueMap.get(ANSWER)));
                     htmlDataMap.put("index", valueMap.get(INDEX));
                     assessmentHtmlMap.put(key, htmlDataMap);
                 } else
@@ -136,7 +165,7 @@ public class QuestionPaperGenerator {
         }
         Map<String, Object> velocityContext = new HashMap<>();
         StringBuilder strBuilder = new StringBuilder();
-        velocityContext.put("title", (String)itemSet.getMetadata().get("title"));
+        velocityContext.put("title", (String)itemSet.getMetadata().get("name"));
         assessmentMap.entrySet().forEach(question -> {
             strBuilder.append("<div class='question-section'>");
             strBuilder.append("<div class='question-count'>" + ((Map<String, Object>) question.getValue()).get("index") + ".</div>");
@@ -149,6 +178,7 @@ public class QuestionPaperGenerator {
         assessmentMap.keySet().forEach(key -> {
             answerString.append("<div class='question-section'>");
             answerString.append("<div class='question-count'>" + ((Map<String, Object>) assessmentMap.get(key)).get("index") + ".</div>");
+            answerString.append(((Map<String, Object>) assessmentMap.get(key)).get("question"));
             answerString.append("<div class='answer'>" + (((Map<String, Object>) assessmentMap.get(key)).get("answer")) + "</div>");
             answerString.append("</div>");
         });

@@ -4,10 +4,12 @@
 package org.ekstep.assessment.store;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +41,7 @@ public class AssessmentStore {
 	static String table = "";
 	private static final String PROPERTY_SUFFIX = "__txt";
 	private static final ObjectMapper mapper = new ObjectMapper();
+	private static final List<String> assessmentExternalBlobProperties = Arrays.asList("body", "editorstate", "question", "solutions");
 	public AssessmentStore() {
 		keyspace = Platform.config.hasPath("assessment.keyspace.name")
 				? Platform.config.getString("assessment.keyspace.name") : "content_store";
@@ -238,10 +241,14 @@ public class AssessmentStore {
 		TelemetryManager.log("Bulk Get Items for identifiers: " + identifiers + " | Properties: " + properties);
 		Session session = CassandraConnector.getSession();
 		List<String> propertiesTofetch = new ArrayList<String>(properties);
-		if(propertiesTofetch.contains("body")) {
-			propertiesTofetch.add("blobAsText(body) as body");
-			propertiesTofetch.remove("body");
-		}
+		
+		assessmentExternalBlobProperties.stream().forEach(x -> {
+			if(propertiesTofetch.contains(x)) {
+				propertiesTofetch.add("blobAsText(" + x + ") as " + x);
+				propertiesTofetch.remove(x);
+			}
+		});
+		
 		if(!propertiesTofetch.contains("question_id"))
 			propertiesTofetch.add("question_id");
 		String query = getSelectStatement(identifiers, propertiesTofetch);
@@ -258,7 +265,7 @@ public class AssessmentStore {
 					properties.forEach(prop -> propertyMap.put((String) prop, row.getString(prop)));
 					itemsMap.put(row.getString("question_id"), propertyMap);
 				}
-				return itemsMap;//blobAsText(body) as data
+				return itemsMap;
 			}
 		} catch (Exception e) {
 			TelemetryManager.error("Error! Executing get items: " + e.getMessage(), e);

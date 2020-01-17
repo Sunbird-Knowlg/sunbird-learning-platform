@@ -49,7 +49,7 @@
           "indexed": true
         },
         {
-          "required": true,
+          "required": false,
           "dataType": "Number",
           "propertyName": "maxScore",
           "title": "Max Score",
@@ -63,7 +63,7 @@
           "draft": false
         },
         {
-          "required": false,
+          "required": true,
           "dataType": "Text",
           "propertyName": "name",
           "title": "Title",
@@ -77,7 +77,7 @@
           "draft": false
         },
         {
-          "required": true,
+          "required": false,
           "dataType": "Select",
           "propertyName": "type",
           "title": "Type",
@@ -261,6 +261,32 @@
           "propertyName": "board",
           "title": "Curriculum (Board)",
           "description": "Education Board (Like MP Board, NCERT, etc)",
+          "category": "Pedagogy",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "TermList",
+          "propertyName": "topic",
+          "title": "Medium",
+          "description": "Topic of instruction. e.g: English, Hindi etc",
+          "category": "Pedagogy",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "String",
+          "propertyName": "channel",
+          "title": "Channel",
+          "description": "Channel",
           "category": "Pedagogy",
           "displayProperty": "Editable",
           "defaultValue": "",

@@ -6,11 +6,9 @@ import org.ekstep.assessment.enums.AssessmentErrorCodes;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.itemset.handler.QuestionPaperGenerator;
-import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
