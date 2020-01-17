@@ -158,8 +158,8 @@ public class CSIndexer {
         List<String> indexablePropslist = new ArrayList<String>();
         Node node = graphDb.findNode(Label.label(graphId), "IL_UNIQUE_ID", "DEFINITION_NODE_" + objectType);
 
-        String inRelationString = (String) node.getProperty("IL_IN_RELATIONS_KEY");
-        String outRelationString = (String) node.getProperty("IL_OUT_RELATIONS_KEY");
+        String inRelationString = (null!=node.getProperty("IL_IN_RELATIONS_KEY"))? ((String) node.getProperty("IL_IN_RELATIONS_KEY")) : "";
+        String outRelationString = (null!=node.getProperty("IL_OUT_RELATIONS_KEY"))? ((String) node.getProperty("IL_OUT_RELATIONS_KEY")): "";
 
         List<Map<String, Object>> inRelation = (StringUtils.isNotBlank(inRelationString))? (List<Map<String, Object>>) mapper.readValue(inRelationString, List.class): new ArrayList<>();
 
