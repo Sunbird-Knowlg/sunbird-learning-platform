@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Result;
 
 import java.util.ArrayList;
@@ -157,9 +158,13 @@ public class CSIndexer {
                                  Map<String, Object> message, GraphDatabaseService graphDb) throws Exception {
         List<String> indexablePropslist = new ArrayList<String>();
         Node node = graphDb.findNode(Label.label(graphId), "IL_UNIQUE_ID", "DEFINITION_NODE_" + objectType);
-
-        String inRelationString = (null!=node.getProperty("IL_IN_RELATIONS_KEY"))? ((String) node.getProperty("IL_IN_RELATIONS_KEY")) : "";
-        String outRelationString = (null!=node.getProperty("IL_OUT_RELATIONS_KEY"))? ((String) node.getProperty("IL_OUT_RELATIONS_KEY")): "";
+        String inRelationString = "";
+        String outRelationString = "";
+        try{
+            inRelationString = (String) node.getProperty("IL_IN_RELATIONS_KEY");
+            outRelationString = (String) node.getProperty("IL_OUT_RELATIONS_KEY");
+        }catch (NotFoundException e){
+        }
 
         List<Map<String, Object>> inRelation = (StringUtils.isNotBlank(inRelationString))? (List<Map<String, Object>>) mapper.readValue(inRelationString, List.class): new ArrayList<>();
 
