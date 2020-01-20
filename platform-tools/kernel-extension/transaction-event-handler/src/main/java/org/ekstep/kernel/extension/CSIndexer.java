@@ -161,8 +161,8 @@ public class CSIndexer {
         String inRelationString = "";
         String outRelationString = "";
         try{
-            inRelationString = (String) node.getProperty("IL_IN_RELATIONS_KEY");
-            outRelationString = (String) node.getProperty("IL_OUT_RELATIONS_KEY");
+            inRelationString = (null != (String) node.getProperty("IL_IN_RELATIONS_KEY"))? ((String) node.getProperty("IL_IN_RELATIONS_KEY")):"";
+            outRelationString = (null != (String) node.getProperty("IL_OUT_RELATIONS_KEY"))? ((String) node.getProperty("IL_OUT_RELATIONS_KEY")): "";
         }catch (NotFoundException e){
         }
 
