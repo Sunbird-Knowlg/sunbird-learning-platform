@@ -179,8 +179,8 @@ public class QuestionPaperGenerator {
             answerString.append("<div class='question-section'>");
             answerString.append("<div class='question-count'>" + ((Map<String, Object>) assessmentMap.get(key)).get("index") + ".</div>");
             answerString.append(((Map<String, Object>) assessmentMap.get(key)).get("question"));
-            answerString.append("<div class='answer'>" + (((Map<String, Object>) assessmentMap.get(key)).get("answer")) + "</div>");
             answerString.append("</div>");
+            answerString.append("<div class='answer'>" + (((Map<String, Object>) assessmentMap.get(key)).get("answer")) + "</div>");
         });
         velocityContext.put("answers", answerString.toString());
         return QuestionTemplateHandler.handleHtmlTemplate(TEMPLATE_NAME, velocityContext);
