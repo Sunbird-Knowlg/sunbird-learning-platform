@@ -177,6 +177,7 @@ public class CertificateGenerator {
             if(StringUtils.isNotBlank(oldId))
                 request.put(CourseCertificateParams.oldId.name(), oldId);
             HttpResponse<String> response = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
+            LOGGER.info("Add certificate to registry response for batchid: " + batchId  +" and courseid: " + courseId + " is : " + response.getStatus() + " :: "+ response.getBody());
             return (200 == response.getStatus());
         } catch(Exception e) {
             LOGGER.error("Error while adding the certificate to user: " + certificate, e);
