@@ -168,7 +168,7 @@ public class QuestionPaperGenerator {
         velocityContext.put("title", (String)itemSet.getMetadata().get("name"));
         assessmentMap.entrySet().forEach(question -> {
             strBuilder.append("<div class='question-section'>");
-            strBuilder.append("<div class='question-count'>" + ((Map<String, Object>) question.getValue()).get("index") + ".</div>");
+            strBuilder.append("<div class='question-count'>" + ((Map<String, Object>) question.getValue()).get("index") + ".&nbsp</div>");
             strBuilder.append(((Map<String, Object>) question.getValue()).get("question"));
             strBuilder.append("</div>");
         });
@@ -177,10 +177,10 @@ public class QuestionPaperGenerator {
         StringBuilder answerString = new StringBuilder();
         assessmentMap.keySet().forEach(key -> {
             answerString.append("<div class='question-section'>");
-            answerString.append("<div class='question-count'>" + ((Map<String, Object>) assessmentMap.get(key)).get("index") + ".</div>");
+            answerString.append("<div class='question-count'>" + ((Map<String, Object>) assessmentMap.get(key)).get("index") + ".&nbsp</div>");
             answerString.append(((Map<String, Object>) assessmentMap.get(key)).get("question"));
-            answerString.append("<div class='answer'>" + (((Map<String, Object>) assessmentMap.get(key)).get("answer")) + "</div>");
             answerString.append("</div>");
+            answerString.append("<div class='answer'>" + (((Map<String, Object>) assessmentMap.get(key)).get("answer")) + "</div>");
         });
         velocityContext.put("answers", answerString.toString());
         return QuestionTemplateHandler.handleHtmlTemplate(TEMPLATE_NAME, velocityContext);
