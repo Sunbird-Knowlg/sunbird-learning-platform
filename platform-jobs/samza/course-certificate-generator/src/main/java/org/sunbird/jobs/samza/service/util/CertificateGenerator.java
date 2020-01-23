@@ -170,7 +170,7 @@ public class CertificateGenerator {
             request.put(CourseCertificateParams.id.name(), certificate.get(CourseCertificateParams.id.name()));
             request.put("pdfURL", certificate.get(CourseCertificateParams.pdfUrl.name()));
             request.put("related", new HashMap<String, Object>(){{
-                put("type", getCertificateType(certName));
+                put("type", certName.toLowerCase());
                 put(CourseCertificateParams.courseId.name(), courseId);
                 put(CourseCertificateParams.batchId.name(), batchId);
             }});
@@ -183,14 +183,6 @@ public class CertificateGenerator {
             LOGGER.error("Error while adding the certificate to user: " + certificate, e);
         }
         return false;
-    }
-
-    private Object getCertificateType(String certName) {
-        String type = "course-completion";
-        if(StringUtils.isNotBlank(certName) && certName.contains("merit")) {
-            type = "course-performance";
-        }
-        return type;
     }
 
     private boolean notifyUser(String userId, Map<String, Object> certTemplate, String courseName, Map<String, Object> userResponse, Date issuedOn) {
