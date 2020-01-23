@@ -147,7 +147,7 @@ public class CertificateGenerator {
                     SunbirdCassandraUtil.update(KEYSPACE, USER_COURSES_TABLE, dataToUpdate, dataToSelect);
                     updatedES(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
                 }
-                if(addCertificateToUser(certificate, courseId, batchId, oldId, recipientName)) {
+                if(addCertificateToUser(certificate, courseId, batchId, oldId, recipientName, (String)certTemplate.get("name"))) {
                     notifyUser(userId, certTemplate, courseName, userResponse, issuedOn);
                 }
             } else {
@@ -158,7 +158,7 @@ public class CertificateGenerator {
         }
     }
 
-    private boolean addCertificateToUser(Map<String, Object> certificate, String courseId, String batchId, String oldId, String recipientName) {
+    private boolean addCertificateToUser(Map<String, Object> certificate, String courseId, String batchId, String oldId, String recipientName, String certName) {
         try{
             String url = CERT_REG_SERVICE_BASE_URL + "/certs/v1/registry/add";
             Request request = new Request();
@@ -170,6 +170,7 @@ public class CertificateGenerator {
             request.put(CourseCertificateParams.id.name(), certificate.get(CourseCertificateParams.id.name()));
             request.put("pdfURL", certificate.get(CourseCertificateParams.pdfUrl.name()));
             request.put("related", new HashMap<String, Object>(){{
+                put("type", getCertificateType(certName));
                 put(CourseCertificateParams.courseId.name(), courseId);
                 put(CourseCertificateParams.batchId.name(), batchId);
             }});
@@ -181,6 +182,14 @@ public class CertificateGenerator {
             LOGGER.error("Error while adding the certificate to user: " + certificate, e);
         }
         return false;
+    }
+
+    private Object getCertificateType(String certName) {
+        String type = "course-completion";
+        if(StringUtils.isNotBlank(certName) && certName.contains("merit")) {
+            type = "course-performance";
+        }
+        return type;
     }
 
     private boolean notifyUser(String userId, Map<String, Object> certTemplate, String courseName, Map<String, Object> userResponse, Date issuedOn) {
