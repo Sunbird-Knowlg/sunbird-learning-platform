@@ -1,7 +1,6 @@
 package org.sunbird.jobs.samza.service.util;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
@@ -47,8 +46,6 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
                 }
             }
         }
-        System.out.println("open batch "+openBatchCount);
-        System.out.println("invite-only "+privateBatchCount);
         Request request = new Request();
         Map<String,Object> contentMap = new HashMap<>();
         contentMap.put("c_" + installation.toLowerCase() + "_open_batch_count".toLowerCase(), openBatchCount);
