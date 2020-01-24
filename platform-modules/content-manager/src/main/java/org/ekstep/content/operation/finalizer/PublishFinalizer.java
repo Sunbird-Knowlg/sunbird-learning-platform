@@ -198,6 +198,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			if(StringUtils.isNotBlank(itemsetPreviewUrl))
 				node.getMetadata().put(ContentWorkflowPipelineParams.itemSetPreviewUrl.name(), itemsetPreviewUrl);
 		}catch(Exception e) {
+			TelemetryManager.error("Error in Itemset PreviewUrl generation :: " + e.getStackTrace());
+			e.printStackTrace();
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage() + ". Please Try Again After Sometime!");
 		}
 		 
