@@ -168,7 +168,7 @@ public class CertificateGenerator {
             request.put(CourseCertificateParams.jsonData.name(), certificate.get(CourseCertificateParams.jsonData.name()));
             request.put(CourseCertificateParams.jsonUrl.name(), certificate.get(CourseCertificateParams.jsonUrl.name()));
             request.put(CourseCertificateParams.id.name(), certificate.get(CourseCertificateParams.id.name()));
-            request.put("pdfURL", certificate.get(CourseCertificateParams.pdfUrl.name()));
+            request.put(CourseCertificateParams.pdfUrl.name(), certificate.get(CourseCertificateParams.pdfUrl.name()));
             request.put("related", new HashMap<String, Object>(){{
                 put("type", certName.toLowerCase());
                 put(CourseCertificateParams.courseId.name(), courseId);
