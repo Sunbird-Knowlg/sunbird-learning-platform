@@ -21,10 +21,11 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
             : "sunbird_courses";
     private static final String courseBatchTable = "course_batch";
     private static final String ES_INDEX_NAME = "course-batch";
-    private static String installation = Platform.config.hasPath("sunbird.installation") ? Platform.config.getString("sunbird.installation"): "sunbird";
+    private BatchCountUpdater batchCountUpdater = null;
 
     public BatchStatusUpdater() {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
+        batchCountUpdater = new BatchCountUpdater();
     }
 
     public void update(Map<String, Object> edata) throws Exception {
@@ -32,6 +33,7 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
         String courseId = (String) edata.get(CourseBatchParams.courseId.name());
         int status = (int) edata.get(CourseBatchParams.status.name());
         updateStatusOfBatch(batchId, courseId, status);
+        batchCountUpdater.update(edata);
     }
 
     private static void updateStatusOfBatch(String batchId, String courseId, int status) throws Exception {
