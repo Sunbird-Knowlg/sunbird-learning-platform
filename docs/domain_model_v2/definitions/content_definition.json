@@ -1110,7 +1110,8 @@
                         "ExplanationResource",
                         "ExperientialResource",
 						"ConceptMap",
-						"SelfAssess"
+						"SelfAssess",
+						"PracticeResource"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
