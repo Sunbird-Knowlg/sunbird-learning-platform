@@ -113,6 +113,8 @@ public class IssueCertificate {
     }
 
     private static List<String> getUsersFromUserCriteria(Map<String, Object> criteria, List<String> userIds) throws Exception {
+        if(MapUtils.isEmpty(criteria))
+            return new ArrayList<>();
         Integer batchSize = 50;
         String url = LEARNER_SERVICE_PRIVATE_URL + "/private/user/v1/search";
         List<List<String>> batchList = ListUtils.partition(userIds, batchSize);

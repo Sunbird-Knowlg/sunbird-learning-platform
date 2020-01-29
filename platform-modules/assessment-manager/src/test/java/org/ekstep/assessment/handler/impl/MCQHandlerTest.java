@@ -1,6 +1,5 @@
 package org.ekstep.assessment.handler.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.assessment.handler.AssessmentItemFactory;
@@ -9,9 +8,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.Map;
-
 
 public class MCQHandlerTest {
     private static IAssessmentHandler handler;
@@ -38,17 +34,17 @@ public class MCQHandlerTest {
 
     @Test
     public void populateAnswer() throws Exception {
-        Map<String, Object> answersMap = mapper.readValue(HandlerImplData.mcqAnswerMap, new TypeReference<Map<String, Object>>(){});
-        String answerString = handler.populateAnswer((Map<String, Object>) answersMap.get("responseDeclaration"));
+        String passedAnswerString = "Answer";
+        String answerString = handler.populateAnswer(passedAnswerString);
         Assert.assertNotNull(answerString);
         Assert.assertTrue(StringUtils.isNoneBlank(answerString));
+        Assert.assertTrue(StringUtils.equals(passedAnswerString, answerString));
     }
 
     @Test
     public void populateMalformedAnswer() throws Exception {
-        Map<String, Object> answersMap = mapper.readValue(HandlerImplData.mcqAnswerMapMalFormed, new TypeReference<Map<String, Object>>(){});
-        String answerString = handler.populateAnswer((Map<String, Object>) answersMap.get("responseDeclaration"));
-        Assert.assertNotNull(answerString);
+        String answerString = handler.populateAnswer(null);
+        Assert.assertNull(answerString);
         Assert.assertTrue(StringUtils.isBlank(answerString));
     }
 
