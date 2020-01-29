@@ -1,11 +1,9 @@
 package org.ekstep.assessment.handler;
 
-import java.util.Map;
-
 public interface IAssessmentHandler {
 
-	String populateQuestion(String bodyMap);
+	String populateQuestion(String question);
 
-    String populateAnswer(Map<String, Object> bodyMap);
+    String populateAnswer(String answer);
 
 }

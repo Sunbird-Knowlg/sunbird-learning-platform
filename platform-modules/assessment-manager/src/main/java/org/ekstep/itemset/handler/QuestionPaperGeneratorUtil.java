@@ -18,7 +18,8 @@ public class QuestionPaperGeneratorUtil {
 	private static final String TAXONOMY_ID = "domain";
     private static final String NODE_LIST = "node_list";
     private static final String BODY = "body";
-    private static final List<String> externalPropsToFetch = Arrays.asList(BODY);
+    private static final String EDITORSTATE = "editorstate";
+    private static final List<String> externalPropsToFetch = Arrays.asList(BODY, EDITORSTATE);
     
 	public static Map<String, Object> getMetadataFromNeo4j(List<String> identifiers) {
 		Response response = controllerUtil.getDataNodes(TAXONOMY_ID, identifiers);

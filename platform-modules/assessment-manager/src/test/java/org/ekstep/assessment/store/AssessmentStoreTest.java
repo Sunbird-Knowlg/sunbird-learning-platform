@@ -6,6 +6,8 @@ package org.ekstep.assessment.store;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -82,12 +84,21 @@ public class AssessmentStoreTest extends CommonTestSetup{
 	
 	@Test
 	public void assessmentStoreTest_04() throws Exception {
+		Map<String, Object> updateProperties = new HashMap<String, Object>();
+		updateProperties.put("body", "A126 Body!!!!!!!!!");
+		updateProperties.put("editorstate", "A126 Editorstate!!!!!!!!!");
+		assessmentStore.updateAssessmentProperties("A126", updateProperties);
+		
+		updateProperties = new HashMap<String, Object>();
+		updateProperties.put("body", "A127 Body!!!!!!!!!");
+		updateProperties.put("editorstate", "A127 Editorstate!!!!!!!!!");
+		assessmentStore.updateAssessmentProperties("A127", updateProperties);
+		
 		List<String> questIds = new ArrayList<>();
 		questIds.add("A127");
 		questIds.add("A126");
-		List<String> properties = new ArrayList<>();
-		properties.add("body");
-		Map<String, Object> itemsMap = assessmentStore.getItems(questIds, properties);
+		List<String> readProperties = new ArrayList<>(Arrays.asList("body", "editorstate"));
+		Map<String, Object> itemsMap = assessmentStore.getItems(questIds, readProperties);
 		assertTrue(!itemsMap.isEmpty());
 	}
 	

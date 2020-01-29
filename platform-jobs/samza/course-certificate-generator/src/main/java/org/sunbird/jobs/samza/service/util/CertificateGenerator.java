@@ -147,7 +147,7 @@ public class CertificateGenerator {
                     SunbirdCassandraUtil.update(KEYSPACE, USER_COURSES_TABLE, dataToUpdate, dataToSelect);
                     updatedES(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
                 }
-                if(addCertificateToUser(certificate, courseId, batchId, oldId, recipientName)) {
+                if(addCertificateToUser(certificate, courseId, batchId, oldId, recipientName, (String)certTemplate.get("name"))) {
                     notifyUser(userId, certTemplate, courseName, userResponse, issuedOn);
                 }
             } else {
@@ -158,7 +158,7 @@ public class CertificateGenerator {
         }
     }
 
-    private boolean addCertificateToUser(Map<String, Object> certificate, String courseId, String batchId, String oldId, String recipientName) {
+    private boolean addCertificateToUser(Map<String, Object> certificate, String courseId, String batchId, String oldId, String recipientName, String certName) {
         try{
             String url = CERT_REG_SERVICE_BASE_URL + "/certs/v1/registry/add";
             Request request = new Request();
@@ -168,14 +168,16 @@ public class CertificateGenerator {
             request.put(CourseCertificateParams.jsonData.name(), certificate.get(CourseCertificateParams.jsonData.name()));
             request.put(CourseCertificateParams.jsonUrl.name(), certificate.get(CourseCertificateParams.jsonUrl.name()));
             request.put(CourseCertificateParams.id.name(), certificate.get(CourseCertificateParams.id.name()));
-            request.put("pdfURL", certificate.get(CourseCertificateParams.pdfUrl.name()));
+            request.put(CourseCertificateParams.pdfUrl.name(), certificate.get(CourseCertificateParams.pdfUrl.name()));
             request.put("related", new HashMap<String, Object>(){{
+                put("type", certName.toLowerCase());
                 put(CourseCertificateParams.courseId.name(), courseId);
                 put(CourseCertificateParams.batchId.name(), batchId);
             }});
             if(StringUtils.isNotBlank(oldId))
                 request.put(CourseCertificateParams.oldId.name(), oldId);
             HttpResponse<String> response = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
+            LOGGER.info("Add certificate to registry response for batchid: " + batchId  +" and courseid: " + courseId + " is : " + response.getStatus() + " :: "+ response.getBody());
             return (200 == response.getStatus());
         } catch(Exception e) {
             LOGGER.error("Error while adding the certificate to user: " + certificate, e);

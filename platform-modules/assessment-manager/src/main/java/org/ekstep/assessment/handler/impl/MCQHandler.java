@@ -25,8 +25,8 @@ public class MCQHandler implements IAssessmentHandler {
     }
 
     @Override
-    public String populateAnswer(Map<String, Object> answerMap) {
-        return  (String)((Map<String, Object>)((Map<String, Object>)answerMap.getOrDefault("responseValue", new HashMap<String, Object>())).getOrDefault("correct_response", new HashMap<String, Object>())).getOrDefault("value", "");
+    public String populateAnswer(String answer) {
+    		return answer;
     }
 
 }

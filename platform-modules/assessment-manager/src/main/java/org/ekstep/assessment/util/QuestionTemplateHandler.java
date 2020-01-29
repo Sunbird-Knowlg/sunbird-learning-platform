@@ -1,6 +1,5 @@
 package org.ekstep.assessment.util;
 
-import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 
