@@ -78,7 +78,7 @@ public class CourseBatchUpdaterService implements ISamzaService {
                 case "batch-status-update":
                     batchStatusUpdater.update(edata);
                     break;
-                case "batch-count-update":
+                case "course-batch-update":
                     LOGGER.info("Batch Count update for : " + edata);
                     batchCountUpdater.update(edata);
                     break;

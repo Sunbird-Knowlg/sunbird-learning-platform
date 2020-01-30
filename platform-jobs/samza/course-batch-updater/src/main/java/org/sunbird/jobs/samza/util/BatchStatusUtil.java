@@ -144,7 +144,7 @@ public class BatchStatusUtil {
             }});
             put("eid", "BE_JOB_REQUEST");
             put("edata",  new HashMap<String, Object>(){{
-                put("action", "batch-count-update");
+                put("action", "course-batch-update");
                 put("iteration", 1);
                 put("courseId", courseId);
                 put("batchId", batchId);

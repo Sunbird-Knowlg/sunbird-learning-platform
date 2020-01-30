@@ -23,7 +23,7 @@ public class BatchCountUpdaterTest {
 
 
         Map<String, Object> request = new HashMap<String, Object>(){{
-            put("action", "batch-count-update");
+            put("action", "course-batch-update");
             put("iteration", 1);
             put("courseId", "do_11283192356041523212");
             put("batchId", "0129408072098938880");

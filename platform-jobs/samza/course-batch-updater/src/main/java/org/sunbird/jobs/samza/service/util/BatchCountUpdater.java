@@ -17,7 +17,7 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
             ? Platform.config.getString("courses.keyspace.name")
             : "sunbird_courses";
     private static final String courseBatchTable = "course_batch";
-    private static String installation = Platform.config.hasPath("sunbird.installation") ? Platform.config.getString("sunbird.installation"): "sunbird_dev";
+    private static String installation = Platform.config.hasPath("sunbird.installation") ? Platform.config.getString("sunbird.installation").toLowerCase(): "sunbird_dev";
 
     public void update(Map<String, Object> edata) throws Exception {
         String courseId = (String) edata.get(CourseBatchParams.courseId.name());
@@ -35,10 +35,13 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
         List<Map<String,Object>> courseBatches = SunbirdCassandraUtil.readAsListOfMap(keyspace,courseBatchTable,dataToSelect);
         if(CollectionUtils.isNotEmpty(courseBatches)){
             for(Map<String,Object> batch : courseBatches){
-                if(batch.get("enrollmentType").equals("invite-only") && (Integer)batch.get("status")!= 2){
+                String enrollmentType =(String) batch.get("enrollmentType");
+                int batchStatus = (Integer)batch.get("status");
+
+                if(batchStatus< 2 && enrollmentType.equals("invite-only")){
                     privateBatchCount=privateBatchCount+1;
                 }
-                if((batch.get("enrollmentType")).equals("open") && StringUtils.isEmpty((String)batch.get("enrollmentEndDate")) && (Integer)batch.get("status")!= 2){
+                if(batchStatus< 2 && StringUtils.isEmpty((String)batch.get("enrollmentEndDate")) && enrollmentType.equals("open")){
                     openBatchCount=openBatchCount+1;
                 }
                 if(StringUtils.isNotEmpty((String)batch.get("enrollmentEndDate")) && currentDate.compareTo(format.parse((String)batch.get("enrollmentEndDate")))< 0){
@@ -48,8 +51,8 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
         }
         Request request = new Request();
         Map<String,Object> contentMap = new HashMap<>();
-        contentMap.put("c_" + installation.toLowerCase() + "_open_batch_count".toLowerCase(), openBatchCount);
-        contentMap.put("c_" + installation.toLowerCase() + "_private_batch_count".toLowerCase(), privateBatchCount);
+        contentMap.put("c_" + installation + "_open_batch_count".toLowerCase(), openBatchCount);
+        contentMap.put("c_" + installation + "_private_batch_count".toLowerCase(), privateBatchCount);
         request.put("content", contentMap);
         systemUpdate(courseId, request);
     }
