@@ -93,6 +93,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<!--Required for thumbnails-->
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>javacv-platform</artifactId>
+			<version>1.5</version>
+		</dependency>
 	</dependencies>
 
 	<build>
