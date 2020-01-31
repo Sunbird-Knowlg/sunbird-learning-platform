@@ -359,7 +359,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			updateHierarchyMetadata(children, publishedNode);
 			publishHierarchy(publishedNode, children);
 			syncNodes(children, unitNodes);
-			deleteImageHierarchy(contentId);
 		}
 
 		return response;
@@ -1349,8 +1348,4 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
     		return null;
     }
-
-	private void deleteImageHierarchy(String contentId) {
-		hierarchyStore.deleteHierarchy(Arrays.asList(contentId.replaceAll(".img", "") + ".img"));
-	}
 }

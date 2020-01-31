@@ -168,15 +168,4 @@ public class PublishFinalizerTest extends GraphEngineTestSetup {
 		Map<String, Object> response = (Map<String, Object>)method.invoke(publishFinalizer, "do_11292666508456755211", true);
 		Assert.assertNotNull(response);
 	}
-
-	@Test
-	public void testDeleteHierarchy() throws Exception {
-		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
-		HierarchyStore hierarchyStore = PowerMockito.spy(new HierarchyStore());
-		PowerMockito.doNothing().when(hierarchyStore).deleteHierarchy(Mockito.anyList());
-		publishFinalizer.setHierarchyStore(hierarchyStore);
-		Method method = PublishFinalizer.class.getDeclaredMethod("deleteImageHierarchy", String.class);
-		method.setAccessible(true);
-		method.invoke(publishFinalizer, "do_123");
-	}
 }
