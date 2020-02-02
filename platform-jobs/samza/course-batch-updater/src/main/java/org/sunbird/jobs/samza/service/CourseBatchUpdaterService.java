@@ -15,6 +15,7 @@ import org.sunbird.jobs.samza.service.util.BatchStatusUpdater;
 import org.sunbird.jobs.samza.service.util.CourseBatchUpdater;
 import org.sunbird.jobs.samza.util.CourseBatchParams;
 import org.apache.commons.collections.MapUtils;
+import org.sunbird.jobs.samza.service.util.BatchCountUpdater;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class CourseBatchUpdaterService implements ISamzaService {
     private CourseBatchUpdater courseBatchUpdater = null;
     private BatchEnrolmentSync batchEnrolmentSync = null;
     private BatchStatusUpdater batchStatusUpdater = null;
+    private BatchCountUpdater batchCountUpdater = null;
 
     @Override
     public void initialize(Config config) throws Exception {
@@ -38,6 +40,7 @@ public class CourseBatchUpdaterService implements ISamzaService {
         courseBatchUpdater = new CourseBatchUpdater();
         batchEnrolmentSync = new BatchEnrolmentSync();
         batchStatusUpdater = new BatchStatusUpdater();
+        batchCountUpdater = new BatchCountUpdater();
     }
 
     @Override
@@ -74,6 +77,10 @@ public class CourseBatchUpdaterService implements ISamzaService {
                     break;
                 case "batch-status-update":
                     batchStatusUpdater.update(edata);
+                    break;
+                case "course-batch-update":
+                    LOGGER.info("Batch Count update for : " + edata);
+                    batchCountUpdater.update(edata);
                     break;
                 default:
                     System.out.println("Invalid action provided: " + message);

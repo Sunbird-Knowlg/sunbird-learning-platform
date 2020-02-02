@@ -19,7 +19,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
 
     public ISamzaService initialize() throws Exception {
         LOGGER.info("Task initialized");
-        this.action = Arrays.asList("batch-enrolment-update", "batch-enrolment-sync", "batch-status-update");
+        this.action = Arrays.asList("batch-enrolment-update", "batch-enrolment-sync", "batch-status-update","course-batch-update");
         this.jobStartMessage = "Started processing of course-batch-updater samza job";
         this.jobEndMessage = "course-batch-updater job processing complete";
         this.jobClass = "org.sunbird.jobs.samza.task.CourseBatchUpdaterTask";
