@@ -1,8 +1,11 @@
 package org.ekstep.content.operation.finalizer;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import com.rits.cloning.Cloner;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -10,6 +13,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
@@ -17,6 +21,8 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.kafka.KafkaClient;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 
@@ -36,6 +42,8 @@ public class ReviewFinalizer extends BaseFinalizer {
 	private static String pdataId = "org.ekstep.platform";
 	private static String pdataVersion = "1.0";
 	private static String action = "publish";
+	private static List<String> list = Arrays.asList("Live", "Unlisted", "Flag");
+	private ControllerUtil controllerUtil;
 	
 	/**
 	 * Instantiates a new ReviewFinalizer and sets the base path and current
@@ -57,6 +65,11 @@ public class ReviewFinalizer extends BaseFinalizer {
 					ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM + " | [Invalid Content Id.]");
 		this.basePath = basePath;
 		this.contentId = contentId;
+		this.controllerUtil = new ControllerUtil();
+	}
+
+	public ReviewFinalizer(ControllerUtil controllerUtil) {
+		this.controllerUtil = controllerUtil;
 	}
 
 	/**
@@ -85,7 +98,11 @@ public class ReviewFinalizer extends BaseFinalizer {
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
-		
+
+		if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get("mimeType"), "application/vnd.ekstep.content-collection")){
+			validateResource(node.getIdentifier());
+		}
+
 		Boolean isPublishOperation = (Boolean) parameterMap.get(ContentWorkflowPipelineParams.isPublishOperation.name());
 		if (BooleanUtils.isTrue(isPublishOperation)) {
 			//TelemetryManager.info("Changing the Content Status to 'Pending' for content id: " + node.getIdentifier());
@@ -175,5 +192,82 @@ public class ReviewFinalizer extends BaseFinalizer {
 		edata.put("metadata", instructionEventMetadata);
 		edata.put("publish_type", publishType);
 		edata.put("contentType", metadata.get("contentType"));
+	}
+
+	private void validateResource(String collectionId){
+
+		Response hierarchyResponse = getCollectionHierarchy(collectionId + ".img");
+
+		if(checkError(hierarchyResponse)){
+			hierarchyResponse = getCollectionHierarchy(collectionId);
+			if(checkError(hierarchyResponse)){
+				TelemetryManager.error("No hierarchy found for collection:: " + collectionId);
+				throw new ClientException("ERR_HIERARCHY_NOT_FOUND", "Hierarchy not found for collection: " + collectionId);
+			}
+		}
+		
+		Map<String, Object> hierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
+		if(MapUtils.isEmpty(hierarchy))
+			return;
+		Map<String, Object> hierarchyResourceMap = new HashMap<>();
+		fetchResourceId((List<Map<String, Object>>) hierarchy.get("children"), hierarchyResourceMap);
+
+		if(MapUtils.isEmpty(hierarchyResourceMap))
+			return;
+
+		Map<String, Object> unpublishedHierarchyResourceMap = hierarchyResourceMap.entrySet().stream().
+				filter(x -> !list.contains((String)((Map<String, Object>)x.getValue()).get("status"))).
+				collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+		if(MapUtils.isEmpty(unpublishedHierarchyResourceMap))
+			return;
+
+		List<String> hierarchyResource = null;
+		hierarchyResource = new ArrayList<String>(unpublishedHierarchyResourceMap.keySet());
+
+		Response response = controllerUtil.getDataNodes("domain", hierarchyResource);
+		if(response.getResponseCode() != ResponseCode.OK) {
+			TelemetryManager.error("Fetching Collection linked resource failed for :: " + collectionId);
+			throw new ServerException("ERR_CONTENT_BULK_READ", "Resource linked to collection: " + collectionId + " couldn't be fetched.");
+		}
+
+		List<Node> dbResourcesList = (List<Node>)response.getResult().get("node_list");
+
+
+		if(dbResourcesList.size()!=hierarchyResource.size()){
+			List<String> dbResourceIds = new ArrayList<>();
+			dbResourcesList.stream().forEach(x -> dbResourceIds.add(x.getIdentifier()));
+			hierarchyResource.removeAll(dbResourceIds);
+			TelemetryManager.error("Collection with id:: " + collectionId + ", linked resource not found in db with identifier:: " + hierarchyResource);
+			throw new ServerException("ERR_HIERARCHY_RESOURCE_NOT_FOUND", "Hierarchy Resource not found for: " + collectionId + " :: Missed resources are: " + hierarchyResource);
+		}
+
+		List<String> notPublishedList = new ArrayList<>();
+		for(Node resource: dbResourcesList){
+			Map<String, Object> tempMap = (Map)unpublishedHierarchyResourceMap.get(resource.getIdentifier());
+			if(!list.contains((String)resource.getMetadata().get("status")) ||
+					(tempMap.containsKey("pkgVersion") &&
+							Double.compare((Double)tempMap.get("pkgVersion"), (Double)resource.getMetadata().get("pkgVersion")) == 0)){
+				notPublishedList.add(resource.getIdentifier());
+			}
+		}
+		if(CollectionUtils.isNotEmpty(notPublishedList)){
+			TelemetryManager.error("Collection: " + collectionId + " has unpublished resources:: " + notPublishedList);
+			throw new ClientException("ERR_COLLECTION_WITH_UNPUBLISHED_RESOURCE", "Collection: " + collectionId + " has unpublished resources:: " + notPublishedList);
+		}
+	}
+
+	private void fetchResourceId(List<Map<String, Object>> children, Map<String, Object> resourceMap){
+		if(CollectionUtils.isNotEmpty(children)){
+			for(Map<String, Object> child : children){
+				if(MapUtils.isNotEmpty(child)){
+					if(StringUtils.equalsIgnoreCase((String)child.get("visibility"), "Parent")){
+						fetchResourceId((List<Map<String, Object>>)child.get("children"), resourceMap);
+					}else if(StringUtils.equalsIgnoreCase((String)child.get("visibility"), "Default")){
+						resourceMap.put((String)child.get("identifier"), child);
+					}
+				}
+			}
+		}
 	}
 }
