@@ -44,7 +44,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 	private static String pdataId = "org.ekstep.platform";
 	private static String pdataVersion = "1.0";
 	private static String action = "publish";
-	private static List<String> list = Arrays.asList("Live", "Unlisted", "Flag");
+	private static List<String> validResourceStatus = Arrays.asList("Live", "Unlisted", "Flag");
 	private ControllerUtil controllerUtil;
 	
 	/**
@@ -199,11 +199,10 @@ public class ReviewFinalizer extends BaseFinalizer {
 	private void validateResource(String collectionId){
 
 		Response hierarchyResponse = getCollectionHierarchy(collectionId + ".img");
-
 		if(checkError(hierarchyResponse)){
 			hierarchyResponse = getCollectionHierarchy(collectionId);
 			if(checkError(hierarchyResponse)){
-				TelemetryManager.error("No hierarchy found for collection:: " + collectionId);
+				TelemetryManager.error("Hierarchy not found for collection:: " + collectionId);
 				throw new ClientException("ERR_HIERARCHY_NOT_FOUND", "Hierarchy not found for collection: " + collectionId);
 			}
 		}
@@ -218,7 +217,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 			return;
 
 		Map<String, Object> unpublishedHierarchyResourceMap = hierarchyResourceMap.entrySet().stream().
-				filter(x -> !list.contains((String)((Map<String, Object>)x.getValue()).get("status"))).
+				filter(x -> !validResourceStatus.contains((String)((Map<String, Object>)x.getValue()).get("status"))).
 				collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
 		if(MapUtils.isEmpty(unpublishedHierarchyResourceMap))
@@ -229,28 +228,28 @@ public class ReviewFinalizer extends BaseFinalizer {
 
 		Response response = controllerUtil.getDataNodes("domain", hierarchyResource);
 		if(response.getResponseCode() != ResponseCode.OK) {
-			TelemetryManager.error("Fetching Collection linked resource failed for :: " + collectionId);
-			throw new ServerException("ERR_CONTENT_BULK_READ", "Resource linked to collection: " + collectionId + " couldn't be fetched.");
+			TelemetryManager.error("Error while fetching resource details for collection:: " + collectionId);
+			throw new ServerException("ERR_CONTENT_BULK_READ", "Error while fetching resource details for collection:: " + collectionId);
 		}
 
 		List<Node> dbResourcesList = (List<Node>)response.getResult().get("node_list");
 		if(CollectionUtils.isEmpty(dbResourcesList)) {
-			TelemetryManager.error("Collection id:: " + collectionId + " :: No node fetched for the list of ids: " + hierarchyResource);
-			throw new ServerException("ERR_BO_NODE_FETCHED", "Collection id: " + collectionId + " :: No node fetched for the list of ids: " + hierarchyResource);
+			TelemetryManager.error("Resource: " + hierarchyResource + ", linked to Collection:: " + collectionId + ", not found.");
+			throw new ServerException("ERR_RESOURCE_NODE_NOT_FOUND", "Resource: " + hierarchyResource + ", linked to Collection:: " + collectionId + ", not found.");
 		}
 
 		if(dbResourcesList.size()!=hierarchyResource.size()){
 			List<String> dbResourceIds = new ArrayList<>();
 			dbResourcesList.stream().forEach(x -> dbResourceIds.add(x.getIdentifier()));
 			hierarchyResource.removeAll(dbResourceIds);
-			TelemetryManager.error("Collection with id:: " + collectionId + ", linked resource not found in db with identifier:: " + hierarchyResource);
-			throw new ServerException("ERR_HIERARCHY_RESOURCE_NOT_FOUND", "Hierarchy Resource not found for: " + collectionId + " :: Missed resources are: " + hierarchyResource);
+			TelemetryManager.error("Resource: " + hierarchyResource + ", linked to Collection:: " + collectionId + ", not found.");
+			throw new ServerException("ERR_RESOURCE_NODE_NOT_FOUND", "Resource: " + hierarchyResource + ", linked to Collection:: " + collectionId + ", not found.");
 		}
 
 		List<String> notPublishedList = new ArrayList<>();
 		for(Node resource: dbResourcesList){
 			Map<String, Object> tempMap = (Map)unpublishedHierarchyResourceMap.get(resource.getIdentifier());
-			if(!list.contains((String)resource.getMetadata().get("status")) ||
+			if(!validResourceStatus.contains((String)resource.getMetadata().get("status")) ||
 					((null != tempMap.get("pkgVersion")) &&
 							Double.compare((Double)tempMap.get("pkgVersion"), (Double)resource.getMetadata().get("pkgVersion")) == 0)){
 				notPublishedList.add(resource.getIdentifier());
