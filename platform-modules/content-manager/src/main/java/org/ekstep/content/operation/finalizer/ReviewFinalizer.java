@@ -3,7 +3,6 @@ package org.ekstep.content.operation.finalizer;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.rits.cloning.Cloner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -22,7 +21,6 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.kafka.KafkaClient;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.ControllerUtil;
-import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 
@@ -232,7 +230,10 @@ public class ReviewFinalizer extends BaseFinalizer {
 		}
 
 		List<Node> dbResourcesList = (List<Node>)response.getResult().get("node_list");
-
+		if(CollectionUtils.isEmpty(dbResourcesList)) {
+			TelemetryManager.error("Collection id:: " + collectionId + " :: No node fetched for the list of ids: " + hierarchyResource);
+			throw new ServerException("ERR_BO_NODE_FETCHED", "Collection id: " + collectionId + " :: No node fetched for the list of ids: " + hierarchyResource);
+		}
 
 		if(dbResourcesList.size()!=hierarchyResource.size()){
 			List<String> dbResourceIds = new ArrayList<>();
@@ -246,7 +247,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 		for(Node resource: dbResourcesList){
 			Map<String, Object> tempMap = (Map)unpublishedHierarchyResourceMap.get(resource.getIdentifier());
 			if(!list.contains((String)resource.getMetadata().get("status")) ||
-					(tempMap.containsKey("pkgVersion") &&
+					((null != tempMap.get("pkgVersion")) &&
 							Double.compare((Double)tempMap.get("pkgVersion"), (Double)resource.getMetadata().get("pkgVersion")) == 0)){
 				notPublishedList.add(resource.getIdentifier());
 			}
@@ -261,7 +262,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 		if(CollectionUtils.isNotEmpty(children)){
 			for(Map<String, Object> child : children){
 				if(MapUtils.isNotEmpty(child)){
-					if(StringUtils.equalsIgnoreCase((String)child.get("visibility"), "Parent")){
+					if(StringUtils.equalsIgnoreCase((String)child.get("visibility"), "Parent") && StringUtils.equalsIgnoreCase((String)child.get("mimeType"), "application/vnd.ekstep.content-collection")){
 						fetchResourceId((List<Map<String, Object>>)child.get("children"), resourceMap);
 					}else if(StringUtils.equalsIgnoreCase((String)child.get("visibility"), "Default")){
 						resourceMap.put((String)child.get("identifier"), child);
