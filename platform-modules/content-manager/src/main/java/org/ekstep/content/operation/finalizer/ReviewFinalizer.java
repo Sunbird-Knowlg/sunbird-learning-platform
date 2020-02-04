@@ -44,7 +44,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 	private static String pdataId = "org.ekstep.platform";
 	private static String pdataVersion = "1.0";
 	private static String action = "publish";
-	private static List<String> validResourceStatus = Arrays.asList("Live", "Unlisted", "Flag");
+	private static List<String> validResourceStatus = Arrays.asList("Live", "Unlisted");
 	private ControllerUtil controllerUtil;
 	
 	/**
