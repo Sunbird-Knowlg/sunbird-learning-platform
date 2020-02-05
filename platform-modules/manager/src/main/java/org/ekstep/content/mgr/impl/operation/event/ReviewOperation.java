@@ -29,15 +29,15 @@ public class ReviewOperation extends BaseContentManager {
 
         node.getMetadata().put(TaxonomyAPIParams.lastSubmittedOn.name(), DateUtils.formatCurrentDate());
 
-        String mimeType = getMimeTypeFrom(node);/*(String) node.getMetadata().get(ContentAPIParams.mimeType.name());*/
+        String mimeType = getMimeTypeFrom(node);
         if (StringUtils.isBlank(mimeType)) {
             mimeType = "assets";
         }
 
         TelemetryManager.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
-        String artifactUrl = getArtifactUrlFrom(node);/*(String) node.getMetadata().get(ContentAPIParams.artifactUrl.name())*/;
+        String artifactUrl = getArtifactUrlFrom(node);
         String license = (String) node.getMetadata().get("license");
-        if (isYoutubeMimeType(mimeType)/*StringUtils.equals("video/x-youtube", mimeType)*/ && null != artifactUrl && StringUtils.isBlank(license))
+        if (isYoutubeMimeType(mimeType) && null != artifactUrl && StringUtils.isBlank(license))
             checkYoutubeLicense(artifactUrl, node);
         TelemetryManager.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 
