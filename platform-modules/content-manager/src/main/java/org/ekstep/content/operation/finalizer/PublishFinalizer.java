@@ -121,6 +121,10 @@ public class PublishFinalizer extends BaseFinalizer {
 		this.publishFinalizeUtil = publishFinalizeUtil;
 	}
 
+	public void setHierarchyStore(HierarchyStore hierarchyStore) {
+		this.hierarchyStore = hierarchyStore;
+	}
+
 	static {
 		ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
 	}
@@ -629,12 +633,17 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	private Map<String, Object> getHierarchy(String nodeId, boolean needImageHierarchy) {
-		String identifier = nodeId;
-		if(needImageHierarchy) {
-			identifier = StringUtils.endsWith(nodeId, ".img") ? nodeId : nodeId + ".img";
+		if(needImageHierarchy){
+			String identifier = StringUtils.endsWith(nodeId, ".img") ? nodeId : nodeId + ".img";
+			Map<String, Object> hierarchy = hierarchyStore.getHierarchy(identifier);
+			if(MapUtils.isEmpty(hierarchy)) {
+				return hierarchyStore.getHierarchy(nodeId);
+			} else {
+				return hierarchy;
+			}
+		} else {
+			return hierarchyStore.getHierarchy(nodeId.replaceAll(".img", ""));
 		}
-		
-		return hierarchyStore.getHierarchy(identifier);
 	}
 	
 	private void updateHierarchyMetadata(List<Map<String, Object>> children, Node node) {

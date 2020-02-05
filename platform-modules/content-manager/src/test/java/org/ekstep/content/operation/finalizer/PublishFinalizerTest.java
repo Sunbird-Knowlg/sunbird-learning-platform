@@ -1,9 +1,12 @@
 package org.ekstep.content.operation.finalizer;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertToGraphNode;
@@ -13,6 +16,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.itemset.publish.ItemsetPublishManager;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.junit.AfterClass;
@@ -146,6 +150,22 @@ public class PublishFinalizerTest extends GraphEngineTestSetup {
 		
 		String url = publishFinalizer.getItemsetPreviewUrl(contentNode);
 		Assert.assertSame("previewUrl.pdf", url);
-		}
+	}
 
+	@Test
+	public void testGetHierarchy() throws Exception {
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		HierarchyStore hierarchyStore = PowerMockito.spy(new HierarchyStore());
+		PowerMockito.doReturn(new HashMap<String, Object>(){{
+			put("identifier", "do_11292666508456755211");
+			put("children", new ArrayList<Map<String, Object>>());
+		}}).when(hierarchyStore).getHierarchy(Mockito.anyString());
+		publishFinalizer.setHierarchyStore(hierarchyStore);
+
+
+		Method method = PublishFinalizer.class.getDeclaredMethod("getHierarchy", String.class, Boolean.TYPE);
+		method.setAccessible(true);
+		Map<String, Object> response = (Map<String, Object>)method.invoke(publishFinalizer, "do_11292666508456755211", true);
+		Assert.assertNotNull(response);
+	}
 }
