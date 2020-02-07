@@ -34,7 +34,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import scala.concurrent.ExecutionContext;
+import scala.concurrent.ExecutionContextExecutor;
 import scala.concurrent.Future;
 
 import java.util.ArrayList;
@@ -94,7 +94,7 @@ public class SearchProcessor {
 				resp.put("count", (int) searchResult.getHits().getTotalHits());
 				return resp;
 			}
-		}, ExecutionContext.Implicits$.MODULE$.global());
+		}, ExecutionContextExecutor.Implicits$.MODULE$.global());
 	}
 
 	public Map<String, Object> processCount(SearchDTO searchDTO) throws Exception {
@@ -835,7 +835,7 @@ public class SearchProcessor {
 				TelemetryManager.log("search response size: " + response.size());
 				return response;
 			}
-		}, ExecutionContext.Implicits$.MODULE$.global());
+		}, ExecutionContextExecutor.Implicits$.MODULE$.global());
 		
 	}
 
