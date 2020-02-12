@@ -12,53 +12,44 @@
 - include: common.yml
 
 - lineinfile:
-    dest: /home/hduser/.bashrc 
-    state: present 
-    regexp: '^HADOOP_YARN_HOME' 
+    dest: /home/hduser/.bashrc
+    state: present
+    regexp: '^HADOOP_YARN_HOME'
     line: 'HADOOP_YARN_HOME={{hadoop_yarn_home}}'
 
 - lineinfile:
-    dest: /home/hduser/.bashrc 
-    state: present 
-    regexp: '^HADOOP_CONF_DIR' 
+    dest: /home/hduser/.bashrc
+    state: present
+    regexp: '^HADOOP_CONF_DIR'
     line: 'HADOOP_CONF_DIR=$HADOOP_YARN_HOME/conf'
 
-- file: 
-    path: "/{{hadoop_yarn_home}}/conf/slaves" 
+- file:
+    path: "/{{hadoop_yarn_home}}/conf/slaves"
     state: touch
 
-- lineinfile: 
-    dest: "/{{hadoop_yarn_home}}/conf/slaves" 
-    state: present 
-    regexp: "^{{item}}" 
+- lineinfile:
+    dest: "/{{hadoop_yarn_home}}/conf/slaves"
+    state: present
+    regexp: "^{{item}}"
     line: "{{item}}"
   with_items: "{{yarn_slaves}}"
 
-# # Running common tasks in slaves
-# - name: Running common tasks in slaves
-#   include: common.yml
-#   delegate_to: "{{slave}}"
-#   with_items: "{{yarn_slaves}}"
-#   loop_control:
-#     loop_var: slave
-
-- name: Synchronizing "{{hadoop_yarn_home}}" with yarn slaves
-  synchronize:
-    src: "{{hadoop_yarn_home}}"
-    dest: "{{hadoop_yarn_home}}"
-    recursive: yes
-  delegate_to: "{{ item }}"
-  loop: "{{yarn_slaves}}"
+# Running common tasks in slaves
+- name: Running common tasks in slaves
+  include: common.yml
+  with_items: "{{yarn_slaves}}"
+  loop_control:
+    loop_var: slave
 
 - name: Copy truncate_files.sh
-  copy: 
-    src: truncate_logs.sh 
+  copy:
+    src: truncate_logs.sh
     dest: /usr/local/bin
     mode: 755
 
 - name: Add truncate logs to cron
-  cron: 
-    name: "Truncate yarn logs" 
-    minute: "0" 
-    job: "/usr/local/bin/truncate_logs.sh" 
+  cron:
+    name: "Truncate yarn logs"
+    minute: "0"
+    job: "/usr/local/bin/truncate_logs.sh"
     backup: yes
