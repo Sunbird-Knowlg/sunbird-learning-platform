@@ -1,0 +1,8 @@
+---
+- name: Copy truncate_files.sh
+  copy: src=truncate_logs.sh dest=/ mode=755
+  become: yes
+
+- name: Add truncate logs to cron
+  cron: name="Truncate yarn logs" minute="0" job="/truncate_logs.sh" backup=yes
+  become: yes
