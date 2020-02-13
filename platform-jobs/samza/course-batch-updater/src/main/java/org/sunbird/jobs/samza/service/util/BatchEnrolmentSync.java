@@ -57,15 +57,13 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
                         }
                     }
                     ResultSet resultSet = SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
-                    String existingCompletedOn = resultSet.one().getString("completedOn");
+                    Date existingCompletedOn = resultSet.one().getTimestamp("completedOn");
 
-
-                    if(null != dataToUpdate.get("status") && (2 == ((Number)dataToUpdate.get("status")).intValue()) && (StringUtils.isEmpty(existingCompletedOn)))
+                    if(null != dataToUpdate.get("status") && (2 == ((Number)dataToUpdate.get("status")).intValue()) && (null == existingCompletedOn))
                         dataToUpdate.put("completedOn", new Timestamp(new Date().getTime()));
 
-                    if(null != dataToUpdate.get("status") && (2 != ((Number)dataToUpdate.get("status")).intValue()) && (StringUtils.isNotEmpty(existingCompletedOn)))
+                    if(null != dataToUpdate.get("status") && (2 != ((Number)dataToUpdate.get("status")).intValue()) && (null != existingCompletedOn))
                         dataToUpdate.put("completedOn", null);
-
 
                     SunbirdCassandraUtil.update(keyspace, table, dataToUpdate, dataToSelect);
                 }
