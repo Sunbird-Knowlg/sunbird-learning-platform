@@ -112,6 +112,7 @@ public class FindOperation extends BaseContentManager {
             contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes.get(0));
         else
             contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes);
+        updateContentTaggedProperty(contentMap, mode);
         response.put(TaxonomyAPIParams.content.name(), contentCleanUp(contentMap));
         response.setParams(getSucessStatus());
         return response;
@@ -185,5 +186,28 @@ public class FindOperation extends BaseContentManager {
         edata.put("action", "ecml-migration");
         edata.put("contentType", "Ecml");
     }
+
+    /**
+     *
+     * @param contentMap
+     * @param mode
+     */
+    private void updateContentTaggedProperty(Map<String,Object> contentMap, String mode) {
+        Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
+                Platform.config.getBoolean("content.tagging.backward_enable"): false;
+        if(!StringUtils.equals(mode,"edit") && contentTaggingFlag) {
+            List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
+                    Arrays.asList(Platform.config.getString("content.tagging.property").split(",")):
+                    new ArrayList<>(Arrays.asList("subject","medium"));
+            contentTaggedKeys.forEach(contentTagKey -> {
+                if(contentMap.containsKey(contentTagKey)) {
+                    List<String> prop = prepareList(contentMap.get(contentTagKey));
+                    if (CollectionUtils.isNotEmpty(prop))
+                        contentMap.put(contentTagKey, prop.get(0));
+                }
+            });
+        }
+    }
+
 }
 
