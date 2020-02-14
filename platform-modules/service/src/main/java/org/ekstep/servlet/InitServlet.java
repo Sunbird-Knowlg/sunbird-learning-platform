@@ -22,6 +22,6 @@ public class InitServlet extends HttpServlet {
         TelemetryManager.log("Initialising Request Router Pool");
         LearningRequestRouterPool.init();
         TelemetryManager.log("Initialising Local Cache Updater");
-        LocalCacheUpdater.init();
+        //LocalCacheUpdater.init();
     }
 }
