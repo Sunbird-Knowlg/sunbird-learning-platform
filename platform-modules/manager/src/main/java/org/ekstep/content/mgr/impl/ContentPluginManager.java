@@ -24,8 +24,8 @@ public class ContentPluginManager {
         return this.copyOperation.copyContent(contentId, requestMap, mode);
     }
     
-    public Response preSignedUrl(String contentId, String fileName, String type) {
-    	return this.preSignedUrlOperation.preSignedUrl(contentId, fileName, type);
+    public Response preSignedUrl(String contentId, String fileName, String type, Boolean idValReq) {
+    	return this.preSignedUrlOperation.preSignedUrl(contentId, fileName, type, idValReq);
     }
     
 

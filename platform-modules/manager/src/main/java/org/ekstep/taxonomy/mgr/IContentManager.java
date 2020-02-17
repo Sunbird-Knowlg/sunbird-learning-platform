@@ -200,9 +200,10 @@ public interface IContentManager {
 	 * @param contentId
 	 * @param fileName
 	 * @param type
+	 * @param idValReq
 	 * @return
 	 */
-	Response preSignedURL(String contentId, String fileName, String type);
+	Response preSignedURL(String contentId, String fileName, String type, Boolean idValReq);
 
 	/**
 	 * @param data
