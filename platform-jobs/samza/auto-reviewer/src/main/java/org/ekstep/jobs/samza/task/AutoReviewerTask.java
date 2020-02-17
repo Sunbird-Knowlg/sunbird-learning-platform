@@ -1,27 +1,24 @@
-package org.sunbird.curator.task;
+package org.ekstep.jobs.samza.task;
 
 import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.TaskCoordinator;
+import org.ekstep.jobs.samza.service.AutoReviewerService;
 import org.ekstep.jobs.samza.service.ISamzaService;
-import org.ekstep.jobs.samza.task.AbstractTask;
 import org.ekstep.jobs.samza.util.JobLogger;
-import org.sunbird.curator.service.CurationService;
-
-import java.util.Arrays;
 import java.util.Map;
 
-public class ContentCuratorTask extends AbstractTask  {
+public class AutoReviewerTask extends AbstractTask {
 
-	private static JobLogger LOGGER = new JobLogger(ContentCuratorTask.class);
+	private static JobLogger LOGGER = new JobLogger(AutoReviewerTask.class);
 	private ISamzaService service = null;
 
 	@Override
 	public ISamzaService initialize() throws Exception {
-		LOGGER.info("content-curator Task initialized!");
-		service = new CurationService();
-		this.jobStartMessage = "Started processing of content-curator samza job.";
-		this.jobEndMessage = "Completed processing of content-curator samza job.";
-		this.jobClass = "org.sunbird.curator.task.ContentCuratorTask";
+		LOGGER.info("auto-reviewer Task initialized!");
+		service = new AutoReviewerService();
+		this.jobStartMessage = "Started processing of auto-reviewer samza job.";
+		this.jobEndMessage = "Completed processing of auto-reviewer samza job.";
+		this.jobClass = "org.ekstep.jobs.samza.task.AutoReviewerTask";
 		return service;
 	}
 

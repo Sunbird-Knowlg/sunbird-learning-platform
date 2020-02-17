@@ -18,13 +18,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
-			<artifactId>content-curator</artifactId>
-			<version>0.0.1</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
 			<artifactId>audit-event-generator</artifactId>
 			<version>0.0.53</version>
 			<type>tar.gz</type>
@@ -41,6 +34,13 @@
 			<groupId>org.ekstep</groupId>
 			<artifactId>qrcode-image-generator</artifactId>
 			<version>0.0.25</version>
+			<type>tar.gz</type>
+			<classifier>distribution</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>auto-reviewer</artifactId>
+			<version>0.0.1</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

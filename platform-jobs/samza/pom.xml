@@ -34,8 +34,8 @@
         <module>qr-image-generator</module>
 		<module>merge-user-courses</module>
 		<module>course-certificate-generator</module>
-        <module>content-curator</module>
-    </modules>
+		<module>auto-reviewer</module>
+	</modules>
 
 	<build>
 		<plugins>
