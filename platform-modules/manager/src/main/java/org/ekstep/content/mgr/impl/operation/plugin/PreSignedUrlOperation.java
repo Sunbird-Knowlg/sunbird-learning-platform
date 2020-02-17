@@ -10,9 +10,9 @@ import scala.Option;
 
 public class PreSignedUrlOperation extends BaseContentManager {
 
-    public Response preSignedUrl(String contentId, String fileName, String type) {
+    public Response preSignedUrl(String contentId, String fileName, String type, Boolean idValReq) {
         Response contentResp = getDataNode(TAXONOMY_ID, contentId);
-        if (checkError(contentResp))
+        if (checkError(contentResp) && idValReq)
             return contentResp;
         Response response = OK();
         String objectKey = "content/" + type +"/"+contentId+"/"+ Slug.makeSlug(fileName, true);

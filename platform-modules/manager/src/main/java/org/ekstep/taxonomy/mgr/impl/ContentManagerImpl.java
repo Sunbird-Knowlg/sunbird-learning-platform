@@ -80,8 +80,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	public Response optimize(String contentId) { return this.contentPluginManager.optimize(contentId); }
 
 	@Override
-	public Response preSignedURL(String contentId, String fileName, String type) {
-		return this.contentPluginManager.preSignedUrl(contentId, fileName, type);
+	public Response preSignedURL(String contentId, String fileName, String type, Boolean idValReq) {
+		return this.contentPluginManager.preSignedUrl(contentId, fileName, type, idValReq);
 	}
 
 	/*

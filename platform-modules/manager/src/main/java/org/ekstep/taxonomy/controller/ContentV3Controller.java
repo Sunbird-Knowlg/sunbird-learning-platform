@@ -372,7 +372,8 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> preSignedURL(@PathVariable(value = "id") String contentId,
-												 @RequestBody Map<String, Object> map, @PathParam(value = "type") String type) {
+												 @RequestBody Map<String, Object> map, @PathParam(value = "type") String type,
+												 @RequestParam(value = "idval", required = false) String idval) {
 		String apiId = "ekstep.learning.content.upload.url";
 		TelemetryManager.log("Upload URL content | Content Id : " + contentId);
 		Response response;
@@ -401,7 +402,9 @@ public class ContentV3Controller extends BaseController {
 						"Invalid pre-signed url type. It should be one of " + StringUtils.join(preSignedObjTypes, ",")), apiId, null);
 			}
 
-			response = contentManager.preSignedURL(contentId, fileName, type.toLowerCase());
+			Boolean idValReq = (StringUtils.equalsIgnoreCase("false", idval)) ? false : true;
+
+			response = contentManager.preSignedURL(contentId, fileName, type.toLowerCase(), idValReq);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);
