@@ -1,4 +1,4 @@
-package org.sunbird.curator.service;
+package org.ekstep.jobs.samza.service;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
-import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -14,14 +13,12 @@ import org.ekstep.jobs.samza.util.SamzaCommonParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class CurationService implements ISamzaService {
+public class AutoReviewerService  implements ISamzaService {
 
-	private static JobLogger LOGGER = new JobLogger(CurationService.class);
+	private static JobLogger LOGGER = new JobLogger(AutoReviewerService.class);
 	private Config config = null;
 	private Integer MAX_ITERATION_COUNT = null;
 	private ControllerUtil util = new ControllerUtil();
@@ -39,7 +36,7 @@ public class CurationService implements ISamzaService {
 
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
-
+		LOGGER.info("AutoReviewerService ---> processMessage ---->>> start");
 		if (null == message) {
 			LOGGER.info("Null Event Received. So Skipped Processing.");
 			return;
@@ -51,9 +48,9 @@ public class CurationService implements ISamzaService {
 			LOGGER.info("Event Ignored. Event Validation Failed for post-publish-processor operations.");
 			return;
 		}
+
 		LOGGER.info("Event Received: "+message);
 	}
-
 
 	private boolean validateEvent(Map<String, Object> edata, Map<String, Object> object) {
 		if (MapUtils.isEmpty(object) || StringUtils.isBlank((String) object.get("id")) ||
