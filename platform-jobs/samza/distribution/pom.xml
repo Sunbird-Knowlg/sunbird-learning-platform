@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>auto-reviewer</artifactId>
-			<version>0.0.4</version>
+			<version>0.0.6</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
-			<version>0.0.312</version>
+			<version>0.0.313</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
