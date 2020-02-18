@@ -1,5 +1,6 @@
 package org.ekstep.content.operation.finalizer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +39,8 @@ public class ReviewFinalizer extends BaseFinalizer {
 	private static String pdataId = "org.ekstep.platform";
 	private static String pdataVersion = "1.0";
 	private static String action = "publish";
+
+	private static String passportKey = Platform.config.getString("graph.passport.key.base");
 
 	private static Boolean asyncCurationEnabled = Platform.config.hasPath("async.curation.enabled")?Platform.config.getBoolean("async.curation.enabled"):false;
 	
@@ -132,6 +135,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 				String mimeType= (String) newNode.getMetadata().get("mimeType");
 				if(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",mimeType) || StringUtils.equalsIgnoreCase("application/pdf",mimeType))
 					try{
+						updateInitialMetadata(newNode);
 						curateContent(identifier, mimeType, newNode);
 					}catch(Exception e){
 						e.printStackTrace();
@@ -143,6 +147,69 @@ public class ReviewFinalizer extends BaseFinalizer {
 		}
 		
 		return response;
+	}
+
+	private void updateInitialMetadata(String identifier, Node newNode) {
+		Map<String, Object> curationMetadata = new HashMap<>();
+		curationMetadata.put("cml_tags",new HashMap<String, Object>(){{
+			put("name","Suggested Tags");
+			put("type", "tags");
+			put("status","Pending");
+			put("result",new ArrayList<String>());
+		}});
+		curationMetadata.put("cml_keywords",new HashMap<String, Object>(){{
+			put("name","Suggested Keywords");
+			put("type", "keywords");
+			put("status","Pending");
+			put("result",new ArrayList<String>());
+		}});
+		curationMetadata.put("cml_quality",new HashMap<String, Object>(){{
+			put("name","Content Quality Check");
+			put("type", "quality");
+			put("status","Pending");
+			put("result",new HashMap<String, Object>(){{
+				put("audio",new HashMap<String, Object>(){{
+					put("status","Pending");
+					put("score","");
+					put("percentile","");
+				}});
+				put("image",new HashMap<String, Object>(){{
+					put("status","Pending");
+					put("score","");
+					put("percentile","");
+				}});
+				put("language_complexity",new HashMap<String, Object>(){{
+					put("status","Pending");
+					put("ph_score","");
+					put("og_score","");
+					put("percentile","");
+				}});
+				put("profanity",new HashMap<String, Object>(){{
+					put("status","Pending");
+					put("result",new ArrayList<String>());
+				}});
+			}});
+		}});
+		curationMetadata.put("ckp_size",new HashMap<String, Object>(){{
+			put("name","Size");
+			put("type", "size");
+			put("status","Pending");
+			put("result","");
+		}});
+		curationMetadata.put("ckp_translation",new HashMap<String, Object>(){{
+			put("name","Hindi Translation");
+			put("type", "translation");
+			put("status","Pending");
+			put("result",new ArrayList<String>());
+		}});
+		newNode.getMetadata().putAll(curationMetadata);
+		newNode.getMetadata().put("versionKey",passportKey);
+		Response response = updateContentNode(identifier, newNode, null);
+		if(checkError(response)){
+			throw new ServerException("ERR_CONTENT_REVIEW",
+					"Error Occurred While Sending Content For Auto Curation.");
+		}
+
 	}
 
 	// method for curate content
