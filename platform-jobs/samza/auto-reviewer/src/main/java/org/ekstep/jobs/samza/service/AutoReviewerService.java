@@ -114,7 +114,6 @@ public class AutoReviewerService  implements ISamzaService {
 			LOGGER.info("Computing Size For "+identifier);
 			//String directory = "/tmp/"+identifier+File.separator+getFieNameFromURL(artifactUrl);
 			File file = HttpDownloadUtility.downloadFile(artifactUrl,"/tmp");
-			LOGGER.info("file path :: "+file.getAbsolutePath());
 			int count = PDFUtil.getPageCount(file);
 			LOGGER.info("count :: "+count);
 			String sizeSt = count<=pdfSize?"Passed":"Failed";
@@ -125,7 +124,7 @@ public class AutoReviewerService  implements ISamzaService {
 				put("result",sizeSt);
 			}};
 			Node n = util.getNode("domain", identifier);
-			n.getMetadata().put("size",meta);
+			n.getMetadata().put("ckp_size",meta);
 			n.getMetadata().put("versionKey",passportKey);
 			Response response = util.updateNode(n);
 
