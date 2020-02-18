@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 import static akka.pattern.Patterns.ask;
 import java.io.IOException;
 
-public class \BasePlaySearchManager {
+public class BasePlaySearchManager {
 	protected ObjectMapper mapper = new ObjectMapper();
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
 	private static final String JSON_TYPE = "application/json";
