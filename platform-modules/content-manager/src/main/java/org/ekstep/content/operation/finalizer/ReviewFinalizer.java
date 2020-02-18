@@ -135,7 +135,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 				String mimeType= (String) newNode.getMetadata().get("mimeType");
 				if(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",mimeType) || StringUtils.equalsIgnoreCase("application/pdf",mimeType))
 					try{
-						updateInitialMetadata(newNode);
+						updateInitialMetadata(identifier, newNode);
 						curateContent(identifier, mimeType, newNode);
 					}catch(Exception e){
 						e.printStackTrace();
@@ -209,7 +209,6 @@ public class ReviewFinalizer extends BaseFinalizer {
 			throw new ServerException("ERR_CONTENT_REVIEW",
 					"Error Occurred While Sending Content For Auto Curation.");
 		}
-
 	}
 
 	// method for curate content
