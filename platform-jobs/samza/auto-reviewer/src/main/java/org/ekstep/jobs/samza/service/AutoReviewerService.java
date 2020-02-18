@@ -125,7 +125,7 @@ public class AutoReviewerService  implements ISamzaService {
 				put("result",sizeSt);
 			}};
 			Node n = util.getNode("domain", identifier);
-			n.getMetadata().putAll(meta);
+			n.getMetadata().put("size",meta);
 			n.getMetadata().put("versionKey",passportKey);
 			Response response = util.updateNode(n);
 
