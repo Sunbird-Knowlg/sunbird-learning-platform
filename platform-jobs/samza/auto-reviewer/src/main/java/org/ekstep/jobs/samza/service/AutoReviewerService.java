@@ -35,10 +35,10 @@ public class AutoReviewerService  implements ISamzaService {
 	private Config config = null;
 	private Integer MAX_ITERATION_COUNT = null;
 	private ControllerUtil util = new ControllerUtil();
-	private static Boolean isDummyResponse = StringUtils.equalsIgnoreCase("true",Platform.config.getString("curate.dummy.response"))?true:false;
-	private static String passportKey = Platform.config.getString("graph.passport.key.base");
-	private static String dsUri = Platform.config.getString("ds.api.url");
-	private static Integer pdfSize = Platform.config.getInt("pdf.size.allowed");
+	private static Boolean isDummyResponse = false;
+	private static String passportKey = "";
+	private static String dsUri = "http://50.1.0.13:5000/ML/AutoReview";
+	private static Integer pdfSize = 5;
 
 	@Override
 	public void initialize(Config config) throws Exception {
@@ -49,6 +49,10 @@ public class AutoReviewerService  implements ISamzaService {
 				Platform.config.getInt("max.iteration.count.samza.job") : 1;
 		LearningRequestRouterPool.init();
 		LOGGER.info("Learning Actor System initialized");
+		isDummyResponse = StringUtils.equalsIgnoreCase("true",Platform.config.getString("curate.dummy.response"))?true:false;
+		passportKey = Platform.config.getString("graph.passport.key.base");
+		dsUri = Platform.config.getString("ds.api.url");
+		pdfSize = Platform.config.getInt("pdf.size.allowed");
 	}
 
 	@Override
