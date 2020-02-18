@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 import static akka.pattern.Patterns.ask;
 import java.io.IOException;
 
-public class BasePlaySearchManager {
+public class \BasePlaySearchManager {
 	protected ObjectMapper mapper = new ObjectMapper();
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
 	private static final String JSON_TYPE = "application/json";
@@ -165,6 +165,31 @@ public class BasePlaySearchManager {
 						Map<String,Object> variantsMap = (Map<String,Object>) mapper.readValue((String) content.get("variants"), Map.class);
 						content.put("variants",variantsMap);
 						contentMap.set(contentMap.indexOf(content), content);
+					}
+					if(content.containsKey("cml_tags")){
+					Map<String,Object> cml_tags = (Map<String,Object>) mapper.readValue((String) content.get("cml_tags"), Map.class);
+					content.put("cml_tags",cml_tags);
+					contentMap.set(contentMap.indexOf(content), content);
+					}
+					if(content.containsKey("cml_keywords")){
+					Map<String,Object> cml_keywords = (Map<String,Object>) mapper.readValue((String) content.get("cml_keywords"), Map.class);
+					content.put("cml_keywords",cml_keywords);
+					contentMap.set(contentMap.indexOf(content), content);
+					}
+					if(content.containsKey("cml_quality")){
+					Map<String,Object> cml_quality = (Map<String,Object>) mapper.readValue((String) content.get("cml_quality"), Map.class);
+					content.put("cml_quality",cml_quality);
+					contentMap.set(contentMap.indexOf(content), content);
+					}
+					if(content.containsKey("ckp_translation")){
+					Map<String,Object> ckp_translation = (Map<String,Object>) mapper.readValue((String) content.get("ckp_translation"), Map.class);
+					content.put("ckp_translation",ckp_translation);
+					contentMap.set(contentMap.indexOf(content), content);
+					}
+					if(content.containsKey("ckp_size")){
+					Map<String,Object> ckp_size = (Map<String,Object>) mapper.readValue((String) content.get("ckp_size"), Map.class);
+					content.put("ckp_size",ckp_size);
+					contentMap.set(contentMap.indexOf(content), content);
 					}
 					updateContentTaggedProperty(content);
                     contentMap.set(contentMap.indexOf(content), content);
