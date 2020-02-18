@@ -5,9 +5,12 @@ import org.apache.samza.task.TaskCoordinator;
 import org.ekstep.jobs.samza.service.AutoReviewerService;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.util.JobLogger;
+import org.sunbird.jobs.samza.task.BaseTask;
+
+import java.util.Arrays;
 import java.util.Map;
 
-public class AutoReviewerTask extends AbstractTask {
+public class AutoReviewerTask extends BaseTask {
 
 	private static JobLogger LOGGER = new JobLogger(AutoReviewerTask.class);
 	private ISamzaService service = null;
@@ -16,6 +19,7 @@ public class AutoReviewerTask extends AbstractTask {
 	public ISamzaService initialize() throws Exception {
 		LOGGER.info("auto-reviewer Task initialized!");
 		service = new AutoReviewerService();
+		this.action = Arrays.asList("curate-content");
 		this.jobStartMessage = "Started processing of auto-reviewer samza job.";
 		this.jobEndMessage = "Completed processing of auto-reviewer samza job.";
 		this.jobClass = "org.ekstep.jobs.samza.task.AutoReviewerTask";

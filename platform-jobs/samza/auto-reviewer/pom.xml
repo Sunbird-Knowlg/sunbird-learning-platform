@@ -9,12 +9,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>auto-reviewer</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
 
     <dependencies>
         <dependency>
             <groupId>org.ekstep</groupId>
-            <artifactId>samza-common</artifactId>
+            <artifactId>course-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

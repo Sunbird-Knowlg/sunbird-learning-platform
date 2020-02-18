@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
     <name>Distribution</name>
     <dependencies>
-		<dependency>
+		<!--<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>audit-history-indexer</artifactId>
 			<version>0.0.80</version>
@@ -22,7 +22,7 @@
 			<version>0.0.53</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>auto-reviewer</artifactId>
-			<version>0.0.1</version>
+			<version>0.0.2</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -64,13 +64,13 @@
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>collection-migration</artifactId>
 			<version>0.0.19</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-batch-updater</artifactId>
