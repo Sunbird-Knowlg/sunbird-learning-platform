@@ -119,6 +119,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 				TelemetryManager.info("Changing the Content Status to 'Review' for content id: " + node.getIdentifier());
 				node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Review.name());
 			}
+
 			node.getMetadata().put(ContentWorkflowPipelineParams.reviewError.name(), null);
 			Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 			newNode.setGraphId(node.getGraphId());
@@ -181,8 +182,9 @@ public class ReviewFinalizer extends BaseFinalizer {
 
 		object.put("id", contentId);
 		object.put("ver", metadata.get("versionKey"));
-		List<String> actions = (StringUtils.equalsIgnoreCase("application/pdf", (String) metadata.get("mimeType")))? Platform.config.getStringList("curation.pdf.action"):Platform.config.getStringList("curation.ecml.action");
-		edata.put("action", actions);
+		List<String> tasks = (StringUtils.equalsIgnoreCase("application/pdf", (String) metadata.get("mimeType")))? Platform.config.getStringList("curation.pdf.action"):Platform.config.getStringList("curation.ecml.action");
+		edata.put("action", "curate-content");
+		edata.put("tasks",tasks);
 		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
 		String topic = Platform.config.getString("kafka.topics.curation");
 		if(StringUtils.isBlank(beJobRequestEvent)) {

@@ -43,22 +43,22 @@ public class AutoReviewerService  implements ISamzaService {
 		}
 		Map<String, Object> edata = (Map<String, Object>) message.get(SamzaCommonParams.edata.name());
 		Map<String, Object> object = (Map<String, Object>) message.get(SamzaCommonParams.object.name());
-
 		if (!validateEvent(edata, object)) {
 			LOGGER.info("Event Ignored. Event Validation Failed for post-publish-processor operations.");
 			return;
 		}
-
 		LOGGER.info("Event Received: "+message);
+		List<String> tasks = (List<String>) edata.get("tasks");
+		LOGGER.info("Tasks Received: "+tasks);
 	}
 
 	private boolean validateEvent(Map<String, Object> edata, Map<String, Object> object) {
 		if (MapUtils.isEmpty(object) || StringUtils.isBlank((String) object.get("id")) ||
 				MapUtils.isEmpty(edata) || StringUtils.isBlank((String) edata.get("action")))
 			return false;
-		List<String> actions = (List<String>) edata.get("action");
+		String action= (String) edata.get("action");
 		Integer iteration = (Integer) edata.get(SamzaCommonParams.iteration.name());
 		String contentType = (String) edata.get("contentType");
-		return (CollectionUtils.isNotEmpty(actions) && iteration <= MAX_ITERATION_COUNT);
+		return (StringUtils.isNotEmpty(action) && iteration <= MAX_ITERATION_COUNT);
 	}
 }
