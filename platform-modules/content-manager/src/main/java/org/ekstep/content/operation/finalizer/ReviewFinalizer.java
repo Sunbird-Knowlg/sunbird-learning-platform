@@ -251,6 +251,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 		List<String> tasks = (StringUtils.equalsIgnoreCase("application/pdf", (String) metadata.get("mimeType")))? Platform.config.getStringList("curation.pdf.action"):Platform.config.getStringList("curation.ecml.action");
 		edata.put("action", "curate-content");
 		edata.put("tasks",tasks);
+		edata.put("artifactUrl", (String)metadata.get("artifactUrl"));
 		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
 		String topic = Platform.config.getString("kafka.topics.curation");
 		if(StringUtils.isBlank(beJobRequestEvent)) {
