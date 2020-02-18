@@ -114,7 +114,9 @@ public class AutoReviewerService  implements ISamzaService {
 			LOGGER.info("Computing Size For "+identifier);
 			//String directory = "/tmp/"+identifier+File.separator+getFieNameFromURL(artifactUrl);
 			File file = HttpDownloadUtility.downloadFile(artifactUrl,"/tmp");
+			LOGGER.info("file path :: "+file.getAbsolutePath());
 			int count = PDFUtil.getPageCount(file);
+			LOGGER.info("count :: "+count);
 			String sizeSt = count<=pdfSize?"Passed":"Failed";
 			Map<String, Object> meta = new HashMap<String, Object>(){{
 				put("name","Size");
@@ -122,12 +124,14 @@ public class AutoReviewerService  implements ISamzaService {
 				put("status",sizeSt);
 				put("result",sizeSt);
 			}};
-			node.getMetadata().putAll(meta);
-			node.getMetadata().put("versionKey",passportKey);
-			Response response = util.updateNode(node);
+			Node n = util.getNode("domain", identifier);
+			n.getMetadata().putAll(meta);
+			n.getMetadata().put("versionKey",passportKey);
+			Response response = util.updateNode(n);
 
 			if(checkError(response)){
 				LOGGER.info("Error Occurred While Performing Curation. Error in updating content with size metadata");
+				LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
 			}else{
 				LOGGER.info("size metadata updated for "+identifier);
 			}
