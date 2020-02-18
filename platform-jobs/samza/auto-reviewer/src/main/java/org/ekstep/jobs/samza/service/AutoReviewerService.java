@@ -69,10 +69,21 @@ public class AutoReviewerService  implements ISamzaService {
 		LOGGER.info("Tasks Received: "+tasks);
 		String identifier = (String) object.get("id");
 		String artifactUrl = (String) edata.get("artifactUrl");
-
 		Node node = util.getNode("domain",identifier);
+		LOGGER.info("=============== DEBUG INFO ============");
+		LOGGER.info("identifier : "+identifier);
+		LOGGER.info("artifactUrl : "+artifactUrl);
+		if(null!=node)
+			LOGGER.info("Node is not null for "+identifier);
+		LOGGER.info("isDummyResponse : "+isDummyResponse);
+		LOGGER.info("passportKey : "+passportKey);
+		LOGGER.info("dsUri : "+dsUri);
+		LOGGER.info("pdfSize : "+pdfSize);
+		LOGGER.info("=============== DEBUG INFO ============");
+
 		if(CollectionUtils.isNotEmpty(tasks) && (tasks.contains("quality") || tasks.contains("keywords") || tasks.contains("tags"))){
 			if(isDummyResponse){
+				LOGGER.info("Inserting Dummy Metadata For ML API Call : "+identifier);
 				delay(30000);
 				updateSuccessMeta(identifier, node);
 			}
@@ -88,12 +99,15 @@ public class AutoReviewerService  implements ISamzaService {
 				Response response = makeDSPostRequest(dsUri,request,new HashMap<String, String>());
 				if(checkError(response)){
 					LOGGER.info("ML API Call Failed For Content Id : "+identifier);
+				}else{
+					LOGGER.info("ML API Call Successful For Content Id : "+identifier);
 				}
 			}
 		}
 
 		// kp metadata update
-		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("size")){
+		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("size") && StringUtils.equalsIgnoreCase("application/pdf",(String)node.getMetadata().get("mimeType"))){
+			LOGGER.info("Computing Size For "+identifier);
 			//String directory = "/tmp/"+identifier+File.separator+getFieNameFromURL(artifactUrl);
 			File file = HttpDownloadUtility.downloadFile(artifactUrl,"/tmp");
 			int count = PDFUtil.getPageCount(file);
@@ -107,8 +121,11 @@ public class AutoReviewerService  implements ISamzaService {
 			node.getMetadata().putAll(meta);
 			node.getMetadata().put("versionKey",passportKey);
 			Response response = util.updateNode(node);
+
 			if(checkError(response)){
 				LOGGER.info("Error Occurred While Performing Curation. Error in updating content with size metadata");
+			}else{
+				LOGGER.info("size metadata updated for "+identifier);
 			}
 
 		}
@@ -182,6 +199,8 @@ public class AutoReviewerService  implements ISamzaService {
 		Response response = util.updateNode(node);
 		if(checkError(response)){
 			LOGGER.info("Error Occurred While Performing Curation. Error in updating content with dummy metadata for ml");
+		}else{
+			LOGGER.info("Updated Dummy ML Metadata for "+identifier);
 		}
 	}
 
