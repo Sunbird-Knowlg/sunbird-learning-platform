@@ -119,9 +119,9 @@ public class AutoReviewerService  implements ISamzaService {
 			String sizeSt = count<=pdfSize?"Passed":"Failed";
 			Map<String, Object> meta = new HashMap<String, Object>(){{
 				put("name","Size");
-				put("type", String.valueOf(count));
+				put("type", "size");
 				put("status",sizeSt);
-				put("result",sizeSt);
+				put("result",String.valueOf(count));
 			}};
 			Node n = util.getNode("domain", identifier);
 			n.getMetadata().put("ckp_size",meta);
