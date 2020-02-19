@@ -20,8 +20,8 @@ public class ContentPluginManager {
 
     public Response bundle(Request request, String version) { return this.bundleOperation.bundle(request, version); }
 
-    public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
-        return this.copyOperation.copyContent(contentId, requestMap, mode);
+    public Response copyContent(String contentId, Map<String, Object> requestMap, String mode, String translate) {
+        return this.copyOperation.copyContent(contentId, requestMap, mode, translate);
     }
     
     public Response preSignedUrl(String contentId, String fileName, String type, Boolean idValReq) {

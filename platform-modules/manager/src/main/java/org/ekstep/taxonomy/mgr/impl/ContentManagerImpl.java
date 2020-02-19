@@ -137,8 +137,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@Override
-	public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
-		return this.contentPluginManager.copyContent(contentId, requestMap, mode);
+	public Response copyContent(String contentId, Map<String, Object> requestMap, String mode, String translate) {
+		return this.contentPluginManager.copyContent(contentId, requestMap, mode, translate);
 	}
 
     /**
