@@ -26,7 +26,7 @@ public class ApiUtil {
 
 	private static Gson gsonObj = new Gson();
 	private static ObjectMapper objMapper = new ObjectMapper();
-	private static String LANGUAGEAPIKEY = Platform.config.getString("language.api.key");
+	private static String LANGUAGEAPIKEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIyNDUzMTBhZTFlMzc0NzU1ODMxZTExZmQyMGRjMDg0MiIsImlhdCI6bnVsbCwiZXhwIjpudWxsLCJhdWQiOiIiLCJzdWIiOiIifQ.M1H_Z7WvwRPM0suBCofHs7iuDMMHyBjIRd3xGS4hqy8";//Platform.config.getString("language.api.key");
 
 	public static Response makeKeyWordsPostRequest(String identifier, Map<String, Object> requestMap) {
 		String uri = "https://api.aylien.com/api/v1/entities";
@@ -74,6 +74,7 @@ public class ApiUtil {
 		Map<String, Object> languageAnalysisMap = null;
 		try {
 			String body = objMapper.writeValueAsString(request);
+			System.out.println("LANGUAGEAPIKEY :: " + LANGUAGEAPIKEY);
 			HttpResponse<String> httpResponse = Unirest.post("https://api.ekstep.in/language/v3/tools/text/analysis").header("Content-Type", "application/json").header("Authorization", "Bearer "+ LANGUAGEAPIKEY).body(body).asString();
 			
 			if(httpResponse.getStatus() == 200) {
@@ -101,11 +102,15 @@ public class ApiUtil {
 					put("partsOfSpeech", partsOfSpeech);
 					put("nonThresholdVocabulary", nonThresholdVocabulary);
 				}};
+				System.out.println("languageAnalysisMap:: " + languageAnalysisMap);
+			}else {
+				System.out.println("Error:: " + httpResponse.getStatus());
+				System.out.println("Error:: " + httpResponse.getBody());
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		
+		System.out.println("End languageAnalysisMap:: " + languageAnalysisMap);
 		return languageAnalysisMap;
 	}
 

@@ -2,6 +2,8 @@ package org.ekstep.jobs.samza.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -11,9 +13,12 @@ import org.ekstep.content.publish.PublishManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ReviewerUtil {
 
@@ -53,21 +58,22 @@ public class ReviewerUtil {
 
 	public static List<String> getKeywords(String identifier, List<String> input) {
 		System.out.println("Input Text For keywords generation for content id : "+identifier+" | Text Is : "+input);
-		List<String> result = new ArrayList<>();
+		Set<String> result = new HashSet<String>();
 		String str = "";
 		if(CollectionUtils.isNotEmpty(result)){
 			for(int i=0; i<=input.size();i++){
-				str+= input.get(i);
-				if(i%3==0)
-					break;
+				Map<String, Object> request = new HashMap<String, Object>();
+				request.put("text",input.get(i));
+				System.out.println("Request for keyword generation :  "+request);
+				Response resp = ApiUtil.makeKeyWordsPostRequest(identifier,request);
+				System.out.println("resp: " + resp.getResponseCode());
+				System.out.println("resp: " + resp.getResult());
+				result.addAll((List<String>)resp.getResult().get("keywords"));
 			}
-			Map<String, Object> request = new HashMap<String, Object>();
-			request.put("text",str);
-			System.out.println("Request for keyword generation :  "+request);
-			Response resp = ApiUtil.makeKeyWordsPostRequest(identifier,request);
-			result.addAll((List<String>)resp.getResult().get("keywords"));
+			
 		}
-		return result;
+		System.out.println("result:: " + result);
+		return new ArrayList<>(result);
 	}
 	
 	public static Map<String, Object> getLanguageAnalysis(List<String> texts){
@@ -76,11 +82,11 @@ public class ReviewerUtil {
 			for(String text: texts) {
 				tempText.append(text);
 			}
+			System.out.println("tempText:: " + tempText.toString());
 			return ApiUtil.languageAnalysisAPI(tempText.toString());
 		}else {
 			return null;
 		}
 	}
 	
-
 }
