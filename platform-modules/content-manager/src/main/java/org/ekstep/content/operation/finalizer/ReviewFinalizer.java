@@ -149,7 +149,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 		return response;
 	}
 
-	private void updateInitialMetadata(String identifier, Node newNode) {
+	/*private void updateInitialMetadata(String identifier, Node newNode) {
 		Map<String, Object> curationMetadata = new HashMap<>();
 		curationMetadata.put("cml_tags",new HashMap<String, Object>(){{
 			put("name","Suggested Tags");
@@ -202,6 +202,87 @@ public class ReviewFinalizer extends BaseFinalizer {
 			put("status","Pending");
 			put("result",new ArrayList<String>());
 		}});
+		newNode.getMetadata().putAll(curationMetadata);
+		newNode.getMetadata().put("versionKey",passportKey);
+		Response response = updateContentNode(identifier, newNode, null);
+		if(checkError(response)){
+			throw new ServerException("ERR_CONTENT_REVIEW",
+					"Error Occurred While Sending Content For Auto Curation.");
+		}
+	}*/
+	
+	private void updateInitialMetadata(String identifier, Node newNode) {
+		Map<String, Object> curationMetadata = new HashMap<>();
+		curationMetadata.put("cml_tags",new HashMap<String, Object>(){{
+			put("name","Suggested Tags");
+			put("type", "tags");
+			put("status","Pending");
+			put("result",new ArrayList<String>());
+		}});
+		
+		curationMetadata.put("cml_profanity",new HashMap<String, Object>(){{
+			put("name","Profanity");
+			put("type", "quality");
+			put("status","Pending");
+			put("result",new ArrayList<String>());
+		}});
+		
+		curationMetadata.put("cml_audio",new HashMap<String, Object>(){{
+			put("name","Audio");
+			put("type", "quality");
+			put("status","Pending");
+			put("result",new ArrayList<String>());
+		}});
+		
+		curationMetadata.put("ckp_size",new HashMap<String, Object>(){{
+			put("name","Size");
+			put("type", "quality");
+			put("status","Pending");
+			put("result",new ArrayList<String>());
+		}});
+		
+		curationMetadata.put("ckp_profanity",new HashMap<String, Object>(){{
+			put("name","Profanity");
+			put("type", "quality");
+			put("status","Pending");
+			put("result",new ArrayList<String>());
+		}});
+		
+		curationMetadata.put("ckp_audio",new HashMap<String, Object>(){{
+			put("name","Audio");
+			put("type", "quality");
+			put("status","Pending");
+			put("result",new ArrayList<String>());
+		}});
+		
+		curationMetadata.put("ckp_image",new HashMap<String, Object>(){{
+			put("name","Image");
+			put("type", "quality");
+			put("status","Pending");
+			put("result",new ArrayList<String>());
+		}});
+		
+		curationMetadata.put("ckp_keywords",new HashMap<String, Object>(){{
+			put("name","Suggested Keywords");
+			put("type", "keywords");
+			put("status","Pending");
+			put("result",new ArrayList<String>());
+		}});
+		
+		curationMetadata.put("ckp_lng_analysis",new HashMap<String, Object>(){{
+			put("name","Languageng Analysis");
+			put("type", "ln_analysis");
+			put("status","Pending");
+			put("result",new ArrayList<String>());
+		}});
+		
+		curationMetadata.put("ckp_translation",new HashMap<String, Object>(){{
+			put("name","Hindi Translation");
+			put("type", "translation");
+			put("status","Pending");
+			put("result",new ArrayList<String>());
+		}});
+		
 		newNode.getMetadata().putAll(curationMetadata);
 		newNode.getMetadata().put("versionKey",passportKey);
 		Response response = updateContentNode(identifier, newNode, null);
