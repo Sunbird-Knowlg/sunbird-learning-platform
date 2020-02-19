@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Response;
 import org.ekstep.common.util.ApiUtil;
 import org.ekstep.content.publish.PublishManager;
 
@@ -60,7 +61,8 @@ public class ReviewerUtil {
 			}
 			Map<String, Object> request = new HashMap<String, Object>();
 			request.put("text",str);
-			ApiUtil.makeKeyWordsPostRequest(request);
+			Response resp = ApiUtil.makeKeyWordsPostRequest(request);
+			result.addAll((List<String>)resp.getResult().get("keywords"));
 		}
 		return result;
 	}
