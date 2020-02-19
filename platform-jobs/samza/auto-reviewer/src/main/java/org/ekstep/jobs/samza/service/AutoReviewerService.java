@@ -214,6 +214,40 @@ public class AutoReviewerService  implements ISamzaService {
 			}
 
 		}
+		
+		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("ckp_lng_analysis") && StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
+			try{
+				List<String> texts = new ArrayList<>();
+				if(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
+					texts.addAll(ReviewerUtil.getECMLText(identifier));
+				}else if(StringUtils.equalsIgnoreCase("application/pdf",(String)node.getMetadata().get("mimeType"))){
+					//TODO: add the text
+				}
+				Map<String, Object> languageAnalysis = ReviewerUtil.getLanguageAnalysis(texts);
+				String st_languageAnalysis = (MapUtils.isNotEmpty(languageAnalysis))?"Passed":"Failed";
+				Map<String, Object> ckp_languageAnalysis = new HashMap<String, Object>() {{
+					put("name","Languageng Analysis");
+					put("type", "ln_analysis");
+					put("status",st_languageAnalysis);
+					put("result",languageAnalysis);
+				}};
+
+				Node node_keywords = util.getNode("domain", identifier);
+				node_keywords.getMetadata().put("ckp_languageAnalysis",ckp_languageAnalysis);
+				node_keywords.getMetadata().put("versionKey",passportKey);
+				Response response = util.updateNode(node_keywords);
+
+				if(checkError(response)){
+					LOGGER.info("Error Occurred While Performing Curation. Error in updating content with  Languageng Analysis metadata");
+					LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
+				}else{
+					LOGGER.info("Languageng Analysis metadata updated for "+identifier);
+				}
+			}catch(Exception e){
+				LOGGER.info("keywords metadata computation Failed For Content Id : "+identifier);
+			}
+
+		}
 
 		//end of process;
 	}
