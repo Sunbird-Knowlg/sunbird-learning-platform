@@ -234,19 +234,19 @@ public class AutoReviewerService  implements ISamzaService {
 					put("result",languageAnalysis);
 				}};
 
-				Node node_keywords = util.getNode("domain", identifier);
-				node_keywords.getMetadata().put("ckp_languageAnalysis",ckp_languageAnalysis);
-				node_keywords.getMetadata().put("versionKey",passportKey);
-				Response response = util.updateNode(node_keywords);
+				Node node_lnanal = util.getNode("domain", identifier);
+				node_lnanal.getMetadata().put("ckp_languageAnalysis",ckp_languageAnalysis);
+				node_lnanal.getMetadata().put("versionKey",passportKey);
+				Response response = util.updateNode(node_lnanal);
 
 				if(checkError(response)){
 					LOGGER.info("Error Occurred While Performing Curation. Error in updating content with  Languageng Analysis metadata");
 					LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
 				}else{
-					LOGGER.info("Languageng Analysis metadata updated for "+identifier);
+					LOGGER.info("Languageng Analysis metadata updated for "+identifier+ "| Metadata : "+ckp_languageAnalysis);
 				}
 			}catch(Exception e){
-				LOGGER.info("keywords metadata computation Failed For Content Id : "+identifier);
+				LOGGER.info("Language Analysis metadata computation Failed For Content Id : "+identifier);
 			}
 
 		}
