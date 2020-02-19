@@ -1,6 +1,9 @@
 package org.ekstep.jobs.samza.service;
 
-import com.microsoft.azure.storage.core.Logger;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -10,7 +13,6 @@ import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
-import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.PDFUtil;
 import org.ekstep.graph.dac.model.Node;
@@ -22,7 +24,9 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +43,7 @@ public class AutoReviewerService  implements ISamzaService {
 	private static String passportKey = "";
 	private static String dsUri = "http://50.1.0.13:5000/ML/AutoReview";
 	private static Integer pdfSize = 5;
+	protected static ObjectMapper objectMapper = new ObjectMapper();
 
 	@Override
 	public void initialize(Config config) throws Exception {
@@ -85,7 +90,7 @@ public class AutoReviewerService  implements ISamzaService {
 		LOGGER.info("pdfSize : "+pdfSize);
 		LOGGER.info("=============== DEBUG INFO ============");
 
-		if(CollectionUtils.isNotEmpty(tasks) && (tasks.contains("quality") || tasks.contains("keywords") || tasks.contains("tags"))){
+		if(CollectionUtils.isNotEmpty(tasks) && (tasks.contains("profanity") || tasks.contains("audio") || tasks.contains("tags"))){
 			if(isDummyResponse){
 				LOGGER.info("Inserting Dummy Metadata For ML API Call : "+identifier);
 				delay(30000);
@@ -136,7 +141,51 @@ public class AutoReviewerService  implements ISamzaService {
 			}
 
 		}
+		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("translation") && StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
+			String translatedId = callCopyAPI(identifier.replace(".img", ""));
+			Map<String, Object> ckp_translation = new HashMap<String, Object>() {{
+				put("name","Hindi Translation");
+				put("type", "translation");
+				put("status","Passed");
+				put("result",new HashMap<String, Object>(){{
+					put("translated_id",translatedId);
+				}});
+			}};
+			
+			Node n_ckp_translation = util.getNode("domain", identifier);
+			n_ckp_translation.getMetadata().put("ckp_translation",ckp_translation);
+			n_ckp_translation.getMetadata().put("versionKey",passportKey);
+			Response response = util.updateNode(n_ckp_translation);
+
+			if(checkError(response)){
+				LOGGER.info("Error Occurred While Performing Curation. Error in updating content with Translation metadata");
+				LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
+			}else{
+				LOGGER.info("Translation metadata updated for "+identifier);
+			}
+	
+		}
 	}
+	
+	
+	private String callCopyAPI(String identifier) throws UnirestException, IOException {
+        String request = "{\"request\":{\"content\":{\"createdBy\":\"devcon\",\"createdFor\":[\"devcon\"],\"organisation\":[\"devcon\"],\"framework\":\"DevCon-NCERT\"}}}";
+        HttpResponse<String> httpResponse = Unirest.post("https://devcon.sunbirded.org/api/private/content/v3/copy/" + identifier).header("Content-Type", "application/json").header("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyZWU4YTgxNDNiZWE0NDU4YjQxMjcyNTU5ZDBhNTczMiJ9.7m4mIUaiPwh_o9cvJuyZuGrOdkfh0Nm0E_25Cl21kxE").body(request).asString();
+        if(httpResponse.getStatus() == 200) {
+            Map<String, Object> responseMap = objectMapper.readValue(httpResponse.getBody(), Map.class);
+            Map<String, Object> result = (Map<String, Object>)responseMap.get("result");
+            if (MapUtils.isNotEmpty(result)) {
+            	String translatedString = (String)((Map<String, Object>)result.get("node_id")).get(identifier);
+                return translatedString;
+			}
+            return "";
+            
+        }else {
+            return "";
+        }
+    }
+	
+	
 
 	private String  getFieNameFromURL(String fileUrl) {
 		String fileName = FilenameUtils.getBaseName(fileUrl) + "_" + System.currentTimeMillis();
