@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Response;
 import org.ekstep.common.util.ApiUtil;
 import org.ekstep.content.publish.PublishManager;
 
@@ -50,7 +51,8 @@ public class ReviewerUtil {
 		return totalTextList;
 	}
 
-	public static List<String> getKeywords(List<String> input) {
+	public static List<String> getKeywords(String identifier, List<String> input) {
+		System.out.println("Input Text For keywords generation for content id : "+identifier+" | Text Is : "+input);
 		List<String> result = new ArrayList<>();
 		String str = "";
 		if(CollectionUtils.isNotEmpty(result)){
@@ -61,7 +63,9 @@ public class ReviewerUtil {
 			}
 			Map<String, Object> request = new HashMap<String, Object>();
 			request.put("text",str);
-			ApiUtil.makeKeyWordsPostRequest(request);
+			System.out.println("Request for keyword generation :  "+request);
+			Response resp = ApiUtil.makeKeyWordsPostRequest(identifier,request);
+			result.addAll((List<String>)resp.getResult().get("keywords"));
 		}
 		return result;
 	}

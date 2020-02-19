@@ -155,13 +155,15 @@ public class AutoReviewerService  implements ISamzaService {
 		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("translation") && StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
 			try{
 				String translatedId = callCopyAPI(identifier.replace(".img", ""));
+				String st_trns = (StringUtils.isNotBlank(translatedId))?"Passed":"Failed";
+				Map<String, Object> st_res = new HashMap<>();
+				if(StringUtils.isNotBlank(translatedId))
+					st_res.put("translated_id",translatedId);
 				Map<String, Object> ckp_translation = new HashMap<String, Object>() {{
 					put("name","Hindi Translation");
 					put("type", "translation");
-					put("status","Passed");
-					put("result",new HashMap<String, Object>(){{
-						put("translated_id",translatedId);
-					}});
+					put("status",st_trns);
+					put("result",st_res);
 				}};
 
 				Node n_ckp_translation = util.getNode("domain", identifier);
@@ -173,7 +175,7 @@ public class AutoReviewerService  implements ISamzaService {
 					LOGGER.info("Error Occurred While Performing Curation. Error in updating content with Translation metadata");
 					LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
 				}else{
-					LOGGER.info("Translation metadata updated for "+identifier);
+					LOGGER.info("Translation metadata updated for "+identifier+" | Metadata : "+ckp_translation);
 				}
 			}catch(Exception e){
 				LOGGER.info("translation metadata computation Failed For Content Id : "+identifier);
@@ -189,7 +191,7 @@ public class AutoReviewerService  implements ISamzaService {
 				}else if(StringUtils.equalsIgnoreCase("application/pdf",(String)node.getMetadata().get("mimeType"))){
 					//TODO: add the text
 				}
-				List<String> keywords = ReviewerUtil.getKeywords(text);
+				List<String> keywords = ReviewerUtil.getKeywords(identifier, text);
 				String st_keywords = (CollectionUtils.isNotEmpty(keywords))?"Passed":"Failed";
 				Map<String, Object> ckp_keywords = new HashMap<String, Object>() {{
 					put("name","Suggested Keywords");
@@ -207,7 +209,7 @@ public class AutoReviewerService  implements ISamzaService {
 					LOGGER.info("Error Occurred While Performing Curation. Error in updating content with  Suggested Keywords metadata");
 					LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
 				}else{
-					LOGGER.info("Suggested Keywords metadata updated for "+identifier);
+					LOGGER.info("Suggested Keywords metadata updated for "+identifier + "| Metadata : "+ckp_keywords );
 				}
 			}catch(Exception e){
 				LOGGER.info("keywords metadata computation Failed For Content Id : "+identifier);
@@ -232,19 +234,19 @@ public class AutoReviewerService  implements ISamzaService {
 					put("result",languageAnalysis);
 				}};
 
-				Node node_keywords = util.getNode("domain", identifier);
-				node_keywords.getMetadata().put("ckp_languageAnalysis",ckp_languageAnalysis);
-				node_keywords.getMetadata().put("versionKey",passportKey);
-				Response response = util.updateNode(node_keywords);
+				Node node_lnanal = util.getNode("domain", identifier);
+				node_lnanal.getMetadata().put("ckp_languageAnalysis",ckp_languageAnalysis);
+				node_lnanal.getMetadata().put("versionKey",passportKey);
+				Response response = util.updateNode(node_lnanal);
 
 				if(checkError(response)){
 					LOGGER.info("Error Occurred While Performing Curation. Error in updating content with  Languageng Analysis metadata");
 					LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
 				}else{
-					LOGGER.info("Languageng Analysis metadata updated for "+identifier);
+					LOGGER.info("Languageng Analysis metadata updated for "+identifier+ "| Metadata : "+ckp_languageAnalysis);
 				}
 			}catch(Exception e){
-				LOGGER.info("keywords metadata computation Failed For Content Id : "+identifier);
+				LOGGER.info("Language Analysis metadata computation Failed For Content Id : "+identifier);
 			}
 
 		}
@@ -255,7 +257,7 @@ public class AutoReviewerService  implements ISamzaService {
 	
 	private String callCopyAPI(String identifier) throws UnirestException, IOException {
         String request = "{\"request\":{\"content\":{\"createdBy\":\"devcon\",\"createdFor\":[\"devcon\"],\"organisation\":[\"devcon\"],\"framework\":\"DevCon-NCERT\"}}}";
-        HttpResponse<String> httpResponse = Unirest.post("https://devcon.sunbirded.org/api/private/content/v3/copy/" + identifier).header("Content-Type", "application/json").header("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyZWU4YTgxNDNiZWE0NDU4YjQxMjcyNTU5ZDBhNTczMiJ9.7m4mIUaiPwh_o9cvJuyZuGrOdkfh0Nm0E_25Cl21kxE").body(request).asString();
+        HttpResponse<String> httpResponse = Unirest.post("http://50.1.0.5:8080/learning-service/content/v3/copy/" + identifier).header("Content-Type", "application/json").body(request).asString();
         if(httpResponse.getStatus() == 200) {
             Map<String, Object> responseMap = objectMapper.readValue(httpResponse.getBody(), Map.class);
             Map<String, Object> result = (Map<String, Object>)responseMap.get("result");
@@ -266,6 +268,8 @@ public class AutoReviewerService  implements ISamzaService {
             return "";
             
         }else {
+        	LOGGER.info("Error Occurred While Making Content Copy API Call For Translation. Error Code Is : "+httpResponse.getStatus());
+        	LOGGER.info("Response Body: "+httpResponse.getBody());
             return "";
         }
     }

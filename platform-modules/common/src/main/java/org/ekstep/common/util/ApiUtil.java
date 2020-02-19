@@ -28,7 +28,7 @@ public class ApiUtil {
 	private static ObjectMapper objMapper = new ObjectMapper();
 	private static String LANGUAGEAPIKEY = Platform.config.getString("language.api.key");
 
-	public static Response makeKeyWordsPostRequest(Map<String, Object> requestMap) {
+	public static Response makeKeyWordsPostRequest(String identifier, Map<String, Object> requestMap) {
 		String uri = "https://api.aylien.com/api/v1/entities";
 		TelemetryManager.log("ApiUtil:makePostRequest |  Request Url:" + uri);
 		TelemetryManager.log("ApiUtil:makePostRequest |  Request Body:" + requestMap);
@@ -62,6 +62,7 @@ public class ApiUtil {
 			TelemetryManager.info("Exception:::::"+ e);
 		}
 		List<String> keywords = (List<String>)((Map<String,Object>)result.get("entities")).get("keyword");
+		System.out.println("keywords generated for content id : "+keywords);
 		if(null!= result && !result.isEmpty())
 			resp.getResult().put("keywords",keywords);
 		return resp;
