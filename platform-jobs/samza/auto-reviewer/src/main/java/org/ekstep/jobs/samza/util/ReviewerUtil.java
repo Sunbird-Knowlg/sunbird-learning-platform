@@ -1,5 +1,6 @@
 package org.ekstep.jobs.samza.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -68,5 +69,18 @@ public class ReviewerUtil {
 		}
 		return result;
 	}
+	
+	public static Map<String, Object> getLanguageAnalysis(List<String> texts){
+		StringBuilder tempText = new StringBuilder();
+		if(CollectionUtils.isNotEmpty(texts)) {
+			for(String text: texts) {
+				tempText.append(text);
+			}
+			return ApiUtil.languageAnalysisAPI(tempText.toString());
+		}else {
+			return null;
+		}
+	}
+	
 
 }
