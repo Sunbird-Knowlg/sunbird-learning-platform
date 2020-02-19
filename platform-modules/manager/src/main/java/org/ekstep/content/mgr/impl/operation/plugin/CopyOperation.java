@@ -121,13 +121,15 @@ public class CopyOperation extends BaseContentManager {
                         for(Map<String, Object> textMap: textList) {
                             if(MapUtils.isNotEmpty((Map<String, Object>)textMap.get("config"))) {
                                 String textString = (String) ((Map<String, Object>)textMap.get("config")).get("__cData");
-                                Map<String, Object> actualTextMap = objectMapper.readValue(textString, Map.class);
-                                String textToBeTranslated = (String) actualTextMap.get("text");
-                                if(StringUtils.isNotBlank(textToBeTranslated)){
-                                    String translatedText = callAnuvadAPI(textToBeTranslated);
-                                    if(StringUtils.isNotBlank(translatedText)){
-                                        actualTextMap.put("text", translatedText);
-                                        ((Map<String, Object>)textMap.get("config")).put("__cData", objectMapper.writeValueAsString(actualTextMap));
+                                if(StringUtils.isNotBlank(textString)) {
+                                    Map<String, Object> actualTextMap = objectMapper.readValue(textString, Map.class);
+                                    String textToBeTranslated = (String) actualTextMap.get("text");
+                                    if(StringUtils.isNotBlank(textToBeTranslated)){
+                                        String translatedText = callAnuvadAPI(textToBeTranslated);
+                                        if(StringUtils.isNotBlank(translatedText)){
+                                            actualTextMap.put("text", translatedText);
+                                            ((Map<String, Object>)textMap.get("config")).put("__cData", objectMapper.writeValueAsString(actualTextMap));
+                                        }
                                     }
                                 }
                             }
