@@ -217,7 +217,7 @@ public class AutoReviewerService  implements ISamzaService {
 
 		}
 		
-		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("ckp_lng_analysis") && StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
+		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("ln_analysis") && StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
 			try{
 				List<String> texts = new ArrayList<>();
 				if(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
