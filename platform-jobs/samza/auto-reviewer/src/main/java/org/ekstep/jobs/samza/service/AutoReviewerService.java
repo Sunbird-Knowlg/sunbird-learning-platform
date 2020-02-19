@@ -19,6 +19,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
+import org.ekstep.jobs.samza.util.ReviewerUtil;
 import org.ekstep.jobs.samza.util.SamzaCommonParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
@@ -165,6 +166,39 @@ public class AutoReviewerService  implements ISamzaService {
 			}
 	
 		}
+
+		//TODO: add for pdf also,
+		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("keywords") && StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
+			List<String> text = new ArrayList<>();
+			if(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
+				text.addAll(ReviewerUtil.getECMLText(identifier));
+			}else if(StringUtils.equalsIgnoreCase("application/pdf",(String)node.getMetadata().get("mimeType"))){
+				//TODO: add the text
+			}
+			List<String> keywords = ReviewerUtil.getKeywords(text);
+			String st_keywords = (CollectionUtils.isNotEmpty(keywords))?"Passed":"Failed";
+			Map<String, Object> ckp_keywords = new HashMap<String, Object>() {{
+				put("name","Suggested Keywords");
+				put("type", "keywords");
+				put("status",st_keywords);
+				put("result",keywords);
+			}};
+
+			Node node_keywords = util.getNode("domain", identifier);
+			node_keywords.getMetadata().put("ckp_keywords",ckp_keywords);
+			node_keywords.getMetadata().put("versionKey",passportKey);
+			Response response = util.updateNode(node_keywords);
+
+			if(checkError(response)){
+				LOGGER.info("Error Occurred While Performing Curation. Error in updating content with  Suggested Keywords metadata");
+				LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
+			}else{
+				LOGGER.info("Suggested Keywords metadata updated for "+identifier);
+			}
+
+		}
+
+
 	}
 	
 	
