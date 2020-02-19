@@ -9,6 +9,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.util.ApiUtil;
+import org.ekstep.common.util.PDFUtil;
 import org.ekstep.content.publish.PublishManager;
 
 import java.io.IOException;
@@ -60,7 +61,7 @@ public class ReviewerUtil {
 		System.out.println("Input Text For keywords generation for content id : "+identifier+" | Text Is : "+input);
 		Set<String> result = new HashSet<String>();
 		String str = "";
-		if(CollectionUtils.isNotEmpty(result)){
+		if(CollectionUtils.isNotEmpty(input)){
 			for(int i=0; i<=input.size();i++){
 				Map<String, Object> request = new HashMap<String, Object>();
 				request.put("text",input.get(i));
@@ -88,5 +89,13 @@ public class ReviewerUtil {
 			return null;
 		}
 	}
+	/*public static void getPdfText(String url) {//"/Users/amitpriyadarshi/Desktop/1.pdf",1
+		String a = PDFUtil.readParaFromPDF(url, 1);
+		Map<String, Object> b = getLanguageAnalysis(Arrays.asList(a));
+		System.out.println(b);
+	}
+	public static void main(String[] args) {
+		getPdfText("https://ntpproductionall.blob.core.windows.net/ntp-content-production/content/assets/do_31279219959874355212998/a-letter-from-obama-to-his-daughters.pdf");
+	}*/
 	
 }
