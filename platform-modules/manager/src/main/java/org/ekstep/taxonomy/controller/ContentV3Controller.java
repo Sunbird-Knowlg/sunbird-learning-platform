@@ -1,5 +1,12 @@
 package org.ekstep.taxonomy.controller;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.PathParam;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Slug;
@@ -23,12 +30,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.ws.rs.PathParam;
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 /**
  * The Class ContentV3Controller, is the main entry point for the High Level
@@ -527,7 +528,7 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/copy/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> copy(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "mode", required = false) String mode, @RequestParam(value = "trans", required = false) String translate, @RequestBody Map<String, Object> requestMap) {
+			@RequestParam(value = "mode", required = false) String mode, @RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.content.copy";
 		Response response;
 		TelemetryManager.log("Content Copy | Content Id : " + contentId);
@@ -536,7 +537,7 @@ public class ContentV3Controller extends BaseController {
 			TelemetryManager.log(
 					"Calling the Manager for copying content 'getById' | [Content Id " + contentId + "]" + contentId);
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			response = contentManager.copyContent(contentId, map, mode, translate);
+			response = contentManager.copyContent(contentId, map, mode, "hi");
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception occured while copying Content: " + contentId + " :: " + e.getMessage(), e);
