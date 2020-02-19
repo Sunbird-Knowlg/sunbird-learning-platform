@@ -1111,7 +1111,8 @@
 						"ExperientialResource",
 						"ConceptMap",
 						"SelfAssess",
-						"PracticeResource"
+						"PracticeResource",
+						"CoachingSession"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
