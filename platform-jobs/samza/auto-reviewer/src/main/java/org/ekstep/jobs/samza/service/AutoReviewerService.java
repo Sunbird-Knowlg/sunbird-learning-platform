@@ -94,111 +94,128 @@ public class AutoReviewerService  implements ISamzaService {
 		if(CollectionUtils.isNotEmpty(tasks) && (tasks.contains("profanity") || tasks.contains("audio") || tasks.contains("tags"))){
 			if(isDummyResponse){
 				LOGGER.info("Inserting Dummy Metadata For ML API Call : "+identifier);
-				delay(30000);
+				delay(10000);
 				updateSuccessMeta(identifier, node);
 			}
 			else{
 				//TODO: Make ML API Call
-				Map<String, Object> request = new HashMap<String, Object>(){{
-					put("content_id",identifier);
-					put("artifactUrl",artifactUrl);
-					put("mimeType",(String)node.getMetadata().get("mimeType"));
-					put("version","1.0");
-					put("timestamp",(String)node.getMetadata().get("lastUpdatedOn"));
-				}};
-				Response response = makeDSPostRequest(dsUri,request,new HashMap<String, String>());
-				if(checkError(response)){
+				try{
+					Map<String, Object> request = new HashMap<String, Object>(){{
+						put("content_id",identifier);
+						put("artifactUrl",artifactUrl);
+						put("mimeType",(String)node.getMetadata().get("mimeType"));
+						put("version","1.0");
+						put("timestamp",(String)node.getMetadata().get("lastUpdatedOn"));
+					}};
+					Response response = makeDSPostRequest(dsUri,request,new HashMap<String, String>());
+					if(checkError(response)){
+						LOGGER.info("ML API Call Failed For Content Id : "+identifier);
+					}else{
+						LOGGER.info("ML API Call Successful For Content Id : "+identifier);
+					}
+				}catch(Exception e){
 					LOGGER.info("ML API Call Failed For Content Id : "+identifier);
-				}else{
-					LOGGER.info("ML API Call Successful For Content Id : "+identifier);
 				}
+
 			}
 		}
 
 		// kp metadata update
 		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("size") && StringUtils.equalsIgnoreCase("application/pdf",(String)node.getMetadata().get("mimeType"))){
-			LOGGER.info("Computing Size For "+identifier);
-			//String directory = "/tmp/"+identifier+File.separator+getFieNameFromURL(artifactUrl);
-			File file = HttpDownloadUtility.downloadFile(artifactUrl,"/tmp");
-			int count = PDFUtil.getPageCount(file);
-			LOGGER.info("count :: "+count);
-			String sizeSt = count<=pdfSize?"Passed":"Failed";
-			Map<String, Object> meta = new HashMap<String, Object>(){{
-				put("name","Size");
-				put("type", "size");
-				put("status",sizeSt);
-				put("result",String.valueOf(count));
-			}};
-			Node n = util.getNode("domain", identifier);
-			n.getMetadata().put("ckp_size",meta);
-			n.getMetadata().put("versionKey",passportKey);
-			Response response = util.updateNode(n);
+			try{
+				LOGGER.info("Computing Size For "+identifier);
+				//String directory = "/tmp/"+identifier+File.separator+getFieNameFromURL(artifactUrl);
+				File file = HttpDownloadUtility.downloadFile(artifactUrl,"/tmp");
+				int count = PDFUtil.getPageCount(file);
+				LOGGER.info("count :: "+count);
+				String sizeSt = count<=pdfSize?"Passed":"Failed";
+				Map<String, Object> meta = new HashMap<String, Object>(){{
+					put("name","Size");
+					put("type", "size");
+					put("status",sizeSt);
+					put("result",String.valueOf(count));
+				}};
+				Node n = util.getNode("domain", identifier);
+				n.getMetadata().put("ckp_size",meta);
+				n.getMetadata().put("versionKey",passportKey);
+				Response response = util.updateNode(n);
 
-			if(checkError(response)){
-				LOGGER.info("Error Occurred While Performing Curation. Error in updating content with size metadata");
-				LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
-			}else{
-				LOGGER.info("size metadata updated for "+identifier);
+				if(checkError(response)){
+					LOGGER.info("Error Occurred While Performing Curation. Error in updating content with size metadata");
+					LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
+				}else{
+					LOGGER.info("size metadata updated for "+identifier);
+				}
+			}catch(Exception e){
+				LOGGER.info("size metadata computation Failed For Content Id : "+identifier);
 			}
+
 
 		}
 		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("translation") && StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
-			String translatedId = callCopyAPI(identifier.replace(".img", ""));
-			Map<String, Object> ckp_translation = new HashMap<String, Object>() {{
-				put("name","Hindi Translation");
-				put("type", "translation");
-				put("status","Passed");
-				put("result",new HashMap<String, Object>(){{
-					put("translated_id",translatedId);
-				}});
-			}};
-			
-			Node n_ckp_translation = util.getNode("domain", identifier);
-			n_ckp_translation.getMetadata().put("ckp_translation",ckp_translation);
-			n_ckp_translation.getMetadata().put("versionKey",passportKey);
-			Response response = util.updateNode(n_ckp_translation);
+			try{
+				String translatedId = callCopyAPI(identifier.replace(".img", ""));
+				Map<String, Object> ckp_translation = new HashMap<String, Object>() {{
+					put("name","Hindi Translation");
+					put("type", "translation");
+					put("status","Passed");
+					put("result",new HashMap<String, Object>(){{
+						put("translated_id",translatedId);
+					}});
+				}};
 
-			if(checkError(response)){
-				LOGGER.info("Error Occurred While Performing Curation. Error in updating content with Translation metadata");
-				LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
-			}else{
-				LOGGER.info("Translation metadata updated for "+identifier);
+				Node n_ckp_translation = util.getNode("domain", identifier);
+				n_ckp_translation.getMetadata().put("ckp_translation",ckp_translation);
+				n_ckp_translation.getMetadata().put("versionKey",passportKey);
+				Response response = util.updateNode(n_ckp_translation);
+
+				if(checkError(response)){
+					LOGGER.info("Error Occurred While Performing Curation. Error in updating content with Translation metadata");
+					LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
+				}else{
+					LOGGER.info("Translation metadata updated for "+identifier);
+				}
+			}catch(Exception e){
+				LOGGER.info("translation metadata computation Failed For Content Id : "+identifier);
 			}
-	
 		}
 
 		//TODO: add for pdf also,
 		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("keywords") && StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
-			List<String> text = new ArrayList<>();
-			if(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
-				text.addAll(ReviewerUtil.getECMLText(identifier));
-			}else if(StringUtils.equalsIgnoreCase("application/pdf",(String)node.getMetadata().get("mimeType"))){
-				//TODO: add the text
-			}
-			List<String> keywords = ReviewerUtil.getKeywords(text);
-			String st_keywords = (CollectionUtils.isNotEmpty(keywords))?"Passed":"Failed";
-			Map<String, Object> ckp_keywords = new HashMap<String, Object>() {{
-				put("name","Suggested Keywords");
-				put("type", "keywords");
-				put("status",st_keywords);
-				put("result",keywords);
-			}};
+			try{
+				List<String> text = new ArrayList<>();
+				if(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
+					text.addAll(ReviewerUtil.getECMLText(identifier));
+				}else if(StringUtils.equalsIgnoreCase("application/pdf",(String)node.getMetadata().get("mimeType"))){
+					//TODO: add the text
+				}
+				List<String> keywords = ReviewerUtil.getKeywords(text);
+				String st_keywords = (CollectionUtils.isNotEmpty(keywords))?"Passed":"Failed";
+				Map<String, Object> ckp_keywords = new HashMap<String, Object>() {{
+					put("name","Suggested Keywords");
+					put("type", "keywords");
+					put("status",st_keywords);
+					put("result",keywords);
+				}};
 
-			Node node_keywords = util.getNode("domain", identifier);
-			node_keywords.getMetadata().put("ckp_keywords",ckp_keywords);
-			node_keywords.getMetadata().put("versionKey",passportKey);
-			Response response = util.updateNode(node_keywords);
+				Node node_keywords = util.getNode("domain", identifier);
+				node_keywords.getMetadata().put("ckp_keywords",ckp_keywords);
+				node_keywords.getMetadata().put("versionKey",passportKey);
+				Response response = util.updateNode(node_keywords);
 
-			if(checkError(response)){
-				LOGGER.info("Error Occurred While Performing Curation. Error in updating content with  Suggested Keywords metadata");
-				LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
-			}else{
-				LOGGER.info("Suggested Keywords metadata updated for "+identifier);
+				if(checkError(response)){
+					LOGGER.info("Error Occurred While Performing Curation. Error in updating content with  Suggested Keywords metadata");
+					LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
+				}else{
+					LOGGER.info("Suggested Keywords metadata updated for "+identifier);
+				}
+			}catch(Exception e){
+				LOGGER.info("keywords metadata computation Failed For Content Id : "+identifier);
 			}
 
 		}
 
-
+		//end of process;
 	}
 	
 	
@@ -236,8 +253,85 @@ public class AutoReviewerService  implements ISamzaService {
 	}
 
 	private void updateSuccessMeta(String identifier, Node node) {
+//		Map<String, Object> curationMetadata = new HashMap<>();
 		Map<String, Object> curationMetadata = new HashMap<>();
 		curationMetadata.put("cml_tags",new HashMap<String, Object>(){{
+			put("name","Suggested Tags");
+			put("type", "tags");
+			put("status","Passed");
+			put("result",new ArrayList<String>(){{
+				add("Science");
+			}});
+		}});
+		curationMetadata.put("cml_profanity",new HashMap<String, Object>(){{
+			put("name","Profanity");
+			put("type", "quality");
+			put("status","Pending");
+			put("result",new ArrayList<String>());
+		}});
+		curationMetadata.put("cml_audio",new HashMap<String, Object>(){{
+			put("name","Audio");
+			put("type", "quality");
+			put("status","Passed");
+			put("result",new HashMap<String, Object>(){{
+				put("score","8/10");
+				put("percentile","80%");
+			}});
+		}});
+		curationMetadata.put("ckp_profanity",new HashMap<String, Object>(){{
+			put("name","Profanity");
+			put("type", "quality");
+			put("status","Passed");
+			put("result",new ArrayList<String>());
+		}});
+		curationMetadata.put("ckp_audio",new HashMap<String, Object>(){{
+			put("name","Audio");
+			put("type", "quality");
+			put("status","Passed");
+			put("result",new HashMap<String, Object>(){{
+				put("score","8/10");
+				put("percentile","80%");
+			}});
+		}});
+		curationMetadata.put("ckp_image",new HashMap<String, Object>(){{
+			put("name","Image");
+			put("type", "quality");
+			put("status","Passed");
+			put("result",new ArrayList<String>());
+		}});
+
+		curationMetadata.put("ckp_lng_analysis",new HashMap<String, Object>(){{
+			put("name","Language Analysis");
+			put("type", "ln_analysis");
+			put("status","Passed");
+			put("result",new HashMap<String,Object>(){{
+				put("totalWordCount","80");
+				put("partsOfSpeech",new HashMap<String,Object>(){{
+					put("adjective","9.62%");
+					put("conjunction","1.92%");
+					put("preposition","3.85%");
+					put("verb","5.77%");
+					put("noun","30.77%");
+					put("adverb","15.38%");
+					put("article","1.92%");
+				}});
+				put("thresholdVocabulary", new HashMap<String, Object>(){{
+					put("wordCount","3");
+					put("%OfWords","5.77");
+				}});
+				put("nonThresholdVocabulary", new HashMap<String, Object>(){{
+					put("wordCount","49");
+					put("%OfWords","94.23");
+				}});
+			}});
+		}});
+		curationMetadata.put("ckp_translation",new HashMap<String, Object>(){{
+			put("name","Hindi Translation");
+			put("type", "translation");
+			put("status","Pending");
+			put("result",new HashMap<String, Object>());
+		}});
+		/*curationMetadata.put("cml_tags",new HashMap<String, Object>(){{
 			put("name","Suggested Tags");
 			put("type", "tags");
 			put("status","Passed");
@@ -282,7 +376,7 @@ public class AutoReviewerService  implements ISamzaService {
 					put("result",new ArrayList<String>());
 				}});
 			}});
-		}});
+		}});*/
 
 		node.getMetadata().putAll(curationMetadata);
 		node.getMetadata().put("versionKey",passportKey);
