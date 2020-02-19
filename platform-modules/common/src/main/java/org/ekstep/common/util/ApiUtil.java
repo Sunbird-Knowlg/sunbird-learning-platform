@@ -10,6 +10,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.exception.ServerException;
@@ -25,6 +26,7 @@ public class ApiUtil {
 
 	private static Gson gsonObj = new Gson();
 	private static ObjectMapper objMapper = new ObjectMapper();
+	private static String LANGUAGEAPIKEY = Platform.config.getString("language.api.key");
 
 	public static Response makeKeyWordsPostRequest(Map<String, Object> requestMap) {
 		String uri = "https://api.aylien.com/api/v1/entities";
@@ -71,7 +73,7 @@ public class ApiUtil {
 		Map<String, Object> languageAnalysisMap = null;
 		try {
 			String body = objMapper.writeValueAsString(request);
-			HttpResponse<String> httpResponse = Unirest.post("https://api.ekstep.in/language/v3/tools/text/analysis").header("Content-Type", "application/json").header("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIyNDUzMTBhZTFlMzc0NzU1ODMxZTExZmQyMGRjMDg0MiIsImlhdCI6bnVsbCwiZXhwIjpudWxsLCJhdWQiOiIiLCJzdWIiOiIifQ.M1H_Z7WvwRPM0suBCofHs7iuDMMHyBjIRd3xGS4hqy8").body(body).asString();
+			HttpResponse<String> httpResponse = Unirest.post("https://api.ekstep.in/language/v3/tools/text/analysis").header("Content-Type", "application/json").header("Authorization", "Bearer "+ LANGUAGEAPIKEY).body(body).asString();
 			
 			if(httpResponse.getStatus() == 200) {
 				Map<String, Object> responseMap = objMapper.readValue(httpResponse.getBody(), Map.class);
