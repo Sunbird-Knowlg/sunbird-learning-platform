@@ -167,30 +167,64 @@ public class BasePlaySearchManager {
 						contentMap.set(contentMap.indexOf(content), content);
 					}
 					if(content.containsKey("cml_tags")){
-					Map<String,Object> cml_tags = (Map<String,Object>) mapper.readValue((String) content.get("cml_tags"), Map.class);
-					content.put("cml_tags",cml_tags);
-					contentMap.set(contentMap.indexOf(content), content);
+						Map<String,Object> cml_tags = (Map<String,Object>) mapper.readValue((String) content.get("cml_tags"), Map.class);
+						content.put("cml_tags",cml_tags);
+						contentMap.set(contentMap.indexOf(content), content);
 					}
-					if(content.containsKey("cml_keywords")){
-					Map<String,Object> cml_keywords = (Map<String,Object>) mapper.readValue((String) content.get("cml_keywords"), Map.class);
-					content.put("cml_keywords",cml_keywords);
-					contentMap.set(contentMap.indexOf(content), content);
+
+					if(content.containsKey("cml_profanity")){
+						Map<String,Object> cml_profanity = (Map<String,Object>) mapper.readValue((String) content.get("cml_profanity"), Map.class);
+						content.put("cml_profanity",cml_profanity);
+						contentMap.set(contentMap.indexOf(content), content);
 					}
-					if(content.containsKey("cml_quality")){
-					Map<String,Object> cml_quality = (Map<String,Object>) mapper.readValue((String) content.get("cml_quality"), Map.class);
-					content.put("cml_quality",cml_quality);
-					contentMap.set(contentMap.indexOf(content), content);
+
+					if(content.containsKey("cml_audio")){
+						Map<String,Object> cml_audio = (Map<String,Object>) mapper.readValue((String) content.get("cml_audio"), Map.class);
+						content.put("cml_audio",cml_audio);
+						contentMap.set(contentMap.indexOf(content), content);
+					}
+
+					if(content.containsKey("ckp_size")){
+						Map<String,Object> ckp_size = (Map<String,Object>) mapper.readValue((String) content.get("ckp_size"), Map.class);
+						content.put("ckp_size",ckp_size);
+						contentMap.set(contentMap.indexOf(content), content);
+					}
+
+					if(content.containsKey("ckp_profanity")){
+						Map<String,Object> ckp_profanity = (Map<String,Object>) mapper.readValue((String) content.get("ckp_profanity"), Map.class);
+						content.put("ckp_profanity",ckp_profanity);
+						contentMap.set(contentMap.indexOf(content), content);
+					}
+
+					if(content.containsKey("ckp_audio")){
+						Map<String,Object> ckp_audio = (Map<String,Object>) mapper.readValue((String) content.get("ckp_audio"), Map.class);
+						content.put("ckp_audio",ckp_audio);
+						contentMap.set(contentMap.indexOf(content), content);
+					}
+
+					if(content.containsKey("ckp_image")){
+						Map<String,Object> ckp_image = (Map<String,Object>) mapper.readValue((String) content.get("ckp_image"), Map.class);
+						content.put("ckp_image",ckp_image);
+						contentMap.set(contentMap.indexOf(content), content);
+					}
+
+					if(content.containsKey("ckp_keywords")){
+						Map<String,Object> ckp_keywords = (Map<String,Object>) mapper.readValue((String) content.get("ckp_keywords"), Map.class);
+						content.put("ckp_keywords",ckp_keywords);
+						contentMap.set(contentMap.indexOf(content), content);
+					}
+
+					if(content.containsKey("ckp_lng_analysis")){
+						Map<String,Object> ckp_lng_analysis = (Map<String,Object>) mapper.readValue((String) content.get("ckp_lng_analysis"), Map.class);
+						content.put("ckp_lng_analysis",ckp_lng_analysis);
+						contentMap.set(contentMap.indexOf(content), content);
 					}
 					if(content.containsKey("ckp_translation")){
-					Map<String,Object> ckp_translation = (Map<String,Object>) mapper.readValue((String) content.get("ckp_translation"), Map.class);
-					content.put("ckp_translation",ckp_translation);
-					contentMap.set(contentMap.indexOf(content), content);
+						Map<String,Object> ckp_translation = (Map<String,Object>) mapper.readValue((String) content.get("ckp_translation"), Map.class);
+						content.put("ckp_translation",ckp_translation);
+						contentMap.set(contentMap.indexOf(content), content);
 					}
-					if(content.containsKey("ckp_size")){
-					Map<String,Object> ckp_size = (Map<String,Object>) mapper.readValue((String) content.get("ckp_size"), Map.class);
-					content.put("ckp_size",ckp_size);
-					contentMap.set(contentMap.indexOf(content), content);
-					}
+
 					updateContentTaggedProperty(content);
                     contentMap.set(contentMap.indexOf(content), content);
 				}

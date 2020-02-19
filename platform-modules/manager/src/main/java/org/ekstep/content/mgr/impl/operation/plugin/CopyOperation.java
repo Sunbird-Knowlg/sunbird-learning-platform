@@ -120,7 +120,7 @@ public class CopyOperation extends BaseContentManager {
                     if(CollectionUtils.isNotEmpty(textList)){
                         for(Map<String, Object> textMap: textList) {
                             if(MapUtils.isNotEmpty((Map<String, Object>)textMap.get("config"))) {
-                                String textString = (String) ((Map<String, Object>)textMap.get("config")).get("__cData");
+                                String textString = (String) ((Map<String, Object>)textMap.get("config")).get("__cdata");
                                 if(StringUtils.isNotBlank(textString)) {
                                     Map<String, Object> actualTextMap = objectMapper.readValue(textString, Map.class);
                                     String textToBeTranslated = (String) actualTextMap.get("text");
@@ -128,7 +128,7 @@ public class CopyOperation extends BaseContentManager {
                                         String translatedText = callAnuvadAPI(textToBeTranslated);
                                         if(StringUtils.isNotBlank(translatedText)){
                                             actualTextMap.put("text", translatedText);
-                                            ((Map<String, Object>)textMap.get("config")).put("__cData", objectMapper.writeValueAsString(actualTextMap));
+                                            ((Map<String, Object>)textMap.get("config")).put("__cdata", objectMapper.writeValueAsString(actualTextMap));
                                         }
                                     }
                                 }
@@ -150,7 +150,7 @@ public class CopyOperation extends BaseContentManager {
             put("src", textToBeTranslated);
             put("id", 56);
         }});
-        HttpResponse<String> httpResponse = Unirest.post("http://50.1.0.11:3003/translator/translation_en").header("Content-Type", "application/x-www-form-urlencoded").body(request).asString();
+        HttpResponse<String> httpResponse = Unirest.post("http://50.1.0.11:3003/translator/translation_en").header("Content-Type", "application/x-www-form-urlencoded").body(objectMapper.writeValueAsString(request)).asString();
         if(httpResponse.getStatus() == 200) {
             Map<String, Object> responseMap = objectMapper.readValue(httpResponse.getBody(), Map.class);
             String translatedString = (String) ((List<Map<String, Object>>)responseMap.get("response_body")).get(0).get("tgt");
