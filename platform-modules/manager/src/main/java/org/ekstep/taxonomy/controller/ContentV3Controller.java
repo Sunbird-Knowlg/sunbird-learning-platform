@@ -527,7 +527,7 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/copy/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> copy(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "mode", required = false) String mode, @RequestBody Map<String, Object> requestMap) {
+			@RequestParam(value = "mode", required = false) String mode, @RequestParam(value = "trans", required = false) String translate, @RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.content.copy";
 		Response response;
 		TelemetryManager.log("Content Copy | Content Id : " + contentId);
@@ -536,7 +536,7 @@ public class ContentV3Controller extends BaseController {
 			TelemetryManager.log(
 					"Calling the Manager for copying content 'getById' | [Content Id " + contentId + "]" + contentId);
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			response = contentManager.copyContent(contentId, map, mode);
+			response = contentManager.copyContent(contentId, map, mode, translate);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception occured while copying Content: " + contentId + " :: " + e.getMessage(), e);

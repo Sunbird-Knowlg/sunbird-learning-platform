@@ -1,5 +1,8 @@
 package org.ekstep.content.mgr.impl.operation.plugin;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -42,11 +45,11 @@ public class CopyOperation extends BaseContentManager {
     private final List<String> graphValidationErrors = Arrays.asList("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", "ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED");
     private final HierarchyManager hierarchyManager = new HierarchyManager();
 
-    public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
+    public Response copyContent(String contentId, Map<String, Object> requestMap, String mode, String translate) {
         Node existingNode = validateCopyContentRequest(contentId, requestMap, mode);
         return isCollectionMimeType((String) existingNode.getMetadata().get("mimeType")) ? 
         		OK("node_id", copyCollectionContent(existingNode, requestMap, mode)) :
-        			OK("node_id", copyContentData(existingNode, requestMap));
+        			OK("node_id", copyContentData(existingNode, requestMap, translate));
     }
 
     /**
@@ -85,7 +88,7 @@ public class CopyOperation extends BaseContentManager {
      * @param requestMap
      * @return
      */
-    protected Map<String, String> copyContentData(Node existingNode, Map<String, Object> requestMap) {
+    protected Map<String, String> copyContentData(Node existingNode, Map<String, Object> requestMap, String translation) {
         Node copyNode = copyMetdata(existingNode, requestMap);
         Response response = createDataNode(copyNode);
         if (checkError(response)) {
@@ -100,7 +103,59 @@ public class CopyOperation extends BaseContentManager {
         uploadExternalProperties(existingNode, copyNode);
         Map<String, String> idMap = new HashMap<>();
         idMap.put(existingNode.getIdentifier(), copyNode.getIdentifier());
+        if(StringUtils.isNotBlank(translation) && isEcmlMimeType((String) existingNode.getMetadata().get("mimeType"))) {
+            transateEcmlText(copyNode.getIdentifier());
+        }
         return idMap;
+    }
+
+    private void transateEcmlText(String identifier) {
+        String body = getContentBody(identifier);
+        if(StringUtils.isNotBlank(body)){
+            try {
+                Map<String, Object> ecmlMap = objectMapper.readValue(body, Map.class);
+                List<Map<String, Object>> stages = ((List<Map<String, Object>>)((Map<String, Object>)ecmlMap.get("theme")).get("stage"));
+                for(Map<String, Object> stage: stages) {
+                    List<Map<String, Object>> textList = (List<Map<String, Object>>) stage.get("org.ekstep.text");
+                    if(CollectionUtils.isNotEmpty(textList)){
+                        for(Map<String, Object> textMap: textList) {
+                            if(MapUtils.isNotEmpty((Map<String, Object>)textMap.get("config"))) {
+                                String textString = (String) ((Map<String, Object>)textMap.get("config")).get("__cData");
+                                Map<String, Object> actualTextMap = objectMapper.readValue(textString, Map.class);
+                                String textToBeTranslated = (String) actualTextMap.get("text");
+                                if(StringUtils.isNotBlank(textToBeTranslated)){
+                                    String translatedText = callAnuvadAPI(textToBeTranslated);
+                                    if(StringUtils.isNotBlank(translatedText)){
+                                        actualTextMap.put("text", translatedText);
+                                        ((Map<String, Object>)textMap.get("config")).put("__cData", objectMapper.writeValueAsString(actualTextMap));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                updateContentProperties(identifier, new HashMap<String, Object>(){{put("body", objectMapper.writeValueAsString(ecmlMap));}});
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (UnirestException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private String callAnuvadAPI(String textToBeTranslated) throws UnirestException, IOException {
+        List<Map<String, Object>> request = Arrays.asList(new HashMap<String, Object>() {{
+            put("src", textToBeTranslated);
+            put("id", 56);
+        }});
+        HttpResponse<String> httpResponse = Unirest.post("http://50.1.0.11:3003/translator/translation_en").header("Content-Type", "application/x-www-form-urlencoded").body(request).asString();
+        if(httpResponse.getStatus() == 200) {
+            Map<String, Object> responseMap = objectMapper.readValue(httpResponse.getBody(), Map.class);
+            String translatedString = (String) ((List<Map<String, Object>>)responseMap.get("response_body")).get(0).get("tgt");
+            return translatedString;
+        }else {
+            return "";
+        }
     }
 
     /**
@@ -178,7 +233,7 @@ public class CopyOperation extends BaseContentManager {
      */
     private Map<String, String> copyCollectionContent(Node existingNode, Map<String, Object> requestMap, String mode) {
         // Copying Root Node
-        Map<String, String> idMap = copyContentData(existingNode, requestMap);
+        Map<String, String> idMap = copyContentData(existingNode, requestMap, null);
         // Generating update hierarchy with copied parent content and calling
         // update hierarchy.
         copyHierarchy(existingNode, idMap, mode);

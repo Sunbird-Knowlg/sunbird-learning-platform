@@ -235,7 +235,7 @@ public interface IContentManager {
 	 * @param mode
 	 * @return
 	 */
-	Response copyContent(String contentId, Map<String, Object> requestMap, String mode);
+	Response copyContent(String contentId, Map<String, Object> requestMap, String mode, String translate);
 
     /**
      * @param contentId
