@@ -114,6 +114,7 @@ public class AutoReviewerService  implements ISamzaService {
 						LOGGER.info("ML API Call Successful For Content Id : "+identifier);
 					}
 				}catch(Exception e){
+					e.printStackTrace();
 					LOGGER.info("ML API Call Failed For Content Id : "+identifier);
 				}
 
@@ -147,11 +148,13 @@ public class AutoReviewerService  implements ISamzaService {
 					LOGGER.info("size metadata updated for "+identifier);
 				}
 			}catch(Exception e){
+				e.printStackTrace();
 				LOGGER.info("size metadata computation Failed For Content Id : "+identifier);
 			}
 
 
 		}
+		//TODO: DC - Enable it for pdf also. - not sure. we should skip this.
 		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("translation") && StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
 			try{
 				String translatedId = callCopyAPI(identifier.replace(".img", ""));
@@ -182,7 +185,7 @@ public class AutoReviewerService  implements ISamzaService {
 			}
 		}
 
-		//TODO: add for pdf also,
+		//TODO: DC - enable it  for pdf also
 		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("keywords") && StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
 			try{
 				List<String> text = new ArrayList<>();
@@ -212,11 +215,13 @@ public class AutoReviewerService  implements ISamzaService {
 					LOGGER.info("Suggested Keywords metadata updated for "+identifier + "| Metadata : "+ckp_keywords );
 				}
 			}catch(Exception e){
+				e.printStackTrace();
 				LOGGER.info("keywords metadata computation Failed For Content Id : "+identifier);
 			}
 
 		}
-		
+
+		//TODO: DC - Enable it for pdf also.
 		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("ln_analysis") && StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
 			try{
 				List<String> texts = new ArrayList<>();
@@ -228,14 +233,14 @@ public class AutoReviewerService  implements ISamzaService {
 				Map<String, Object> languageAnalysis = ReviewerUtil.getLanguageAnalysis(texts);
 				String st_languageAnalysis = (MapUtils.isNotEmpty(languageAnalysis))?"Passed":"Failed";
 				Map<String, Object> ckp_languageAnalysis = new HashMap<String, Object>() {{
-					put("name","Languageng Analysis");
+					put("name","Language Analysis");
 					put("type", "ln_analysis");
 					put("status",st_languageAnalysis);
 					put("result",languageAnalysis);
 				}};
 
 				Node node_lnanal = util.getNode("domain", identifier);
-				node_lnanal.getMetadata().put("ckp_languageAnalysis",ckp_languageAnalysis);
+				node_lnanal.getMetadata().put("ckp_lng_analysis",ckp_languageAnalysis);
 				node_lnanal.getMetadata().put("versionKey",passportKey);
 				Response response = util.updateNode(node_lnanal);
 
@@ -243,9 +248,10 @@ public class AutoReviewerService  implements ISamzaService {
 					LOGGER.info("Error Occurred While Performing Curation. Error in updating content with  Languageng Analysis metadata");
 					LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
 				}else{
-					LOGGER.info("Languageng Analysis metadata updated for "+identifier+ "| Metadata : "+ckp_languageAnalysis);
+					LOGGER.info("Language Analysis metadata updated for "+identifier+ "| Metadata : "+ckp_languageAnalysis);
 				}
 			}catch(Exception e){
+				e.printStackTrace();
 				LOGGER.info("Language Analysis metadata computation Failed For Content Id : "+identifier);
 			}
 

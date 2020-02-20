@@ -212,6 +212,9 @@ public class ReviewFinalizer extends BaseFinalizer {
 	}*/
 	
 	private void updateInitialMetadata(String identifier, Node newNode) {
+		/*if(StringUtils.isBlank((String) newNode.getMetadata().get("artifactUrl"))){
+			generateArtifactUrl(newNode);
+		}*/
 		Map<String, Object> curationMetadata = new HashMap<>();
 		curationMetadata.put("cml_tags",new HashMap<String, Object>(){{
 			put("name","Suggested Tags");
@@ -233,7 +236,8 @@ public class ReviewFinalizer extends BaseFinalizer {
 			put("status","Pending");
 			put("result",new ArrayList<String>());
 		}});
-		
+
+		if(StringUtils.equalsIgnoreCase("application/pdf",(String)newNode.getMetadata().get("mimeType")))
 		curationMetadata.put("ckp_size",new HashMap<String, Object>(){{
 			put("name","Size");
 			put("type", "quality");
@@ -252,14 +256,14 @@ public class ReviewFinalizer extends BaseFinalizer {
 			put("name","Audio");
 			put("type", "quality");
 			put("status","Pending");
-			put("result",new ArrayList<String>());
+			put("result",new HashMap<String,Object>());
 		}});
 		
 		curationMetadata.put("ckp_image",new HashMap<String, Object>(){{
 			put("name","Image");
 			put("type", "quality");
 			put("status","Pending");
-			put("result",new ArrayList<String>());
+			put("result",new HashMap<String, Object>());
 		}});
 		
 		curationMetadata.put("ckp_keywords",new HashMap<String, Object>(){{
@@ -273,14 +277,14 @@ public class ReviewFinalizer extends BaseFinalizer {
 			put("name","Languageng Analysis");
 			put("type", "ln_analysis");
 			put("status","Pending");
-			put("result",new ArrayList<String>());
+			put("result",new HashMap<String, Object>());
 		}});
 		
 		curationMetadata.put("ckp_translation",new HashMap<String, Object>(){{
 			put("name","Hindi Translation");
 			put("type", "translation");
 			put("status","Pending");
-			put("result",new ArrayList<String>());
+			put("result",new HashMap<String, Object>());
 		}});
 		
 		newNode.getMetadata().putAll(curationMetadata);
@@ -291,6 +295,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 					"Error Occurred While Sending Content For Auto Curation.");
 		}
 	}
+
 
 	// method for curate content
 	private void curateContent(String identifier, String mimeType, Node newNode) throws Exception {

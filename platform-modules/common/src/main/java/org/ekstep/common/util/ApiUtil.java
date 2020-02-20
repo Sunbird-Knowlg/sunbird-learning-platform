@@ -26,7 +26,13 @@ public class ApiUtil {
 
 	private static Gson gsonObj = new Gson();
 	private static ObjectMapper objMapper = new ObjectMapper();
-	private static String LANGUAGEAPIKEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIyNDUzMTBhZTFlMzc0NzU1ODMxZTExZmQyMGRjMDg0MiIsImlhdCI6bnVsbCwiZXhwIjpudWxsLCJhdWQiOiIiLCJzdWIiOiIifQ.M1H_Z7WvwRPM0suBCofHs7iuDMMHyBjIRd3xGS4hqy8";//Platform.config.getString("language.api.key");
+	private static String LANGUAGEAPIKEY = "";
+	private static String KEYWORD_KEY = "";
+
+	static{
+		LANGUAGEAPIKEY = Platform.config.getString("language.api.key");
+		KEYWORD_KEY = Platform.config.getString("keyword.api.key");
+	}
 
 	public static Response makeKeyWordsPostRequest(String identifier, Map<String, Object> requestMap) {
 		String uri = "https://api.aylien.com/api/v1/entities";
@@ -35,7 +41,7 @@ public class ApiUtil {
 		HttpResponse<String> response = null;
 
 		Map<String, String> headerParam = new HashMap<String, String>(){{
-			put("X-AYLIEN-TextAPI-Application-Key","7f6ddf5416da2b022145472610f03f08");
+			put("X-AYLIEN-TextAPI-Application-Key",KEYWORD_KEY);
 			put("X-AYLIEN-TextAPI-Application-ID","68f7c606");
 			put("Content-Type","application/x-www-form-urlencoded");
 		}};
@@ -55,10 +61,13 @@ public class ApiUtil {
 		Map<String,Object> result = null;
 		try {
 			body = response.getBody();
+			System.out.println("body of makeKeyWordsPostRequest for content id :: "+identifier + " | Body  : "+body);
 			if (StringUtils.isNotBlank(body))
 				result = objMapper.readValue(body, new TypeReference<Map<String, Object>>() {
 				});
 		} catch (Exception  e) {
+			System.out.println("Exception Occurred While Making Keyword API Call. Exception Msg : "+e.getMessage());
+			e.printStackTrace();
 			TelemetryManager.info("Exception:::::"+ e);
 		}
 		List<String> keywords = (List<String>)((Map<String,Object>)result.get("entities")).get("keyword");
@@ -70,11 +79,13 @@ public class ApiUtil {
 	
 	public static Map<String, Object> languageAnalysisAPI(String text){
 		
-		Map<String, Object> request = new HashMap<String, Object>() {{put("request", new HashMap<String, Object>(){{put("language_id", "en");put("text", text);}});}};
+		Map<String, Object> requestMap = new HashMap<String, Object>() {{put("request", new HashMap<String, Object>(){{put("language_id", "en");put("text", text);}});}};
 		Map<String, Object> languageAnalysisMap = null;
 		try {
-			String body = objMapper.writeValueAsString(request);
+			//String body = objMapper.writeValueAsString(request);
+			String body = gsonObj.toJson(requestMap);
 			System.out.println("LANGUAGEAPIKEY :: " + LANGUAGEAPIKEY);
+			System.out.println("language api call request body : "+body);
 			HttpResponse<String> httpResponse = Unirest.post("https://api.ekstep.in/language/v3/tools/text/analysis").header("Content-Type", "application/json").header("Authorization", "Bearer "+ LANGUAGEAPIKEY).body(body).asString();
 			
 			if(httpResponse.getStatus() == 200) {
