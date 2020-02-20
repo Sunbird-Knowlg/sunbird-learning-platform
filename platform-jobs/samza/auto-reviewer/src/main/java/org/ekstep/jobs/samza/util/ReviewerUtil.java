@@ -60,20 +60,24 @@ public class ReviewerUtil {
 	public static List<String> getKeywords(String identifier, List<String> input) {
 		System.out.println("Input Text For keywords generation for content id : "+identifier+" | Text Is : "+input);
 		Set<String> result = new HashSet<String>();
-		String str = "";
 		if(CollectionUtils.isNotEmpty(input)){
 			for(int i=0; i<=input.size();i++){
 				Map<String, Object> request = new HashMap<String, Object>();
-				request.put("text",input.get(i));
+				request.put("text",input.get(i).trim());
 				System.out.println("Request for keyword generation :  "+request);
 				Response resp = ApiUtil.makeKeyWordsPostRequest(identifier,request);
-				System.out.println("resp: " + resp.getResponseCode());
-				System.out.println("resp: " + resp.getResult());
-				result.addAll((List<String>)resp.getResult().get("keywords"));
+				if(null!=resp && null!=resp.getResult()){
+					System.out.println("resp: " + resp.getResponseCode());
+					System.out.println("resp: " + resp.getResult());
+					result.addAll((List<String>)resp.getResult().get("keywords"));
+				}else{
+					System.out.println("Response OR Result is Null in getKeywords");
+				}
+
 			}
 			
 		}
-		System.out.println("result:: " + result);
+		System.out.println("result:: keywords :::: " + result);
 		return new ArrayList<>(result);
 	}
 	
