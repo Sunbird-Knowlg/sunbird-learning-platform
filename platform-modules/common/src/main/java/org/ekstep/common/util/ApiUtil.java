@@ -40,18 +40,22 @@ public class ApiUtil {
 		TelemetryManager.log("ApiUtil:makePostRequest |  Request Body:" + requestMap);
 		HttpResponse<String> response = null;
 
-		Map<String, String> headerParam = new HashMap<String, String>(){{
+		/*Map<String, String> headerParam = new HashMap<String, String>(){{
 			put("X-AYLIEN-TextAPI-Application-Key",KEYWORD_KEY);
 			put("X-AYLIEN-TextAPI-Application-ID","68f7c606");
 			put("Content-Type","application/x-www-form-urlencoded");
-		}};
+		}};*/
+		Map<String, String> headerParam = new HashMap<String, String>();
+		headerParam.put("X-AYLIEN-TextAPI-Application-Key",KEYWORD_KEY);
+		headerParam.put("X-AYLIEN-TextAPI-Application-ID","68f7c606");
+		headerParam.put("Content-Type","application/x-www-form-urlencoded");
 
 		if (null == requestMap)
 			throw new ServerException("ERR_INVALID_REQUEST_BODY", "Request Body is Manadatory");
 
 		try {
 			response = Unirest.post(uri).headers(headerParam)
-					.field("text", requestMap.get("text")).asString();
+					.field("text", (String)requestMap.get("text")).asString();
 		} catch (Exception e) {
 			throw new ServerException("ERR_CALL_API",
 					"Something Went Wrong While Making API Call | Error is: " + e.getMessage());
@@ -79,11 +83,16 @@ public class ApiUtil {
 	
 	public static Map<String, Object> languageAnalysisAPI(String text){
 		
-		Map<String, Object> requestMap = new HashMap<String, Object>() {{put("request", new HashMap<String, Object>(){{put("language_id", "en");put("text", text);}});}};
+		//Map<String, Object> requestMap = new HashMap<String, Object>() {{put("request", new HashMap<String, Object>(){{put("language_id", "en");put("text", text);}});}};
+		Map<String, Object> req = new HashMap<String, Object>();
+		Map<String, Object> req1 = new HashMap<String, Object>();
+		req1.put("language_id","en");
+		req1.put("text",text);
+		req.put("request",req1);
 		Map<String, Object> languageAnalysisMap = null;
 		try {
 			//String body = objMapper.writeValueAsString(request);
-			String body = gsonObj.toJson(requestMap);
+			String body = gsonObj.toJson(req);
 			System.out.println("LANGUAGEAPIKEY :: " + LANGUAGEAPIKEY);
 			System.out.println("language api call request body : "+body);
 			HttpResponse<String> httpResponse = Unirest.post("https://api.ekstep.in/language/v3/tools/text/analysis").header("Content-Type", "application/json").header("Authorization", "Bearer "+ LANGUAGEAPIKEY).body(body).asString();
@@ -132,5 +141,16 @@ public class ApiUtil {
 		resp.setParams(respParam);
 		return resp;
 	}
+
+	/*public static void main(String[] args) {
+		Map<String, Object> requestMap = new HashMap<String, Object>() {{put("request", new HashMap<String, Object>(){{put("language_id", "en");put("text", "Hello World");}});}};
+		Map<String, Object> req = new HashMap<String, Object>();
+		Map<String, Object> req1 = new HashMap<String, Object>();
+		req1.put("language_id","en");
+		req1.put("text","Hello World");
+		req.put("request",req1);
+		String body = gsonObj.toJson(req);
+		System.out.println(body);
+	}*/
 
 }
