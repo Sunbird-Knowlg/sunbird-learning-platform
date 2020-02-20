@@ -14,6 +14,8 @@ import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
+import java.util.ArrayList;
+
 public class ReviewOperation extends BaseContentManager {
 
     public Response review(String contentId, Request request) throws Exception {
@@ -30,7 +32,9 @@ public class ReviewOperation extends BaseContentManager {
                 BundleOperation obj = new BundleOperation();
                 Request req = new Request();
                 req.put("file_name", contentId + "_file");
-                req.put("content_identifiers", contentId);
+                req.put("content_identifiers", new ArrayList<String>(){{
+                    add(contentId);
+                }});
                 Response resBdle = obj.bundle(request,"1.1");
                 if(checkError(resBdle))
                     throw new ServerException("ERR_REVIEW_CONTENT", "Error While Bundling Content During Review Process.");
