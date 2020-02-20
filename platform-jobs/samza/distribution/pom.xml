@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>auto-reviewer</artifactId>
-			<version>0.0.17</version>
+			<version>0.0.18</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
