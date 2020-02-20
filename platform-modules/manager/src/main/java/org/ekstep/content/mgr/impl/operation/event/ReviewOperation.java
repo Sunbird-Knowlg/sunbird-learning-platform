@@ -35,7 +35,7 @@ public class ReviewOperation extends BaseContentManager {
                 req.put("content_identifiers", new ArrayList<String>(){{
                     add(contentId);
                 }});
-                Response resBdle = obj.bundle(request,"1.1");
+                Response resBdle = obj.bundle(req,"1.1");
                 if(checkError(resBdle))
                     throw new ServerException("ERR_REVIEW_CONTENT", "Error While Bundling Content During Review Process.");
             }
