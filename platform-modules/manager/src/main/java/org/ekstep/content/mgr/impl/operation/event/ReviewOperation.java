@@ -3,6 +3,8 @@ package org.ekstep.content.mgr.impl.operation.event;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.content.mgr.impl.operation.plugin.BundleOperation;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.util.MimeTypeManagerFactory;
 import org.ekstep.graph.common.DateUtils;
@@ -18,6 +20,23 @@ public class ReviewOperation extends BaseContentManager {
         validateEmptyOrNullContentId(contentId);
 
         Response response;
+
+        Node tempNode = getNodeForOperation(contentId, "review");
+        //  bundle operation code
+        if(null!=tempNode){
+            String mimeType = (String) tempNode.getMetadata().get("mimeType");
+            String artifactUrl = (String) tempNode.getMetadata().get("artifactUrl");
+            if(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",mimeType) && StringUtils.isBlank(artifactUrl)){
+                BundleOperation obj = new BundleOperation();
+                Request req = new Request();
+                req.put("file_name", contentId + "_file");
+                req.put("content_identifiers", contentId);
+                Response resBdle = obj.bundle(request,"1.1");
+                if(checkError(resBdle))
+                    throw new ServerException("ERR_REVIEW_CONTENT", "Error While Bundling Content During Review Process.");
+            }
+        }
+        //  bundle operation code
 
         Node node = getNodeForOperation(contentId, "review");
 
