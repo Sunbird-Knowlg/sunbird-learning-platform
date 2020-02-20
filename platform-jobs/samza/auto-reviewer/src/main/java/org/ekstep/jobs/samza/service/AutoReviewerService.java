@@ -13,6 +13,7 @@ import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
+import org.ekstep.common.util.CurationUtil;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.PDFUtil;
 import org.ekstep.graph.dac.model.Node;
@@ -122,6 +123,51 @@ public class AutoReviewerService  implements ISamzaService {
 		}
 
 		// kp metadata update
+		if(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
+			try{
+				List<String> tt = ReviewerUtil.getECMLText(identifier);
+				StringBuilder builder = new StringBuilder();
+				for(int i=0; i<tt.size();i++){
+					builder.append(tt.get(i).trim());
+					builder.append(" ");
+				}
+
+				String st = builder.toString().trim();
+				LOGGER.info("Extracted Text : "+st);
+				//check profanity
+				List<String> profRes = CurationUtil.checkProfanity(st);
+
+				String prSt = CollectionUtils.isNotEmpty(profRes)?"Failed":"Passed";
+				LOGGER.info("Profanity Words : "+prSt);
+
+				Map<String, Object> profMeta = new HashMap<String, Object>(){{
+					put("name","Profanity");
+					put("type", "quality");
+					put("status",prSt);
+					put("result",profRes);
+				}};
+
+
+				Node nExt = util.getNode("domain", identifier);
+				nExt.getMetadata().put("extractedText",st);
+				nExt.getMetadata().put("finalUpdate","Pending");
+				nExt.getMetadata().put("ckp_profanity",profMeta);
+				nExt.getMetadata().put("versionKey",passportKey);
+				Response response = util.updateNode(nExt);
+
+				if(checkError(response)){
+					LOGGER.info("Error Occurred While Performing Extracted Text Update");
+					LOGGER.info("Error Response | Result : "+response.getResult()+" | Params :"+response.getParams() + " | Code :"+response.getResponseCode().toString());
+				}else{
+					LOGGER.info("Extracted Text Updated to the content "+identifier+" | Text : "+builder.toString());
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+				LOGGER.info("Error Occurred While Performing Extracted Text Update");
+			}
+
+		}
+
 		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("size") && StringUtils.equalsIgnoreCase("application/pdf",(String)node.getMetadata().get("mimeType"))){
 			try{
 				LOGGER.info("Computing Size For "+identifier);
@@ -152,8 +198,9 @@ public class AutoReviewerService  implements ISamzaService {
 				LOGGER.info("size metadata computation Failed For Content Id : "+identifier);
 			}
 
-
 		}
+
+
 		//TODO: DC - Enable it for pdf also. - not sure. we should skip this.
 		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("translation") && StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
 			try{
@@ -184,6 +231,7 @@ public class AutoReviewerService  implements ISamzaService {
 				LOGGER.info("translation metadata computation Failed For Content Id : "+identifier);
 			}
 		}
+
 
 		//TODO: DC - enable it  for pdf also
 		if(CollectionUtils.isNotEmpty(tasks) && tasks.contains("keywords") && StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive",(String)node.getMetadata().get("mimeType"))){
