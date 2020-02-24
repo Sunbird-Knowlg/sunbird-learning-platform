@@ -111,6 +111,9 @@ public class ContentBundle {
 						ContentWorkflowPipelineParams.Parent.name());
 			// TODO: END
 
+			//TODO: Added for backward compatibility in mobile - start
+			updateContentTaggedProperty(content);
+
 			if (StringUtils.isNotBlank(expiresOn))
 				content.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);
 			content.keySet().removeIf(metadata -> EXCLUDE_ECAR_METADATA_FIELDS.contains(metadata));
@@ -572,4 +575,49 @@ public class ContentBundle {
 		header.append(" \"content\": ");
 		return header.toString();
 	}
+
+	/**
+	 *
+	 * @param contentMap
+	 */
+	private void updateContentTaggedProperty(Map<String,Object> contentMap) {
+		Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
+				Platform.config.getBoolean("content.tagging.backward_enable"): false;
+		if(contentTaggingFlag) {
+			List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
+					Arrays.asList(Platform.config.getString("content.tagging.property").split(",")):
+					new ArrayList<>(Arrays.asList("subject","medium"));
+			contentTaggedKeys.forEach(contentTagKey -> {
+				if(contentMap.containsKey(contentTagKey)) {
+					List<String> prop = prepareList(contentMap.get(contentTagKey));
+					contentMap.put(contentTagKey, prop.get(0));
+				}
+			});
+		}
+	}
+
+	/**
+	 *
+	 * @param obj
+	 * @return
+	 */
+	private static List<String> prepareList(Object obj) {
+		List<String> list = new ArrayList<String>();
+		try {
+			if (obj instanceof String) {
+				list.add((String) obj);
+			} else if (obj instanceof String[]) {
+				list = Arrays.asList((String[]) obj);
+			} else if (obj instanceof List){
+				list.addAll((List<String>) obj);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (null != list) {
+			list = list.stream().filter(x -> org.apache.commons.lang3.StringUtils.isNotBlank(x) && !org.apache.commons.lang3.StringUtils.equals(" ", x)).collect(toList());
+		}
+		return list;
+	}
+
 }
