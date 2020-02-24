@@ -288,7 +288,7 @@ public class ContentV3Controller extends BaseController {
 	 *            The Content Id whose hierarchy needs to be fetched
 	 * @return The Response entity with Content hierarchy in the result set
 	 */
-//	@RequestMapping(value = "/hierarchy/{id:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/hierarchy/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> hierarchy(@PathVariable(value = "id") String contentId,
 											  @RequestParam(value = "mode", required = false) String mode,
