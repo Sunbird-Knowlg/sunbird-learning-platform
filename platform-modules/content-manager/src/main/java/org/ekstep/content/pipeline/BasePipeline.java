@@ -151,6 +151,22 @@ public class BasePipeline extends BaseManager {
 	}
 
 	/**
+	 * Cassandra call to fetch hierarchy data
+	 *
+	 * @param contentId
+	 * @return
+	 */
+	public Response getCollectionHierarchy(String contentId) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.getCollectionHierarchy.name());
+		request.put(ContentStoreParams.content_id.name(), contentId);
+		Response response = getResponse(request, LearningRequestRouterPool.getRequestRouter());
+		return response;
+	}
+
+
+	/**
 	 * Make a sync request to LearningRequestRouter
 	 * 
 	 * @param request

@@ -60,26 +60,6 @@
   fail: msg="Health check failed for learning-service"
   when: "learning_process.stdout >= '1'"
 
-- name: Copy elastic search index (suggestions) creation script and config
-  become: yes
-  become_user: "{{learner_user}}"
-  template: src={{ item }}.j2 dest={{learner_user_home}}/{{ item }} mode=755 owner={{ learner_user }} group={{ learner_group }}
-  with_items:
-    - 'create_lp_suggestions_index.sh'
-    - 'lp_suggestions_index.json'
-
-- name: Run script to create elastic search index
-  become: yes
-  become_user: "{{learner_user}}"
-  command: "{{learner_user_home}}/create_lp_suggestions_index.sh"
-  register: suggestions_index_create_status
-
-- name: Print create elastic search index status to console
-  become: yes
-  become_user: "{{learner_user}}"
-  debug:
-    var: suggestions_index_create_status
-
 - name: Start the monit
   service: name=monit state=started
   become: yes

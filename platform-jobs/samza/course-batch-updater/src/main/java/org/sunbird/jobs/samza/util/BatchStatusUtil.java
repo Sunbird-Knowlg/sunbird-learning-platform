@@ -75,6 +75,7 @@ public class BatchStatusUtil {
             List<Row> rows = resultSet.all();
             if(CollectionUtils.isNotEmpty(rows)) {
                 List<String> batchIds = new ArrayList<>();
+                List<String> courseIds = new ArrayList<>();
                 for (Row row : rows) {
                     if (StringUtils.isNotBlank(row.getString("enddate"))) {
                         Date startDate = format.parse(row.getString("enddate"));
@@ -85,7 +86,17 @@ public class BatchStatusUtil {
                         }
 
                     }
+                    if(StringUtils.isNotEmpty(row.getString("enrollmentenddate"))){
+                        Date enrollmentEndDate = format.parse(row.getString("enrollmentenddate"));
+                        if(currentDate.compareTo(enrollmentEndDate) > 0){
+                            courseIds.add(row.getString("courseid"));
+                            Map<String, Object> event = getBatchCountEvent(row.getString("batchid"), row.getString("courseid"));
+                            collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", topic), event));
+                        }
+                    }
+
                 }
+                LOGGER.info("CourseIds updated for batchCount : " + courseIds);
                 LOGGER.info("BatchIds updated to completed : " + batchIds);
             } else {
                 LOGGER.info("No batch data to update the status to completed");
@@ -122,6 +133,34 @@ public class BatchStatusUtil {
                put("id", batchId);
                put("type", "CourseBatchEnrolment");
            }});
+        }};
+    }
+
+    private static Map<String, Object> getBatchCountEvent(String batchId, String courseId) {
+        return new HashMap<String, Object>() {{
+            put("actor", new HashMap<String, Object>(){{
+                put("id", "Course Batch Count Updater");
+                put("type", "System");
+            }});
+            put("eid", "BE_JOB_REQUEST");
+            put("edata",  new HashMap<String, Object>(){{
+                put("action", "course-batch-update");
+                put("iteration", 1);
+                put("courseId", courseId);
+                put("batchId", batchId);
+            }});
+            put("ets", System.currentTimeMillis());
+            put("context", new HashMap<String, Object>(){{
+                put("pdata", new HashMap<String, Object>(){{
+                    put("ver", "1.0");
+                    put("id", "org.sunbird.platform");
+                }});
+            }});
+            put("mid", "LP." + System.currentTimeMillis() + "." + UUID.randomUUID());
+            put("object", new HashMap<String, Object>(){{
+                put("id", courseId +"_"+ batchId);
+                put("type", "CourseBatchEnrolment");
+            }});
         }};
     }
 }

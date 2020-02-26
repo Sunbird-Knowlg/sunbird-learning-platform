@@ -1,12 +1,11 @@
 package org.ekstep.search.test;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+import akka.testkit.TestKit;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -20,17 +19,17 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
-import org.ekstep.search.router.SearchRequestRouterPool;
+import org.ekstep.search.actor.SearchManager;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.springframework.test.web.servlet.ResultActions;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
 
 /**
  * @author rayulu
@@ -39,10 +38,11 @@ import scala.concurrent.Future;
 public class BaseSearchActorsTest {
 	
 	private static ObjectMapper mapper = new ObjectMapper();
+	private static ActorSystem system = null;
 	
 	@BeforeClass
 	public static void beforeTest() throws Exception {
-		SearchRequestRouterPool.init();
+		system = ActorSystem.create();
 		createCompositeSearchIndex();
 		Thread.sleep(3000);
 	}
@@ -51,23 +51,10 @@ public class BaseSearchActorsTest {
 	public static void afterTest() throws Exception {
 		System.out.println("deleting index: " + CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
 		ElasticSearchUtil.deleteIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
+		TestKit.shutdownActorSystem(system, Duration.create(2, TimeUnit.SECONDS), true);
+		system = null;
 	}
-	
-//	protected Response jsonToObject(ResultActions actions) {
-//		String content = null;
-//		Response resp = null;
-//		try {
-//			content = actions.andReturn().getResponse().getContentAsString();
-//			ObjectMapper objectMapper = new ObjectMapper();
-//			if (StringUtils.isNotBlank(content))
-//				resp = objectMapper.readValue(content, Response.class);
-//		} catch (UnsupportedEncodingException e) {
-//			e.printStackTrace();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return resp;
-//	}
+
 	
 	protected Request getSearchRequest() {
         Request request = new Request();
@@ -94,20 +81,23 @@ public class BaseSearchActorsTest {
         request.setOperation(operation);
         return request;
     }
-	
+
 	protected Response getSearchResponse(Request request) {
-        ActorRef router = SearchRequestRouterPool.getRequestRouter();
-        try {
-            Future<Object> future = Patterns.ask(router, request, SearchRequestRouterPool.REQ_TIMEOUT);
-            Object obj = Await.result(future, SearchRequestRouterPool.WAIT_TIMEOUT.duration());
-            if (obj instanceof Response) {
-                return (Response) obj;
-            } else {
-                return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
-            }
-        } catch (Exception e) {
-            throw new ServerException(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
-        }
+		try {
+			final Props props = Props.create(SearchManager.class);
+			final ActorRef searchMgr = system.actorOf(props);
+			Future<Object>  future = Patterns.ask(searchMgr, request, 30000);
+			Object obj = Await.result(future, Duration.create(30.0, TimeUnit.SECONDS));
+			Response response = null;
+			if (obj instanceof Response) {
+				response = (Response) obj;
+			} else {
+				response = ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
+			}
+			return response;
+		} catch (Exception e) {
+			throw new ServerException(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+		}
     }
 	
 	protected Response ERROR(String errorCode, String errorMessage, ResponseCode responseCode) {
@@ -139,18 +129,32 @@ public class BaseSearchActorsTest {
 	
 	private static void insertTestRecords() throws Exception {
 		for (int i=1; i<=30; i++) {
-			Map<String, Object> content = getContentTestRecord(null, i);
+			Map<String, Object> content = getContentTestRecord(null, i, null);
 			String id = (String) content.get("identifier");
 			addToIndex(id, content);
 		}
-		Map<String, Object> content = getContentTestRecord("do_10000031", 31);
+		Map<String, Object> content = getContentTestRecord("do_10000031", 31, null);
 		content.put("name", "31 check name match");
 		content.put("description", "हिन्दी description");
 		addToIndex("do_10000031", content);
 		
-		content = getContentTestRecord("do_10000032", 32);
+		content = getContentTestRecord("do_10000032", 32, null);
 		content.put("name", "check ends with value32");
 		addToIndex("do_10000032", content);
+
+		content = getContentTestRecord("do_10000033", 33, "test-board1");
+		content.put("name", "Content To Test Consumption");
+		addToIndex("10000033", content);
+
+		content = getContentTestRecord("do_10000034", 34, "test-board3");
+		content.put("name", "Textbook-10000034");
+		content.put("description", "Textbook for other tenant");
+		content.put("status","Live");
+		content.put("relatedBoards", new ArrayList<String>(){{
+			add("test-board1");
+			add("test-board2");
+		}});
+		addToIndex("10000034", content);
 	}
 	
 	private static void addToIndex(String uniqueId, Map<String, Object> doc) throws Exception {
@@ -159,7 +163,7 @@ public class BaseSearchActorsTest {
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
 	
-	private static Map<String, Object> getContentTestRecord(String id, int index) {
+	private static Map<String, Object> getContentTestRecord(String id, int index, String board) {
 		String objectType = "Content";
 		Date d = new Date();
 		Map<String, Object> map = getTestRecord(id, index, "do", objectType);
@@ -168,6 +172,8 @@ public class BaseSearchActorsTest {
 		map.put("contentType", getContentType());
 		map.put("createdOn", new Date().toString());
 		map.put("lastUpdatedOn", new Date().toString());
+		if(StringUtils.isNotBlank(board))
+			map.put("board",board);
 		if (index % 5 == 0) {
 			map.put("lastPublishedOn", d.toString());
 			map.put("status", "Live");
@@ -210,4 +216,5 @@ public class BaseSearchActorsTest {
 		}
 		return list;
 	}
+
 }

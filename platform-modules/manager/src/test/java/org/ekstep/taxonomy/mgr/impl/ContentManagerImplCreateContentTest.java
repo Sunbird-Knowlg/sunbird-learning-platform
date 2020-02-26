@@ -581,7 +581,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 		map.put("contentType", "Resource");
 		map.put("code", "org.ekstep.feb03.story.learningbooks");
 		map.put("mimeType", "application/vnd.ekstep.ecml-archive");
-		map.put("tags", Arrays.asList("colors", "animals"));
+		map.put("keywords", Arrays.asList("colors", "animals"));
 		Response response = contentManager.create(map, channelId);
 		Assert.assertTrue(StringUtils.equalsIgnoreCase("OK", response.getResponseCode().name()));
 		Map<String, Object> metadata = getMetadata(contentId);

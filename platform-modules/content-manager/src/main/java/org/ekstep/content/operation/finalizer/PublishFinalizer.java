@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rits.cloning.Cloner;
+
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -11,14 +13,15 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
-import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
+import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.common.ContentErrorMessageConstants;
@@ -30,6 +33,7 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.util.ContentBundle;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
 import org.ekstep.content.util.GraphUtil;
+import org.ekstep.content.util.PublishFinalizeUtil;
 import org.ekstep.content.util.SyncMessageGenerator;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -40,8 +44,8 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
+import org.ekstep.itemset.publish.ItemsetPublishManager;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.contentstore.VideoStreamingJobRequest;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.CloudStore;
@@ -92,16 +96,34 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 	private static final String ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive";
 	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
+	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
 	private static final List<String> LEVEL4_MIME_TYPES = Arrays.asList("video/x-youtube","application/pdf","application/msword","application/epub","application/vnd.ekstep.h5p-archive","text/x-url");
 	private static final List<String> LEVEL4_CONTENT_TYPES = Arrays.asList("Course","CourseUnit","LessonPlan","LessonPlanUnit");
 	private static final String  ES_INDEX_NAME = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
 	private static final String DOCUMENT_TYPE = Platform.config.hasPath("search.document.type") ? Platform.config.getString("search.document.type") : CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE;
 	private static final List<String> PUBLISHED_STATUS_LIST = Arrays.asList("Live", "Unlisted");
+	private static final Boolean ITEMSET_GENERATE_PDF = Platform.config.hasPath("itemset.generate.pdf") ? Platform.config.getBoolean("itemset.generate.pdf") : true;
+	
+	protected static final String PRINT_SERVICE_BASE_URL = Platform.config.hasPath("kp.print.service.base.url")
+			? Platform.config.getString("kp.print.service.base.url") : "http://localhost:5001";
 
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
 	private HierarchyStore hierarchyStore = new HierarchyStore();
 	private ControllerUtil util = new ControllerUtil();
+	private ItemsetPublishManager itemsetPublishManager = new ItemsetPublishManager(util);
+	private PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil();
+	public void setItemsetPublishManager(ItemsetPublishManager itemsetPublishManager) {
+		this.itemsetPublishManager = itemsetPublishManager;
+	}
+	
+	public void setPublishFinalizeUtil(PublishFinalizeUtil publishFinalizeUtil) {
+		this.publishFinalizeUtil = publishFinalizeUtil;
+	}
+
+	public void setHierarchyStore(HierarchyStore hierarchyStore) {
+		this.hierarchyStore = hierarchyStore;
+	}
 
 	static {
 		ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
@@ -174,7 +196,17 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		node.setIdentifier(contentId);
 		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
-
+		
+		try {
+			String itemsetPreviewUrl = getItemsetPreviewUrl(node);
+			if(StringUtils.isNotBlank(itemsetPreviewUrl))
+				node.getMetadata().put(ContentWorkflowPipelineParams.itemSetPreviewUrl.name(), itemsetPreviewUrl);
+		}catch(Exception e) {
+			TelemetryManager.error("Error in Itemset PreviewUrl generation :: " + e.getStackTrace());
+			e.printStackTrace();
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage() + ". Please Try Again After Sometime!");
+		}
+		 
 		boolean isCompressionApplied = (boolean) parameterMap.get(ContentWorkflowPipelineParams.isCompressionApplied.name());
 		TelemetryManager.log("Compression Applied ? " + isCompressionApplied);
 
@@ -377,6 +409,11 @@ public class PublishFinalizer extends BaseFinalizer {
 
 									String nodeString = mapper.writeValueAsString(ConvertGraphNode.convertGraphNode(resNode, TAXONOMY_ID, definition, null));
 									Map<String, Object> resourceNode = mapper.readValue(nodeString, Map.class);
+									resourceNode.put("index", child.get(ContentWorkflowPipelineParams.index.name()));
+									resourceNode.put("depth", child.get(ContentWorkflowPipelineParams.depth.name()));
+									resourceNode.put("parent", child.get(ContentWorkflowPipelineParams.parent.name()));
+									resourceNode.remove(ContentWorkflowPipelineParams.collections.name());
+									resourceNode.remove(ContentWorkflowPipelineParams.children.name());
 									children.add(resourceNode);
 								} else {
 									childNodes.remove((String) child.get(ContentWorkflowPipelineParams.identifier.name()));
@@ -596,12 +633,17 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	private Map<String, Object> getHierarchy(String nodeId, boolean needImageHierarchy) {
-		String identifier = nodeId;
-		if(needImageHierarchy) {
-			identifier = StringUtils.endsWith(nodeId, ".img") ? nodeId : nodeId + ".img";
+		if(needImageHierarchy){
+			String identifier = StringUtils.endsWith(nodeId, ".img") ? nodeId : nodeId + ".img";
+			Map<String, Object> hierarchy = hierarchyStore.getHierarchy(identifier);
+			if(MapUtils.isEmpty(hierarchy)) {
+				return hierarchyStore.getHierarchy(nodeId);
+			} else {
+				return hierarchy;
+			}
+		} else {
+			return hierarchyStore.getHierarchy(nodeId.replaceAll(".img", ""));
 		}
-		
-		return hierarchyStore.getHierarchy(identifier);
 	}
 	
 	private void updateHierarchyMetadata(List<Map<String, Object>> children, Node node) {
@@ -1023,9 +1065,10 @@ public class PublishFinalizer extends BaseFinalizer {
 					List<Map<String, Object>> nextLevelLeafNodes = getLeafNodes(nextChildren, nextDepth);
 					leafNodes.addAll(nextLevelLeafNodes);
 				}else {
-					child.put("index", index);
-					child.put("depth", depth);
-					leafNodes.add(child);
+					Map<String, Object> leafNode = new HashMap<>(child);
+					leafNode.put("index", index);
+					leafNode.put("depth", depth);
+					leafNodes.add(leafNode);
 					index++;
 				}
 			}
@@ -1261,5 +1304,48 @@ public class PublishFinalizer extends BaseFinalizer {
                 leafNodeIds.add((String) data.get(ContentAPIParams.identifier.name()));
             }
         }
+    }
+    
+    protected String getItemsetPreviewUrl(Node node) throws Exception {
+    	
+    		List<Relation> outRelations = node.getOutRelations();
+    		if(CollectionUtils.isEmpty(outRelations)) {
+    			return null;
+    		}
+    		List<String> itemSetRelations = outRelations.stream()
+    				.filter(r -> StringUtils.equalsIgnoreCase(r.getEndNodeObjectType(), "ItemSet"))
+    				.map(x -> x.getEndNodeId()).collect(Collectors.toList());
+		if(CollectionUtils.isNotEmpty(itemSetRelations)){
+			String questionBankHtml = itemsetPublishManager.publish(itemSetRelations);
+			if(StringUtils.isNotBlank(questionBankHtml)) {
+				if(ITEMSET_GENERATE_PDF) {
+					Response generateResponse = HttpRestUtil.makePostRequest(PRINT_SERVICE_BASE_URL + "/v1/print/preview/generate?fileUrl=" 
+							+ questionBankHtml, new HashMap<>(), new HashMap<>());
+					
+					if (generateResponse.getResponseCode() == ResponseCode.OK) {
+			            String itemsetPreviewUrl = (String)generateResponse.getResult().get(ContentAPIParams.pdfUrl.name());
+			            if(StringUtils.isNotBlank(itemsetPreviewUrl))
+			            		return publishFinalizeUtil.uploadFile(itemsetPreviewUrl, node, basePath);
+			            else
+			                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+			                        "Itemset generated previewUrl is empty. Please Try Again After Sometime!");
+			        }else {
+			            if (generateResponse.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+			                TelemetryManager.error("Client Error during Generate Itemset previewUrl: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
+			                throw new ClientException(generateResponse.getParams().getErr(), generateResponse.getParams().getErrmsg());
+			            }
+			            else {
+			                TelemetryManager.error("Server Error during Generate Itemset preiewUrl: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
+			                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+			                        "Error During generate Itemset previewUrl. Please Try Again After Sometime!");
+			            }
+			        }
+				}else {
+					return publishFinalizeUtil.uploadFile(questionBankHtml, node, basePath);
+				}
+				
+			}
+		}
+    		return null;
     }
 }

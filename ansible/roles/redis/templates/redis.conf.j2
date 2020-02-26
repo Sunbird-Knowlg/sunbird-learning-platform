@@ -125,7 +125,7 @@ tcp-keepalive 300
 
 # By default Redis does not run as a daemon. Use 'yes' if you need it.
 # Note that Redis will write a pid file in /var/run/redis.pid when daemonized.
-daemonize no
+daemonize yes
 
 # If you run Redis from upstart or systemd, Redis can interact with your
 # supervision tree. Options:
@@ -136,7 +136,7 @@ daemonize no
 #                        UPSTART_JOB or NOTIFY_SOCKET environment variables
 # Note: these supervision methods only signal "process is ready."
 #       They do not enable continuous liveness pings back to your supervisor.
-supervised no
+supervised systemd
 
 # If a pid file is specified, Redis writes it where specified at startup
 # and removes it at exit.
@@ -160,7 +160,7 @@ loglevel notice
 # Specify the log file name. Also the empty string can be used to force
 # Redis to log on the standard output. Note that if you use standard
 # output for logging but daemonize, logs will be sent to /dev/null
-logfile "{{learner_user_home}}/redis-stable/redis.log"
+logfile "{{redis_dir}}/redis-stable/redis.log"
 
 # To enable logging to the system logger, just set 'syslog-enabled' to yes,
 # and optionally update the other syslog parameters to suit your needs.
@@ -244,7 +244,7 @@ dbfilename dump.rdb
 # The Append Only File will also be created inside this directory.
 #
 # Note that you must specify a directory here, not a file name.
-dir "{{learner_user_home}}/redis-stable/"
+dir "{{redis_dir}}/redis-stable/"
 
 ################################# REPLICATION #################################
 

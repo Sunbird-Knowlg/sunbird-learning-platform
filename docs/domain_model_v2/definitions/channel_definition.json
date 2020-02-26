@@ -195,6 +195,18 @@
           "renderingHints": "",
           "indexed": true,
           "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "defaultLicense",
+          "title": "Default License",
+          "description": "Default License for Channel",
+          "category": "General",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true
         }
       ],
       "inRelations":[],

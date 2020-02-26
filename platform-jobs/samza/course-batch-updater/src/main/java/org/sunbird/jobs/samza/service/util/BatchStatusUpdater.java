@@ -21,10 +21,11 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
             : "sunbird_courses";
     private static final String courseBatchTable = "course_batch";
     private static final String ES_INDEX_NAME = "course-batch";
-    private static String installation = Platform.config.hasPath("sunbird.installation") ? Platform.config.getString("sunbird.installation"): "sunbird";
+    private BatchCountUpdater batchCountUpdater = null;
 
     public BatchStatusUpdater() {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
+        batchCountUpdater = new BatchCountUpdater();
     }
 
     public void update(Map<String, Object> edata) throws Exception {
@@ -32,36 +33,8 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
         String courseId = (String) edata.get(CourseBatchParams.courseId.name());
         int status = (int) edata.get(CourseBatchParams.status.name());
         updateStatusOfBatch(batchId, courseId, status);
-        updateBatchCount(courseId);
+        batchCountUpdater.update(edata);
     }
-
-
-    private void updateBatchCount(String courseId) throws Exception {
-        //Get number of batches for courseID
-        ResultSet resultSet = SunbirdCassandraUtil.read(keyspace, courseBatchTable, new HashMap<String, Object>(){{put(CourseBatchParams.courseId.name(), courseId);}});
-        List<Row> rows = resultSet.all();
-        // Get the count of open batch and private batch
-        final int[] openBatchCount = {0};
-        final int[] privateBatchCount = {0};
-
-        rows.forEach(row-> {
-            int status = row.getInt(CourseBatchParams.status.name());
-            String enrollmentType = row.getString(CourseBatchParams.enrollmentType.name());
-            if(StringUtils.equalsIgnoreCase(CourseBatchParams.open.name(), enrollmentType) && (1 == status))
-                openBatchCount[0] = openBatchCount[0] + 1;
-            if(StringUtils.equalsIgnoreCase("invite-only", enrollmentType) && (1 == status))
-                privateBatchCount[0] = privateBatchCount[0] + 1;
-        });
-
-        // SystemUpdate batch count
-        Request request = new Request();
-        request.put("content", new HashMap<String, Object>() {{
-            put("c_" + installation.toLowerCase() + "_open_batch_count".toLowerCase(), openBatchCount[0]);
-            put("c_" + installation.toLowerCase() + "_private_batch_count".toLowerCase(), privateBatchCount[0]);
-        }});
-        systemUpdate(courseId, request);
-    }
-
 
     private static void updateStatusOfBatch(String batchId, String courseId, int status) throws Exception {
         Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{

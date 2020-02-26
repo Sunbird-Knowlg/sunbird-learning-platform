@@ -2,6 +2,7 @@ package managers;
 
 import java.util.Map;
 
+import akka.actor.ActorRef;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -10,39 +11,36 @@ import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 
-import play.libs.F.Promise;
-import play.mvc.Result;
+import scala.concurrent.Future;
 
 public class PlaySearchManager extends BasePlaySearchManager {
 
-	
-
-	public Promise<Result> search(Request request) {
+	public Future<Response> search(Request request, ActorRef actor) {
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name(),
 				SearchOperations.INDEX_SEARCH.name());
-		Promise<Result> getRes = getSearchResponse(request);
+		Future<Response> getRes = getSearchResponse(request, actor);
 		return getRes;
 	}
 
-	public Promise<Result> count(Request request) {
+	public Future<Response> count(Request request, ActorRef actor) {
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name(), SearchOperations.COUNT.name());
-		Promise<Result> getRes = getSearchResponse(request);
+		Future<Response> getRes = getSearchResponse(request, actor);
 		return getRes;
 	}
 	
-	public Promise<Result> metrics(Request request){
+	public Future<Response> metrics(Request request, ActorRef actor) {
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() , SearchOperations.METRICS.name());
-		Promise<Result> getRes = getSearchResponse(request);
+		Future<Response> getRes = getSearchResponse(request, actor);
 		return getRes;
 	}
 	
-	public Promise<Result> health(Request request){
+	public Future<Response> health(Request request, ActorRef actor) {
 		request = setSearchContext(request, SearchActorNames.HEALTH_CHECK_MANAGER.name() , SearchOperations.HEALTH.name());
-		Promise<Result> getRes = getSearchResponse(request);
+		Future<Response> getRes = getSearchResponse(request, actor);
 		return getRes;
 	}
 	
-	public String callResyncDefinition(Request request) {
+	public Response callResyncDefinition(Request request, ActorRef actor) {
 		Map<String, Object> requestMap = request.getRequest();
 		String objectType = (String) requestMap.get("objectType");
 		String graphId = (String) requestMap.get("graphId");

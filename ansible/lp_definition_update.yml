@@ -19,19 +19,17 @@
         -  'content_image_definition'
         -  'item_definition'
         -  'itemset_definition'
-        -  'api_definition'
         -  'channel_definition'
-        -  'reference_definition'
         -  'concept_definition'
         -  'dimension_definition'
         -  'domain_definition'
-        -  'library_definition'
         -  'method_definition'
         -  'category_definition'
         -  'categoryInstance_definition'
         -  'framework_definition'
         -  'term_definition'
         -  'misconception_definition'
+        -  'license_definition'
       register: definition_update_status
       tags:
       - update-definition

@@ -6,29 +6,28 @@ jobs:
       - checkout
       - restore_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
-      - run: 
-          name: Setup VM and Build
-          command: bash vmsetup.sh
-
       - run:
-          name: Push coverage report to codecov
-          command: bash <(curl -s https://codecov.io/bash)
-
-      - run:
-          name: Download codacy coverage jar file.
-          command: wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets[0].browser_download_url')
-
-      - run:
-          name: Push coverage report to Codacy - Partial
-          command: find . -name jacoco.xml | awk '{print "java -jar ~/codacy-coverage-reporter-assembly-latest.jar report -l Java -r " $0 " --partial"}' | bash
-
-      - run:
-          name: Push coverage report to Codacy - Final
-          command: java -jar ~/codacy-coverage-reporter-assembly-latest.jar final
+          name: Build
+          command: mvn clean install -DskipTests=true
 
       - save_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
           paths: ~/.m2
+
+      - run:
+          name: Prepare search-api artifact
+          command: cd searchIndex-platform/module/search-api && mvn play2:dist -pl search-manager
+      - run:
+          name: Copy artifacts to one location
+          command: mkdir artifacts && cp platform-modules/service/target/learning-service.war artifacts/ && cp searchIndex-platform/module/search-api/search-manager/target/search-manager-1.0-SNAPSHOT-dist.zip artifacts/ && cp platform-tools/spikes/sync-tool/target/sync-tool-0.0.1-SNAPSHOT.jar artifacts/
+
+      - store_artifacts:
+         path: artifacts
+         destination: artifacts/
+
+      - run: 
+          name: Setup VM, Test and Update Sonar
+          command: bash vmsetup.sh
      
 workflows:
   version: 2.1

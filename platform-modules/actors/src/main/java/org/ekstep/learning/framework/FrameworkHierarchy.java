@@ -92,10 +92,6 @@ public class FrameworkHierarchy extends BaseManager {
 		return  hierarchy;
 	}
 
-	private void pushFrameworkEvent(Node node) throws Exception {
-
-	}
-
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> getHierarchy(String id, int index, boolean includeMetadata, boolean includeRelations) throws Exception {
 		Map<String, Object> data = new HashMap<String, Object>();
@@ -120,8 +116,8 @@ public class FrameworkHierarchy extends BaseManager {
 					data.putAll(node.getMetadata());
 				}
 				data.put("identifier", node.getIdentifier());
-				if (index > 0)
-					data.put("index", index);
+				data.put("index", index);
+
 			}
 			if (includeRelations) {
 				Map<String, String> inRelDefMap = new HashMap<>();

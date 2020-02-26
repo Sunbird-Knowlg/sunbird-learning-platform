@@ -2,6 +2,7 @@ package org.ekstep.taxonomy.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.util.YouTubeUrlUtil;
@@ -153,7 +154,8 @@ public class YouTubeUrlUtilTest extends GraphEngineTestSetup {
 		//Read Content and Verify Result
 		Response resp = contentManager.find(contentId, null, null);
 		String license = (String) ((Map<String, Object>) resp.getResult().get("content")).get("license");
-		assertEquals("Creative Commons Attribution (CC BY)", license);
+		String licenseValue = Platform.config.getString("content.license");
+		assertEquals(licenseValue, license);
 	}
 
 	/*
