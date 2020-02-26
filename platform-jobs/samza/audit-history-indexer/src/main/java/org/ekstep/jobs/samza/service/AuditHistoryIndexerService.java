@@ -2,6 +2,7 @@ package org.ekstep.jobs.samza.service;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +34,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 
 	static JobLogger LOGGER = new JobLogger(AuditHistoryIndexerService.class);
 	private ObjectMapper mapper = new ObjectMapper();
-	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	private DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 	
 	/** The constructor */
 	public AuditHistoryIndexerService() {
@@ -45,12 +46,6 @@ public class AuditHistoryIndexerService implements ISamzaService {
 		JSONUtils.loadProperties(config);
 		ElasticSearchUtil.initialiseESClient(AuditHistoryConstants.AUDIT_HISTORY_INDEX,
 				Platform.config.getString("search.es_conn_info"));
-		// Create index if not found
-		String settings = "{\"max_ngram_diff\":\"29\",\"analysis\":{\"analyzer\":{\"ah_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"ah_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"nGram\",\"min_gram\":1,\"max_gram\":30,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}";
-		String mappings = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"ah_index_analyzer\",\"search_analyzer\":\"ah_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"fielddata\":true,\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"ah_index_analyzer\",\"search_analyzer\":\"ah_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"fielddata\":true,\"analyzer\":\"keylower\"}}}}}";
-		ElasticSearchUtil.addIndex(AuditHistoryConstants.AUDIT_HISTORY_INDEX,
-				AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, settings, mappings);
-		LOGGER.info(AuditHistoryConstants.AUDIT_HISTORY_INDEX + " created");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -68,7 +63,8 @@ public class AuditHistoryIndexerService implements ISamzaService {
 				Map<String, Object> entity_map = mapper.convertValue(record, Map.class);
 				String document = mapper.writeValueAsString(entity_map);
 				LOGGER.debug("Saving the record into ES");
-				ElasticSearchUtil.addDocument(AuditHistoryConstants.AUDIT_HISTORY_INDEX,
+				String indexName = getIndexName(String.valueOf(message.get("ets")));
+				ElasticSearchUtil.addDocument(indexName,
 						AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, document);
 				metrics.incSuccessCounter();
 			} catch (Exception ex) {
@@ -78,6 +74,13 @@ public class AuditHistoryIndexerService implements ISamzaService {
 		} else {
 			LOGGER.info("Learning event not qualified for audit");
 		}
+	}
+
+
+	private String getIndexName(String ets) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date(Long.parseLong(ets)));
+		return (AuditHistoryConstants.AUDIT_HISTORY_INDEX + "_" + cal.get(Calendar.YEAR) + "_" + cal.get(Calendar.WEEK_OF_YEAR));
 	}
 
 	/**

@@ -1,6 +1,10 @@
 package managers;
 
 import akka.actor.ActorRef;
+import akka.dispatch.ExecutionContexts;
+import akka.dispatch.Futures;
+import akka.dispatch.Mapper;
+import akka.util.Timeout;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
@@ -18,15 +22,10 @@ import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
-import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import play.libs.F;
-import play.libs.F.Function;
-import play.libs.F.Promise;
-import play.mvc.Result;
-import play.mvc.Results;
+import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,67 +35,69 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static akka.pattern.Patterns.ask;
+import java.io.IOException;
 
-public class BasePlaySearchManager extends Results {
+public class BasePlaySearchManager {
 	protected ObjectMapper mapper = new ObjectMapper();
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
+	private static final String JSON_TYPE = "application/json";
+	private static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30000, TimeUnit.MILLISECONDS));
 	private static Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
 			Platform.config.getBoolean("content.tagging.backward_enable"): false;
 	private static List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
 			Platform.config.getStringList("content.tagging.property"):
 			new ArrayList<>(Arrays.asList("subject","medium"));
 
-	protected Promise<Result> getSearchResponse(Request request) {
-		ActorRef router = SearchRequestRouterPool.getRequestRouter();
-		Promise<Result> res = null;
+	protected Future<Response> getSearchResponse(Request request, ActorRef actor) {
+		Future<Response> res = null;
 		try {
 			long startTime = System.currentTimeMillis();
 			request.getContext().put("start_time", startTime);
 			perfLogger.info(request.getContext().get("scenario_name") + ","
 					+ request.getContext().get("request_id") + "," + request.getManagerName()
 					+ "," + request.getOperation() + ",STARTTIME," + startTime);
-			res = Promise.wrap(ask(router, request, SearchRequestRouterPool.REQ_TIMEOUT))
-					.map(new Function<Object, Result>() {
-						public Result apply(Object result) {
+			res = ask(actor, request, WAIT_TIMEOUT)
+					.map(new Mapper<Object, Future<Response>>() {
+						public Future<Response> apply(Object result) {
 							String correlationId = UUID.randomUUID().toString();
 							if (result instanceof Response) {
 								Response response = (Response) result;
-								if(response.getResponseCode().name().equals("CLIENT_ERROR")){
-                                    return badRequest(getResult(response,request.getId(), request.getVer(), null, correlationId)).as("application/json");
-                                }
 								if (checkError(response)) {
-									String errMsg = getMessage(response);
-									return notFound(getErrorMsg(errMsg)).as("application/json");
+									return Futures.successful(response);
 								} else if (request.getOperation()
 										.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name())) {
-									Promise<Result> searchResult = getSearchResponse(response, request);
-									int count = (response.getResult() == null ? 0
-											: (Integer) response.getResult().get("count"));
+									Future<Response> searchResult = getSearchResponse(response, request, actor);
 									writeTelemetryLog(request, response);
-									return searchResult.get(SearchRequestRouterPool.REQ_TIMEOUT);
+									return searchResult;
 								}
-								return ok(getResult(response, request, null, correlationId)).as("application/json");
+								return Futures.successful(getResult(response, request, null, correlationId));
 							}
 							ResponseParams params = new ResponseParams();
 							params.setErrmsg("Invalid Response object");
 							Response error = new Response();
 							error.setParams(params);
-							return ok(getResult(error, request, null, correlationId)).as("application/json");
+							return Futures.successful(getResult(error, request, null, correlationId));
 						}
-					});
-			res.onRedeem(new F.Callback<Result>() {
-				@Override
-				public void invoke(Result result) throws Throwable {
-					long endTime = System.currentTimeMillis();
-					long exeTime = endTime - (Long) request.getContext().get("start_time");
-					perfLogger.info(request.getManagerName() + "," + request.getOperation() + ",ENDTIME," + endTime);
-					perfLogger.info(request.getManagerName() + "," + request.getOperation() + "," + result.status()
-							+ "," + exeTime);
-				}
-			});
+					}, ExecutionContexts.global()).flatMap(new Mapper<Future<Response>, Future<Response>>() {
+						@Override
+						public Future<Response> apply(Future<Response> parameter) {
+							return parameter;
+						}
+					}, ExecutionContexts.global());
+//			res.onRedeem(new F.Callback<Result>() {
+//				@Override
+//				public void invoke(Result result) throws Throwable {
+//					long endTime = System.currentTimeMillis();
+//					long exeTime = endTime - (Long) request.getContext().get("start_time");
+//					perfLogger.info(request.getManagerName() + "," + request.getOperation() + ",ENDTIME," + endTime);
+//					perfLogger.info(request.getManagerName() + "," + request.getOperation() + "," + result.status()
+//							+ "," + exeTime);
+//				}
+//			});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -119,7 +120,7 @@ public class BasePlaySearchManager extends Results {
 		return setSearchContext(request, manager, operation);
 	}
 
-	private String getResult(Response response, Request req, String msgId, String resMsgId) {
+	private Response getResult(Response response, Request req, String msgId, String resMsgId) {
 		if (req == null) {
 			ResponseParams params = new ResponseParams();
 			params.setErrmsg("Null Content");
@@ -131,7 +132,7 @@ public class BasePlaySearchManager extends Results {
 	}
 
 	@SuppressWarnings("unchecked")
-	public String getResult(Response response, String apiId, String version, String msgId, String resMsgId) {
+	public Response getResult(Response response, String apiId, String version, String msgId, String resMsgId) {
 		try {
 			if (response == null) {
 				ResponseParams params = new ResponseParams();
@@ -165,7 +166,7 @@ public class BasePlaySearchManager extends Results {
 						content.put("variants",variantsMap);
 						contentMap.set(contentMap.indexOf(content), content);
 					}
-                    updateContentTaggedProperty(content);
+					updateContentTaggedProperty(content);
                     contentMap.set(contentMap.indexOf(content), content);
 				}
 				response.getResult().put("content", contentMap);
@@ -178,37 +179,13 @@ public class BasePlaySearchManager extends Results {
 				}
 				response.getResult().put("collections", collectionList);
 			}
-			return mapper.writeValueAsString(response);
+			return response;
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return "";
-	}
-
-	private void updateContentTaggedProperty(Map<String,Object> content) {
-		if(contentTaggingFlag) {
-			for(String contentTagKey : contentTaggedKeys) {
-				if(content.containsKey(contentTagKey)) {
-					List<String> prop = null;
-					try {
-					    Object value = content.get(contentTagKey);
-					    if (value instanceof String[]) {
-					        prop = Arrays.asList((String[]) value);
-                        } else if(value instanceof  List) {
-							prop = (List<String>) value;
-						}else {
-							prop = mapper.readValue((String) value, List.class);
-						}
-						content.put(contentTagKey, prop.get(0));
-					} catch (IOException e) {
-						content.put(contentTagKey, (String) content.get(contentTagKey));
-					}
-
-				}
-			}
-		}
+		return null;
 	}
 
 	private String getErrorMsg(String errorMsg) {
@@ -295,13 +272,13 @@ public class BasePlaySearchManager extends Results {
 		return list;
 	}
 
-	public Promise<Result> getSearchResponse(Response searchResult, Request req) {
+	public Future<Response> getSearchResponse(Response searchResult, Request req, ActorRef actor) {
 		Request request = getSearchRequest(SearchActorNames.SEARCH_MANAGER.name(),
 				SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name());
 		request.put("searchResult", searchResult.getResult());
 		request.setId(req.getId());
 		request.setVer(req.getVer());
-		Promise<Result> getRes = getSearchResponse(request);
+		Future<Response> getRes = getSearchResponse(request, actor);
 		return getRes;
 	}
 
@@ -388,6 +365,31 @@ public class BasePlaySearchManager extends Results {
 		}
 
 		return count;
+	}
+
+	private void updateContentTaggedProperty(Map<String,Object> content) {
+		if(contentTaggingFlag) {
+			for(String contentTagKey : contentTaggedKeys) {
+				if(content.containsKey(contentTagKey)) {
+					List<String> prop = null;
+					try {
+						Object value = content.get(contentTagKey);
+						if (value instanceof String[]) {
+							prop = Arrays.asList((String[]) value);
+						} else if(value instanceof  List) {
+							prop = (List<String>) value;
+						}else {
+							prop = mapper.readValue((String) value, List.class);
+						}
+						if (CollectionUtils.isNotEmpty(prop))
+							content.put(contentTagKey, prop.get(0));
+					} catch (IOException e) {
+						content.put(contentTagKey, (String) content.get(contentTagKey));
+					}
+
+				}
+			}
+		}
 	}
 
 }

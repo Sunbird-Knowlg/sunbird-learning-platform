@@ -43,12 +43,6 @@ public class FindOperation extends BaseContentManager {
 
         fields = CollectionUtils.isEmpty(fields) ? new ArrayList<>() : new ArrayList<>(fields);
 
-        //TODO: this is only for backward compatibility. remove after this release.
-        if (fields.contains("tags")) {
-            fields.remove("tags");
-            fields.add("keywords");
-        }
-
         if (!StringUtils.equalsIgnoreCase("edit", mode)) {
             String content = "";
             if(CONTENT_CACHE_ENABLED)
@@ -68,7 +62,7 @@ public class FindOperation extends BaseContentManager {
                 Node node = getContentNode(TAXONOMY_ID, contentId, null);
                 contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
                 if(CONTENT_CACHE_ENABLED && CONTENT_CACHE_FINAL_STATUS.contains(contentMap.get(ContentAPIParams.status.name()).toString()))
-                    RedisStoreUtil.saveData(contentId, contentMap, 0);
+                    RedisStoreUtil.saveData(contentId, contentMap, CONTENT_CACHE_TTL);
             }
         } else {
             TelemetryManager.log("Fetching the Data For Content Id: " + contentId);
@@ -122,28 +116,6 @@ public class FindOperation extends BaseContentManager {
         response.put(TaxonomyAPIParams.content.name(), contentCleanUp(contentMap));
         response.setParams(getSucessStatus());
         return response;
-    }
-
-    /**
-     *
-     * @param contentMap
-     * @param mode
-     */
-    private void updateContentTaggedProperty(Map<String,Object> contentMap, String mode) {
-        Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
-                Platform.config.getBoolean("content.tagging.backward_enable"): false;
-        if(!StringUtils.equals(mode,"edit") && contentTaggingFlag) {
-            List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
-                    Arrays.asList(Platform.config.getString("content.tagging.property").split(",")):
-                    new ArrayList<>(Arrays.asList("subject","medium"));
-            contentTaggedKeys.forEach(contentTagKey -> {
-                if(contentMap.containsKey(contentTagKey)) {
-                    List<String> prop = prepareList(contentMap.get(contentTagKey));
-                    if (CollectionUtils.isNotEmpty(prop))
-                        contentMap.put(contentTagKey, prop.get(0));
-                }
-            });
-        }
     }
 
     private static List<String> prepareList(Object obj) {
@@ -214,5 +186,28 @@ public class FindOperation extends BaseContentManager {
         edata.put("action", "ecml-migration");
         edata.put("contentType", "Ecml");
     }
+
+    /**
+     *
+     * @param contentMap
+     * @param mode
+     */
+    private void updateContentTaggedProperty(Map<String,Object> contentMap, String mode) {
+        Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
+                Platform.config.getBoolean("content.tagging.backward_enable"): false;
+        if(!StringUtils.equals(mode,"edit") && contentTaggingFlag) {
+            List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
+                    Arrays.asList(Platform.config.getString("content.tagging.property").split(",")):
+                    new ArrayList<>(Arrays.asList("subject","medium"));
+            contentTaggedKeys.forEach(contentTagKey -> {
+                if(contentMap.containsKey(contentTagKey)) {
+                    List<String> prop = prepareList(contentMap.get(contentTagKey));
+                    if (CollectionUtils.isNotEmpty(prop))
+                        contentMap.put(contentTagKey, prop.get(0));
+                }
+            });
+        }
+    }
+
 }
 

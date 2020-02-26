@@ -10,11 +10,7 @@ import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.test.common.CommonTestSetup;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.junit.FixMethodOrder;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +96,7 @@ public class CollectionV3ControllerTest extends CommonTestSetup {
         CategoryCache.setFramework("NCFTEST", frameworkHierarchy);
     }
 
+    @Ignore
     @Test
     public void testDialLinkWithLiveCollection() throws Exception {
         String createCollReq = "{\"request\": {\"content\": {\"name\": \"Test-G-Dev-01\",\"code\": \"test.book.1\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBook\"}}}";

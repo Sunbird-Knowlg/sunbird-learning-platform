@@ -14,6 +14,7 @@ import org.apache.samza.task.WindowableTask;
 import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.SamzaCommonParams;
 import org.ekstep.telemetry.TelemetryGenerator;
 import org.ekstep.telemetry.TelemetryParams;
@@ -38,6 +39,7 @@ public abstract class BaseTask implements StreamTask, InitableTask, WindowableTa
     private static String startJobEventId = "JOB_START";
     private static String endJobEventId = "JOB_END";
     private static int MAXITERTIONCOUNT= 2;
+    private static JobLogger LOGGER = new JobLogger(BaseTask.class);
 
     @Override
     public void init(Config config, TaskContext context) throws Exception {
@@ -74,9 +76,10 @@ public abstract class BaseTask implements StreamTask, InitableTask, WindowableTa
                 postProcess(message, collector, execution, maxIterations, currentIteration);
             } else{
                 //Throw exception has to be added.
+                LOGGER.info("Action provided in the event is not matching : ", action);
             }
         } else {
-            //Throw exception has to be added.
+            LOGGER.info("EID provided in the event is not matching : ", eid);//Throw exception has to be added.
         }
     }
 

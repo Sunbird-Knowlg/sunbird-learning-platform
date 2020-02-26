@@ -81,7 +81,6 @@ public class Neo4JBoltGraphOperations {
 				parameterMap.put(GraphDACParams.request.name(), request);
 
 				try ( Transaction tx = session.beginTransaction() ){
-					//StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.CREATE_UNIQUE_CONSTRAINT, parameterMap));
 					StatementResult result = tx.run(GraphQueryGenerationUtil.generateCreateUniqueConstraintCypherQuery(parameterMap));
 					tx.success();
 					for (Record record : result.list()) {

@@ -20,16 +20,6 @@ node() {
                 envDir = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-3].trim()
                 module = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-2].trim()
                 jobName = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-1].trim()
-		dir('private'){
-                checkout scm: [$class: 'GitSCM', branches: [[name: private_repo_branch]], extensions: [[$class: 'GitLFSPull'], [$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true]], userRemoteConfigs: [[credentialsId: private_repo_credentials, url: private_repo_url]]]
-		}
-                fileExists = sh(returnStdout: true, script: "find ${currentWs} -name 'neo4j*.tar.gz'")
-                  if (fileExists != "")
-                      sh "cp private/artifacts/neo4j*.tar.gz ansible/artifacts"
-                  else {
-                      println(ANSI_BOLD + ANSI_RED + "Uh Oh! Unable to find neo4j*.tar.gz. Please place this file in your private repo under artifact directory" + ANSI_NORMAL)
-                      error 'Please resolve the errors and rerun..'
-_                 }
                 ansiblePlaybook = "${currentWs}/ansible/lp_learning_neo4j_provision.yml"
                 ansibleExtraArgs = "--vault-password-file /var/lib/jenkins/secrets/vault-pass"
                 values.put('currentWs', currentWs)

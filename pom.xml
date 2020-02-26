@@ -30,7 +30,6 @@
 				<module>platform-tools/kernel-extension</module>
 				<module>platform-tools/spikes/sync-tool</module>
 				<module>platform-tools/cassandra-extension</module>
-				<module>platform-tools/spikes/size-migration</module>
 				<module>platform-tools/spikes/content-tool</module>
 			</modules>
 		</profile>

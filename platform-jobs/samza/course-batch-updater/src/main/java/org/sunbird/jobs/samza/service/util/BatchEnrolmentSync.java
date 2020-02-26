@@ -1,5 +1,6 @@
 package org.sunbird.jobs.samza.service.util;
 
+import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -55,9 +56,14 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
                             dataToUpdate.remove(key);
                         }
                     }
+                    ResultSet resultSet = SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
+                    Date existingCompletedOn = resultSet.one().getTimestamp("completedOn");
 
-                    if(null != dataToUpdate.get("status") && (2 == ((Number)dataToUpdate.get("status")).intValue()))
+                    if(null != dataToUpdate.get("status") && (2 == ((Number)dataToUpdate.get("status")).intValue()) && (null == existingCompletedOn))
                         dataToUpdate.put("completedOn", new Timestamp(new Date().getTime()));
+
+                    if(null != dataToUpdate.get("status") && (2 != ((Number)dataToUpdate.get("status")).intValue()) && (null != existingCompletedOn))
+                        dataToUpdate.put("completedOn", null);
 
                     SunbirdCassandraUtil.update(keyspace, table, dataToUpdate, dataToSelect);
                 }
@@ -77,7 +83,8 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
             put("contentid", leafNodes);
         }};
         Map<String, String> lastReadContents = new HashMap<>();
-        List<Row> rows = SunbirdCassandraUtil.read(keyspace, consumptionTable, dataToSelect);
+        ResultSet resultSet = SunbirdCassandraUtil.read(keyspace, consumptionTable, dataToSelect);
+        List<Row> rows = resultSet.all();
         if (CollectionUtils.isNotEmpty(rows)) {
             for(Row row: rows) {
                 contentStatus.put(row.getString("contentid"), row.getInt("status"));

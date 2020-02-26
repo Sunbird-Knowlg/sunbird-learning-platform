@@ -8,6 +8,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sunbird.jobs.samza.service.util.CertificateGenerator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,12 +22,27 @@ public class CertificateGeneratorTest {
     public void testGenerateCertificate() {
         CertificateGenerator generator = PowerMockito.spy(new CertificateGenerator());
         Map<String, Object> request = new HashMap<>();
+        request.put("template", new HashMap<String, Object>(){{
+            put("name", "Course completion certificate");
+            put("identifier", "template_01");
+            put("issuer", new HashMap<String, Object>(){{
+                put("name", "Gujarat Council of Educational Research and Training");
+                put("url", "https://gcert.gujarat.gov.in/gcert/");
+            }});
+            put("signatoryList", new ArrayList<Map<String, Object>>(){{
+                add(new HashMap<String, Object>(){{
+                    put("name", "CEO Gujarat");
+                    put("id", "CEO");
+                    put("designation", "CEO");
+                    put("image", "https://cdn.pixabay.com/photo/2014/11/09/08/06/signature-523237__340.jpg");
+                }});
+            }});
+        }});
         request.put("action", "generate-course-certificate");
         request.put("iteration", 1);
-        request.put("batchId", "0128318484998225920");
-        request.put("userId", "95e4942d-cbe8-477d-aebd-ad8e6de4bfc8");
-        request.put("courseId", "do_11283183576849612818");
-        request.put("certificateName","100PercentCompletionCertificate");
+        request.put("batchId", "0128764408268881921");
+        request.put("userId", "8454cb21-3ce9-4e30-85b5-fade097880d8");
+        request.put("courseId", "do_112876410268794880162");
 
         generator.generate(request);
 

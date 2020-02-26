@@ -457,8 +457,6 @@ public class Neo4JBoltNodeOperations {
 			parameterMap.put(GraphDACParams.request.name(), request);
 
 			try (Transaction tx = session.beginTransaction()) {
-				// StatementResult result =
-				// session.run(QueryUtil.getQuery(Neo4JOperation.DELETE_NODE, parameterMap));
 				StatementResult result = tx.run(NodeQueryGenerationUtil.generateDeleteNodeCypherQuery(parameterMap));
 				tx.success();
 				for (Record record : result.list())

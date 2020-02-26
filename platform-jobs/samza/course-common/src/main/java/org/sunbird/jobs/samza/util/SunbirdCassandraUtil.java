@@ -34,7 +34,7 @@ public class SunbirdCassandraUtil {
         session.execute(updateQuery);
     }
 
-    public static List<Row> read(String keyspace, String table, Map<String, Object> propertiesToSelect) {
+    public static ResultSet read(String keyspace, String table, Map<String, Object> propertiesToSelect) {
         Session session = CassandraConnector.getSession("platform-courses");
         Select.Where selectQuery = QueryBuilder.select().all().from(keyspace, table).where();
         propertiesToSelect.entrySet().forEach(entry -> {
@@ -44,11 +44,12 @@ public class SunbirdCassandraUtil {
                 selectQuery.and(QueryBuilder.eq(entry.getKey(), entry.getValue()));
         });
         ResultSet results = session.execute(selectQuery);
-        return results.all();
+        return results;
     }
 
     public static List<Map<String, Object>> readAsListOfMap(String keyspace, String table, Map<String, Object> propertiesToSelect) {
-        List<Row> rows = read(keyspace, table, convertKeyCase(propertiesToSelect));
+        ResultSet resultSet = read(keyspace, table, convertKeyCase(propertiesToSelect));
+        List<Row> rows = resultSet.all();
         List<Map<String, Object>> response = new ArrayList<Map<String, Object>>();
         if (CollectionUtils.isNotEmpty(rows)) {
             for (Row row : rows) {
@@ -86,6 +87,12 @@ public class SunbirdCassandraUtil {
             });
         }
         return keyLowerCaseMap;
+    }
+
+    public static ResultSet execute(String query) {
+        Session session = CassandraConnector.getSession("platform-courses");
+        ResultSet results = session.execute(query);
+        return results;
     }
 
 }

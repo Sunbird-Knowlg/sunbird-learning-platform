@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Slug;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -52,18 +53,13 @@ public class HttpDownloadUtility {
 				httpConn.getContentLength();
 				TelemetryManager.log("Content Disposition: " + disposition);
 
-				if (disposition != null) {
-					// extracts file name from header field
-					/*int index = disposition.indexOf("filename=");
-					if (index > 0) {
-						fileName = disposition.substring(index + 10, disposition.length() - 1);
-					}*/
+				if (StringUtils.isNotBlank(disposition)) {
 					int index = disposition.indexOf("filename=");
 					if (index > 0) {
 						fileName = disposition.substring(index + 10, disposition.indexOf("\"", index+10));
 					}
-				} else {
-					// extracts file name from URL
+				}
+				if (StringUtils.isBlank(fileName)) {
 					fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
 				}
 

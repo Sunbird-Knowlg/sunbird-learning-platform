@@ -1,5 +1,5 @@
 ---
-- hosts: lp-yarn
+- hosts: yarn
   become: yes
   vars_files:
     - "{{inventory_dir}}/secrets.yml"
@@ -17,14 +17,12 @@
         shell: /bin/bash
 
 - name: Install samza job server
-  hosts: "lp-yarn-master"
+  hosts: "yarn-master"
   vars_files:
     - "{{inventory_dir}}/secrets.yml"
   become: yes
-  vars_files:
-    - "{{inventory_dir}}/secrets/lp_secrets.yml"
   roles:
-    - java
+    - jdk-1.8.0_121
     - yarn
     - samza-job-server
 
@@ -40,12 +38,10 @@
 #     - include: ./roles/yarn/templates
 
 - name: Install java on all yarn slaves
-  hosts: "lp-yarn-slave"
+  hosts: "yarn-slave"
   vars_files:
     - "{{inventory_dir}}/secrets.yml"
   become: yes
-  vars_files:
-    - "{{inventory_dir}}/secrets/lp_secrets.yml"
   remote_user: hduser
   roles:
-    - java
+    - jdk-1.8.0_121

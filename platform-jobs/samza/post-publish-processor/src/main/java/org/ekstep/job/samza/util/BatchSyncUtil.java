@@ -41,10 +41,12 @@ public class BatchSyncUtil {
 
         //For each batch exists. fetch enrollment from user_courses table and push the message to kafka
         for(Row row: courseBatchRows) {
-            List<Row> userCoursesRows = read("user_courses", Arrays.asList(row.getString("batchid")));
-            pushEventsToKafka(userCoursesRows, collector);
+            if(1 == row.getInt("status")) {
+                List<Row> userCoursesRows = read("user_courses", Arrays.asList(row.getString("batchid")));
+                pushEventsToKafka(userCoursesRows, collector);
+                LOGGER.info("Pushed the events to sync courseBatch enrollment for : " + courseId);
+            }
         }
-        LOGGER.info("Pushed the events to sync courseBatch enrollment for : " + courseId);
     }
 
 

@@ -349,6 +349,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 					String previousStatus = (String) dbMetadata.get(GraphDACParams.status.name());
 					if (StringUtils.isNotBlank(currentStatus) && !StringUtils.equalsIgnoreCase(currentStatus, previousStatus)) {
 						datanode.getMetadata().put(AuditProperties.lastStatusChangedOn.name(), date);
+						datanode.getMetadata().put(AuditProperties.prevStatus.name(), previousStatus);
 					}
 					for (Entry<String, Object> entry : dbMetadata.entrySet()) {
 						if (!datanode.getMetadata().containsKey(entry.getKey()))

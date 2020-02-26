@@ -7,10 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import akka.dispatch.OnFailure;
+import akka.dispatch.Futures;
+import akka.dispatch.Mapper;
+import akka.util.Timeout;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -18,103 +22,76 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.enums.Modes;
 import org.ekstep.compositesearch.enums.SearchOperations;
-import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import akka.actor.ActorRef;
-import akka.dispatch.OnSuccess;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
 
 public class SearchManager extends SearchBaseActor {
 
 	private ObjectMapper mapper = new ObjectMapper();
-	@SuppressWarnings({ "unchecked" })
-	@Override
-	protected void invokeMethod(Request request, ActorRef parent) {
+	private static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30000, TimeUnit.MILLISECONDS));
+
+	public Future<Response> onReceive(Request request) throws Throwable {
 		String operation = request.getOperation();
 		SearchProcessor processor = new SearchProcessor();
-		try {
-			if (StringUtils.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name(), operation)) {
-				SearchDTO searchDTO = getSearchDTO(request);
-				Future<Map<String, Object>> searchResult = processor.processSearch(searchDTO, true);
-				searchResult.onSuccess(new OnSuccess<Map<String, Object>>() {
-					public void onSuccess(Map<String, Object> lstResult) {
-						String mode = (String) request.getRequest().get(CompositeSearchParams.mode.name());
-						if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("collection", mode)) {
-							Map<String, Object> result = getCollectionsResult(lstResult, processor, request);
-							OK(result, parent);
-						} else {
-							OK(lstResult, parent);
-						}
+		if (StringUtils.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name(), operation)) {
+			SearchDTO searchDTO = getSearchDTO(request);
+			Future<Map<String, Object>> searchResult = processor.processSearch(searchDTO, true);
+			return searchResult.map(new Mapper<Map<String, Object>, Response>() {
+				@Override
+				public Response apply(Map<String, Object> lstResult) {
+					String mode = (String) request.getRequest().get(CompositeSearchParams.mode.name());
+					if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("collection", mode)) {
+						return OK(getCollectionsResult(lstResult, processor, request));
+					} else {
+						return OK(lstResult);
 					}
-				}, getContext().dispatcher());
-				searchResult.onFailure(new OnFailure() {
-					@Override
-					public void onFailure(Throwable failure) throws Throwable {
-						TelemetryManager.error("Error in SearchManager actor: " + failure.getMessage(), failure);
-						handleException(failure, getSender());
-					}
-				}, getContext().dispatcher());
-
-			} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
-				Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
-				if (null != countResult.get("count")) {
-					Integer count = (Integer) countResult.get("count");
-					OK("count", count, parent);
-				} else {
-					ERROR("", "count is empty or null", ResponseCode.SERVER_ERROR, "", null, parent);
 				}
-
-			} else if (StringUtils.equalsIgnoreCase(SearchOperations.METRICS.name(), operation)) {
-				Future<Map<String, Object>> searchResult = processor.processSearch(getSearchDTO(request), false);
-				searchResult.onSuccess(new OnSuccess<Map<String, Object>>() {
-					public void onSuccess(Map<String, Object> lstResult) {
-						OK(getCompositeSearchResponse(lstResult), parent);
-					}
-				}, getContext().dispatcher());
-				searchResult.onFailure(new OnFailure() {
-					@Override
-					public void onFailure(Throwable failure) throws Throwable {
-						TelemetryManager.error("Error in SearchManager actor: " + failure.getMessage(), failure);
-						handleException(failure, getSender());
-					}
-				}, getContext().dispatcher());
-
-			} else if (StringUtils.equalsIgnoreCase(SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name(),
-					operation)) {
-				Map<String, Object> searchResponse = (Map<String, Object>) request.get("searchResult");
-				OK(getCompositeSearchResponse(searchResponse), parent);
-
-			} else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_WORD_SEARCH.name(), operation)) {
-				List<String> synsetIdList = (List<String>) request.get("synset_id_list");
-				Map<String, Object> lstResult = processor.multiWordDocSearch(synsetIdList);
-				OK(lstResult, parent);
-			} else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_SYNSET_SEARCH.name(), operation)) {
-				List<String> synsetIdList = (List<String>) request.get("synset_ids");
-				Map<String, Object> lstResult = processor.multiSynsetDocSearch(synsetIdList);
-				OK(lstResult, parent);
+			}, getContext().dispatcher());
+		} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
+			Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
+			if (null != countResult.get("count")) {
+				Integer count = (Integer) countResult.get("count");
+				return Futures.successful(OK("count", count));
 			} else {
-				TelemetryManager.log("Unsupported operation: " + operation);
-				throw new ClientException(CompositeSearchErrorCodes.ERR_INVALID_OPERATION.name(),
-						"Unsupported operation: " + operation);
+				return Futures.successful(ERROR("", "count is empty or null", ResponseCode.SERVER_ERROR, "", null));
 			}
-		} catch (Exception e) {
-			TelemetryManager.error("Error in SearchManager actor: " + e.getMessage(), e);
-			handleException(e, getSender());
-		} finally {
-			if (null != processor)
-				processor.destroy();
+		} else if (StringUtils.equalsIgnoreCase(SearchOperations.METRICS.name(), operation)) {
+			Future<Map<String, Object>> searchResult = processor.processSearch(getSearchDTO(request), false);
+			return searchResult.map(new Mapper<Map<String, Object>, Response>() {
+				@Override
+				public Response apply(Map<String, Object> lstResult) {
+					return OK(getCompositeSearchResponse(lstResult));
+				}
+			}, getContext().dispatcher());
+		} else if (StringUtils.equalsIgnoreCase(SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name(), operation)) {
+			Map<String, Object> searchResponse = (Map<String, Object>) request.get("searchResult");
+			return Futures.successful(OK(getCompositeSearchResponse(searchResponse)));
+		} else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_WORD_SEARCH.name(), operation)) {
+			List<String> synsetIdList = (List<String>) request.get("synset_id_list");
+			Map<String, Object> lstResult = processor.multiWordDocSearch(synsetIdList);
+			return Futures.successful(OK(lstResult));
+		} else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_SYNSET_SEARCH.name(), operation)) {
+			List<String> synsetIdList = (List<String>) request.get("synset_ids");
+			Map<String, Object> lstResult = processor.multiSynsetDocSearch(synsetIdList);
+			return Futures.successful(OK(lstResult));
+		} else {
+			TelemetryManager.log("Unsupported operation: " + operation);
+			throw new ClientException(CompositeSearchErrorCodes.ERR_INVALID_OPERATION.name(),
+					"Unsupported operation: " + operation);
 		}
 	}
 
@@ -143,6 +120,8 @@ public class SearchManager extends SearchBaseActor {
 					filters.put("keywords", tags);
 				}
 			}
+			if (filters.containsKey("relatedBoards"))
+				filters.remove("relatedBoards");
 
 			Object objectTypeFromFilter = filters.get(CompositeSearchParams.objectType.name());
 			String objectType = null;
@@ -250,6 +229,8 @@ public class SearchManager extends SearchBaseActor {
 				} catch (Exception e) {
 					TelemetryManager.warn("Invalid soft Constraints: " + e.getMessage());
 				}
+				if (MapUtils.isNotEmpty(softConstraintMap) && softConstraintMap.containsKey("board"))
+					softConstraintMap.put("relatedBoards", softConstraintMap.get("board"));
 				searchObj.setSoftConstraints(softConstraintMap);
 			}
 			TelemetryManager.log("SoftConstraints" + searchObj.getSoftConstraints());
@@ -266,6 +247,8 @@ public class SearchManager extends SearchBaseActor {
 			searchObj.setSortBy(sortBy);
 			searchObj.setFacets(facets);
 			searchObj.setProperties(properties);
+			// Added Implicit Filter Properties To Support Collection content tagging to reuse by tenants.
+			setImplicitFilters(filters, searchObj);
 			searchObj.setLimit(limit);
 			searchObj.setFields(fieldsSearch);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
@@ -287,7 +270,6 @@ public class SearchManager extends SearchBaseActor {
 		}
 		return searchObj;
 	}
-
 
 	private Map<String, Float> getWeightagesMap(String weightagesString)
 			throws JsonParseException, JsonMappingException, IOException {
@@ -345,7 +327,8 @@ public class SearchManager extends SearchBaseActor {
 			paramList = (List<String>) param;
 		} catch (Exception e) {
 			String str = (String) param;
-			paramList = Arrays.asList(str);
+			paramList = new ArrayList<String>();
+			paramList.add(str);
 		}
 		return paramList;
 	}
@@ -568,7 +551,6 @@ private Integer getIntValue(Object num) {
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> getCompositeSearchResponse(Map<String, Object> searchResponse) {
 		Map<String, Object> respResult = new HashMap<String, Object>();
-		TelemetryManager.log("Logging search Response :", searchResponse);
 		for (Map.Entry<String, Object> entry : searchResponse.entrySet()) {
 			if (entry.getKey().equalsIgnoreCase("results")) {
 				List<Object> lstResult = (List<Object>) entry.getValue();
@@ -606,7 +588,6 @@ private Integer getIntValue(Object num) {
 				respResult.put(entry.getKey(), entry.getValue());
 			}
 		}
-		TelemetryManager.log("Search Result", respResult);
 		return respResult;
 	}
 
@@ -632,6 +613,8 @@ private Integer getIntValue(Object num) {
 				return "words";
 			else if (StringUtils.equalsIgnoreCase("Synset", objectType))
 				return "synsets";
+			else if (StringUtils.equalsIgnoreCase("License", objectType))
+				return "license";
 			else
 				return objectType;
 		}
@@ -684,7 +667,7 @@ private Integer getIntValue(Object num) {
 				request.put(CompositeSearchParams.filters.name(), filters);
 				SearchDTO searchDTO = getSearchDTO(request);
 				Map<String, Object> collectionResult = Await.result(processor.processSearch(searchDTO, true),
-						SearchRequestRouterPool.WAIT_TIMEOUT.duration());
+						WAIT_TIMEOUT.duration());
 				collectionResult = prepareCollectionResult(collectionResult, contentIds);
 				lstResult.putAll(collectionResult);
 				return lstResult;
@@ -741,6 +724,24 @@ private Integer getIntValue(Object num) {
 			searchObj.setAggregations((List<Map<String, Object>>) req.get("aggregations"));
 		}
 
+	}
+
+	private void setImplicitFilters(Map<String, Object> filters, SearchDTO searchObj) throws Exception {
+		Map<String, Object> implicitFilter = new HashMap<String, Object>();
+		if (MapUtils.isNotEmpty(filters) && filters.containsKey("board")) {
+			for (String key : filters.keySet()) {
+				if (StringUtils.equalsIgnoreCase("board", key)) {
+					implicitFilter.put("relatedBoards", filters.get(key));
+				} else if (StringUtils.equalsIgnoreCase("status", key)) {
+					implicitFilter.put("status", "Live");
+				} else {
+					implicitFilter.put(key, filters.get(key));
+				}
+			}
+			List<Map> implicitFilterProps = new ArrayList<Map>();
+			implicitFilterProps.addAll(getSearchFilterProperties(implicitFilter, false));
+			searchObj.setImplicitFilterProperties(implicitFilterProps);
+		}
 	}
 
 }

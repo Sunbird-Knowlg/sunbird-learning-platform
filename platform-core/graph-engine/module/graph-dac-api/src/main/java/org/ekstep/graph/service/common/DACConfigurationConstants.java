@@ -14,12 +14,6 @@ public class DACConfigurationConstants {
 	
 	public static final String NEO4J_SERVER_AUTH_SCHEME = "";
 	
-	public static final String NEO4J_SERVER_CONNECTION_TRUST_STRATEGY = "all";
-	
-	public static final String NEO4J_SERVER_CONNECTION_TRUST_STRATEGY_CERTIFICATE_FILE = "";
-	
-	public static final String NEO4J_SERVER_DRIVER_TYPE = "simple";
-	
 	public static final String DEFAULT_ROUTE_PROP_PREFIX = "route.bolt.";
 	
 	public static final String DEFAULT_NEO4J_BOLT_ROUTE_ID = "all";
@@ -29,21 +23,9 @@ public class DACConfigurationConstants {
 	public static final String DOT = ".";
 	
 	public static final String UNDERSCORE = "_";
-	
+
 	public static final int NEO4J_SERVER_MAX_IDLE_SESSION = 20;
-	
-	public static final boolean IS_NEO4J_SERVER_CONNECTION_ENCRYPTION_ALLOWED = true;
-	
-	public static final boolean IS_SETTING_NEO4J_SERVER_MAX_IDLE_SESSION_ENABLED = true;
-	
-	public static final boolean IS_NEO4J_SERVER_TRUST_STRATEGY_ENABLED = true;
-	
-	public static final boolean IS_PASSPORT_AUTHENTICATION_ENABLED = true;
-	
-	public static final boolean IS_USER_AUTHORIZATION_ENABLED = false;
-	
-	public static final String AUTHORIZATION_ENABLED_PROPERTY = "platform.auth.check.enabled";
-	
+
 	private DACConfigurationConstants() {
 		  throw new AssertionError();
 	}

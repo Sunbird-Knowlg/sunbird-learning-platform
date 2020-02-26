@@ -68,6 +68,7 @@ public class ContentV3ControllerExceptionTest extends CommonTestSetup {
 	 * 
 	 */
 
+	@Ignore
 	@Test
 	public void testContentV3ControllerExp_01() throws Exception {
 		String path = basePath + "/create";
