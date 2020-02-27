@@ -48,6 +48,7 @@ public class BasePlaySearchManager extends Results {
 	private static List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
 			Platform.config.getStringList("content.tagging.property"):
 			new ArrayList<>(Arrays.asList("subject","medium"));
+	private static final String JSON_TYPE = "application/json";
 
 	protected Promise<Result> getSearchResponse(Request request) {
 		ActorRef router = SearchRequestRouterPool.getRequestRouter();
@@ -64,12 +65,8 @@ public class BasePlaySearchManager extends Results {
 							String correlationId = UUID.randomUUID().toString();
 							if (result instanceof Response) {
 								Response response = (Response) result;
-								if(response.getResponseCode().name().equals("CLIENT_ERROR")){
-                                    return badRequest(getResult(response,request.getId(), request.getVer(), null, correlationId)).as("application/json");
-                                }
 								if (checkError(response)) {
-									String errMsg = getMessage(response);
-									return notFound(getErrorMsg(errMsg)).as("application/json");
+									return getErrorResult(response);
 								} else if (request.getOperation()
 										.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name())) {
 									Promise<Result> searchResult = getSearchResponse(response, request);
@@ -78,13 +75,13 @@ public class BasePlaySearchManager extends Results {
 									writeTelemetryLog(request, response);
 									return searchResult.get(SearchRequestRouterPool.REQ_TIMEOUT);
 								}
-								return ok(getResult(response, request, null, correlationId)).as("application/json");
+								return ok(getResult(response, request, null, correlationId)).as(JSON_TYPE);
 							}
 							ResponseParams params = new ResponseParams();
 							params.setErrmsg("Invalid Response object");
 							Response error = new Response();
 							error.setParams(params);
-							return ok(getResult(error, request, null, correlationId)).as("application/json");
+							return ok(getResult(error, request, null, correlationId)).as(JSON_TYPE);
 						}
 					});
 			res.onRedeem(new F.Callback<Result>() {
@@ -201,7 +198,8 @@ public class BasePlaySearchManager extends Results {
 						}else {
 							prop = mapper.readValue((String) value, List.class);
 						}
-						content.put(contentTagKey, prop.get(0));
+					    if (CollectionUtils.isNotEmpty(prop))
+							content.put(contentTagKey, prop.get(0));
 					} catch (IOException e) {
 						content.put(contentTagKey, (String) content.get(contentTagKey));
 					}
@@ -388,6 +386,21 @@ public class BasePlaySearchManager extends Results {
 		}
 
 		return count;
+	}
+
+	private Result getErrorResult(Response response) {
+		try {
+			if (response.getResponseCode().compareTo(ResponseCode.CLIENT_ERROR) == 0) {
+				return badRequest(mapper.writeValueAsString(response)).as(JSON_TYPE);
+			} else if (response.getResponseCode().compareTo(ResponseCode.RESOURCE_NOT_FOUND) == 0) {
+				return notFound(mapper.writeValueAsString(response)).as(JSON_TYPE);
+			} else {
+				return internalServerError(mapper.writeValueAsString(response)).as(JSON_TYPE);
+			}
+		} catch (JsonProcessingException e) {
+			TelemetryManager.error("Error occurred while handling error response: ", e);
+			return null;
+		}
 	}
 
 }

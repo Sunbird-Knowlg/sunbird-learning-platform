@@ -40,14 +40,14 @@ public class CertificateGenerator {
     private static final String KEYSPACE = Platform.config.hasPath("courses.keyspace.name")
             ? Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
     private static final String USER_COURSES_TABLE = "user_courses";
-    protected static final String KP_LEARNING_BASE_URL = Platform.config.hasPath("kp.learning_service.base_url")
-            ? Platform.config.getString("kp.learning_service.base_url"): "http://localhost:8080/learning-service";
     private SimpleDateFormat formatter = null;
     private SimpleDateFormat dateFormatter = null;
     private static final String ES_INDEX_NAME = "user-courses";
     private static final String ES_DOC_TYPE = "_doc";
     private static final String CERTIFICATE_BASE_PATH = Platform.config.hasPath("certificate.base_path")
             ? Platform.config.getString("certificate.base_path"): "http://localhost:9000/certs";
+    protected static final String KP_CONTENT_SERVICE_BASE_URL = Platform.config.hasPath("kp.content_service.base_url")
+            ? Platform.config.getString("kp.content_service.base_url"): "http://localhost:9000";
 
     private static JobLogger LOGGER = new JobLogger(CertificateGenerator.class);
 
@@ -178,8 +178,8 @@ public class CertificateGenerator {
     }
 
     private boolean notifyUser(String userId, Map<String, Object> certTemplate, String courseName, Map<String, Object> userResponse, Date issuedOn) {
-        if(MapUtils.isNotEmpty(((Map) certTemplate.get("notifyTemplate")))) {
-            Map<String, Object> notifyTemplate = ((Map) certTemplate.get("notifyTemplate"));
+        if(certTemplate.containsKey("notifyTemplate")) {
+            Map<String, Object> notifyTemplate = getNotificationTemplate(certTemplate);
             String url = LEARNER_SERVICE_PRIVATE_URL + "/v1/notification/email";
             Request request = new Request();
             notifyTemplate.entrySet().forEach(entry -> request.put(entry.getKey(), entry.getValue()));
@@ -208,6 +208,20 @@ public class CertificateGenerator {
             return true;
         }
         return false;
+    }
+
+    private Map<String, Object> getNotificationTemplate(Map<String, Object> certTemplate)  {
+        Object notifyTemplate = certTemplate.get("notifyTemplate");
+        if(notifyTemplate instanceof String) {
+            try {
+                return mapper.readValue((String) notifyTemplate, Map.class);
+            } catch (Exception e) {
+                LOGGER.error("Error while fetching notify template : " , e);
+                return new HashMap<>();
+            }
+        }else {
+            return (Map)notifyTemplate;
+        }
     }
 
     private Map<String,Object> prepareCertServiceRequest(String courseName, String batchId, String userId, Map<String, Object> userResponse, Map<String, Object> certTemplate, Date issuedOn) {
@@ -253,7 +267,7 @@ public class CertificateGenerator {
 
     private Map<String,Object> getContent(String courseId, String fields) {
         try {
-            String url = KP_LEARNING_BASE_URL + "/content/v3/read/" + courseId;
+            String url = KP_CONTENT_SERVICE_BASE_URL + "/content/v3/read/" + courseId;
             if(StringUtils.isNotBlank(fields))
                 url += "?fields=" + fields;
 

@@ -16,6 +16,16 @@
   become_user: "{{learner_user}}"
   template: src=logstash-lp.j2  dest={{learner_user_home}}/logstash-{{logstash_version}}/logstash-lp.conf
 
+# Neo4j syncs the license and other objects created to
+# aforementioned ES sothat portal can fetch it and show
+- name: Setting composite search ip address in env
+  become: yes
+  lineinfile:
+    path: '/etc/environment'
+    line: 'lp_es_ip_port={{lp_es_ip_port}}'
+    regexp: "lp_es_ip_port"
+  register: env_var
+
 - name: remove existing kernel extension jar file
   become: yes
   become_user: "{{learner_user}}"
@@ -39,6 +49,21 @@
 - name: Start logstash process
   become: yes
   systemd: name=logstash state=started
+
+- name: make sure neo4j unique key constraint enabled
+  shell: echo '{{item}}' | {{ neo4j_home }}/bin/cypher-shell
+  with_items:
+    - CREATE CONSTRAINT ON (domain:domain) ASSERT domain.IL_UNIQUE_ID IS UNIQUE;
+    - CREATE INDEX ON :domain(IL_FUNC_OBJECT_TYPE);
+    - CREATE INDEX ON :domain(IL_SYS_NODE_TYPE);
+
+- name: restart the neo4j if composite_es_ip environment variable changed
+  become: yes
+  become_user: "{{ learner_user }}"
+  shell:  bin/neo4j stop; sleep 20; bin/neo4j start; sleep 20
+  args:
+    chdir: "{{ neo4j_home }}"
+  when: env_var.changed
 
 - name: Start the monit
   service: name=monit state=started

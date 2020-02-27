@@ -280,4 +280,17 @@ framework.cache.ttl=86400
 framework.cache.read=true
 
 # Creative common license type
-content.license="Creative Commons Attribution (CC BY)"
+content.license="CC BY 4.0"
+
+{% if offline_kp is defined %}
+{#
+This block is only needed in case of 3node installation
+Where kafka and samza are absent
+In 3node installation offline_kp variable will be defined and set to true
+Normal installation wont consider this variable
+#}
+#Condition to enable publish locally
+content.publish_task.enabled=true
+kafka.topic.send.enable=false
+content.asset_enrichment.enabled=true
+{% endif %}

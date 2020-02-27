@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.103</version>
+			<version>0.0.107</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -67,14 +67,14 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-batch-updater</artifactId>
-			<version>0.0.20</version>
+			<version>0.0.21</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>post-publish-processor</artifactId>
-			<version>0.0.11</version>
+			<version>0.0.14</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -88,7 +88,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-certificate-generator</artifactId>
-			<version>0.0.26</version>
+			<version>0.0.29</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

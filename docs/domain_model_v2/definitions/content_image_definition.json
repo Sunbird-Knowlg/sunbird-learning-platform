@@ -919,21 +919,15 @@
 					"title": "License",
 					"description": "License",
 					"range": [
-						"Against DRM license",
-						"Creative Commons Attribution-NoDerivs (CC-BY-ND)",
-						"Creative Commons Attribution (CC BY)",
-						"Creative Commons Attribution-ShareAlike (CC BY-SA)",
-						"Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)",
-						"Creative Commons Zero (CC0)",
-						"Free Art License",
-						"Open Audio License",
-						"Open Game License",
-						"Standard YouTube License",
-						"Other"
+						"CC BY-NC-SA 4.0",
+						"CC BY-NC 4.0",
+						"CC BY-SA 4.0",
+						"CC BY 4.0",
+						"Standard YouTube License"
 					],
 					"category": "Ownership",
 					"displayProperty": "Editable",
-					"defaultValue": "Creative Commons Attribution (CC BY)",
+					"defaultValue": "CC BY 4.0",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
@@ -3129,7 +3123,8 @@
 					"subject": 15,
 					"ageGroup": 1,
 					"gradeLevel": 7,
-					"board": 4
+					"board": 4,
+					"relatedBoards": 4
 				},
 				"versionCheckMode": "STRICT",
 				"allowupdate_status": false,

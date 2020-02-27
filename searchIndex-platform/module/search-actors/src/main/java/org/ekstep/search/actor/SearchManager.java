@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import akka.dispatch.OnFailure;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -143,6 +144,8 @@ public class SearchManager extends SearchBaseActor {
 					filters.put("keywords", tags);
 				}
 			}
+			if (filters.containsKey("relatedBoards"))
+				filters.remove("relatedBoards");
 
 			Object objectTypeFromFilter = filters.get(CompositeSearchParams.objectType.name());
 			String objectType = null;
@@ -250,6 +253,8 @@ public class SearchManager extends SearchBaseActor {
 				} catch (Exception e) {
 					TelemetryManager.warn("Invalid soft Constraints: " + e.getMessage());
 				}
+				if (MapUtils.isNotEmpty(softConstraintMap) && softConstraintMap.containsKey("board"))
+					softConstraintMap.put("relatedBoards", softConstraintMap.get("board"));
 				searchObj.setSoftConstraints(softConstraintMap);
 			}
 			TelemetryManager.log("SoftConstraints" + searchObj.getSoftConstraints());
@@ -266,6 +271,8 @@ public class SearchManager extends SearchBaseActor {
 			searchObj.setSortBy(sortBy);
 			searchObj.setFacets(facets);
 			searchObj.setProperties(properties);
+			// Added Implicit Filter Properties To Support Collection content tagging to reuse by tenants.
+			setImplicitFilters(filters, searchObj);
 			searchObj.setLimit(limit);
 			searchObj.setFields(fieldsSearch);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
@@ -287,7 +294,6 @@ public class SearchManager extends SearchBaseActor {
 		}
 		return searchObj;
 	}
-
 
 	private Map<String, Float> getWeightagesMap(String weightagesString)
 			throws JsonParseException, JsonMappingException, IOException {
@@ -632,6 +638,8 @@ private Integer getIntValue(Object num) {
 				return "words";
 			else if (StringUtils.equalsIgnoreCase("Synset", objectType))
 				return "synsets";
+			else if (StringUtils.equalsIgnoreCase("License", objectType))
+				return "license";
 			else
 				return objectType;
 		}
@@ -741,6 +749,24 @@ private Integer getIntValue(Object num) {
 			searchObj.setAggregations((List<Map<String, Object>>) req.get("aggregations"));
 		}
 
+	}
+
+	private void setImplicitFilters(Map<String, Object> filters, SearchDTO searchObj) throws Exception {
+		Map<String, Object> implicitFilter = new HashMap<String, Object>();
+		if (MapUtils.isNotEmpty(filters) && filters.containsKey("board")) {
+			for (String key : filters.keySet()) {
+				if (StringUtils.equalsIgnoreCase("board", key)) {
+					implicitFilter.put("relatedBoards", filters.get(key));
+				} else if (StringUtils.equalsIgnoreCase("status", key)) {
+					implicitFilter.put("status", "Live");
+				} else {
+					implicitFilter.put(key, filters.get(key));
+				}
+			}
+			List<Map> implicitFilterProps = new ArrayList<Map>();
+			implicitFilterProps.addAll(getSearchFilterProperties(implicitFilter, false));
+			searchObj.setImplicitFilterProperties(implicitFilterProps);
+		}
 	}
 
 }
