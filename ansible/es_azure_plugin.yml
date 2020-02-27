@@ -26,8 +26,8 @@
         dest: /etc/elasticsearch/{{ es_instance_name }}/elasticsearch.yml 
         line: "{{ item }}"
       with_items:
-        - 'cloud.azure.storage.default.account: {{ sunbird_management_storage_account_name }}'
-        - 'cloud.azure.storage.default.key: {{ sunbird_management_storage_account_key }}'
+        - 'cloud.azure.storage.default.account: {{sunbird_management_storage_account_name}}'
+        - 'cloud.azure.storage.default.key: {{sunbird_management_storage_account_key}}'
       no_log: true
   
     - name: restart elasticsearch
