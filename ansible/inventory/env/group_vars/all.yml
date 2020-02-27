@@ -58,23 +58,23 @@ audit_es_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
 search_es_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
 search_lms_es_host: "{{ groups['core-es']|join(':9200,')}}:9200"
 
-azure_account_key: "{{lp_vault_azure_storage_secret}}"
-azure_storage_secret: "{{lp_vault_azure_storage_secret}}"
+#azure_account_key: "{{lp_vault_azure_storage_secret}}"
+#azure_storage_secret: "{{lp_vault_azure_storage_secret}}"
 graph_passport_key: "{{ lp_vault_graph_passport_key }}"
 dial_service_authorization: "{{ lp_vault_dial_service_authorization }}"
 youtube_api_key: "{{ lp_vault_youtube_api_key }}"
 
 #### backup storage secret
-backup_azure_storage_account_name: "{{azure_account_name}}"
-backup_azure_storage_access_key: "{{lp_vault_azure_storage_secret}}"
+#backup_azure_storage_account_name: "{{azure_account_name}}"
+#backup_azure_storage_access_key: "{{lp_vault_azure_storage_secret}}"
 
 ## es backup
 es_snapshot_host: "{{ groups['composite-search-cluster'][0] }}"
 snapshot_base_path: compositesearch
 
 #artfiact upload download
-artifact_azure_account_name: "{{azure_account_name}}"
-artifact_azure_account_key: "{{lp_vault_azure_storage_secret}}"
+#artifact_azure_account_name: "{{azure_account_name}}"
+#artifact_azure_account_key: "{{lp_vault_azure_storage_secret}}"
 
 #Learning-Service baseURL
 kp_learning_service_base_url: "http://{{ groups['learning1'][0] }}:8080/learning-service"
@@ -90,3 +90,4 @@ certificate_base_path: "https://{{domain_name}}/certs"
 kp_content_service_base_url: "http://{{swarm_manager_lb_ip}}:9002"
 kp_print_service_base_url: "http://{{swarm_manager_lb_ip}}:5001"
 cert_reg_service_base_url: "http://{{swarm_manager_lb_ip}}:9013"
+
