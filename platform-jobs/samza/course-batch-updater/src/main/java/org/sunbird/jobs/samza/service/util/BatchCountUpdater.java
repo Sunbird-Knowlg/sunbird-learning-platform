@@ -1,5 +1,6 @@
 package org.sunbird.jobs.samza.service.util;
 
+import apoc.coll.Coll;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -21,7 +22,9 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
 
     public void update(Map<String, Object> edata) throws Exception {
         String courseId = (String) edata.get(CourseBatchParams.courseId.name());
+        String batchId = (String) edata.get(CourseBatchParams.batchId.name());
         updateBatchCount(courseId);
+        addBatchDetailsToCourse(courseId,batchId);
     }
 
     private void updateBatchCount(String courseId) throws Exception{
@@ -55,5 +58,34 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
         contentMap.put("c_" + installation + "_private_batch_count".toLowerCase(), privateBatchCount);
         request.put("content", contentMap);
         systemUpdate(courseId, request);
+    }
+
+    private void addBatchDetailsToCourse(String courseId, String batchId) throws Exception{
+        Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
+            put("courseid",courseId);
+            put("batchid",batchId);
+        }};
+        Map<String,Object> batchDetails = SunbirdCassandraUtil.readAsListOfMap(keyspace,courseBatchTable,dataToSelect).get(0);
+        Map<String,Object> courseDetails = getContent(courseId,"batchDetails");
+        Map<String, Object> batchDataForCourse= new HashMap<String, Object>(){{
+            put(CourseBatchParams.batchId.name(),batchId);
+            put("startDate",batchDetails.get("startDate"));
+            put("endDate",batchDetails.get("endDate"));
+            put("enrollmentEndDate",batchDetails.get("enrollmentEndDate"));
+        }};
+        List<Map<String,Object>> courseBatchMetaData =(List<Map<String,Object>>) courseDetails.get("batchDetails");
+
+        if(CollectionUtils.isNotEmpty(courseBatchMetaData)){
+            courseBatchMetaData.add(batchDataForCourse);
+        }
+        else{
+            courseBatchMetaData = new ArrayList<>();
+            courseBatchMetaData.add(batchDataForCourse);
+        }
+        Request request = new Request();
+        Map<String,Object> contentMap = new HashMap<>();
+        contentMap.put("batchDetails",courseBatchMetaData);
+        request.put("content", contentMap);
+        systemUpdate(courseId,request);
     }
 }
