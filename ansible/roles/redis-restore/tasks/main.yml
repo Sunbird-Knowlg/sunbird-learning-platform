@@ -1,7 +1,7 @@
 ---
 
 - name: Download backup file
-  shell: "az storage blob download --container-name {{ redis_backup_azure_container_name }} --file {{ redis_restore_file_name }} --name {{ redis_restore_file_name }} --account-name {{ backup_azure_storage_account_name }} --account-key {{ backup_azure_storage_access_key }}"
+  shell: "az storage blob download --container-name {{ redis_backup_azure_container_name }} --file {{ redis_restore_file_name }} --name {{ redis_restore_file_name }} --account-name {{ sunbird_management_storage_account_name }} --account-key {{ sunbird_management_storage_account_key }}"
   args:
     chdir: /tmp/ 
 
