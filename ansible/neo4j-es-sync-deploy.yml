@@ -2,9 +2,9 @@
   vars_files:
     - "{{inventory_dir}}/secrets.yml"
   environment:
-    AZURE_STORAGE_ACCOUNT: "{{ azure_account_name }}"
+    AZURE_STORAGE_ACCOUNT: "{{ sunbird_artifact_storage_account_name }}"
     
-    AZURE_STORAGE_KEY: "{{ azure_storage_secret }}"
+    AZURE_STORAGE_KEY: "{{ sunbird_artifact_storage_account_key }}"
   become: yes
   become_user: "{{learner_user}}"
   roles:      
