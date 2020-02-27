@@ -25,5 +25,5 @@ public enum ContentWorkflowPipelineParams {
 	compatibilityLevel, baseUrl, ecarUrl, spine, variants, isImageObject, ContentImage, youtube, pdf, msword, screenshots, 
 	Course, CourseUnit, LessonPlan, LessonPlanUnit, contentDisposition, publish_type, Unlisted, Public, Pending, previewUrl, 
 	streamingUrl, channel, online, leafNodesCount, domain, gradeLevel, ageGroup, medium, genre, keywords, lastUpdatedOn, index, parent,
-	childNodes, originData;
+	childNodes, originData,depth,collections, itemSetPreviewUrl;
 }

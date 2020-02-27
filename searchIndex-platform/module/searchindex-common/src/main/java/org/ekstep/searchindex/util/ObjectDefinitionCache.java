@@ -63,7 +63,7 @@ public class ObjectDefinitionCache {
 				new TypeReference<Map<String, Object>>() {
 				});
 		if (definitionObject == null) {
-            throw new Exception("Unable to find Defintion object.");
+            throw new Exception("Unable to find Definition object.");
         }
         Map resultMap = (Map) definitionObject.get("result");
         if (resultMap == null) {

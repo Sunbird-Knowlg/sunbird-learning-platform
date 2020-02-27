@@ -32,36 +32,7 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
         String courseId = (String) edata.get(CourseBatchParams.courseId.name());
         int status = (int) edata.get(CourseBatchParams.status.name());
         updateStatusOfBatch(batchId, courseId, status);
-        updateBatchCount(courseId);
     }
-
-
-    private void updateBatchCount(String courseId) throws Exception {
-        //Get number of batches for courseID
-        ResultSet resultSet = SunbirdCassandraUtil.read(keyspace, courseBatchTable, new HashMap<String, Object>(){{put(CourseBatchParams.courseId.name(), courseId);}});
-        List<Row> rows = resultSet.all();
-        // Get the count of open batch and private batch
-        final int[] openBatchCount = {0};
-        final int[] privateBatchCount = {0};
-
-        rows.forEach(row-> {
-            int status = row.getInt(CourseBatchParams.status.name());
-            String enrollmentType = row.getString(CourseBatchParams.enrollmentType.name());
-            if(StringUtils.equalsIgnoreCase(CourseBatchParams.open.name(), enrollmentType) && (1 == status))
-                openBatchCount[0] = openBatchCount[0] + 1;
-            if(StringUtils.equalsIgnoreCase("invite-only", enrollmentType) && (1 == status))
-                privateBatchCount[0] = privateBatchCount[0] + 1;
-        });
-
-        // SystemUpdate batch count
-        Request request = new Request();
-        request.put("content", new HashMap<String, Object>() {{
-            put("c_" + installation.toLowerCase() + "_open_batch_count".toLowerCase(), openBatchCount[0]);
-            put("c_" + installation.toLowerCase() + "_private_batch_count".toLowerCase(), privateBatchCount[0]);
-        }});
-        systemUpdate(courseId, request);
-    }
-
 
     private static void updateStatusOfBatch(String batchId, String courseId, int status) throws Exception {
         Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{

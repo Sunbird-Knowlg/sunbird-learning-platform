@@ -18,6 +18,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams.StatusType;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -42,6 +43,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import akka.pattern.Patterns;
 import akka.util.Timeout;
+import org.neo4j.graphdb.Result;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -565,6 +567,34 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Test
+	public void testUpdateStatus() throws Exception {
+		graphDb.execute("UNWIND [{ownershipType:[\"createdBy\"],code:\"test_pdf\",channel:\"in.ekstep\",language:[\"English\"],mimeType:\"application/pdf\",idealScreenSize:\"normal\",createdOn:\"2020-01-07T06:23:00.478+0000\",contentDisposition:\"inline\",contentEncoding:\"identity\",lastUpdatedOn:\"2020-01-07T06:23:00.478+0000\",contentType:\"Resource\",dialcodeRequired:\"No\",lastStatusChangedOn:\"2020-01-07T06:23:00.478+0000\",audience:[\"Learner\"],visibility:\"Default\",os:[\"All\"],IL_SYS_NODE_TYPE:\"DATA_NODE\",mediaType:\"content\",osId:\"org.ekstep.quiz.app\",version:2,versionKey:\"1578378180478\",license:\"CC BY 4.0\",idealScreenDensity:\"hdpi\",framework:\"NCF\",compatibilityLevel:1,IL_FUNC_OBJECT_TYPE:\"Content\",name:\"test pdf\",IL_UNIQUE_ID:\"do_11293007405443481611309\",status:\"Draft\"}] as row CREATE (n:domain) SET n += row");
+		Node node = new Node();
+		node.setNodeType("DATA_NODE");
+		node.setMetadata(new HashMap<String, Object>() {{
+			put("status", "Review");
+			put(GraphDACParams.versionKey.name(),"1578378180478");
+		}});
+		node.setGraphId("domain");
+		node.setObjectType("Content");
+		Request request = new Request();
+		request.getContext().put(GraphHeaderParams.graph_id.name(), "domain");
+		request.setManagerName(GraphEngineManagers.NODE_MANAGER);
+		request.setOperation("updateDataNode");
+		request.put(GraphDACParams.node_id.name(), "do_11293007405443481611309");
+		request.put(GraphDACParams.node.name(), node);
+		request.put(GraphDACParams.object_type.name(), "Content");
+		Future<Object> req = Patterns.ask(reqRouter, request, t);
+		Object obj = Await.result(req, t.duration());
+		Response response = (Response) obj;
+		Assert.assertEquals(ResponseCode.OK, response.getResponseCode());
+		Result result = graphDb.execute("match (n:domain{IL_UNIQUE_ID:'do_11293007405443481611309'}) return n.status as status, n.prevStatus as prevStatus");
+		Map<String, Object> res = result.next();
+		Assert.assertEquals("Review", (String)res.get("status"));
+		Assert.assertEquals("Draft", (String)res.get("prevStatus"));
 	}
 
 }

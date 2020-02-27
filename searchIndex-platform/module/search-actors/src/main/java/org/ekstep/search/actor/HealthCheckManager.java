@@ -5,39 +5,47 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import akka.dispatch.Futures;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 
-import akka.actor.ActorRef;
+import org.ekstep.telemetry.logger.TelemetryManager;
+import scala.concurrent.Future;
 
 public class HealthCheckManager extends SearchBaseActor {
-	
-	@Override
-	protected void invokeMethod(Request request, ActorRef parent) {
-		ElasticSearchUtil.initialiseESClient(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				Platform.config.getString("search.es_conn_info"));
+
+
+	public Future<Response> onReceive(Request request) throws Throwable {
+		ElasticSearchUtil.initialiseESClient(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, Platform.config.getString("search.es_conn_info"));
 		String operation = request.getOperation();
 		if (StringUtils.equalsIgnoreCase(SearchOperations.HEALTH.name(), operation)) {
 			Response response = checkIndexExists();
-			OK("", response, parent);
+			return Futures.successful(OK("", response));
+		} else {
+			TelemetryManager.log("Unsupported operation: " + operation);
+			throw new ClientException(CompositeSearchErrorCodes.ERR_INVALID_OPERATION.name(),
+					"Unsupported operation: " + operation);
 		}
 	}
 
+
 	@Override
-	public void OK(String responseIdentifier, Object vo, ActorRef parent) {
+	public Response OK(String responseIdentifier, Object vo) {
 		Response response = new Response();
 		if (vo instanceof Response) {
 			response = (Response) vo;
 		}
-		parent.tell(response, getSelf());
+		return response;
 	}
 
 	public Response checkIndexExists() {

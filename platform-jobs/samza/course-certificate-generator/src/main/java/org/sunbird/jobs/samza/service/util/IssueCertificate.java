@@ -6,14 +6,19 @@ import com.datastax.driver.core.TypeTokens;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.reflect.TypeToken;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Request;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
@@ -30,18 +35,18 @@ import java.util.stream.Collectors;
 
 public class IssueCertificate {
 
-    private static final String CERT_SERVICE_URL = Platform.config.hasPath("cert_service.base_url")
-            ? Platform.config.getString("cert_service.base_url") : "http://localhost:9000";
+    private static final String LEARNER_SERVICE_PRIVATE_URL = Platform.config.hasPath("learner_service.base_url")
+            ? Platform.config.getString("learner_service.base_url"): "http://localhost:9000";
     private static final String COURSE_BATCH_TABLE = "course_batch";
     private static final String USER_COURSES_TABLE = "user_courses";
     private static final String ASSESSMENT_AGGREGATOR_TABLE = "assessment_aggregator";
     protected static ObjectMapper mapper = new ObjectMapper();
-    private static final List<String> COLUMNS_WITH_TIMESTAMP = Arrays.asList("completedon", "datetime");
 
     private static final String KEYSPACE = Platform.config.hasPath("courses.keyspace.name")
             ? Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
 
     private static final String topic = Platform.config.getString("task.inputs").replace("kafka.", "");
+    private static final List<String> certFilterKeys = Arrays.asList("enrollment", "assessment", "user");
     private static JobLogger LOGGER = new JobLogger(IssueCertificate.class);
 
     public void issue(Map<String, Object> edata, MessageCollector collector) {
@@ -77,20 +82,81 @@ public class IssueCertificate {
                 if (StringUtils.isNotBlank(criteriaString)) {
                     Map<String, Object> criteria = mapper.readValue(criteriaString, new TypeReference<Map<String, Object>>() {
                     });
-                    List<String> enrolledUsers = getUserFromEnrolmentCriteria((Map<String, Object>) criteria.get("enrollment"), batchId, courseId, userIds);
-                    List<String> usersAssessed = getUersFromAssessmentCriteria((Map<String, Object>) criteria.get("assessment"), batchId, courseId, userIds);
-                    generateCertificatesForEnrollment(enrolledUsers, usersAssessed, batchId, courseId, reIssue, template, collector);
+                    if (MapUtils.isNotEmpty(criteria) && CollectionUtils.isNotEmpty(CollectionUtils.intersection(criteria.keySet(), certFilterKeys))) {
+                        List<String> enrollmentList = getUserFromEnrolmentCriteria((Map<String, Object>) criteria.get("enrollment"), batchId, courseId, userIds);
+                        List<String> assessmentList = getUsersFromAssessmentCriteria((Map<String, Object>) criteria.get("assessment"), batchId, courseId, userIds);
+                        List<String> userList = getUsersFromUserCriteria((Map<String, Object>) criteria.get("user"), new ArrayList<String>() {{
+                            addAll(enrollmentList);
+                            addAll(assessmentList);
+                        }});
+                        List<String> templateFilterKeys = (List<String>) CollectionUtils.intersection(criteria.keySet(), certFilterKeys);
+                        Map<String, List<String>> usersMap = new HashMap<String, List<String>>();
+                        usersMap.put("enrollment", enrollmentList);
+                        usersMap.put("assessment", assessmentList);
+                        usersMap.put("user", userList);
+                        List<String> usersToIssue = templateFilterKeys.stream()
+                                .filter(templateFilterKey -> criteria.containsKey(templateFilterKey))
+                                .map(templateFilterKey -> usersMap.get(templateFilterKey))
+                                .reduce((a, b) -> {
+                                    return (List<String>) CollectionUtils.intersection(a, b).stream().collect(Collectors.toList());
+                                }).orElse(Arrays.asList());
+
+                        generateCertificatesForEnrollment(usersToIssue, batchId, courseId, reIssue, template, collector);
+                    } else {
+                        LOGGER.info("Certificate template has empty/invalid criteria: " + criteriaString);
+                    }
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("Error while fetching user and generatecertificates", e);
+            LOGGER.error("Error while fetching user and generate certificates", e);
         }
     }
 
-    private List<String> getUersFromAssessmentCriteria(Map<String, Object> assessmentCriteria, String batchId, String courseId, List<String> userIds) {
+    private static List<String> getUsersFromUserCriteria(Map<String, Object> criteria, List<String> userIds) throws Exception {
+        if(MapUtils.isEmpty(criteria))
+            return new ArrayList<>();
+        Integer batchSize = 50;
+        String url = LEARNER_SERVICE_PRIVATE_URL + "/private/user/v1/search";
+        List<List<String>> batchList = ListUtils.partition(userIds, batchSize);
+        LOGGER.info("Users as batches: " + batchList);
+        List<String> filteredUsers =  batchList.stream().map(batch -> {
+            try {
+                Request request = new Request();
+                Map<String, Object> filters = new HashMap<String, Object>();
+                filters.putAll(criteria);
+                filters.put("identifier", batch);
+                request.put("filters", filters);
+                request.put("limit", batchSize);
+                String requestBody = mapper.writeValueAsString(request);
+                LOGGER.info("requestBody for user search: " + requestBody);
+                HttpResponse<String> httpResponse = Unirest.post(url).header("Content-Type", "application/json").body(requestBody).asString();
+                if(200 == httpResponse.getStatus()) {
+                    String responseBody = httpResponse.getBody();
+                    Map<String, Object> responseMap = mapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {
+                    });
+                    Map<String, Object> respResult = (Map<String, Object>)  responseMap.getOrDefault("result", new HashMap<String, Object>());
+                    Map<String, Object> response =  (Map<String, Object>)  respResult.getOrDefault("response", new HashMap<String, Object>());
+                    List<Map<String, Object>> users = (List<Map<String, Object>>) response.getOrDefault("content", new ArrayList<Map<String, Object>>());
+                    LOGGER.info("Users fetched from user search: " + users);
+                    return users.stream()
+                            .map(user -> (String) user.getOrDefault("identifier", ""))
+                            .filter(identifier -> StringUtils.isNotBlank(identifier)).collect(Collectors.toList());
+                } else {
+                    LOGGER.error("Search users for given criteria failed to fetch data: "+  httpResponse, null);
+                    return new ArrayList<String>();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).flatMap(List::stream).collect(Collectors.toList());
+        LOGGER.info(" No. of users after applied user criteria: " + filteredUsers.size());
+        return filteredUsers;
+    }
+
+    private List<String> getUsersFromAssessmentCriteria(Map<String, Object> assessmentCriteria, String batchId, String courseId, List<String> userIds) {
         List<String> assessedUsers = new ArrayList<>();
         if(MapUtils.isNotEmpty(assessmentCriteria)) {
-            Map<String, Double> userScores = fetchAssesedUsersFromDB(batchId, courseId);
+            Map<String, Double> userScores = fetchAssessedUsersFromDB(batchId, courseId);
             Map<String, Object> criteria = getAssessmentOperation(assessmentCriteria);
             if(MapUtils.isNotEmpty(userScores)){
                 for(String user: userScores.keySet()) {
@@ -141,7 +207,7 @@ public class IssueCertificate {
         }
     }
 
-    private Map<String, Double> fetchAssesedUsersFromDB(String batchId, String courseId) {
+    private Map<String, Double> fetchAssessedUsersFromDB(String batchId, String courseId) {
         String query = "SELECT user_id, max(total_score) as score, total_max_score FROM " + KEYSPACE +"." + ASSESSMENT_AGGREGATOR_TABLE +
                 " where course_id='" +courseId + "' AND batch_id='" + batchId + "' " +
                 "GROUP BY course_id,batch_id,user_id,content_id ORDER BY batch_id,user_id,content_id;";
@@ -191,11 +257,11 @@ public class IssueCertificate {
         } catch (Exception e) {
             LOGGER.error("Error while fetching users", e);
         }
-
+        LOGGER.info("Users filtered after applying enrollment criteria: " + enrolledUsers.size());
         return enrolledUsers;
     }
 
-    private void generateCertificatesForEnrollment(List<String> enrolledUsers, List<String> usersAssessed, String batchId, String courseId, Boolean reIssue, Map<String, String> template, MessageCollector collector) throws IOException {
+    private void generateCertificatesForEnrollment(List<String> usersToIssue, String batchId, String courseId, Boolean reIssue, Map<String, String> template, MessageCollector collector) throws IOException {
         Map<String, Object> certTemplate = new HashMap<>();
         certTemplate.putAll(template);
         Map<String, Object> issuer = StringUtils.isNotBlank((String)certTemplate.get("issuer"))
@@ -206,19 +272,10 @@ public class IssueCertificate {
         });
         certTemplate.put("issuer", issuer);
         certTemplate.put("signatoryList", signatoryList);
-        List<String> users = new ArrayList<>();
-        if(MapUtils.isNotEmpty((Map<String, Object>) criteria.get("enrollment")) && MapUtils.isNotEmpty((Map<String, Object>) criteria.get("assessment"))){
-            users = (List<String>) CollectionUtils.intersection(enrolledUsers, usersAssessed).stream().collect(Collectors.toList());
 
-        }
-        else if(MapUtils.isNotEmpty((Map<String, Object>) criteria.get("enrollment")) && MapUtils.isEmpty((Map<String, Object>) criteria.get("assessment"))) {
-            users = enrolledUsers;
-        }
-        else{
-            users = usersAssessed;
-        }
-        if(CollectionUtils.isNotEmpty(users)){
-            for(String userId: users){
+        if(CollectionUtils.isNotEmpty(usersToIssue)) {
+            LOGGER.info(template.get("name") + " - " + "certificate will be issuing to : "+ usersToIssue);
+            for(String userId: usersToIssue) {
                 Map<String, Object> event = prepareCertificateEvent(batchId, courseId, userId, reIssue, certTemplate);
                 collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", topic), event));
             }
