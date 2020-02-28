@@ -22,6 +22,7 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
     public void update(Map<String, Object> edata) throws Exception {
         String courseId = (String) edata.get(CourseBatchParams.courseId.name());
         updateBatchCount(courseId);
+        addBatchDetailsToCourse(courseId);
     }
 
     private void updateBatchCount(String courseId) throws Exception{
@@ -55,5 +56,35 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
         contentMap.put("c_" + installation + "_private_batch_count".toLowerCase(), privateBatchCount);
         request.put("content", contentMap);
         systemUpdate(courseId, request);
+    }
+
+    private void addBatchDetailsToCourse(String courseId) throws Exception{
+        List<Map<String,Object>> courseBatchMetaData = new ArrayList<>();
+        Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
+            put("courseid",courseId);
+        }};
+        List<Map<String,Object>> batches = SunbirdCassandraUtil.readAsListOfMap(keyspace,courseBatchTable,dataToSelect);
+        if(CollectionUtils.isNotEmpty(batches)){
+            for(Map<String,Object> batch : batches) {
+                if((Integer)batch.get("status")< 2) {
+                    Map<String, Object> batchDataForCourse= new HashMap<String, Object>(){{
+                        put(CourseBatchParams.batchId.name(),batch.get("batchId"));
+                        put("name",batch.get("name"));
+                        put("status",batch.get("status"));
+                        put("startDate",batch.get("startDate"));
+                        put("endDate",batch.get("endDate"));
+                        put("enrollmentEndDate",batch.get("enrollmentEndDate"));
+                    }};
+                    courseBatchMetaData.add(batchDataForCourse);
+                }
+            }
+        }
+        if(CollectionUtils.isNotEmpty(courseBatchMetaData)){
+            Request request = new Request();
+            Map<String,Object> contentMap = new HashMap<>();
+            contentMap.put("batches",courseBatchMetaData);
+            request.put("content", contentMap);
+            systemUpdate(courseId,request);
+        }
     }
 }
