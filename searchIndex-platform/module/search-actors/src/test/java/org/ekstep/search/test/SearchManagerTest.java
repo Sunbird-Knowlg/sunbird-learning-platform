@@ -14,7 +14,7 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.compositesearch.enums.SearchActorNames;
-import org.ekstep.search.router.SearchRequestRouterPool;
+//import org.ekstep.search.router.SearchRequestRouterPool;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;

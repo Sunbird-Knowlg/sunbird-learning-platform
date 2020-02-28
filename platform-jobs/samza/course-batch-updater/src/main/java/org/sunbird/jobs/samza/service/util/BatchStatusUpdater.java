@@ -38,9 +38,7 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
         String courseId = (String) edata.get(CourseBatchParams.courseId.name());
         int status = (int) edata.get(CourseBatchParams.status.name());
         updateStatusOfBatch(batchId, courseId, status);
-        updateBatchCount(courseId);
     }
-
 
     private void updateBatchCount(String courseId) throws ParseException,Exception {
         //Get number of batches for courseID

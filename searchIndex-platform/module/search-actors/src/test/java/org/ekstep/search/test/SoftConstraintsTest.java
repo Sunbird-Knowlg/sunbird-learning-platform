@@ -15,7 +15,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.search.router.SearchRequestRouterPool;
+//import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.junit.AfterClass;
@@ -32,7 +32,7 @@ public class SoftConstraintsTest extends BaseSearchActorsTest {
 	
 	@BeforeClass
 	public static void beforeTest() throws Exception {
-		SearchRequestRouterPool.init();
+//		SearchRequestRouterPool.init();
 		createCompositeSearchIndex();
 		Thread.sleep(3000);
 	}

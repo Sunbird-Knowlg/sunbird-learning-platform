@@ -29,39 +29,40 @@
         </pluginRepository>
     </pluginRepositories>
     <properties>
-        <play2.version>2.4.6</play2.version>
-        <play2.plugin.version>1.0.0-beta5</play2.plugin.version>
+        <play2.version>2.7.2</play2.version>
+        <play2.plugin.version>1.0.0-rc5</play2.plugin.version>
+        <sbt-compiler.plugin.version>1.0.0</sbt-compiler.plugin.version>
+        <scala.major.version>2.11</scala.major.version>
         <scala.version>2.11.8</scala.version>
     </properties>
     
     <dependencies>
         <dependency>
-        <groupId>com.typesafe</groupId>
-        <artifactId>config</artifactId>
-        <version>1.3.0</version>
-    </dependency>
-        <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play_2.11</artifactId>
+            <artifactId>play_${scala.major.version}</artifactId>
             <version>${play2.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.ekstep</groupId>
-            <artifactId>search-actors</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <type>jar</type>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play-guice_${scala.major.version}</artifactId>
+            <version>${play2.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play-netty-server_2.11</artifactId>
+            <artifactId>filters-helpers_${scala.major.version}</artifactId>
+            <version>${play2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play-logback_${scala.major.version}</artifactId>
             <version>${play2.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play-specs2_2.11</artifactId>
+            <artifactId>play-netty-server_${scala.major.version}</artifactId>
             <version>${play2.version}</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
@@ -69,9 +70,10 @@
             <version>${scala.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.11</artifactId>
-            <version>2.4.8</version>
+            <groupId>org.ekstep</groupId>
+            <artifactId>search-actors</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
         </dependency>
         <!-- required for IntegrationSpec -->
         <dependency>
@@ -79,23 +81,12 @@
             <artifactId>httpclient</artifactId>
             <version>4.5.1</version>
         </dependency>
-        <!-- http://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-slf4j_2.11</artifactId>
-            <version>2.4.6</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>18.0</version>
-		</dependency>
+<!--        &lt;!&ndash; http://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--            <artifactId>jackson-core</artifactId>-->
+<!--            <version>2.6.0</version>-->
+<!--        </dependency>-->
 		<dependency>
 			<groupId>com.google.api-client</groupId>
 			<artifactId>google-api-client</artifactId>
@@ -106,11 +97,6 @@
 					<artifactId>guava-jdk5</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.typesafe.play</groupId>
-			<artifactId>filters-helpers_2.11</artifactId>
-			<version>2.4.6</version>
 		</dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -127,10 +113,10 @@
             </resource>
         </resources>
         <plugins>
-         <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.16</version>
+                <version>2.22.0</version>
                 <configuration>
                     <includes>
                         <include>**/*Spec.java</include>
@@ -143,13 +129,25 @@
                 <artifactId>play2-maven-plugin</artifactId>
                 <version>${play2.plugin.version}</version>
                 <extensions>true</extensions>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.google.code.play2-maven-plugin</groupId>
-                        <artifactId>play2-provider-play24</artifactId>
-                        <version>${play2.plugin.version}</version>
-                    </dependency>
-                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.sbt-compiler-maven-plugin</groupId>
+                <artifactId>sbt-compiler-maven-plugin</artifactId>
+                <version>${sbt-compiler.plugin.version}</version>
+                <configuration>
+                    <scalacOptions>-feature -deprecation -Xfatal-warnings</scalacOptions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.scoverage</groupId>
+                <artifactId>scoverage-maven-plugin</artifactId>
+                <version>${scoverage.plugin.version}</version>
+                <configuration>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                    <aggregate>true</aggregate>
+                    <highlighting>true</highlighting>
+                    <excludedFiles>.*RoutesPrefix.*;.*Routes.*;.*javascript.*</excludedFiles>
+                </configuration>
             </plugin>
         </plugins>
     </build>
