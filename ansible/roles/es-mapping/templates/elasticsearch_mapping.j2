@@ -1,0 +1,12 @@
+#!/bin/bash
+
+
+cd mappings
+#mapping_files=$(ls -l | awk 'NR>1{print $9}' | awk -F"-" '{print $1}' | tr "\n" " ")
+mapping_files=$(ls -l | awk 'NR>1{print $9}' | awk -F"." '{print $1}' | tr "\n" " " | sed 's/-mapping//g')
+
+for file in ${mapping_files[@]}
+do
+        curl  -X PUT http://localhost:9200/${file}/_mapping/_doc -H 'Content-Type: application/json' -d @${file}.json
+done
+
