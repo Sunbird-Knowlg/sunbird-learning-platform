@@ -7,12 +7,16 @@ import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.util.ArrayMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Response;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.kafka.KafkaClient;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.sync.tool.util.CassandraColumns;
 import org.springframework.stereotype.Component;
@@ -44,7 +48,12 @@ public class BatchEnrolmentSyncManager {
     private static final String KAFKA_TOPIC = Platform.config.hasPath("courses.topic")? Platform.config.getString("courses.topic"): "local.coursebatch.job.request";
 
     private static final String keyspace = Platform.config.hasPath("courses.keyspace.name") ? Platform.config.getString("courses.keyspace.name"): "sunbird_courses";
-    public void sync(String objectType, String offset, String limit, String resetProgress, String[] batchIds) throws Exception {
+    
+    public void sync(String objectType, String offset, String limit, String resetProgress, String[] batchIds, String[] courseIds) throws Exception {
+        if(objectType.equalsIgnoreCase("batch-detail-update")){
+            updateBatchDetailsForCourses(courseIds, objectType);
+        }
+        
         String index = esIndexObjecTypeMap.get(objectType);
         ElasticSearchUtil.initialiseESClient(index, Platform.config.getString("search.lms_es_conn_info"));
 
@@ -195,5 +204,63 @@ public class BatchEnrolmentSyncManager {
                 .append(String.format(" %d/%d, ETA: %s", current, total, etaHms));
 
         System.out.print(string);
+    }
+
+    private void updateBatchDetailsForCourses(String[] courseIds, String objectType) {
+        List<Row> rows = readBatch(courseIds);
+        if(!rows.isEmpty()){
+            Map<String, List<Map<String, Object>>> courseMetadata = new HashMap<>();
+            rows.stream().filter(row -> 2 > row.getInt("status")).forEach(row -> {
+                String courseId = row.getString("courseid");
+                Map<String, Object> batchDetails = new HashMap<String, Object>() {{
+                    put("batchId", row.getString("batchid"));
+                    put("name", row.getString("name"));
+                    put("status", row.getString("status"));
+                    put("startDate", row.getString("startdate"));
+                    put("endDate", row.getString("enddate"));
+                    put("enrollmentEndDate", row.getString("enrollmentenddate"));
+                }};
+                if (null != courseMetadata.get(courseId)) {
+                    ((List<Map<String, Object>>) courseMetadata.get(courseId)).add(batchDetails);
+                } else {
+                    List<Map<String, Object>> batchDetailList = new ArrayList<>();
+                    batchDetailList.add(batchDetails);
+                    courseMetadata.put(courseId, batchDetailList);
+                }
+            });
+            if(MapUtils.isNotEmpty(courseMetadata)){
+                ControllerUtil util = new ControllerUtil();
+                Response response = util.getDataNodes("domain", new ArrayList<String>(courseMetadata.keySet()));
+                if(null != response){
+                    List<Node> nodeList = (List<Node>) response.get("node_list");
+                    nodeList.stream().forEach(node -> {
+                        node.getMetadata().put("batches", courseMetadata.get(node.getIdentifier()));
+                        Response updateResponse = util.updateNodeWithoutValidation(node);
+                        if(util.checkError(updateResponse)){
+                            System.out.println("Update failed for courseId: " + node.getIdentifier() + " :: " 
+                                    + updateResponse.getParams().getErr() + " :: " + updateResponse.getParams().getErrmsg() + " :: " + updateResponse.getResult());
+                        }
+                    });
+                } else {
+                    System.out.println("Unable to fetch courses for update");
+                }
+            }else {
+                System.out.println("No on-going course batches found");
+            }
+        } else {
+            System.out.println("No data found to be updated");
+        }
+    }
+
+    private List<Row> readBatch(String[] courseIds) {
+        Session session = CassandraConnector.getSession("platform-courses");
+        Select.Where selectQuery = null;
+        if(null != courseIds && courseIds.length > 0){
+            selectQuery = QueryBuilder.select().json().all().from(keyspace, "course-batch").where(QueryBuilder.in("courseid", courseIds));
+        } else{
+            selectQuery = QueryBuilder.select().json().all().from(keyspace, "course-batch").where();
+        }
+        ResultSet results = session.execute(selectQuery);
+        return results.all();
     }
 }
