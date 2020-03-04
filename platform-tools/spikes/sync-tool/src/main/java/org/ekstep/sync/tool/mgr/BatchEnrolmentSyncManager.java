@@ -52,32 +52,31 @@ public class BatchEnrolmentSyncManager {
     public void sync(String objectType, String offset, String limit, String resetProgress, String[] batchIds, String[] courseIds) throws Exception {
         if(objectType.equalsIgnoreCase("batch-detail-update")){
             updateBatchDetailsForCourses(courseIds, objectType);
-        }
-        
-        String index = esIndexObjecTypeMap.get(objectType);
-        ElasticSearchUtil.initialiseESClient(index, Platform.config.getString("search.lms_es_conn_info"));
+        } else {
+            String index = esIndexObjecTypeMap.get(objectType);
+            ElasticSearchUtil.initialiseESClient(index, Platform.config.getString("search.lms_es_conn_info"));
 
-        //FetchData from cassandra
-        int lmt = (StringUtils.isNotBlank(limit)) ? Integer.parseInt(limit) : 0;
-        List<Row> rows = read(tableObjecTypeMap.get(objectType), lmt, batchIds);
-        System.out.println("Number of rows to be synced : " + rows.size());
-        //Prepare ES Docs
-        List<String> docids = new ArrayList<>();
-        if(StringUtils.equalsIgnoreCase("course-batch", objectType))
-            docids = Arrays.asList("batchId");
-        if(StringUtils.equalsIgnoreCase("user-courses", objectType)){
-            docids = Arrays.asList("batchId", "userId");
-        }
+            //FetchData from cassandra
+            int lmt = (StringUtils.isNotBlank(limit)) ? Integer.parseInt(limit) : 0;
+            List<Row> rows = read(tableObjecTypeMap.get(objectType), lmt, batchIds);
+            System.out.println("Number of rows to be synced : " + rows.size());
+            //Prepare ES Docs
+            List<String> docids = new ArrayList<>();
+            if(StringUtils.equalsIgnoreCase("course-batch", objectType))
+                docids = Arrays.asList("batchId");
+            if(StringUtils.equalsIgnoreCase("user-courses", objectType)){
+                docids = Arrays.asList("batchId", "userId");
+            }
 
-        pushDocsToES(rows, docids, index);
-        //TODO: If resetProgress Push the events to kafka
-        if(StringUtils.equalsIgnoreCase("user-courses", objectType) && Boolean.valueOf(resetProgress)){
-            System.out.println("-----------------------------------------");
-            System.out.println("Pushing the events to kafka");
-            pushEventsToKafka(rows);
-            System.out.println("-----------------------------------------");
+            pushDocsToES(rows, docids, index);
+            //TODO: If resetProgress Push the events to kafka
+            if(StringUtils.equalsIgnoreCase("user-courses", objectType) && Boolean.valueOf(resetProgress)){
+                System.out.println("-----------------------------------------");
+                System.out.println("Pushing the events to kafka");
+                pushEventsToKafka(rows);
+                System.out.println("-----------------------------------------");
+            }
         }
-
     }
 
     private void pushEventsToKafka(List<Row> rows) throws Exception {
@@ -208,6 +207,8 @@ public class BatchEnrolmentSyncManager {
 
     private void updateBatchDetailsForCourses(String[] courseIds, String objectType) {
         List<Row> rows = readBatch(courseIds);
+        System.out.println("Rows :: " + rows);
+        
         if(!rows.isEmpty()){
             Map<String, List<Map<String, Object>>> courseMetadata = new HashMap<>();
             rows.stream().filter(row -> 2 > row.getInt("status")).forEach(row -> {
@@ -215,10 +216,12 @@ public class BatchEnrolmentSyncManager {
                 Map<String, Object> batchDetails = new HashMap<String, Object>() {{
                     put("batchId", row.getString("batchid"));
                     put("name", row.getString("name"));
-                    put("status", row.getString("status"));
+                    put("status", row.getInt("status"));
                     put("startDate", row.getString("startdate"));
                     put("endDate", row.getString("enddate"));
                     put("enrollmentEndDate", row.getString("enrollmentenddate"));
+                    put("enrollmentType", row.getString("enrollmenttype"));
+                    put("createdFor", row.getList("createdfor", String.class));
                 }};
                 if (null != courseMetadata.get(courseId)) {
                     ((List<Map<String, Object>>) courseMetadata.get(courseId)).add(batchDetails);
@@ -233,14 +236,18 @@ public class BatchEnrolmentSyncManager {
                 Response response = util.getDataNodes("domain", new ArrayList<String>(courseMetadata.keySet()));
                 if(null != response){
                     List<Node> nodeList = (List<Node>) response.get("node_list");
-                    nodeList.stream().forEach(node -> {
-                        node.getMetadata().put("batches", courseMetadata.get(node.getIdentifier()));
-                        Response updateResponse = util.updateNodeWithoutValidation(node);
-                        if(util.checkError(updateResponse)){
-                            System.out.println("Update failed for courseId: " + node.getIdentifier() + " :: " 
-                                    + updateResponse.getParams().getErr() + " :: " + updateResponse.getParams().getErrmsg() + " :: " + updateResponse.getResult());
-                        }
-                    });
+                    if(CollectionUtils.isNotEmpty(nodeList)){
+                        nodeList.stream().forEach(node -> {
+                            node.getMetadata().put("batches", courseMetadata.get(node.getIdentifier()));
+                            Response updateResponse = util.updateNodeWithoutValidation(node);
+                            if(util.checkError(updateResponse)){
+                                System.out.println("Update failed for courseId: " + node.getIdentifier() + " :: "
+                                        + updateResponse.getParams().getErr() + " :: " + updateResponse.getParams().getErrmsg() + " :: " + updateResponse.getResult());
+                            }
+                        });
+                    } else {
+                        System.out.println("No courses found");
+                    }
                 } else {
                     System.out.println("Unable to fetch courses for update");
                 }
@@ -252,13 +259,13 @@ public class BatchEnrolmentSyncManager {
         }
     }
 
-    private List<Row> readBatch(String[] courseIds) {
+    public List<Row> readBatch(String[] courseIds) {
         Session session = CassandraConnector.getSession("platform-courses");
         Select.Where selectQuery = null;
         if(null != courseIds && courseIds.length > 0){
-            selectQuery = QueryBuilder.select().json().all().from(keyspace, "course-batch").where(QueryBuilder.in("courseid", courseIds));
+            selectQuery = QueryBuilder.select().all().from(keyspace, "course_batch").where(QueryBuilder.in("courseid", courseIds));
         } else{
-            selectQuery = QueryBuilder.select().json().all().from(keyspace, "course-batch").where();
+            selectQuery = QueryBuilder.select().all().from(keyspace, "course_batch").where();
         }
         ResultSet results = session.execute(selectQuery);
         return results.all();
