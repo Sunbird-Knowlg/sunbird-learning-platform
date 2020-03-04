@@ -199,6 +199,37 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.7.9</version>
+				<configuration>
+					<excludes>
+						<exclude>**/common/**</exclude>
+						<exclude>**/dto/**</exclude>
+						<exclude>**/enums/**</exclude>
+						<exclude>**/pipeline/**</exclude>
+						<exclude>**/servlet/**</exclude>
+						<exclude>**/interceptor/**</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>default-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 </project>
