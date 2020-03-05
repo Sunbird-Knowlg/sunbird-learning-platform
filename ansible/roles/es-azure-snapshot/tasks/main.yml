@@ -1,4 +1,10 @@
 ---
+- name: create a backup container if not exists
+  command: az storage container create  --name elasticsearch-snapshots --public-access blob
+  environment:
+    AZURE_STORAGE_ACCOUNT: "{{sunbird_management_storage_account_name}}"
+    AZURE_STORAGE_KEY: "{{sunbird_management_storage_account_key}}"
+
 - name: Create azure snapshot
   uri:
     url: "http://{{ es_snapshot_host }}:9200/_snapshot/azurebackup"
