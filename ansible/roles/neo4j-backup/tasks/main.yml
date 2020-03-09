@@ -1,3 +1,6 @@
+- name: clean up backup dir after upload
+  file: path={{learner_user_home}}/backup state=absent
+
 - name: delete learning_graph or language_graph
   #become: yes
   file: path={{learner_user_home}}/{{graph_machine}} state=absent
