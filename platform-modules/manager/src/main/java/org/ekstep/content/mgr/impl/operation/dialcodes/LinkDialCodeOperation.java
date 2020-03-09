@@ -276,10 +276,15 @@ public class LinkDialCodeOperation extends BaseContentManager {
             requestMap.remove(rootNodeId);
         }
 
-        Response hierarchyResponse = getCollectionHierarchy(getImageId(rootNodeId));
+        String rootHierarchyId = getImageId(rootNodeId);
+        Response hierarchyResponse = getCollectionHierarchy(rootHierarchyId);
         if(checkError(hierarchyResponse)){
-            throw new ServerException(DialCodeEnum.ERR_DIALCODE_LINK.name(),
-                    "Unable to fetch Hierarchy for Root Node: [" + rootNodeId + "]");
+        	rootHierarchyId = rootNodeId;
+        	hierarchyResponse = getCollectionHierarchy(rootHierarchyId);
+        	if(checkError(hierarchyResponse)) {
+        		throw new ServerException(DialCodeEnum.ERR_DIALCODE_LINK.name(),
+                        "Unable to fetch Hierarchy for Root Node: [" + rootNodeId + "]");
+        	}
         }
         Map<String, Object> rootHierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
         List<Map<String, Object>> rootChildren = (List<Map<String, Object>>) rootHierarchy.get("children");
@@ -293,7 +298,7 @@ public class LinkDialCodeOperation extends BaseContentManager {
         }
 
         //update cassandra
-        Response response = updateCollectionHierarchy(getImageId(rootNodeId),rootHierarchy);
+        Response response = updateCollectionHierarchy(rootHierarchyId,rootHierarchy);
         if (!checkError(response))
             resultMap.get("updateSuccessList").addAll(requestMap.keySet());
         else
