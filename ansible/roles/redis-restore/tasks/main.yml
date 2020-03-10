@@ -11,11 +11,11 @@
 - name: Copy rdb file to data dir
   shell: cp /tmp/{{ redis_restore_file_name }} {{ learning_user_home }}/redis-stable/dump.rdb
 
-
-- name: Start redis service
-  shell: nohup src/redis-server {{learning_user_home}}/redis-stable/redis.conf --protected-mode no &
-  args:
-    chdir: "{{learning_user_home}}/redis-stable/"
+- name: start redis
+  become: yes
+  systemd:
+    name: redis
+    state: restarted
 
 - name: Keyspace info
   shell: "echo info keyspace | ./src/redis-cli"
