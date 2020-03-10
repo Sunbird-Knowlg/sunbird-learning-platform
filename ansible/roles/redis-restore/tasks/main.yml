@@ -5,8 +5,11 @@
   args:
     chdir: /tmp/ 
 
-- name: Ensure redis process is stopped
-  shell: sh {{ learning_user_home }}/stop_script.sh
+- name: stop redis to take backup 
+  become: yes
+  systemd:
+    name: redis
+    state: stopped
 
 - name: Copy rdb file to data dir
   shell: cp /tmp/{{ redis_restore_file_name }} {{ learning_user_home }}/redis-stable/dump.rdb
@@ -15,7 +18,7 @@
   become: yes
   systemd:
     name: redis
-    state: restarted
+    state: started
 
 - name: Keyspace info
   shell: "echo info keyspace | ./src/redis-cli"
