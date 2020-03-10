@@ -1,5 +1,4 @@
 ---
-
 - name: redis restore
   hosts: redisall
   become: yes
