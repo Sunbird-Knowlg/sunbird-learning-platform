@@ -19,6 +19,7 @@ import org.ekstep.kafka.KafkaClient;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.sync.tool.util.CassandraColumns;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -34,6 +35,9 @@ import java.util.stream.Collectors;
 @Component
 public class BatchEnrolmentSyncManager {
 
+    @Autowired
+    private Neo4jESSyncManager neo4jESSyncManager;
+    
     private static ObjectMapper mapper = new ObjectMapper();
     private static int batchSize = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size"): 50;
     Map<String, String> esIndexObjecTypeMap = new HashMap<String, String>() {{
@@ -205,7 +209,7 @@ public class BatchEnrolmentSyncManager {
         System.out.print(string);
     }
 
-    private void updateBatchDetailsForCourses(String[] courseIds, String objectType) {
+    private void updateBatchDetailsForCourses(String[] courseIds, String objectType) throws Exception {
         List<Row> rows = readBatch(courseIds);
         System.out.println("Rows :: " + rows);
         
@@ -245,6 +249,9 @@ public class BatchEnrolmentSyncManager {
                                         + updateResponse.getParams().getErr() + " :: " + updateResponse.getParams().getErrmsg() + " :: " + updateResponse.getResult());
                             }
                         });
+                        List<String> ids = nodeList.stream().map(node -> node.getIdentifier()).collect(Collectors.toList());
+                        System.out.println("Identifiers which are updated are: " + ids);
+                        neo4jESSyncManager.syncByIds("domain", ids);
                     } else {
                         System.out.println("No courses found");
                     }
