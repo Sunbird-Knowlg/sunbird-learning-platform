@@ -6,6 +6,7 @@ neo4j_home: #"{{learner_user_home}}/{{neo4j_dir}}/neo4j-file-version"
 graphevent_kafka_url: "{{groups['processing-cluster-zookeepers']|join(':9092,')}}:9092"
 graphevent_kafka_topic_id: "{{env}}.learning.graph.events"
 backend_event_topic_id: "{{env}}.telemetry.backend"
+lp_es_ip_port: "http://{{ groups['composite-search-cluster'][0] }}:9200"
 
 zip_file: learning-graph-extension-1.0.jar #learning-graphextension jar file
 custom_procs_file: custom-procedures-1.0.jar # custom-procedures jar file
