@@ -33,6 +33,8 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.NestedSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
@@ -249,9 +251,15 @@ public class SearchProcessor {
 				sorting.put("name", "asc");
 				sorting.put("lastUpdatedOn", "desc");
 			}
-			for (String key : sorting.keySet())
-				searchSourceBuilder.sort(key + CompositeSearchConstants.RAW_FIELD_EXTENSION,
-						getSortOrder(sorting.get(key)));
+			for (String key : sorting.keySet()){
+				if(key.contains(".")){
+					String nestedPath = key.split("\\.")[0];
+					searchSourceBuilder.sort(SortBuilders.fieldSort(key + CompositeSearchConstants.RAW_FIELD_EXTENSION).order(getSortOrder(sorting.get(key))).setNestedSort(new NestedSortBuilder(nestedPath)));
+				} else{
+					searchSourceBuilder.sort(key + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+							getSortOrder(sorting.get(key)));
+				}
+			}
 		}
 		setAggregations(groupByFinalList, searchSourceBuilder);
 		setAggregations(searchSourceBuilder, searchDTO.getAggregations());
