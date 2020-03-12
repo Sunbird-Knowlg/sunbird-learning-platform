@@ -1110,7 +1110,8 @@
                         "ExplanationResource",
 						"ExperientialResource",
 						"ConceptMap",
-						"SelfAssess"
+						"SelfAssess",
+						"PracticeResource"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -2960,8 +2961,8 @@
 					"objectTypes": [
 						"ItemSet"
 					],
-					"title": "item_sets",
-					"description": "Assessment items associated with this content",
+					"title": "itemSets",
+					"description": "Item Sets associated with this content",
 					"required": false,
 					"renderingHints": "{ 'order': 26 }"
 				},

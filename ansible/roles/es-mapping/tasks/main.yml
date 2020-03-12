@@ -1,0 +1,63 @@
+- name: ensure templates and mapping dir exists
+  file: path="{{ item }}" state=directory
+  with_items:
+    - "{{ templates_dir }}"
+    - "{{ mapping_dir }}"
+  tags: [ mapping, template ]
+
+- name: Copy templates file
+  copy: src="files/templates/{{ item }}.json" dest="{{ templates_dir }}"
+  with_items: "{{ file_name.split(',')|list }}"
+  when: ansible_tag == 'run_single_index_and_mapping'
+  tags: template
+
+- name: Copy mapping file
+  copy: src="files/mappings/{{ item }}.json" dest="{{ mapping_dir }}"
+  with_items: "{{ file_name.split(',')|list }}"
+  when: ansible_tag == 'run_single_index_and_mapping'
+  tags: mapping
+
+- name: Copy template file
+  copy: src="files/templates/" dest="{{ templates_dir }}"
+  when: ansible_tag == 'run_all_index_and_mapping'
+
+- name: Copy mapping file
+  copy: src="files/mappings/" dest="{{ mapping_dir }}"
+  when: ansible_tag == 'run_all_index_and_mapping'
+
+- name: copy es-mapping script
+  template:
+    src: elasticsearch_mapping.j2
+    dest: /tmp/elasticsearch_mapping.sh
+    mode: 0744
+  tags: mapping
+  
+- name: copy es-template script
+  template:
+    src: elasticsearch_template.j2
+    dest: /tmp/elasticsearch_template.sh
+    mode: 0744
+  tags: template
+
+- name: running the script to create mappings
+  command: /tmp/elasticsearch_mapping.sh
+  register: out
+  tags: mapping
+
+- debug: var=out.stdout_lines
+  tags: mapping
+
+- name: running the script to create template
+  command: /tmp/elasticsearch_template.sh
+  register: out
+  tags: template
+   
+- debug: var=out.stdout_lines
+  tags: template
+
+- name: remove templates and mapping dir 
+  file: path="{{ item }}" state=absent
+  with_items:
+    - "{{ templates_dir }}"
+    - "{{ mapping_dir }}"
+  tags: [ mapping, template ]

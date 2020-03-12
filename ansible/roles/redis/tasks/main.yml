@@ -2,44 +2,42 @@
 # tasks file for redis
 - name: download redis zipfile
   become: yes
-  become_user: "{{learner_user}}"
-  get_url: url={{redis_tar_ball}} dest={{learner_user_home}}/redis-stable.tar.gz timeout=50 force=no owner={{learner_user}}
+  become_user: "{{ learner_user }}"
+  get_url: url={{ redis_tar_ball }} dest={{ learner_user_home }}/redis-stable.tar.gz timeout=50 force=no owner={{ learner_user }}
 
-- name: unzip 
+- name: unzip
   become: yes
-  become_user: "{{learner_user}}"
-  unarchive: src={{learner_user_home}}/redis-stable.tar.gz dest={{learner_user_home}} copy=no group={{learner_user}} owner={{learner_user}} creates={{ redis_home }}
+  become_user: "{{ learner_user }}"
+  unarchive: src={{ learner_user_home }}/redis-stable.tar.gz dest={{ learner_user_home }} copy=no group={{ learner_user }} owner={{ learner_user }} creates={{ redis_home }}
 
 - name: Change ownership of redis installation
   become: yes
-  file: path={{ redis_home }} owner={{learner_user}} group={{learner_user}} state=directory recurse=yes
+  file: path={{ redis_home }} owner={{ learner_user }} group={{ learner_user }} state=directory recurse=yes
 
 - name: redis conf
   become: yes
-  template: src=redis.conf.j2 dest={{learner_user_home}}/redis-stable/redis.conf
-  
+  template: src=redis.conf.j2 dest={{ learner_user_home }}/redis-stable/redis.conf
 
 - name: Go to the folder and run make
   become: yes
-  become_user: "{{learner_user}}"
+  become_user: "{{ learner_user }}"
   command: chdir={{ redis_home }} make
-  
-- name: copy template
+
+- name: copy systemd script template
   become: yes
-  become_user: "{{learner_user}}"
-  template: src=stop_script.j2 dest={{ learner_user_home }}/stop_script.sh  group={{learner_user}} owner={{learner_user}} mode=0775
-  
-- name: run script
+  template:
+    src: systemd.j2
+    dest: /etc/systemd/system/redis.service
+    mode: 0755
+
+- name: enable redis systemd service
   become: yes
-  become_user: "{{learner_user}}"
-  shell: sh {{ learner_user_home }}/stop_script.sh
-  
+  systemd:
+    name: redis
+    enabled: yes
+
 - name: start redis
   become: yes
-  become_user: "{{learner_user}}"
-  shell: nohup src/redis-server {{learner_user_home}}/redis-stable/redis.conf --protected-mode no &
-  args:
-    chdir: "{{learner_user_home}}/redis-stable/"
-  async: 60
-  poll: 60
-  
+  systemd:
+    name: redis
+    state: restarted

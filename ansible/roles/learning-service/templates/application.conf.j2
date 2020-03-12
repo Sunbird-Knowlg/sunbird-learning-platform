@@ -121,6 +121,8 @@ cloud_storage.artefact.folder = "artifact"
 cloud_storage.bundle.folder = "bundle"
 cloud_storage.media.folder = "media"
 cloud_storage.ecar.folder = "ecar_files"
+cloud_storage.itemset.folder = "itemset"
+
 cloud_storage.upload.url.ttl = 600
 
 
@@ -266,10 +268,6 @@ compositesearch.index.name="{{ compositesearch_index_name }}"
 # Consistency Level for Multi Node Cassandra cluster
 cassandra.lp.consistency.level=QUORUM
 
-# Content Tagging Config 
-content.tagging.backward_enable=true
-content.tagging.property="subject,medium"
-
 # Redis Cache Configuration
 content.cache.ttl=86400
 content.cache.read=true
@@ -283,7 +281,22 @@ framework.cache.read=true
 content.license="CC BY 4.0"
 
 
+
+{% if offline_kp is defined %}
+{#
+This block is only needed in case of 3node installation
+Where kafka and samza are absent
+In 3node installation offline_kp variable will be defined and set to true
+Normal installation wont consider this variable
+#}
 #Condition to enable publish locally
 content.publish_task.enabled=true
 kafka.topic.send.enable=false
 content.asset_enrichment.enabled=true
+
+{% endif %}
+
+# Content Tagging Config
+content.tagging.backward_enable=true
+content.tagging.property="subject,medium"
+
