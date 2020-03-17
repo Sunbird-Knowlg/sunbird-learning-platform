@@ -16,6 +16,7 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
+import org.ekstep.content.operation.finalizer.AssetEnrichmentFinalizer;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.graph.dac.model.Node;
@@ -45,6 +46,8 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	private static String pdataId = "org.ekstep.platform";
 	private static String pdataVersion = "1.0";
 	private static String action = "assetenrichment";
+	private boolean enableOfflinePublish =  Platform.config.hasPath("content.asset_enrichment.enabled")
+			? Platform.config.getBoolean("content.asset_enrichment.enabled") : false;
 	/*
 	 * (non-Javadoc)
 	 *
@@ -79,12 +82,15 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 					StringUtils.equalsIgnoreCase(node.getMetadata().get("mediaType").toString(), "video")) {
 				node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
 				response = updateContentNode(contentId, node, urlArray[1]);
-				if (!checkError(response)) {
-					pushInstructionEvent(node, contentId);
-				}else {
+				if (checkError(response)) {
 					throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
-							"Error occured during content Upload");
+							"Error occured during content Upload  :: " + response.getParams().getErrmsg() + " :: " + response.getResult());
 				}
+				if (enableOfflinePublish) {
+					TelemetryManager.info("Offline Asset Enrichment has started" + contentId);
+					new AssetEnrichmentFinalizer().enrichAssets(node, uploadFile);
+				} else
+					pushInstructionEvent(node, contentId);
 			} else {
 				node.getMetadata().put(ContentAPIParams.status.name(), "Live");
 				response = updateContentNode(contentId, node, urlArray[1]);
