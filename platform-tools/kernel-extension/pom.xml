@@ -9,11 +9,29 @@
     <packaging>pom</packaging>
     <name>EkStep Neo4j Kernel Extensions</name>
 
-	<modules>
-		<module>transaction-event-handler</module>
-		<module>learning-graph-extension</module>
-		<module>custom-procedures</module>
-	</modules>
+	<profiles>
+		<profile>
+			<id>kernel-extension</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>transaction-event-handler</module>
+				<module>learning-graph-extension</module>
+				<module>custom-procedures</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>offline-kp</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<modules>
+				<module>learning-graph-extension-offline</module>
+				<module>custom-procedures</module>
+			</modules>
+		</profile>
+	</profiles>
 
 	<dependencies>
 
