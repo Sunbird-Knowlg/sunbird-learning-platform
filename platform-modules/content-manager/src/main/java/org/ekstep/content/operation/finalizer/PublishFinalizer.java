@@ -178,20 +178,12 @@ public class PublishFinalizer extends BaseFinalizer {
 		File packageFile=null;
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		List<String> unitNodes = null;
-		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
-
+		
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
 		boolean isContentShallowCopy = false;
-		try {
-			Map<String, Object> nodeMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-			isContentShallowCopy = MapUtils.isNotEmpty((Map<String, Object>)nodeMap.get("originData")) && 
-					StringUtils.isNoneBlank((String)((Map<String, Object>)nodeMap.get("originData")).get("copyType")) &&
-							StringUtils.equalsIgnoreCase((String)((Map<String, Object>)nodeMap.get("originData")).get("copyType"), "shallow") ? true : false;
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
+		isContentShallowCopy = isContentShallowCopy(node);
 		
 		RedisStoreUtil.delete(contentId);
 		RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
@@ -298,10 +290,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		List<Map<String, Object>> children = null;
 		if(isContentShallowCopy) {
 			collectionHierarchy = getHierarchy((String)((Map<String, Object>)node.getMetadata()).get("origin"), false);
-			if(MapUtils.isNotEmpty(collectionHierarchy)) {
-				children = (List<Map<String,Object>>)collectionHierarchy.get("children");
-				updateParent(children, node);
-			}
+			children = updateParent(node, collectionHierarchy);
 		}else {
 			collectionHierarchy = getHierarchy(node.getIdentifier(), true);
 			TelemetryManager.log("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
@@ -385,11 +374,24 @@ public class PublishFinalizer extends BaseFinalizer {
 		return response;
 	}
 	
-	private void updateParent(List<Map<String, Object>> children, Node node) {
-		if (CollectionUtils.isNotEmpty(children)) 
-			children.forEach(child -> child.put(ContentWorkflowPipelineParams.parent.name(), node.getIdentifier()));
+	protected boolean isContentShallowCopy(Node node) {
+		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
+		Map<String, Object> nodeMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+		return MapUtils.isNotEmpty((Map<String, Object>)nodeMap.get("originData")) && 
+				StringUtils.isNoneBlank((String)((Map<String, Object>)nodeMap.get("originData")).get("copyType")) &&
+						StringUtils.equalsIgnoreCase((String)((Map<String, Object>)nodeMap.get("originData")).get("copyType"), "shallow") ? true : false;
 	}
-
+	
+	protected List<Map<String, Object>> updateParent(Node node, Map<String, Object> collectionHierarchy) {
+		List<Map<String, Object>> children = null;
+		if(MapUtils.isNotEmpty(collectionHierarchy)) {
+			children = (List<Map<String,Object>>)collectionHierarchy.get("children");
+			if (CollectionUtils.isNotEmpty(children)) 
+				children.forEach(child -> child.put(ContentWorkflowPipelineParams.parent.name(), node.getIdentifier()));
+		}
+		return children;
+	}
+	
 	private void cleanUnitsInRedis(List<String> unitNodes) {
 		if(CollectionUtils.isNotEmpty(unitNodes)) {
 			String[] unitsIds = unitNodes.stream().map(id -> (COLLECTION_CACHE_KEY_PREFIX + id)).collect(Collectors.toList()).toArray(new String[unitNodes.size()]);
