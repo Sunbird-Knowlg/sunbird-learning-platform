@@ -210,7 +210,7 @@ public class PublishFinalizerTest extends GraphEngineTestSetup {
 		Assert.assertFalse(publishFinalizer.isContentShallowCopy(contentNode));
 	}
 	
-	@Test
+	/*@Test
 	public void testupdateParent() throws Exception{
 		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
 		
@@ -228,5 +228,5 @@ public class PublishFinalizerTest extends GraphEngineTestSetup {
 		children.forEach(child -> Assert.assertTrue(StringUtils.equalsIgnoreCase((String)child.get("parent"), "do_11292666508456755211")));
 		
 		
-	}
+	}*/
 }
