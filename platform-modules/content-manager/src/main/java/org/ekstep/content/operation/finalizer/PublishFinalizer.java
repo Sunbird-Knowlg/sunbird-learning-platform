@@ -286,15 +286,12 @@ public class PublishFinalizer extends BaseFinalizer {
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 		}
 		
-		Map<String,Object> collectionHierarchy = null;
-		List<Map<String, Object>> children = null;
-		
-		collectionHierarchy = isContentShallowCopy ? 
+		Map<String,Object> collectionHierarchy = isContentShallowCopy ? 
 				getHierarchy((String)((Map<String, Object>)node.getMetadata()).get("origin"), false) :
 					getHierarchy(node.getIdentifier(), true);
 		TelemetryManager.log("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
 		
-		
+		List<Map<String, Object>> children = null;
 		if(MapUtils.isNotEmpty(collectionHierarchy)) {
 			children = (List<Map<String,Object>>)collectionHierarchy.get("children");
 			if(!isContentShallowCopy) {
