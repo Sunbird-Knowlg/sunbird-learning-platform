@@ -67,6 +67,33 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.neo4j:*</exclude>
+                                    <exclude>org.apache.lucene:*</exclude>
+                                    <exclude>org.scala-lang:*</exclude>
+                                    <exclude>org.ow2.asm:*</exclude>
+                                    <exclude>org.parboiled:*</exclude>
+                                    <exclude>net.sf.opencsv:*</exclude>
+                                    <exclude>com.googlecode.concurrentlinkedhashmap:*</exclude>
+                                    <exclude>io.netty:*</exclude>
+                                </excludes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
