@@ -1,16 +1,14 @@
 package org.ekstep.content.operation.finalizer;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertToGraphNode;
-import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
@@ -27,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.parboiled.common.StringUtils;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -168,4 +167,66 @@ public class PublishFinalizerTest extends GraphEngineTestSetup {
 		Map<String, Object> response = (Map<String, Object>)method.invoke(publishFinalizer, "do_11292666508456755211", true);
 		Assert.assertNotNull(response);
 	}
+	
+	@Test
+	public void testIsContentShallowCopyShallow() throws Exception{
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		
+		String contentNodeString = "{\"identifier\":\"do_11292666508456755211\",\"origin\":\"abc\",\"originData\":{\"copyType\":\"shallow\"}, \"objectType\":\"Content\",\"code\":\"Test_PDF\",\"channel\":\"channel-1\",\"mimeType\":\"application/pdf\",\"versionKey\":\"1578381263182\",\"name\":\"Test_PDF\",\"status\":\"Live\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
+		Node contentNode = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
+		Assert.assertTrue(publishFinalizer.isContentShallowCopy(contentNode));
+	}
+	
+	@Test
+	public void testIsContentShallowCopyDeep() throws Exception{
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		
+		String contentNodeString = "{\"identifier\":\"do_11292666508456755211\",\"origin\":\"abc\",\"originData\":{\"copyType\":\"deep\"}, \"objectType\":\"Content\",\"code\":\"Test_PDF\",\"channel\":\"channel-1\",\"mimeType\":\"application/pdf\",\"versionKey\":\"1578381263182\",\"name\":\"Test_PDF\",\"status\":\"Live\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
+		Node contentNode = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
+		Assert.assertFalse(publishFinalizer.isContentShallowCopy(contentNode));
+	}
+	@Test
+	public void testIsContentShallowCopyNoCopyType() throws Exception{
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		
+		String contentNodeString = "{\"identifier\":\"do_11292666508456755211\",\"origin\":\"abc\",\"originData\":{}, \"objectType\":\"Content\",\"code\":\"Test_PDF\",\"channel\":\"channel-1\",\"mimeType\":\"application/pdf\",\"versionKey\":\"1578381263182\",\"name\":\"Test_PDF\",\"status\":\"Live\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
+		Node contentNode = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
+		Assert.assertFalse(publishFinalizer.isContentShallowCopy(contentNode));
+	}
+	@Test
+	public void testIsContentShallowCopyNoOriginData() throws Exception{
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		
+		String contentNodeString = "{\"identifier\":\"do_11292666508456755211\",\"origin\":\"abc\", \"objectType\":\"Content\",\"code\":\"Test_PDF\",\"channel\":\"channel-1\",\"mimeType\":\"application/pdf\",\"versionKey\":\"1578381263182\",\"name\":\"Test_PDF\",\"status\":\"Live\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
+		Node contentNode = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
+		Assert.assertFalse(publishFinalizer.isContentShallowCopy(contentNode));
+	}
+	
+	/*@Test
+	public void testupdateParent() throws Exception{
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		
+		String contentNodeString = "{\"identifier\":\"do_11292666508456755211\",\"origin\":\"do_11298183063028531217\", \"objectType\":\"Content\",\"code\":\"Test_PDF\",\"channel\":\"channel-1\",\"mimeType\":\"application/pdf\",\"versionKey\":\"1578381263182\",\"name\":\"Test_PDF\",\"status\":\"Live\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
+		Node contentNode = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
+		
+		String contentHierarchyString = "{\"children\":[{\"parent\":\"do_11298183063028531217\",\"objectType\":\"Content\",\"children\":[{\"parent\":\"do_11298183102799052818\",\"objectType\":\"Content\",\"contentType\":\"TextBookUnit\",\"identifier\":\"do_112981831028031488110\",\"license\":\"CC BY 4.0\",\"name\":\"U1.1\",\"status\":\"Draft\"}],\"contentType\":\"TextBookUnit\",\"identifier\":\"do_11298183102799052818\",\"license\":\"CC BY 4.0\",\"name\":\"U1\",\"status\":\"Draft\"}],\"contentType\":\"TextBook\",\"identifier\":\"do_11298183063028531217\",\"license\":\"CC BY 4.0\",\"name\":\"Testcase\",\"status\":\"Draft\"}";
+		Map<String, Object> contentHierarchyMap = mapper.readValue(contentHierarchyString, HashMap.class);
+		HierarchyStore hierarchyStore = PowerMockito.spy(new HierarchyStore());
+		PowerMockito.doReturn(contentHierarchyMap).when(hierarchyStore).getHierarchy(Mockito.anyString());
+		
+		List<Map<String, Object>>children = publishFinalizer.updateParent(contentNode, contentHierarchyMap);
+		children.forEach(child -> Assert.assertTrue(StringUtils.equalsIgnoreCase((String)child.get("parent"), "do_11292666508456755211")));
+		
+		
+	}*/
 }

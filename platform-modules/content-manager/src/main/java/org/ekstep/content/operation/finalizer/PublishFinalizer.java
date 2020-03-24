@@ -178,11 +178,13 @@ public class PublishFinalizer extends BaseFinalizer {
 		File packageFile=null;
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		List<String> unitNodes = null;
-		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
-
+		
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
+		boolean isContentShallowCopy = false;
+		isContentShallowCopy = isContentShallowCopy(node);
+		
 		RedisStoreUtil.delete(contentId);
 		RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
 		if (node.getIdentifier().endsWith(".img")) {
@@ -283,21 +285,25 @@ public class PublishFinalizer extends BaseFinalizer {
 			if (StringUtils.isNotBlank(artifactUrl))
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 		}
-
-		Map<String,Object> collectionHierarchy = getHierarchy(node.getIdentifier(), true);
+		
+		Map<String,Object> collectionHierarchy = isContentShallowCopy ? 
+				getHierarchy((String)((Map<String, Object>)node.getMetadata()).get("origin"), false) :
+					getHierarchy(node.getIdentifier(), true);
 		TelemetryManager.log("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
+		
 		List<Map<String, Object>> children = null;
 		if(MapUtils.isNotEmpty(collectionHierarchy)) {
-			Set<String> collectionResourceChildNodes = new HashSet<>();
 			children = (List<Map<String,Object>>)collectionHierarchy.get("children");
-			enrichChildren(children, collectionResourceChildNodes, node);
-			if(!collectionResourceChildNodes.isEmpty()) {
-				List<String> collectionChildNodes = getList(node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name()));
-				collectionChildNodes.addAll(collectionResourceChildNodes);
+			if(!isContentShallowCopy) {
+				Set<String> collectionResourceChildNodes = new HashSet<>();
+				enrichChildren(children, collectionResourceChildNodes, node);
+				if(!collectionResourceChildNodes.isEmpty()) {
+					List<String> collectionChildNodes = getList(node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name()));
+					collectionChildNodes.addAll(collectionResourceChildNodes);
+				}
 			}
-
 		}
-
+		
 		if (StringUtils.equalsIgnoreCase(((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),COLLECTION_MIMETYPE)) {
 			TelemetryManager.log("Collection processing started for content: " + node.getIdentifier());
 			processCollection(node, children);
@@ -358,12 +364,31 @@ public class PublishFinalizer extends BaseFinalizer {
 				COLLECTION_MIMETYPE)) {
 			updateHierarchyMetadata(children, publishedNode);
 			publishHierarchy(publishedNode, children);
-			syncNodes(children, unitNodes);
+			if(!isContentShallowCopy)
+				syncNodes(children, unitNodes);
 		}
 
 		return response;
 	}
-
+	
+	protected boolean isContentShallowCopy(Node node) {
+		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
+		Map<String, Object> nodeMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+		return MapUtils.isNotEmpty((Map<String, Object>)nodeMap.get("originData")) && 
+				StringUtils.isNoneBlank((String)((Map<String, Object>)nodeMap.get("originData")).get("copyType")) &&
+						StringUtils.equalsIgnoreCase((String)((Map<String, Object>)nodeMap.get("originData")).get("copyType"), "shallow") ? true : false;
+	}
+	
+	/*protected List<Map<String, Object>> updateParent(Node node, Map<String, Object> collectionHierarchy) {
+		List<Map<String, Object>> children = null;
+		if(MapUtils.isNotEmpty(collectionHierarchy)) {
+			children = (List<Map<String,Object>>)collectionHierarchy.get("children");
+			if (CollectionUtils.isNotEmpty(children)) 
+				children.forEach(child -> child.put(ContentWorkflowPipelineParams.parent.name(), node.getIdentifier()));
+		}
+		return children;
+	}*/
+	
 	private void cleanUnitsInRedis(List<String> unitNodes) {
 		if(CollectionUtils.isNotEmpty(unitNodes)) {
 			String[] unitsIds = unitNodes.stream().map(id -> (COLLECTION_CACHE_KEY_PREFIX + id)).collect(Collectors.toList()).toArray(new String[unitNodes.size()]);
