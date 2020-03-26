@@ -74,6 +74,8 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
                         put("startDate",batch.get("startDate"));
                         put("endDate",batch.get("endDate"));
                         put("enrollmentEndDate",batch.get("enrollmentEndDate"));
+                        put("enrollmentType", batch.get("enrollmenttype"));
+                        put("createdFor", batch.get("createdfor"));
                     }};
                     courseBatchMetaData.add(batchDataForCourse);
                 }
