@@ -184,7 +184,12 @@ public class PublishFinalizer extends BaseFinalizer {
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
 		boolean isContentShallowCopy = false;
 		isContentShallowCopy = isContentShallowCopy(node);
-		
+		if (isContentShallowCopy) {
+			if (!validateShallowPkgVersion(node)) {
+				TelemetryManager.log("pkgVersion of shallow copied content is same as origin content. so skipping publish operation for content id (shallow copied): " + node.getIdentifier());
+				return new Response();
+			}
+		}
 		RedisStoreUtil.delete(contentId);
 		RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
 		if (node.getIdentifier().endsWith(".img")) {
@@ -370,25 +375,37 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		return response;
 	}
-	
+
+
 	protected boolean isContentShallowCopy(Node node) {
+		Map<String, Object> originData = getOriginData(node);
+		return MapUtils.isNotEmpty(originData) && StringUtils.isNoneBlank((String) originData.get("copyType")) &&
+				StringUtils.equalsIgnoreCase((String) originData.get("copyType"), "shallow") ? true : false;
+	}
+
+	private Map<String, Object> getOriginData(Node node) {
 		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
 		Map<String, Object> nodeMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-		return MapUtils.isNotEmpty((Map<String, Object>)nodeMap.get("originData")) && 
-				StringUtils.isNoneBlank((String)((Map<String, Object>)nodeMap.get("originData")).get("copyType")) &&
-						StringUtils.equalsIgnoreCase((String)((Map<String, Object>)nodeMap.get("originData")).get("copyType"), "shallow") ? true : false;
+		return (Map<String, Object>) nodeMap.getOrDefault("originData", new HashMap<String, Object>());
 	}
-	
-	/*protected List<Map<String, Object>> updateParent(Node node, Map<String, Object> collectionHierarchy) {
-		List<Map<String, Object>> children = null;
-		if(MapUtils.isNotEmpty(collectionHierarchy)) {
-			children = (List<Map<String,Object>>)collectionHierarchy.get("children");
-			if (CollectionUtils.isNotEmpty(children)) 
-				children.forEach(child -> child.put(ContentWorkflowPipelineParams.parent.name(), node.getIdentifier()));
+
+	private boolean validateShallowPkgVersion(Node node) {
+		boolean result = false;
+		String originId = (String) node.getMetadata().getOrDefault("origin", "");
+		Map<String, Object> originData = getOriginData(node);
+		Double shallowPkgVer = (Double) originData.getOrDefault(ContentWorkflowPipelineParams.pkgVersion.name(), 0.0);
+		Node originNode = util.getNode(TAXONOMY_ID, originId);
+		if (null != originNode) {
+			Double originPkgVer = (Double) originNode.getMetadata().getOrDefault(ContentWorkflowPipelineParams.pkgVersion.name(), 0.0);
+			if (originPkgVer!=0.0 && (shallowPkgVer == 0.0 || shallowPkgVer < originPkgVer)) {
+				originData.put(ContentWorkflowPipelineParams.pkgVersion.name(), originPkgVer);
+				node.getMetadata().put("originData", originData);
+				result = true;
+			}
 		}
-		return children;
-	}*/
-	
+		return result;
+	}
+
 	private void cleanUnitsInRedis(List<String> unitNodes) {
 		if(CollectionUtils.isNotEmpty(unitNodes)) {
 			String[] unitsIds = unitNodes.stream().map(id -> (COLLECTION_CACHE_KEY_PREFIX + id)).collect(Collectors.toList()).toArray(new String[unitNodes.size()]);
@@ -1373,4 +1390,5 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
     		return null;
     }
+
 }

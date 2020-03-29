@@ -12,6 +12,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.job.samza.util.BatchSyncUtil;
 import org.ekstep.job.samza.util.DIALCodeUtil;
 import org.ekstep.job.samza.util.QRImageUtil;
+import org.ekstep.job.samza.util.ShallowPublishUtil;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
@@ -41,6 +42,7 @@ public class PostPublishProcessor implements ISamzaService {
     private ControllerUtil util = new ControllerUtil();
     private DIALCodeUtil dialUtil = null;
     private BatchSyncUtil batchSyncUtil = null;
+    private ShallowPublishUtil publishUtil = null;
 
     /**
      * @param config
@@ -63,6 +65,8 @@ public class PostPublishProcessor implements ISamzaService {
         LOGGER.info("DIAL Util initialized");
         batchSyncUtil = new BatchSyncUtil();
         LOGGER.info("Batch Sync Util initialized");
+        publishUtil = new ShallowPublishUtil();
+        LOGGER.info("Shallow Publish Util initialized");
     }
 
     /**
@@ -104,6 +108,16 @@ public class PostPublishProcessor implements ISamzaService {
                 break;
             }
 
+            case "publish-shallow-content": {
+                String nodeId = (String) object.get("id");
+                LOGGER.info("Started processing of publish-shallow-content operation for : " + nodeId);
+                Double pkgVersion = (Double) edata.getOrDefault("pkgVersion", 0.0);
+                LOGGER.info("pkgVersion (Origin Node) : " + pkgVersion);
+                publishUtil.publish(nodeId, pkgVersion, collector);
+                LOGGER.info("Completed processing of publish-shallow-content operation for : " + nodeId);
+                break;
+            }
+
             default: {
                 LOGGER.info("Event Ignored. Event Action Doesn't match for post-publish-processor operations.");
             }
@@ -124,7 +138,7 @@ public class PostPublishProcessor implements ISamzaService {
         String action = (String) edata.get("action");
         Integer iteration = (Integer) edata.get(SamzaCommonParams.iteration.name());
         String contentType = (String) edata.get("contentType");
-        return (ACTIONS.contains(action) && iteration <= MAX_ITERATION_COUNT && CONTENT_TYPES.contains(contentType));
+        return (ACTIONS.contains(action) && iteration <= MAX_ITERATION_COUNT && (CONTENT_TYPES.contains(contentType) || StringUtils.equals("publish-shallow-content", action)));
     }
 
     private void processDIALEvent(String identifier) {
