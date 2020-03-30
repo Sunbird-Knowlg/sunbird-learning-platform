@@ -87,12 +87,16 @@ public class PostPublishProcessor implements ISamzaService {
         Map<String, Object> object = (Map<String, Object>) message.get(SamzaCommonParams.object.name());
 
         if (!validateEvent(edata, object)) {
-            LOGGER.info("Event Ignored. Event Validation Failed for post-publish-processor operations.");
+            LOGGER.info("Event Ignored. Event Validation Failed for post-publish-processor operation : "+edata.get("action"));
             return;
         }
 
         switch (((String) edata.get("action")).toLowerCase()) {
             case "link-dialcode": {
+                if(!validateContentType(edata)){
+                    LOGGER.info("Event Ignored. Event Validation Failed for link-dialcode operation.");
+                    return;
+                }
                 String nodeId = (String) object.get("id");
                 LOGGER.info("Started processing of link-dialcode operation for : " + nodeId);
                 processDIALEvent(nodeId);
@@ -101,6 +105,10 @@ public class PostPublishProcessor implements ISamzaService {
             }
 
             case "coursebatch-sync" : {
+                if(!validateContentType(edata)){
+                    LOGGER.info("Event Ignored. Event Validation Failed for coursebatch-sync operation.");
+                    return;
+                }
                 String nodeId = (String) object.get("id");
                 LOGGER.info("Started Syncing the courseBatch enrollment for : " + nodeId);
                 batchSyncUtil.syncCourseBatch(nodeId, collector);
@@ -124,6 +132,11 @@ public class PostPublishProcessor implements ISamzaService {
         }
     }
 
+    private boolean validateContentType(Map<String, Object> edata) {
+        String contentType = (String) edata.get("contentType");
+        return CONTENT_TYPES.contains(contentType);
+    }
+
     /**
      * This Method Performs Basic Validation of Event.
      *
@@ -137,8 +150,7 @@ public class PostPublishProcessor implements ISamzaService {
             return false;
         String action = (String) edata.get("action");
         Integer iteration = (Integer) edata.get(SamzaCommonParams.iteration.name());
-        String contentType = (String) edata.get("contentType");
-        return (ACTIONS.contains(action) && iteration <= MAX_ITERATION_COUNT && (CONTENT_TYPES.contains(contentType) || StringUtils.equals("publish-shallow-content", action)));
+        return (ACTIONS.contains(action) && iteration <= MAX_ITERATION_COUNT);
     }
 
     private void processDIALEvent(String identifier) {
