@@ -319,6 +319,7 @@ public class PublishPipelineService implements ISamzaService {
 
 		edata.put("action", action);
 		edata.put("contentType", metadata.get("contentType"));
+		edata.put("status", metadata.get("status"));
 		edata.put("id", contentId);
 		edata.put("pkgVersion", metadata.get("pkgVersion"));
 		edata.put("mimeType", metadata.get("mimeType"));

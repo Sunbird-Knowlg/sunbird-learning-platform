@@ -121,7 +121,8 @@ public class PostPublishProcessor implements ISamzaService {
                 LOGGER.info("Started processing of publish-shallow-content operation for : " + nodeId);
                 Double pkgVersion = (Double) edata.getOrDefault("pkgVersion", 0.0);
                 LOGGER.info("pkgVersion (Origin Node) : " + pkgVersion);
-                publishUtil.publish(nodeId, pkgVersion, collector);
+                String status = (String) edata.getOrDefault("status", "");
+                publishUtil.publish(nodeId, status, collector);
                 LOGGER.info("Completed processing of publish-shallow-content operation for : " + nodeId);
                 break;
             }

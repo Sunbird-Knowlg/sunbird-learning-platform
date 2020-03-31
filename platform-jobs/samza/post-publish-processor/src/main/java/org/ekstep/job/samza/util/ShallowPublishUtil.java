@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ShallowPublishUtil {
 
@@ -35,6 +36,7 @@ public class ShallowPublishUtil {
 			? Platform.config.getString("content.publish.topic") : "local.learning.job.request";
 	private static final String KP_SEARCH_URL = Platform.config.getString("kp.search_service_url");
 	private static final List<String> SEARCH_FIELDS = Arrays.asList("identifier", "mimeType", "contentType", "versionKey", "channel", "status", "lastPublishedBy", "origin", "originData");
+	private static final List<String> SEARCH_STATUS = Arrays.asList("Draft", "Review", "Live", "Unlisted");
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ControllerUtil util = new ControllerUtil();
 	private static String actorId = "Publish Samza Job";
@@ -43,20 +45,19 @@ public class ShallowPublishUtil {
 	private static String pdataVersion = "1.0";
 	private static String action = "publish";
 
-	public void publish(String contentId, Double pkgVersion, MessageCollector collector) {
+	public void publish(String contentId, String status, MessageCollector collector) {
 		int counter = 0;
 		Map<String, Object> copiedIdMap = getCopiedContentIds(contentId);
-		if(MapUtils.isNotEmpty(copiedIdMap)){
-			for(Map.Entry<String, Object> entry : copiedIdMap.entrySet()){
-				if(isShallowCopy((Map<String, Object>)entry.getValue())){
-					//TODO: Node Metadata can be passed here.
-					pushPublishEvent(entry.getKey(), collector);
+		if (MapUtils.isNotEmpty(copiedIdMap)) {
+			Map<String, Object> metadataMap = getNodeMetadataMap(new ArrayList<String>(copiedIdMap.keySet()));
+			if (MapUtils.isNotEmpty(metadataMap) && copiedIdMap.size() == metadataMap.size()) {
+				for (Map.Entry<String, Object> entry : metadataMap.entrySet()) {
+					pushPublishEvent(entry.getKey(), (Map<String, Object>) entry.getValue(), status, collector);
 					++counter;
 				}
-			}
-		}else LOGGER.info("Received Zero Copied Content Ids For Origin Content Id: " + contentId);
-		LOGGER.info("Total "+counter+" Shallow Publish Event Pushed For Origin Content Id: " + contentId);
-
+			} else LOGGER.info("Event Skipped! Composite Search Result and Neo4j Result is not same for origin : " + contentId + "| Composite Search Result Count : " + copiedIdMap.size() + " | Neo4j Result Count : " + metadataMap.size());
+		} else LOGGER.info("Event Skipped! Received Zero Copied Content Ids For Origin Content Id: " + contentId);
+		LOGGER.info("Total " + counter + " Shallow Publish Event Pushed Successfully For Origin Content Id: " + contentId);
 	}
 
 	private Map<String, Object> getCopiedContentIds(String originId) {
@@ -65,7 +66,7 @@ public class ShallowPublishUtil {
 			Map<String, Object> request = new HashMap<String, Object>() {{
 				put(PostPublishParams.request.name(), new HashMap<String, Object>() {{
 					put(PostPublishParams.filters.name(), new HashMap<String, Object>() {{
-						put(PostPublishParams.status.name(), new ArrayList<String>());
+						put(PostPublishParams.status.name(), SEARCH_STATUS);
 						put(PostPublishParams.origin.name(), originId);
 					}});
 					put("fields", SEARCH_FIELDS);
@@ -73,8 +74,6 @@ public class ShallowPublishUtil {
 			}};
 
 			Map<String, String> headerParam = new HashMap<String, String>() {{
-				//TODO: will channel of copied content be same as origin content?. If yes, get it from event and put it.
-				//put("X-Channel-Id", (String) node.getMetadata().get(PostPublishParams.channel.name()));
 				put("Content-Type", "application/json");
 			}};
 			HttpResponse<String> httpResponse = Unirest.post(KP_SEARCH_URL)
@@ -84,25 +83,30 @@ public class ShallowPublishUtil {
 			if (response.getResponseCode() == ResponseCode.OK) {
 				if (MapUtils.isNotEmpty(response.getResult())) {
 					List<Object> contents = (List<Object>) response.getResult().get(PostPublishParams.content.name());
-					contents.stream().map(obj -> (Map<String, Object>) obj).forEach(map -> {
-						String identifier = (String) map.get(PostPublishParams.identifier.name());
-						String origin = (String) map.get(PostPublishParams.origin.name());
-						if (StringUtils.isNotBlank(identifier) && StringUtils.equals(originId, origin))
-							result.put(identifier, map);
-					});
-					//TODO: Remove Commented Code
-					//contents.stream().collect(Collectors.toMap(rec->(String)rec.get("identifier"), rec-> rec))
-				}
-				else
+					if (CollectionUtils.isNotEmpty(contents))
+						contents.stream().map(obj -> (Map<String, Object>) obj).forEach(map -> {
+							String identifier = (String) map.get(PostPublishParams.identifier.name());
+							String origin = (String) map.get(PostPublishParams.origin.name());
+							if ((StringUtils.isNotBlank(identifier) && StringUtils.equals(originId, origin)) && isShallowCopy(map))
+								result.put(identifier, map);
+						});
+				} else
 					LOGGER.info("Empty Result Received While Searching Shallow Copied Contents For Origin : " + originId);
 			} else {
 				LOGGER.info("Error Response Received While Searching Shallow Copied Contents For Origin : " + originId + " | Error Response Code is :" + response.getResponseCode() + "| Error Result : " + response.getResult());
 			}
 		} catch (Exception e) {
-			LOGGER.error("Exception Occurred While Searching Shallow Copied Contents For Origin : " + originId + " | Exception is :" , e);
+			LOGGER.error("Exception Occurred While Searching Shallow Copied Contents For Origin : " + originId + " | Exception is :", e);
 			e.printStackTrace();
 		}
 		return result;
+	}
+
+	public Map<String, Object> getNodeMetadataMap(List<String> identifiers) {
+		Response response = util.getDataNodes(SamzaCommonParams.domain.name(), identifiers);
+		List<Node> nodes = (List<Node>) response.get("node_list");
+		return (CollectionUtils.isNotEmpty(nodes))
+				? nodes.stream().collect(Collectors.toMap(node -> node.getIdentifier(), node -> node.getMetadata())) : new HashMap<String, Object>();
 	}
 
 	private static Response getResponse(HttpResponse<String> response) {
@@ -113,10 +117,10 @@ public class ShallowPublishUtil {
 			if (org.apache.commons.lang3.StringUtils.isNotBlank(body))
 				resp = mapper.readValue(body, Response.class);
 		} catch (UnsupportedEncodingException e) {
-			LOGGER.error("UnsupportedEncodingException:::::" , e);
+			LOGGER.error("UnsupportedEncodingException:::::", e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
 		} catch (Exception e) {
-			LOGGER.error("Exception:::::" , e);
+			LOGGER.error("Exception:::::", e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
 		}
 		return resp;
@@ -128,9 +132,10 @@ public class ShallowPublishUtil {
 			String jsonString = (String) value.getOrDefault(PostPublishParams.originData.name(), "");
 			Map<String, Object> originData = mapper.readValue(jsonString, new TypeReference<Map<String, Object>>() {
 			});
-			if(MapUtils.isNotEmpty(originData) && StringUtils.equalsIgnoreCase(PostPublishParams.shallow.name(), (String) originData.get(PostPublishParams.copyType.name())))
+			if (MapUtils.isNotEmpty(originData) && StringUtils.equalsIgnoreCase(PostPublishParams.shallow.name(), (String) originData.get(PostPublishParams.copyType.name())))
 				result = true;
-			else LOGGER.info("Shallow publish event skipped for identifier :" + value.get("identifier") + " | copyType is : "+ originData.get(PostPublishParams.copyType.name()));
+			else
+				LOGGER.info("Shallow publish event skipped for identifier :" + value.get("identifier") + " | copyType is : " + originData.get(PostPublishParams.copyType.name()));
 
 		} catch (Exception e) {
 			LOGGER.error("Error while parsing originData for identifier :" + value.get("identifier"), e);
@@ -139,28 +144,25 @@ public class ShallowPublishUtil {
 		return result;
 	}
 
-	private void pushPublishEvent(String contentId, MessageCollector collector) {
+	private void pushPublishEvent(String contentId, Map<String, Object> metadata, String status, MessageCollector collector) {
 		try {
-			//TODO: Remove Neo4j Call, instead get all required metadata from search call.
-			Node node = util.getNode(SamzaCommonParams.domain.name(), contentId);
-			if (null != node) {
-				Map<String, Object> event = generatePublishEvent(contentId, node);
+			if (MapUtils.isNotEmpty(metadata)) {
+				Map<String, Object> event = generatePublishEvent(contentId, metadata, status);
 				collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", KAFKA_TOPIC), event));
-			} else LOGGER.info("Found null Node Object (shallow copied) for identifier : " + contentId);
+			} else LOGGER.info("Found null Node Metadata (shallow copied) for identifier : " + contentId);
 		} catch (Exception e) {
 			LOGGER.error("Error while pushing the shallow publish event for identifier :" + contentId, e);
 		}
 	}
 
-	private Map<String, Object> generatePublishEvent(String contentId, Node node) throws Exception {
+	private Map<String, Object> generatePublishEvent(String contentId, Map<String, Object> metadata, String status) throws Exception {
 		Map<String, Object> actor = new HashMap<String, Object>();
 		Map<String, Object> context = new HashMap<String, Object>();
 		Map<String, Object> object = new HashMap<String, Object>();
 		Map<String, Object> edata = new HashMap<String, Object>();
-		//TODO: Review logic for publishType
-		String status = (String) node.getMetadata().getOrDefault("status", "");
-		String publishType = StringUtils.equalsIgnoreCase("Unlisted", status) ? "unlisted" : "public";
-		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), contentId, publishType);
+
+		String publishType = StringUtils.isNotBlank(status) ? StringUtils.equalsIgnoreCase(status, "Unlisted") ? "unlisted" : "public" : "public";
+		generateInstructionEventMetadata(actor, context, object, edata, metadata, contentId, publishType);
 		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
 		return mapper.readValue(beJobRequestEvent, new TypeReference<Map<String, Object>>() {
 		});
