@@ -7,6 +7,7 @@ import org.ekstep.common.dto.Request;
 import org.sunbird.jobs.samza.util.CourseBatchParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -73,7 +74,7 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
                         put("status",batch.get("status"));
                         put("startDate",batch.get("startDate"));
                         put("endDate",batch.get("endDate"));
-                        put("enrollmentEndDate",batch.get("enrollmentEndDate"));
+                        put("enrollmentEndDate",getBatchEnrollmentDate((String) batch.get("enrollmentEndDate"), (String) batch.get("endDate")));
                         put("enrollmentType", batch.get("enrollmentType"));
                         put("createdFor", batch.get("createdFor"));
                     }};
@@ -87,6 +88,18 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
             contentMap.put("batches",courseBatchMetaData);
             request.put("content", contentMap);
             systemUpdate(courseId,request);
+        }
+    }
+
+    private String getBatchEnrollmentDate(String enrollmentEndDate, String endDate) throws ParseException {
+        if(StringUtils.isNotBlank(enrollmentEndDate))
+            return enrollmentEndDate;
+        else {
+            Date end = format.parse(endDate);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(end);
+            cal.add(Calendar.DAY_OF_MONTH, -1);
+            return format.format(cal.getTime());
         }
     }
 }
