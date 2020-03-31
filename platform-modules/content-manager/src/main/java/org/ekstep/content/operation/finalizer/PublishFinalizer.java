@@ -125,6 +125,10 @@ public class PublishFinalizer extends BaseFinalizer {
 		this.hierarchyStore = hierarchyStore;
 	}
 
+	public void setControllerUtil(ControllerUtil controllerUtil) {
+		this.util = controllerUtil;
+	}
+
 	static {
 		ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
 	}
@@ -184,9 +188,8 @@ public class PublishFinalizer extends BaseFinalizer {
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
 		boolean isContentShallowCopy = false;
 		isContentShallowCopy = isContentShallowCopy(node);
-		if (isContentShallowCopy) {
+		if (isContentShallowCopy)
 			updateOriginPkgVersion(node);
-		}
 		RedisStoreUtil.delete(contentId);
 		RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
 		if (node.getIdentifier().endsWith(".img")) {
