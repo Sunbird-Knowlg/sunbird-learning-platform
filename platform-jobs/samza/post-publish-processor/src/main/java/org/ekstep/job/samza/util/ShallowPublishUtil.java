@@ -34,7 +34,7 @@ public class ShallowPublishUtil {
 	private static JobLogger LOGGER = new JobLogger(ShallowPublishUtil.class);
 	private static final String KAFKA_TOPIC = Platform.config.hasPath("content.publish.topic")
 			? Platform.config.getString("content.publish.topic") : "local.learning.job.request";
-	private static final String KP_SEARCH_URL = Platform.config.getString("kp.search_service_url");
+	private static final String KP_SEARCH_URL = Platform.config.getString("kp.search_service_base_url") + "/v3/search";
 	private static final List<String> SEARCH_FIELDS = Arrays.asList("identifier", "mimeType", "contentType", "versionKey", "channel", "status", "lastPublishedBy", "origin", "originData");
 	private static final List<String> SEARCH_STATUS = Arrays.asList("Draft", "Review", "Live", "Unlisted");
 	private static ObjectMapper mapper = new ObjectMapper();
