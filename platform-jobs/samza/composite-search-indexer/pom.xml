@@ -7,7 +7,7 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>composite-search-indexer</artifactId>
-	<version>0.0.111</version>
+	<version>0.0.112</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.neo4j</groupId>
