@@ -79,6 +79,7 @@ learner_service_base_url: "http://{{swarm_manager_lb_ip}}:9000"
 cert_service_base_url: "http://{{swarm_manager_lb_ip}}:9011"
 certificate_base_path: "https://{{domain_name}}/certs"
 kp_content_service_base_url: "http://{{swarm_manager_lb_ip}}:9002"
+kp_search_service_base_url: "http://{{swarm_manager_lb_ip}}:9004"
 kp_print_service_base_url: "http://{{swarm_manager_lb_ip}}:5001"
 cert_reg_service_base_url: "http://{{swarm_manager_lb_ip}}:9013"
 
