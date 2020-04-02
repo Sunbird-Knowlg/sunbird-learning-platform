@@ -3,9 +3,9 @@ package org.ekstep.content.operation.finalizer;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertToGraphNode;
@@ -25,12 +25,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.parboiled.common.StringUtils;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.ekstep.content.operation.finalizer.PublishFinalizer;
 import org.ekstep.content.util.PublishFinalizeUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -229,4 +227,36 @@ public class PublishFinalizerTest extends GraphEngineTestSetup {
 		
 		
 	}*/
+	@Test
+	public void testGetOriginData() throws Exception {
+		String contentNodeString = "{\"ownershipType\":[\"createdBy\"],\"code\":\"org.ekstep.pt.text.book.1\",\"origin\":\"do_11297962047265996813\",\"channel\":\"in.ekstep\",\"organisation\":[\"test\"],\"description\":\"Copy textbook Testing For shallow Copy\",\"language\":[\"English\"],\"mimeType\":\"application/vnd.ekstep.content-collection\",\"idealScreenSize\":\"normal\",\"createdOn\":\"2020-03-17T12:18:57.811+0530\",\"objectType\":\"Content\",\"contentDisposition\":\"inline\",\"lastUpdatedOn\":\"2020-03-17T12:18:57.811+0530\",\"contentEncoding\":\"gzip\",\"originData\":\"{\\\"name\\\":\\\"Copy Collecction Testing For shallow Copy\\\",\\\"license\\\":\\\"CC BY 4.0\\\",\\\"copyType\\\":\\\"shallow\\\",\\\"organisation\\\":[\\\"test\\\"]}\",\"contentType\":\"TextBook\",\"dialcodeRequired\":\"No\",\"audience\":[\"Learner\"],\"createdFor\":[\"gauraw\"],\"lastStatusChangedOn\":\"2020-03-17T12:18:57.811+0530\",\"os\":[\"All\"],\"visibility\":\"Default\",\"IL_SYS_NODE_TYPE\":\"DATA_NODE\",\"mediaType\":\"content\",\"osId\":\"org.ekstep.quiz.app\",\"languageCode\":[\"en\"],\"version\":2,\"versionKey\":\"1584427737811\",\"license\":\"CC BY 4.0\",\"idealScreenDensity\":\"hdpi\",\"framework\":\"NCF\",\"createdBy\":\"gauraw\",\"compatibilityLevel\":1,\"IL_FUNC_OBJECT_TYPE\":\"Content\",\"name\":\"Copy Collecction Testing For shallow Copy\",\"IL_UNIQUE_ID\":\"do_11297963202136473611\",\"status\":\"Draft\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
+		Node contentNode = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
+		Method method = PublishFinalizer.class.getDeclaredMethod("getOriginData", Node.class);
+		method.setAccessible(true);
+		PublishFinalizer finalizer = new PublishFinalizer("/tmp", "do_11297963202136473611");
+		Map<String, Object> result = (Map<String, Object>) method.invoke(finalizer, contentNode);
+		Assert.assertTrue(MapUtils.isNotEmpty(result));
+		Assert.assertEquals("shallow", result.get("copyType"));
+	}
+
+	@Test
+	public void testUpdateOriginPkgVersion() throws Exception {
+		String contentNodeString = "{\"ownershipType\":[\"createdBy\"],\"code\":\"org.ekstep.pt.text.book.1\",\"origin\":\"do_11297962047265996813\",\"channel\":\"in.ekstep\",\"organisation\":[\"test\"],\"description\":\"Copy textbook Testing For shallow Copy\",\"language\":[\"English\"],\"mimeType\":\"application/vnd.ekstep.content-collection\",\"idealScreenSize\":\"normal\",\"createdOn\":\"2020-03-17T12:18:57.811+0530\",\"objectType\":\"Content\",\"contentDisposition\":\"inline\",\"lastUpdatedOn\":\"2020-03-17T12:18:57.811+0530\",\"contentEncoding\":\"gzip\",\"originData\":\"{\\\"name\\\":\\\"Copy Collecction Testing For shallow Copy\\\",\\\"license\\\":\\\"CC BY 4.0\\\",\\\"copyType\\\":\\\"shallow\\\",\\\"pkgVersion\\\":2.0,\\\"organisation\\\":[\\\"test\\\"]}\",\"contentType\":\"TextBook\",\"dialcodeRequired\":\"No\",\"audience\":[\"Learner\"],\"createdFor\":[\"gauraw\"],\"lastStatusChangedOn\":\"2020-03-17T12:18:57.811+0530\",\"os\":[\"All\"],\"visibility\":\"Default\",\"IL_SYS_NODE_TYPE\":\"DATA_NODE\",\"mediaType\":\"content\",\"osId\":\"org.ekstep.quiz.app\",\"languageCode\":[\"en\"],\"version\":2,\"versionKey\":\"1584427737811\",\"license\":\"CC BY 4.0\",\"idealScreenDensity\":\"hdpi\",\"framework\":\"NCF\",\"createdBy\":\"gauraw\",\"compatibilityLevel\":1,\"IL_FUNC_OBJECT_TYPE\":\"Content\",\"name\":\"Copy Collecction Testing For shallow Copy\",\"IL_UNIQUE_ID\":\"do_11297963202136473611\",\"status\":\"Draft\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
+		Node contentNode = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
+		String originNodeStr = "{\"identifier\":\"do_11297962047265996813\",\"objectType\":\"Content\",\"code\":\"Test_PDF\",\"channel\":\"channel-1\",\"mimeType\":\"application/pdf\",\"versionKey\":\"1578381263182\",\"name\":\"Test_PDF\",\"status\":\"Live\",\"pkgVersion\":4.0}";
+		Map<String, Object> originNodeMap = mapper.readValue(originNodeStr, HashMap.class);
+		Node originNode = ConvertToGraphNode.convertToGraphNode(originNodeMap, contentDefinition, null);
+		ControllerUtil util = PowerMockito.spy(new ControllerUtil());
+		PowerMockito.doReturn(originNode).when(util).getNode(Mockito.anyString(), Mockito.anyString());
+		Method method = PublishFinalizer.class.getDeclaredMethod("updateOriginPkgVersion", Node.class);
+		method.setAccessible(true);
+		PublishFinalizer finalizer = new PublishFinalizer("/tmp", "do_11297963202136473611");
+		finalizer.setControllerUtil(util);
+		method.invoke(finalizer, contentNode);
+		Assert.assertEquals(4.0, ((Map<String, Object>)contentNode.getMetadata().get("originData")).get("pkgVersion"));
+	}
 }

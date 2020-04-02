@@ -12,12 +12,14 @@ import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
@@ -145,17 +147,7 @@ public class PublishPipelineService implements ISamzaService {
 		Node node = getNode(contentId);
 		String publishType = (String) edata.get(PublishPipelineParams.publish_type.name());
 		node.getMetadata().put(PublishPipelineParams.publish_type.name(), publishType);
-		if (publishContent(node, publishType)) {
-			metrics.incSuccessCounter();
-			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.SUCCESS.name());
-			LOGGER.debug("Node publish operation :: SUCCESS :: For NodeId :: " + node.getIdentifier());
-			pushInstructionEvent(node, collector);
-		} else {
-			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.FAILED.name());
-			LOGGER.debug("Node publish operation :: FAILED :: For NodeId :: " + node.getIdentifier());
-			throw new PlatformException(PlatformErrorCodes.PUBLISH_FAILED.name(),
-					"Node publish operation failed for Node Id:" + node.getIdentifier());
-		}
+		publishContent(node, edata, metrics, collector);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -182,17 +174,23 @@ public class PublishPipelineService implements ISamzaService {
 		return node;
 	}
 
-	private boolean publishContent(Node node, String publishType) throws Exception {
+	private void publishContent(Node node, Map<String, Object> edata, JobMetrics metrics, MessageCollector collector) throws Exception {
 		boolean published = true;
 		LOGGER.debug("Publish processing start for content: " + node.getIdentifier());
 		publishNode(node, (String) node.getMetadata().get(PublishPipelineParams.mimeType.name()));
-		
 		Node publishedNode = getNode(node.getIdentifier().replace(".img", ""));
 		if (StringUtils.equalsIgnoreCase((String) publishedNode.getMetadata().get(PublishPipelineParams.status.name()),
-				PublishPipelineParams.Failed.name()))
-			return false;
-		
-		return published;
+				PublishPipelineParams.Failed.name())) {
+			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.FAILED.name());
+			LOGGER.debug("Node publish operation :: FAILED :: For NodeId :: " + node.getIdentifier());
+			throw new PlatformException(PlatformErrorCodes.PUBLISH_FAILED.name(),
+					"Node publish operation failed for Node Id:" + node.getIdentifier());
+		} else {
+			metrics.incSuccessCounter();
+			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.SUCCESS.name());
+			LOGGER.debug("Node publish operation :: SUCCESS :: For NodeId :: " + node.getIdentifier());
+			pushInstructionEvent(publishedNode, collector);
+		}
 	}
 	
 	protected static String formatCurrentDate() {
@@ -287,7 +285,17 @@ public class PublishPipelineService implements ISamzaService {
 				throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
 			}
 			collector.send(new OutgoingMessageEnvelope(postPublishStream, courseBatchSyncEvent));
-			LOGGER.info("Event sent to post publish event topic");
+
+			String originId = (String) node.getMetadata().getOrDefault("origin", "");
+			if(StringUtils.isBlank(originId) && !isShallowCopy(node)) {
+				Map<String, Object> publishShallowContentEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "publish-shallow-content");
+				if (MapUtils.isEmpty(publishShallowContentEvent)) {
+					TelemetryManager.error("Post Publish event is not generated properly for action (publish-shallow-content) : " + publishShallowContentEvent);
+					throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Publish shallow content event is not generated properly.");
+				}
+				collector.send(new OutgoingMessageEnvelope(postPublishStream, publishShallowContentEvent));
+			}
+			LOGGER.info("All Events sent to post publish event topic");
 		}
 	}
 
@@ -309,14 +317,12 @@ public class PublishPipelineService implements ISamzaService {
 		object.put("id", contentId);
 		object.put("ver", metadata.get("versionKey"));
 
-		Map<String, Object> instructionEventMetadata = new HashMap<>();
-		instructionEventMetadata.put("pkgVersion", metadata.get("pkgVersion"));
-		instructionEventMetadata.put("mimeType", metadata.get("mimeType"));
-		instructionEventMetadata.put("lastPublishedBy", metadata.get("lastPublishedBy"));
-
 		edata.put("action", action);
 		edata.put("contentType", metadata.get("contentType"));
+		edata.put("status", metadata.get("status"));
 		edata.put("id", contentId);
+		edata.put("pkgVersion", metadata.get("pkgVersion"));
+		edata.put("mimeType", metadata.get("mimeType"));
 		// generate event structure
 		long unixTime = System.currentTimeMillis();
 		String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();
@@ -336,5 +342,13 @@ public class PublishPipelineService implements ISamzaService {
 			TelemetryManager.error("Error Generating BE_JOB_REQUEST event: " + e.getMessage(), e);
 		}
 		return event;
+	}
+
+	private boolean isShallowCopy(Node node) {
+		DefinitionDTO definition = util.getDefinition(node.getGraphId(), ContentWorkflowPipelineParams.Content.name());
+		Map<String, Object> nodeMap = ConvertGraphNode.convertGraphNode(node, node.getGraphId(), definition, null);
+		return MapUtils.isNotEmpty((Map<String, Object>)nodeMap.get("originData")) &&
+				StringUtils.isNoneBlank((String)((Map<String, Object>)nodeMap.get("originData")).get("copyType")) &&
+				StringUtils.equalsIgnoreCase((String)((Map<String, Object>)nodeMap.get("originData")).get("copyType"), "shallow") ? true : false;
 	}
 }
