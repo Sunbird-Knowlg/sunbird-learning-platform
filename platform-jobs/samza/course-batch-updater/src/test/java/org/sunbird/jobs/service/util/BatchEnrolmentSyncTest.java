@@ -1,6 +1,7 @@
 package org.sunbird.jobs.service.util;
 
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -10,6 +11,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.sunbird.jobs.samza.service.util.BaseCourseBatchUpdater;
 import org.sunbird.jobs.samza.service.util.BatchEnrolmentSync;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,5 +41,23 @@ public class BatchEnrolmentSyncTest {
         request.put("reset", Arrays.asList("completionPercentage", "status", "contentStatus", "lastReadContentId", "lastReadContentStatus"));
 
         enrolSync.syncEnrolment(request);
+    }
+    
+    @Test
+    public void testGetLatestReadContent() throws Exception {
+        BatchEnrolmentSync enrolSync = PowerMockito.spy(new BatchEnrolmentSync());
+        Map<String, String> lastReadContents = new HashMap<String, String>(){{
+            put("content2", null);
+            put("content1", null);
+        }};
+        Method method = BatchEnrolmentSync.class.getDeclaredMethod("fetchLatestLastReadContent", Map.class);
+        method.setAccessible(true);
+        String contentId = (String) method.invoke(enrolSync, lastReadContents);
+        Assert.assertNull(contentId);
+        Map<String, String> lastReadContents1 = new HashMap<String, String>(){{
+            put("content2", "2020-04-01");
+            put("content1", "2020-05-01");
+        }};
+        Assert.assertNotNull((String) method.invoke(enrolSync, lastReadContents1));
     }
 }
