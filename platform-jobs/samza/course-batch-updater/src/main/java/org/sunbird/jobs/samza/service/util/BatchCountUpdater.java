@@ -92,7 +92,7 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
     }
 
     private String getBatchEnrollmentDate(String enrollmentEndDate, String endDate) throws ParseException {
-        if(StringUtils.isNotBlank(enrollmentEndDate))
+        if(StringUtils.isNotBlank(enrollmentEndDate) || StringUtils.isBlank(endDate))
             return enrollmentEndDate;
         else {
             Date end = format.parse(endDate);
