@@ -1113,7 +1113,8 @@
 						"ConceptMap",
 						"SelfAssess",
 						"PracticeResource",
-						"eTextBook"
+						"eTextBook",
+						"OnboardingResource"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
