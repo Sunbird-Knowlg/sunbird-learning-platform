@@ -125,11 +125,9 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
 
     private String fetchLatestLastReadContent(Map<String, String> lastReadContents) {
         if(MapUtils.isNotEmpty(lastReadContents)) {
-            Map<String, String> lrContents = lastReadContents.entrySet().stream().sorted((Map.Entry.<String, String>comparingByValue().reversed()))
+            Map<String, String> lrContents = lastReadContents.entrySet().stream().filter(entry -> StringUtils.isNotBlank(entry.getValue())).sorted((Map.Entry.<String, String>comparingByValue().reversed()))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-
-            return lrContents.keySet().iterator().next();
-
+            return lrContents.keySet().stream().findFirst().orElse(null);
         } else {
             return null;
         }
