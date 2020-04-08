@@ -7,7 +7,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
-import org.jclouds.elasticstack.functions.KeyValuesDelimitedByBlankLinesToServerInfo;
 import org.sunbird.jobs.samza.util.ESUtil;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
