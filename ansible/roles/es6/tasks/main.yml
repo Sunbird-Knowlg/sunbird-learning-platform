@@ -84,7 +84,7 @@
     line: 'cloud.azure.storage.default.{{item.key}}: {{item.value}}'
     regexp: "cloud.azure.storage.default.{{ item.key }}.*"
   with_items:
-    - {key: 'account', value: '{{ sunbird_management_storage_account_name }}'}
-    - {key: 'key', value: '{{ sunbird_management_storage_account_key }}'}
-  when: sunbird_management_storage_account_name is defined and sunbird_management_storage_account_key is defined
+    - {key: 'account', value: '{{ backup_azure_storage_account_name }}'}
+    - {key: 'key', value: '{{ backup_azure_storage_access_key }}'}
+  when: backup_azure_storage_account_name is defined and backup_azure_storage_access_key is defined
   notify: restart elasticsearch
