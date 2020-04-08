@@ -11,8 +11,7 @@ es_start_service: true
 es_java_install: true
 update_java: false
 es_restart_on_change: true
-es_plugins: "repository-azure"
-es_plugins_reinstall: true 
+es_plugins_reinstall: false 
 es_scripts: false
 es_templates: true
 es_user: elasticsearch
