@@ -76,3 +76,15 @@
   when: es_templates
   tags:
       - templates
+
+# Add ES Plugin credentials for backups
+- name: Add ES Backup variables to elasticsearch to have backups enabled
+  lineinfile:
+    path: '{{conf_dir}}/elasticsearch.yml'
+    line: 'cloud.azure.storage.default.{{item.key}}: {{item.value}}'
+    regexp: "cloud.azure.storage.default.{{ item.key }}.*"
+  with_items:
+    - {key: 'account', value: '{{ backup_azure_storage_account_name }}'}
+    - {key: 'key', value: '{{ backup_azure_storage_access_key }}'}
+  when: backup_azure_storage_account_name is defined and backup_azure_storage_access_key is defined
+  notify: restart elasticsearch
