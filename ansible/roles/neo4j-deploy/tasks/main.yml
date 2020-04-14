@@ -46,6 +46,7 @@
     - CREATE CONSTRAINT ON (domain:domain) ASSERT domain.IL_UNIQUE_ID IS UNIQUE;
     - CREATE INDEX ON :domain(IL_FUNC_OBJECT_TYPE);
     - CREATE INDEX ON :domain(IL_SYS_NODE_TYPE);
+  ignore_errors: yes
 
 - name: Start the monit
   service: name=monit state=started
