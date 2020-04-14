@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.ekstep.common.Slug;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ServerException;
@@ -54,16 +55,18 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	public void replaceArtifactUrl(Node node) {
 		String artifactBasePath = (String)node.getMetadata().get("artifactBasePath");
 		String artifactUrl = (String)node.getMetadata().get("artifactUrl");
-		String sourcePath = artifactUrl.substring(artifactUrl.lastIndexOf((artifactBasePath)));
-		String destinationPath = sourcePath.replace(artifactBasePath+"/", "");
-		
-		try	{
-			CloudStore.copyObjectsByPrefix(sourcePath, destinationPath, false);
-			TelemetryManager.log("Copying Objects...DONE | Under: " + destinationPath);
-			String newArtifactUrl = artifactUrl.replace(sourcePath, destinationPath);
-			node.getMetadata().put("artifactUrl", newArtifactUrl);
-		} catch(Exception e) {
-			TelemetryManager.error("Error while copying object by prefix", e);
+		if(StringUtils.contains(artifactUrl, artifactBasePath)) {
+			String sourcePath = StringUtils.substring(artifactUrl, artifactUrl.lastIndexOf((artifactBasePath)));
+			String destinationPath = StringUtils.replace(sourcePath, artifactBasePath + File.separator, "");
+			
+			try	{
+				CloudStore.copyObjectsByPrefix(sourcePath, destinationPath, false);
+				TelemetryManager.log("Copying Objects...DONE | Under: " + destinationPath);
+				String newArtifactUrl = StringUtils.replace(artifactUrl, sourcePath, destinationPath);
+				node.getMetadata().put("artifactUrl", newArtifactUrl);
+			} catch(Exception e) {
+				TelemetryManager.error("Error while copying object by prefix", e);
+			}
 		}
 	}
 }

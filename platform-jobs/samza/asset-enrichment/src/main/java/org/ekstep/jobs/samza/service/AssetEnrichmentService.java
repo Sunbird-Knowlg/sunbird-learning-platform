@@ -53,6 +53,7 @@ public class AssetEnrichmentService implements ISamzaService {
 		else
 			return MAXITERTIONCOUNT;
 	}
+	private static final Boolean CONTEXT_DRIVEN_CONTENT_UPLOAD = Platform.config.hasPath("context.driven.content.upload") ? Platform.config.getBoolean("context.driven.content.upload") : true;
 
 	@Override
 	public void initialize(Config config) throws Exception {
@@ -108,6 +109,11 @@ public class AssetEnrichmentService implements ISamzaService {
 			Node node = util.getNode(AssetEnrichmentEnums.domain.name(), nodeId);
 			if ((null != node) && (node.getObjectType().equalsIgnoreCase(AssetEnrichmentEnums.content.name()))){
 				String mediaType = (String)edata.get(AssetEnrichmentEnums.mediaType.name());
+				if(CONTEXT_DRIVEN_CONTENT_UPLOAD && 
+						StringUtils.isNoneBlank((String)node.getMetadata().get("artifactBasePath")) &&
+						StringUtils.isNoneBlank((String)node.getMetadata().get("artifactUrl"))) {
+					OptimizerUtil.replaceArtifactUrl(node);
+				}
 				if(StringUtils.equalsIgnoreCase(mediaType, "image"))
 					imageEnrichment(node);
 				else if (StringUtils.equalsIgnoreCase(mediaType, "video"))

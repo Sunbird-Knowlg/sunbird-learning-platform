@@ -1,5 +1,6 @@
 package org.ekstep.jobs.samza.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -265,4 +266,31 @@ public class OptimizerUtil {
         }
         return colorSet.size();
     }
+	
+	public static void replaceArtifactUrl(Node node) {
+		String artifactBasePath = (String)node.getMetadata().get("artifactBasePath");
+		String artifactUrl = (String)node.getMetadata().get("artifactUrl");
+		if(StringUtils.contains(artifactUrl, artifactBasePath)) {
+			String sourcePath = artifactUrl.substring(artifactUrl.lastIndexOf((artifactBasePath)));
+			String destinationPath = StringUtils.replace(sourcePath, artifactBasePath + File.separator, "");
+			
+			try	{
+				CloudStore.copyObjectsByPrefix(sourcePath, destinationPath, false);
+				TelemetryManager.log("Copying Objects...DONE | Under: " + destinationPath);
+				String newArtifactUrl = StringUtils.replace(artifactUrl, sourcePath, destinationPath);
+				node.getMetadata().put("artifactUrl", newArtifactUrl);
+				node.getMetadata().put("downloadUrl", newArtifactUrl);
+				if(StringUtils.isNotBlank((String)node.getMetadata().get("cloudStorageKey"))) {
+					String cloudStorageKey = StringUtils.replace((String)node.getMetadata().get("cloudStorageKey"), artifactBasePath + File.separator, "");
+					node.getMetadata().put("cloudStorageKey", cloudStorageKey);
+				}
+				if(StringUtils.isNotBlank((String)node.getMetadata().get("s3Key"))) {
+					String s3Key = StringUtils.replace((String)node.getMetadata().get("s3Key"), artifactBasePath + File.separator, "");
+					node.getMetadata().put("s3Key", s3Key);
+				}
+			} catch(Exception e) {
+				TelemetryManager.error("Error while copying object by prefix", e);
+			}
+		}
+	}
 }
