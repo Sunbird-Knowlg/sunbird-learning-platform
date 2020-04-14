@@ -923,6 +923,7 @@
 						"CC BY-NC 4.0",
 						"CC BY-SA 4.0",
 						"CC BY 4.0",
+						"CC BY-ND 4.0",
 						"Standard YouTube License"
 					],
 					"category": "Ownership",
@@ -1110,7 +1111,10 @@
                         "ExplanationResource",
                         "ExperientialResource",
 						"ConceptMap",
-						"SelfAssess"
+						"SelfAssess",
+						"PracticeResource",
+						"eTextBook",
+						"OnboardingResource"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -2910,7 +2914,20 @@
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
 					"indexed": true
-				}
+				},
+				{
+                    "required": false,
+                    "dataType": "Text",
+                    "propertyName": "artifactBasePath",
+                    "title": "ArtifactBasePath",
+                    "description": "ArtifactBasePath for Program Context",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 8 }",
+                    "indexed": true
+                }
 			],
 			"inRelations": [
 				{

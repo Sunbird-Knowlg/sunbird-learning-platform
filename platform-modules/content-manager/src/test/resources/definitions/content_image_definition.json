@@ -901,27 +901,34 @@
 				},
 				{
 					"required": false,
+					"dataType": "Number",
+					"propertyName": "copyrightYear",
+					"title": "Copyright Year",
+					"description": "Copyright Year",
+					"category": "Ownership",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
 					"dataType": "Select",
 					"propertyName": "license",
 					"title": "License",
 					"description": "License",
 					"range": [
-						"Against DRM license",
-						"Creative Commons Attribution-NoDerivs (CC-BY-ND)",
-						"Creative Commons Attribution (CC BY)",
-						"Creative Commons Attribution-ShareAlike (CC BY-SA)",
-						"Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)",
-						"Creative Commons Zero (CC0)",
-						"Free Art License",
-						"Open Audio License",
-						"Open Game License",
-						"Standard YouTube License",
-						"Other",
-						"CC BY 4.0"
+						"CC BY-NC-SA 4.0",
+						"CC BY-NC 4.0",
+						"CC BY-SA 4.0",
+						"CC BY 4.0",
+						"CC BY-ND 4.0",
+						"Standard YouTube License"
 					],
 					"category": "Ownership",
 					"displayProperty": "Editable",
-					"defaultValue": "",
+					"defaultValue": "CC BY 4.0",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
@@ -1099,10 +1106,15 @@
 						"FocusSpot",
                         "LearningOutcomeDefinition",
                         "PracticeQuestionSet",
-                        "CuriosityQuestions",
+                        "CuriosityQuestionSet",
                         "MarkingSchemeRubric",
                         "ExplanationResource",
-                        "ExperientialResource"
+						"ExperientialResource",
+						"ConceptMap",
+						"SelfAssess",
+						"PracticeResource",
+						"eTextBook",
+						"OnboardingResource"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -2663,18 +2675,6 @@
 					"indexed": true
 				},
 				{
-					"propertyName": "showNotification",
-					"title": "showNotification",
-					"description": "R1.15",
-					"category": "Technical",
-					"dataType": "Boolean",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
 					"propertyName": "mimeTypesCount",
 					"title": "mimeTypesCount",
 					"description": "R1.15",
@@ -2790,58 +2790,6 @@
 				{
 					"required": false,
 					"dataType": "Text",
-					"propertyName": "languageCode",
-					"title": "Language Code",
-					"description": "R-1.15",
-					"category": "Technical",
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true,
-					"draft": false
-				},
-				{
-					"required": false,
-					"dataType": "Text",
-					"propertyName": "processingError",
-					"title": "Processing Error",
-					"description": "R-1.15_Processing Error While Publish Operation",
-					"category": "Technical",
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true,
-					"draft": false
-				},
-				{
-					"required": false,
-					"dataType": "Text",
-					"propertyName": "attribution",
-					"title": "Attribution",
-					"description": "R-1.15_Attribution/Credits",
-					"category": "Ownership",
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true,
-					"draft": false
-				},
-				{
-					"required": false,
-					"dataType": "Text",
-					"propertyName": "creatorInfo",
-					"title": "CreatorInfo",
-					"description": "R-1.15_creatorInfo",
-					"category": "General",
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true,
-					"draft": false
-				},
-				{
-					"required": false,
-					"dataType": "Text",
 					"propertyName": "migratedUrl",
 					"title": "Drive Url",
 					"description": "This Url has to be migrated",
@@ -2849,19 +2797,6 @@
 					"displayProperty": "Editable",
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
-					"indexed": true,
-					"draft": false
-				},
-				{
-					"required": false,
-					"dataType": "Text",
-					"propertyName": "baseUrl",
-					"title": "Base Url of Instanse",
-					"description": "R-1.15_baseUrl-VR",
-					"category": "General",
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
 					"indexed": true,
 					"draft": false
 				},
@@ -2907,7 +2842,92 @@
 					"indexed": true,
 					"draft": false,
 					"rangeValidation": true
-				}
+				},
+				{
+                    "required": false,
+                    "dataType": "Number",
+                    "propertyName": "editorVersion",
+                    "title": "Editor Version",
+                    "description": "Version of the Editor",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                },
+                {
+                    "required": false,
+                    "dataType": "List",
+                    "propertyName": "unitIdentifiers",
+                    "title": "Collection Unit Identifier",
+                    "description": "Collection Unit Identifier for which this resource going to link.",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                },
+                {
+                    "required": false,
+                    "dataType": "List",
+                    "propertyName": "questionCategories",
+                    "title": "Question - Categories",
+                    "description": "The categories of questions included in content.",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                },
+				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "certTemplate",
+					"title": "Cert Template",
+					"description": "Certification Template",
+					"category": "general",
+					"displayProperty": "Editable",
+					"range": null,
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+					"indexed": true,
+					"draft": false,
+					"rangeValidation": true
+				},
+				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "plugins",
+					"title": "Plugin",
+					"description": "Plugins associated with the content",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+					"indexed": true
+				},
+				{
+                    "required": false,
+                    "dataType": "Text",
+                    "propertyName": "artifactBasePath",
+                    "title": "ArtifactBasePath",
+                    "description": "ArtifactBasePath for Program Context",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 8 }",
+                    "indexed": true
+                }
 			],
 			"inRelations": [
 				{
@@ -2957,8 +2977,8 @@
 					"objectTypes": [
 						"ItemSet"
 					],
-					"title": "item_sets",
-					"description": "Assessment items associated with this content",
+					"title": "itemSets",
+					"description": "Item Sets associated with this content",
 					"required": false,
 					"renderingHints": "{ 'order': 26 }"
 				},
@@ -3120,7 +3140,8 @@
 					"subject": 15,
 					"ageGroup": 1,
 					"gradeLevel": 7,
-					"board": 4
+					"board": 4,
+					"relatedBoards": 4
 				},
 				"versionCheckMode": "STRICT",
 				"allowupdate_status": false,
@@ -3214,7 +3235,8 @@
 					"programId",
 					"leafNodes",
 					"origin",
-					"originData"
+					"originData",
+					"plugins"
 				]
 			}
 		}
