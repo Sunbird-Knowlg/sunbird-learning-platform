@@ -56,7 +56,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		String artifactBasePath = (String)node.getMetadata().get("artifactBasePath");
 		String artifactUrl = (String)node.getMetadata().get("artifactUrl");
 		if(StringUtils.contains(artifactUrl, artifactBasePath)) {
-			String sourcePath = StringUtils.substring(artifactUrl, artifactUrl.lastIndexOf((artifactBasePath)));
+			String sourcePath = StringUtils.substring(artifactUrl, artifactUrl.indexOf((artifactBasePath)));
 			String destinationPath = StringUtils.replace(sourcePath, artifactBasePath + File.separator, "");
 			
 			try	{
@@ -64,6 +64,14 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 				TelemetryManager.log("Copying Objects...DONE | Under: " + destinationPath);
 				String newArtifactUrl = StringUtils.replace(artifactUrl, sourcePath, destinationPath);
 				node.getMetadata().put("artifactUrl", newArtifactUrl);
+				if(StringUtils.isNotBlank((String)node.getMetadata().get("cloudStorageKey"))) {
+					String cloudStorageKey = StringUtils.replace((String)node.getMetadata().get("cloudStorageKey"), artifactBasePath + File.separator, "");
+					node.getMetadata().put("cloudStorageKey", cloudStorageKey);
+				}
+				if(StringUtils.isNotBlank((String)node.getMetadata().get("s3Key"))) {
+					String s3Key = StringUtils.replace((String)node.getMetadata().get("s3Key"), artifactBasePath + File.separator, "");
+					node.getMetadata().put("s3Key", s3Key);
+				}
 			} catch(Exception e) {
 				TelemetryManager.error("Error while copying object by prefix", e);
 			}

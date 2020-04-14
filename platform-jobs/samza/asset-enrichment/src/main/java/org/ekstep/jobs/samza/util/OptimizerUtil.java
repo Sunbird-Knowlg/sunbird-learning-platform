@@ -271,7 +271,7 @@ public class OptimizerUtil {
 		String artifactBasePath = (String)node.getMetadata().get("artifactBasePath");
 		String artifactUrl = (String)node.getMetadata().get("artifactUrl");
 		if(StringUtils.contains(artifactUrl, artifactBasePath)) {
-			String sourcePath = artifactUrl.substring(artifactUrl.lastIndexOf((artifactBasePath)));
+			String sourcePath = artifactUrl.substring(artifactUrl.indexOf((artifactBasePath)));
 			String destinationPath = StringUtils.replace(sourcePath, artifactBasePath + File.separator, "");
 			
 			try	{
