@@ -107,7 +107,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	protected static final String PRINT_SERVICE_BASE_URL = Platform.config.hasPath("kp.print.service.base.url")
 			? Platform.config.getString("kp.print.service.base.url") : "http://localhost:5001";
 
-	private static final Boolean CONTEXT_DRIVEN_CONTENT_UPLOAD = Platform.config.hasPath("context.driven.content.upload") ? Platform.config.getBoolean("context.driven.content.upload") : true;
+	private static final Boolean CONTENT_UPLOAD_CONTEXT_DRIVEN = Platform.config.hasPath("content.upload.context.driven") ? Platform.config.getBoolean("content.upload.context.driven") : true;
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
 	private HierarchyStore hierarchyStore = new HierarchyStore();
@@ -205,11 +205,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.setIdentifier(contentId);
 		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
 		
-		if(CONTEXT_DRIVEN_CONTENT_UPLOAD && 
-				StringUtils.isNoneBlank((String)node.getMetadata().get("artifactBasePath")) &&
-				StringUtils.isNoneBlank((String)node.getMetadata().get("artifactUrl"))) {
-			publishFinalizeUtil.replaceArtifactUrl(node);
-		}
+		contextDrivenContentUpload(node);
 		
 		try {
 			String itemsetPreviewUrl = getItemsetPreviewUrl(node);
@@ -381,6 +377,14 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 
 		return response;
+	}
+	
+	protected void contextDrivenContentUpload(Node node) {
+		if(CONTENT_UPLOAD_CONTEXT_DRIVEN && 
+				StringUtils.isNoneBlank((String)node.getMetadata().get("artifactBasePath")) &&
+				StringUtils.isNoneBlank((String)node.getMetadata().get("artifactUrl"))) {
+			publishFinalizeUtil.replaceArtifactUrl(node);
+		}
 	}
 
 
