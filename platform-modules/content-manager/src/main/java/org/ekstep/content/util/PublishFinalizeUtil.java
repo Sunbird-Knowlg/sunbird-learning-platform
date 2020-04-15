@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.ekstep.common.Slug;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ServerException;
@@ -25,29 +26,55 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			String newFileName = node.getIdentifier() + "_" + System.currentTimeMillis() + "." + FilenameUtils.getExtension(file.getName());
     		boolean renameStatus = file.renameTo(new File(file.getParentFile(),newFileName));
 			
-		try {
-			String folder = S3PropertyReader.getProperty(CONTENT_FOLDER);
-			folder = folder + "/" + Slug.makeSlug(node.getIdentifier(), true) + "/" + S3PropertyReader.getProperty(ARTEFACT_FOLDER);
-			String[] url = null;
-			if(renameStatus)
-				url = CloudStore.uploadFile(folder, new File(file.getParent() + "/" + newFileName), true);
-			else
-				url = CloudStore.uploadFile(folder, file, true);
-			return url[1];
-		} catch (Throwable e) {
-			TelemetryManager.error("Error during uploading question paper pdf file for content:: " + node.getIdentifier() + " Error:: " + e.getStackTrace());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-                    "Error during uploading question paper pdf file for content :" + node.getIdentifier()+". Please Try Again After Sometime!");
-		} finally {
 			try {
-				if(null != file)
-					delete(file);
-				
-			} catch (IOException e) {
-				e.printStackTrace();
+				String folder = S3PropertyReader.getProperty(CONTENT_FOLDER);
+				folder = folder + "/" + Slug.makeSlug(node.getIdentifier(), true) + "/" + S3PropertyReader.getProperty(ARTEFACT_FOLDER);
+				String[] url = null;
+				if(renameStatus)
+					url = CloudStore.uploadFile(folder, new File(file.getParent() + "/" + newFileName), true);
+				else
+					url = CloudStore.uploadFile(folder, file, true);
+				return url[1];
+			} catch (Throwable e) {
+				TelemetryManager.error("Error during uploading question paper pdf file for content:: " + node.getIdentifier() + " Error:: " + e.getStackTrace());
+				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+	                    "Error during uploading question paper pdf file for content :" + node.getIdentifier()+". Please Try Again After Sometime!");
+			} finally {
+				try {
+					if(null != file)
+						delete(file);
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return null;
+	}
+	
+	public void replaceArtifactUrl(Node node) {
+		String artifactBasePath = (String)node.getMetadata().get("artifactBasePath");
+		String artifactUrl = (String)node.getMetadata().get("artifactUrl");
+		if(StringUtils.contains(artifactUrl, artifactBasePath)) {
+			String sourcePath = StringUtils.substring(artifactUrl, artifactUrl.indexOf((artifactBasePath)));
+			String destinationPath = StringUtils.replace(sourcePath, artifactBasePath + File.separator, "");
+			
+			try	{
+				CloudStore.copyObjectsByPrefix(sourcePath, destinationPath, false);
+				TelemetryManager.log("Copying Objects...DONE | Under: " + destinationPath);
+				String newArtifactUrl = StringUtils.replace(artifactUrl, sourcePath, destinationPath);
+				node.getMetadata().put("artifactUrl", newArtifactUrl);
+				if(StringUtils.isNotBlank((String)node.getMetadata().get("cloudStorageKey"))) {
+					String cloudStorageKey = StringUtils.replace((String)node.getMetadata().get("cloudStorageKey"), artifactBasePath + File.separator, "");
+					node.getMetadata().put("cloudStorageKey", cloudStorageKey);
+				}
+				if(StringUtils.isNotBlank((String)node.getMetadata().get("s3Key"))) {
+					String s3Key = StringUtils.replace((String)node.getMetadata().get("s3Key"), artifactBasePath + File.separator, "");
+					node.getMetadata().put("s3Key", s3Key);
+				}
+			} catch(Exception e) {
+				TelemetryManager.error("Error while copying object by prefix", e);
 			}
 		}
 	}
-	return null;
-}
 }

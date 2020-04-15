@@ -92,9 +92,9 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 		return blob.contentLength();
 	}
 	
-	public static void copyObjectsByPrefix(String sourcePrefix, String destinationPrefix) {
+	public static void copyObjectsByPrefix(String sourcePrefix, String destinationPrefix, boolean isFolder) {
 		String container = getContainerName();
-		storageService.copyObjects(container, sourcePrefix, container, destinationPrefix, Option.apply(true));
+		storageService.copyObjects(container, sourcePrefix, container, destinationPrefix, Option.apply(isFolder));
 	}
 	
 	public static String getURI(String prefix, Option<Object> isDirectory) {

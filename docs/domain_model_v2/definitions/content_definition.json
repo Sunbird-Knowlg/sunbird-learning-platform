@@ -2914,7 +2914,20 @@
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
 					"indexed": true
-				}
+				},
+				{
+                    "required": false,
+                    "dataType": "Text",
+                    "propertyName": "artifactBasePath",
+                    "title": "ArtifactBasePath",
+                    "description": "ArtifactBasePath for Program Context",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 8 }",
+                    "indexed": true
+                },
 			],
 			"inRelations": [
 				{

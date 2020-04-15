@@ -112,7 +112,7 @@ public class ContentPackageExtractionUtil {
 					pool.execute(new Runnable() {
 						@Override
 						public void run() {
-							CloudStore.copyObjectsByPrefix(sourcePrefix, destinationPrefix);
+							CloudStore.copyObjectsByPrefix(sourcePrefix, destinationPrefix, true);
 						}
 					});
 				} catch (Exception e) {
@@ -124,7 +124,7 @@ public class ContentPackageExtractionUtil {
 				TelemetryManager.log("Copying Objects...DONE | Under: " + destinationPrefix);
 			} else if(ExtractionType.latest.name().equals(extractionType.name())){
 				try	{
-					CloudStore.copyObjectsByPrefix(sourcePrefix, destinationPrefix);
+					CloudStore.copyObjectsByPrefix(sourcePrefix, destinationPrefix, true);
 					TelemetryManager.log("Copying Objects...DONE | Under: " + destinationPrefix);
 				} catch(Exception e) {
 					TelemetryManager.error("Error while copying object by prefix", e);
