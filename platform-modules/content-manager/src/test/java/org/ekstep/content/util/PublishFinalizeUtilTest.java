@@ -4,11 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.ekstep.common.mgr.ConvertToGraphNode;
-import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.itemset.publish.ItemsetPublishManager;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.junit.AfterClass;
@@ -70,5 +68,11 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		Node contentNode = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
 		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil();
 		publishFinalizeUtil.replaceArtifactUrl(contentNode);
+		String artifactUrl = (String)contentNode.getMetadata().get("artifactUrl");
+		String cloudStorageKey = (String)contentNode.getMetadata().get("cloudStorageKey");
+		String s3Key = (String)contentNode.getMetadata().get("s3Key");
+		Assert.equals("https://sunbirddev.blob.core.windows.net/sunbird-content-dev/content/do_112999482416209920112/artifact/1.pdf", artifactUrl);
+		Assert.equals("content/do_112999482416209920112/artifact/1.pdf", cloudStorageKey);
+		Assert.equals("content/do_112999482416209920112/artifact/1.pdf", s3Key);
 	}
 }
