@@ -1286,6 +1286,23 @@
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Select",
+          "propertyName": "questionType",
+          "title": "Question Type",
+          "description": "",
+          "category": "General",
+          "displayProperty": "Editable",
+          "range": [
+            "Registration"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
+          "indexed": true,
+          "draft": false,
+          "rangeValidation": true
         }
       ],
       "inRelations": [],
