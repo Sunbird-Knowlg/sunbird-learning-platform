@@ -9,8 +9,10 @@ node() {
         
         ansiColor('xterm') {
             stage('Checkout') {
-                cleanWs()
+               
                 tag_name = env.JOB_NAME.split("/")[-1]
+                pre_checks()
+                cleanWs()
                 if (!tag_name.contains(env.public_repo_branch)) {
                     println("Error.. Tag does not contain " + env.public_repo_branch)
                     error("Oh ho! Tag is not a release candidate.. Skipping build")
@@ -24,7 +26,7 @@ node() {
             }
         }
 
-        stage('Pre-Build') {
+ //       stage Pre-Build
             sh """
                 java -version
                 rm -rf /data/logs/*
@@ -35,25 +37,24 @@ node() {
                 vim -esnc '%s/search.es_conn_info="localhost:9200"/search.es_conn_info="10.6.0.11:9200"/g|:wq' platform-core/unit-tests/src/test/resources/application.conf
                 vim -esnc '%s/search.es_conn_info="localhost:9200"/search.es_conn_info="10.6.0.11:9200"/g|:wq' searchIndex-platform/module/search-api/search-manager/conf/application.conf
                 """
-        }
 
-        stage('Build') {
+ //       stage Build
             sh 'mvn clean install -DskipTests -P ${profile_id} -T10'
-        }
+        
 
-        stage('Post-Build') {
+//        stage Post-Build
             sh """
                         cd searchIndex-platform/module/search-api/search-manager
                         mvn play2:dist
                      """
-        }
+        
 
-        stage('Post_Build-Action') {
+//        stage Post_Build-Action
             jacoco exclusionPattern: '**/common/**,**/dto/**,**/enums/**,**/pipeline/**,**/servlet/**,**/interceptor/**,**/batch/**,**/models/**,**/model/**,**/EnrichActor*.class,**/language/controller/**,**/wordchain/**,**/importer/**,**/Base**,**/ControllerUtil**,**/Indowordnet**,**/Import**'
 
-        }
+        
 
-        stage('Archive artifacts'){
+//        stage Archive artifacts
             if(params.profile_id == "platform-services"){
                  sh """
                         mkdir lp_artifacts
@@ -78,14 +79,13 @@ node() {
             archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
             currentBuild.result = "SUCCESS"
             currentBuild.description = "Artifact: ${artifact_version}, Public: ${params.github_release_tag}"
-        }
+        
         currentBuild.result = "SUCCESS"    
         slack_notify(currentBuild.result, tag_name)
         email_notify()  
-        auto_build_deploy()
+        auto_build_deploy(
     }
     catch (err) {
-        catch (err) {
         currentBuild.result = "FAILURE"
         slack_notify(currentBuild.result, tag_name)
         email_notify()
