@@ -1,15 +1,5 @@
 env: dev
 
-ingestion_kafka_topics:
-  - name: telemetry.ingest
-    num_of_partitions: 4
-    replication_factor: 1
-
-ingestion_kafka_overriden_topics:
-  - name: telemetry.ingest
-    retention_time: 604800000
-    replication_factor: 1
-
 processing_kafka_topics:
   - name: telemetry.raw
     num_of_partitions: 4

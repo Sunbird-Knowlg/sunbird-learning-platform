@@ -1,82 +1,10 @@
 
 input {
     file {
-        type => "backend_event"
-        start_position =>"beginning"
-        path => ["/data/logs/learning_telemetry_event_mw.log"]
-        sincedb_path => "/home/learning/logstash-6.3.1/.sincedb_learning_telemetry_event_mw"
-    }
-    file {
-        type => "backend_event"
-        start_position =>"beginning"
-        path => ["/data/logs/language_telemetry_event_mw.log"]
-        sincedb_path => "/home/learning/logstash-6.3.1/.sincedb_language_telemetry_event_mw"
-    }
-    file {
-        type => "backend_event"
-        start_position =>"beginning"
-        path => ["/data/logs/config_telemetry_event_mw.log"]
-        sincedb_path => "/home/learning/logstash-6.3.1/.sincedb_config_telemetry_event_mw"
-    }
-    file {
-        type => "backend_event"
-        start_position =>"beginning"
-        path => ["/data/logs/search_telemetry_event_mw.log"]
-        sincedb_path => "/home/learning/logstash-6.3.1/.sincedb_search_telemetry_event_mw"
-    }
-    file {
-        type => "backend_event"
-        start_position =>"beginning"
-        path => ["/data/logs/learning_service_mw.log"]
-        sincedb_path => "/home/learning/logstash-6.3.1/.sincedb_learning_service_mw"
-    }
-    file {
-        type => "backend_event"
-        start_position =>"beginning"
-        path => ["/data/logs/language_service_mw.log"]
-        sincedb_path => "/home/learning/logstash-6.3.1/.sincedb_language_service_mw"
-    }
-    file {
-        type => "backend_event"
-        start_position =>"beginning"
-        path => ["/data/logs/config_service_mw.log"]
-        sincedb_path => "/home/learning/logstash-6.3.1/.sincedb_config_service_mw"
-    }
-    file {
-        type => "backend_event"
-        start_position =>"beginning"
-        path => ["/data/logs/search_service_mw.log"]
-        sincedb_path => "/home/learning/logstash-6.3.1/.sincedb_search_service_mw"
-    }
-    file {
-        type => "graph_event"
-        start_position =>"beginning"
-        path => ["/data/logs/learning_graph_event_sync.log"]
-        sincedb_path => "/home/learning/logstash-6.3.1/.sincedb_learning_graph_event_sync"
-    }
-    file {
-         type => "graph_event"
-         start_position =>"beginning"
-         path => ["/data/logs/learning_graph_event_mw.log"]
-         sincedb_path => "/home/learning/logstash-6.3.1/.sincedb_learning_graph_event_mw"
-    }
-    file {
-         type => "graph_event"
-         start_position =>"beginning"
-         path => ["/data/logs/language_graph_event_mw.log"]
-         sincedb_path => "/home/learning/logstash-6.3.1/.sincedb_language_graph_event_mw"
-    }
-    file {
          type => "graph_event"
          start_position =>"beginning"
          path => ["/data/logs/learning_graph_event_neo4j.log"]
          sincedb_path => "/home/learning/logstash-6.3.1/.sincedb_learning_graph_event_neo4j"
-    }
-    file {
-         type => "graph_event"
-         start_position =>"beginning"
-         path => ["/data/logs/language_graph_event_neo4j.log"]
-         sincedb_path => "/home/learning/logstash-6.3.1/.sincedb_language_graph_event_neo4j"
     }
 }
 
@@ -89,30 +17,21 @@ filter {
         gsub => [ "message","%{timestamp}","" ]
         strip => [ "message" ]
     }
+    json {
+        source => "message"
+    }
 }
 
 
 output {
-  if [type] == "backend_event" {
-      kafka {
-          bootstrap_servers => "{{ graphevent_kafka_url }}"
-          codec => plain {
+    kafka {
+        bootstrap_servers => "{{ graphevent_kafka_url }}"
+        codec => plain {
                 format => "%{message}"
-            }
-          topic_id => "{{ backend_event_topic_id }}"
-          retries => 20
-          retry_backoff_ms => 180000
-      }
-  } else if [type] == "graph_event" {
-      kafka {
-          bootstrap_servers => "{{ graphevent_kafka_url }}"
-          codec => plain {
-                  format => "%{message}"
-            }
-          message_key => "%{nodeUniqueId}"
-          topic_id => "{{ graphevent_kafka_topic_id }}"
-          retries => 20
-          retry_backoff_ms => 180000
-      }
-  }
+          }
+        message_key => "%{nodeUniqueId}"
+        topic_id => "{{ graphevent_kafka_topic_id }}"
+        retries => 20
+        retry_backoff_ms => 180000
+    }
 }
