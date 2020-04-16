@@ -9,12 +9,8 @@ node() {
         
         ansiColor('xterm') {
             stage('Checkout') {
-                cleanWs()
                 tag_name = env.JOB_NAME.split("/")[-1]
-                if (!tag_name.contains(env.public_repo_branch)) {
-                    println("Error.. Tag does not contain " + env.public_repo_branch)
-                    error("Oh ho! Tag is not a release candidate.. Skipping build")
-                 }
+                pre_checks()
                 cleanWs()
                 def scmVars = checkout scm
                 checkout scm: [$class: 'GitSCM', branches: [[name: "refs/tags/$tag_name"]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
@@ -24,11 +20,11 @@ node() {
             }
         }
 
-        stage('Build') {
+//        stage Build
             sh 'mvn clean package  -DskipTests -P samza-jobs'
-        }
+        
 
-        stage('Archive artifacts'){
+//        stage Archive artifacts
             sh """
                         mkdir lp_yarn_artifacts
                         cp platform-jobs/samza/distribution/target/distribution-*.tar.gz lp_yarn_artifacts
@@ -39,7 +35,7 @@ node() {
             archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
             currentBuild.result = "SUCCESS"
             currentBuild.description = "Artifact: ${artifact_version}, Public: ${params.github_release_tag}"
-        }
+        
         currentBuild.result = "SUCCESS"    
         slack_notify(currentBuild.result, tag_name)
         email_notify()  
