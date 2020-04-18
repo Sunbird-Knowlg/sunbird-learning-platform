@@ -79,6 +79,9 @@ processing_kafka_topics:
   - name: system.command 
     num_of_partitions: 1
     replication_factor: 1
+  - name: learning.events.failed
+    num_of_partitions: 1
+    replication_factor: 1
 
 processing_kafka_overriden_topics:
   - name: telemetry.raw
@@ -153,4 +156,7 @@ processing_kafka_overriden_topics:
     replication_factor: 1
   - name: coursebatch.certificate.request
     retention_time: 1209600000
+    replication_factor: 1
+  - name: learning.events.failed 
+    retention_time: 604800000
     replication_factor: 1
