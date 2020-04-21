@@ -158,7 +158,7 @@ public abstract class SearchBaseActor extends AbstractActor {
              if(e.getSuppressed().length > 0) {
                  return e.getSuppressed()[0].getMessage();
              } else {
-                 return e.getCause().getMessage();
+                 return e.getMessage();
              }
         }
     }
