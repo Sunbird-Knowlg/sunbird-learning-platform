@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
+import akka.dispatch.Recover;
 import akka.util.Timeout;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -60,6 +61,11 @@ public class SearchManager extends SearchBaseActor {
 						return OK(lstResult);
 					}
 				}
+			}, getContext().dispatcher()).recoverWith(new Recover<Future<Response>>() {
+				@Override
+				public Future<Response> recover(Throwable failure) throws Throwable {
+					return ERROR(request.getOperation(), failure);
+				}
 			}, getContext().dispatcher());
 		} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
 			Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
@@ -89,7 +95,7 @@ public class SearchManager extends SearchBaseActor {
 			Map<String, Object> lstResult = processor.multiSynsetDocSearch(synsetIdList);
 			return Futures.successful(OK(lstResult));
 		} else {
-			TelemetryManager.log("Unsupported operation: " + operation);
+			TelemetryManager.info("Invalid Request :: Unsupported operation: " , request.getRequest());
 			throw new ClientException(CompositeSearchErrorCodes.ERR_INVALID_OPERATION.name(),
 					"Unsupported operation: " + operation);
 		}
@@ -467,6 +473,7 @@ private Integer getIntValue(Object num) {
 								break;
 							}
 							default: {
+								TelemetryManager.error("Invalid filters, Unsupported operation:: " + filterEntry.getKey() + ":: filters::" + filters);
 								throw new Exception("Unsupported operation");
 							}
 							}

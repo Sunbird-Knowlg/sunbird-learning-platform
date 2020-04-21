@@ -69,7 +69,7 @@ public abstract class SearchBaseActor extends AbstractActor {
             params.setErr(mwException.getErrCode());
             response.put("messages", mwException.getMessage());
         } else {
-            e.printStackTrace();
+            TelemetryManager.error("Error while processing", e);
             params.setErr("ERR_SYSTEM_EXCEPTION");
         }
         System.out.println("Exception occurred - class :" + e.getClass().getName() + " with message :" + e.getMessage());
@@ -154,9 +154,12 @@ public abstract class SearchBaseActor extends AbstractActor {
     protected String setErrMessage(Throwable e){
 		if (e instanceof MiddlewareException)
         		return e.getMessage();
-		else if  (e instanceof SearchPhaseExecutionException)
-			return e.getCause().getMessage();
-         else 
-        	 	return "Something went wrong in server while processing the request";
+		else {
+             if(e.getSuppressed().length > 0) {
+                 return e.getSuppressed()[0].getMessage();
+             } else {
+                 return e.getCause().getMessage();
+             }
+        }
     }
 }
