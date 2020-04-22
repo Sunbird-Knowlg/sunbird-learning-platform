@@ -2,14 +2,20 @@ package org.ekstep.content.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.ekstep.common.Slug;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
+import org.ekstep.content.entity.Manifest;
+import org.ekstep.content.entity.Media;
+import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.operation.finalizer.BaseFinalizer;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.util.CloudStore;
@@ -76,5 +82,35 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 				TelemetryManager.error("Error while copying object by prefix", e);
 			}
 		}
+	}
+	
+	public void handleAssetWithExternalLink(Plugin ecrf, Node node) {
+		if (null != ecrf) {
+			Manifest manifest = ecrf.getManifest();
+			if (null != manifest) {
+				List<Media> medias = manifest.getMedias();
+				if(CollectionUtils.isNotEmpty(medias)) {
+					for (Media media: medias) {
+						TelemetryManager.log("Validating Asset for External link: " + media.getId());
+						if(validateAssetMediaForExternalLink(media)) {
+							// insert data into cassandra table
+							//node.getIdentifier(), media.getId(), media.getSrc(), media.getType()
+						}
+					}
+				}
+				
+			}
+		}
+	}
+	
+	private boolean validateAssetMediaForExternalLink(Media media){
+		boolean isExternal = false;
+		UrlValidator validator = new UrlValidator();
+		String urlLink = media.getSrc();
+		if(StringUtils.isNotBlank(urlLink) && 
+				validator.isValid(media.getSrc()) &&
+				!StringUtils.contains(urlLink, CloudStore.getContainerName()))
+			isExternal = true; 
+		return isExternal;
 	}
 }
