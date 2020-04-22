@@ -2,7 +2,10 @@ package org.ekstep.content.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -18,12 +21,15 @@ import org.ekstep.content.entity.Media;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.operation.finalizer.BaseFinalizer;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.learning.contentstore.ContentStore;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class PublishFinalizeUtil extends BaseFinalizer{
 	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
 	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
+	
+	private static final ContentStore contentStore = new ContentStore();
 
 	public String uploadFile(String fileUrl, Node node, String basePath) {
     	
@@ -84,22 +90,32 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		}
 	}
 	
-	public void handleAssetWithExternalLink(Plugin ecrf, Node node) {
+	public void handleAssetWithExternalLink(Plugin ecrf, String contentId) {
 		if (null != ecrf) {
-			Manifest manifest = ecrf.getManifest();
-			if (null != manifest) {
-				List<Media> medias = manifest.getMedias();
-				if(CollectionUtils.isNotEmpty(medias)) {
-					for (Media media: medias) {
-						TelemetryManager.log("Validating Asset for External link: " + media.getId());
-						if(validateAssetMediaForExternalLink(media)) {
-							// insert data into cassandra table
-							//node.getIdentifier(), media.getId(), media.getSrc(), media.getType()
+			try {
+				Manifest manifest = ecrf.getManifest();
+				if (null != manifest) {
+					List<Media> medias = manifest.getMedias();
+					if(CollectionUtils.isNotEmpty(medias)) {
+						List<Map<String, Object>> externalLink = new ArrayList<Map<String,Object>>();
+						for (Media media: medias) {
+							TelemetryManager.log("Validating Asset for External link: " + media.getId());
+							if(validateAssetMediaForExternalLink(media)) {
+								Map<String, Object> assetMap = new HashMap<String, Object>();
+								assetMap.put("id", media.getId());
+								assetMap.put("src", media.getSrc());
+								assetMap.put("type", media.getType());
+								externalLink.add(assetMap);
+							}
 						}
+						contentStore.updateExternalLink(contentId, externalLink);
 					}
+					
 				}
-				
+			}catch(Exception e) {
+				TelemetryManager.error("Error while pushing externalLink details of content Id: " + contentId +" into cassandra.", e);
 			}
+			
 		}
 	}
 	
@@ -113,4 +129,20 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			isExternal = true; 
 		return isExternal;
 	}
+	
+	/*public static void main(String args[]) {
+		System.out.println("Hi");
+		Media m = new Media();
+		m.setId("123");
+		m.setSrc("https://www.youtube.com/watch?v=w-5PEXn4wOE&feature=youtu.be");
+		m.setType("youtube");
+		Manifest mani = new Manifest();
+		mani.setMedias(Arrays.asList(m));
+		Plugin p = new Plugin();
+		p.setManifest(mani);
+		Node node = new Node();
+		node.setIdentifier("abc");
+		handleAssetWithExternalLink(p, node);
+		
+	}*/
 }

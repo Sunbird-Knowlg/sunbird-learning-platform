@@ -20,6 +20,7 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ContentStore extends CassandraStore {
@@ -219,5 +220,19 @@ public class ContentStore extends CassandraStore {
 		}
 		return sb.toString();
 	}
+	
+	public void updateExternalLink(String contentId, List<Map<String, Object>> externalLinks) {
+        try {
+            String query = "UPDATE " + getKeyspace() + "." + getTable() + " SET externallink = ? WHERE content_id = ?";
+            String externalLinksData = mapper.writeValueAsString(externalLinks);
+            Session session = CassandraConnector.getSession();
+            PreparedStatement statement = session.prepare(query);
+            BoundStatement boundStatement = new BoundStatement(statement);
+            session.execute(boundStatement.bind(externalLinksData, contentId));
+        } catch (JsonProcessingException e) {
+            TelemetryManager.error("Error while updating collection hierarchy for ID" + contentId, e);
+        }
+
+    }
 
 }
