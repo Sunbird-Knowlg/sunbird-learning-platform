@@ -19,7 +19,12 @@ node() {
                 echo "artifact_version: "+ artifact_version
             }
         }
+        
+//        stage Build learning.
+           println ANSI_BOLD + ANSI_GREEN + "Triggering KnowledgePlatform build.." + ANSI_NORMAL
+           lpbuild = build job: "Build/$module/KnowledgePlatform", parameters: [string(name: 'github_release_tag', value: "$tag_name")]
 
+          if (lpbuild.currentResult == "SUCCESS") {
 //        stage Build
             sh 'mvn clean package  -DskipTests -P samza-jobs'
         
@@ -40,6 +45,12 @@ node() {
         slack_notify(currentBuild.result, tag_name)
         email_notify()  
         auto_build_deploy()
+     }
+     else {
+              println (ANSI_BOLD + ANSI_RED + "knowledge platform build failed. Skipping build" + ANSI_NORMAL)
+              error "knowledge platform build failed"
+           }
+        
     }
     catch (err) {
         currentBuild.result = "FAILURE"
