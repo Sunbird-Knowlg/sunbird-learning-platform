@@ -110,12 +110,10 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 						}
 						contentStore.updateExternalLink(contentId, externalLink);
 					}
-					
 				}
 			}catch(Exception e) {
 				TelemetryManager.error("Error while pushing externalLink details of content Id: " + contentId +" into cassandra.", e);
 			}
-			
 		}
 	}
 	
@@ -129,20 +127,4 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			isExternal = true; 
 		return isExternal;
 	}
-	
-	/*public static void main(String args[]) {
-		System.out.println("Hi");
-		Media m = new Media();
-		m.setId("123");
-		m.setSrc("https://www.youtube.com/watch?v=w-5PEXn4wOE&feature=youtu.be");
-		m.setType("youtube");
-		Manifest mani = new Manifest();
-		mani.setMedias(Arrays.asList(m));
-		Plugin p = new Plugin();
-		p.setManifest(mani);
-		Node node = new Node();
-		node.setIdentifier("abc");
-		handleAssetWithExternalLink(p, node);
-		
-	}*/
 }
