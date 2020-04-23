@@ -83,7 +83,7 @@ node() {
         currentBuild.result = "SUCCESS"    
         slack_notify(currentBuild.result, tag_name)
         email_notify()  
-        auto_build_deploy(
+        auto_build_deploy()
     }
     catch (err) {
         currentBuild.result = "FAILURE"
