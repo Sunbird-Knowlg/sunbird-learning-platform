@@ -38,7 +38,8 @@ node() {
                     archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
                 }
             }
-    }
+         summary()
+     }
     catch (err) {
         currentBuild.result = "FAILURE"
         throw err
