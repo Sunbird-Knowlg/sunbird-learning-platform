@@ -5,16 +5,14 @@ import com.datastax.driver.core.Row;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.sunbird.jobs.samza.util.ESUtil;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CourseBatchUpdater extends BaseCourseBatchUpdater {
@@ -35,14 +33,25 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
     public void updateBatchStatus(Map<String, Object> edata) throws Exception {
         //Get data from content read
         String courseId = (String) edata.get("courseId");
-        Map<String, Object> content = getContent(courseId, "leafNodes");
-        List<String> leafNodes = (List<String>) content.get("leafNodes");
-        if(CollectionUtils.isEmpty((List<String>) content.get("leafNodes"))){
+        List<String> leafNodes = getLeafNodes(courseId);
+        if(CollectionUtils.isEmpty(leafNodes)){
             LOGGER.info("Content does not have leafNodes : " + courseId);
         } else {
             //Compute status
             updateData(edata, leafNodes);
         }
+    }
+
+    private List<String> getLeafNodes(String courseId) throws Exception {
+        String key = courseId + ":leafnodes";
+        List<String> leafNodes = RedisStoreUtil.getStringList(key);
+        if (CollectionUtils.isEmpty(leafNodes)) {
+            Map<String, Object> content = getContent(courseId, "leafNodes");
+            leafNodes = (List<String>) content.getOrDefault("leafNodes", new ArrayList<String>());
+            if (CollectionUtils.isNotEmpty(leafNodes))
+                RedisStoreUtil.saveStringList(key, leafNodes);
+        }
+        return leafNodes;
     }
 
     private void updateData(Map<String, Object> edata, List<String> leafNodes)  throws Exception {
