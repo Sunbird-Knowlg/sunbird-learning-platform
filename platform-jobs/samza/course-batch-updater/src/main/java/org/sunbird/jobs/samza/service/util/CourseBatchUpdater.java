@@ -24,6 +24,8 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
     private String table = "user_courses";
     private static final String ES_INDEX_NAME = "user-courses";
     private static final String ES_DOC_TYPE = "_doc";
+    private int leafNodesTTL = Platform.config.hasPath("content.leafnodes.ttl")
+            ? Platform.config.getInt("content.leafnodes.ttl"): 3600;
 
 
     public CourseBatchUpdater() {
@@ -49,7 +51,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             Map<String, Object> content = getContent(courseId, "leafNodes");
             leafNodes = (List<String>) content.getOrDefault("leafNodes", new ArrayList<String>());
             if (CollectionUtils.isNotEmpty(leafNodes))
-                RedisStoreUtil.saveStringList(key, leafNodes);
+                RedisStoreUtil.saveStringList(key, leafNodes, leafNodesTTL);
         }
         return leafNodes;
     }

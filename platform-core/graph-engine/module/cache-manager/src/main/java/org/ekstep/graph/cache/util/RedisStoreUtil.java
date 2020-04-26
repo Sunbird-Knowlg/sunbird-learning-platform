@@ -150,13 +150,14 @@ public class RedisStoreUtil {
 		}
 	}
 
-	public static void saveStringList(String key, List<String> values) {
+	public static void saveStringList(String key, List<String> values, Integer ttl) {
 		Jedis jedis = getRedisConncetion();
 		try {
 			jedis.del(key);
 			for (String val : values) {
 				jedis.sadd(key, val);
 			}
+			if (ttl > 0) jedis.expire(key, ttl);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
