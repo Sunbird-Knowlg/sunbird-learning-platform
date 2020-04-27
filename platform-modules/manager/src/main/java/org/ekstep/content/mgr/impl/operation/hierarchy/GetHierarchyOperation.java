@@ -105,6 +105,10 @@ public class GetHierarchyOperation extends BaseContentManager {
 
             } else {
                 dataMap = util.getHierarchyMap(TAXONOMY_ID, rootNode.getIdentifier(), definition, mode,null);
+                List<String> leafNodeIds = new ArrayList<>(); 
+                fetchLeafNodeIds((List<Map<String, Object>>) dataMap.getOrDefault("children", new ArrayList<Map<String, Object>>()), leafNodeIds);
+                Map<String, Object> latestLeafNodes = getLatestLeafNodes(leafNodeIds);
+                updateLatestLeafNodes((List<Map<String, Object>>) dataMap.getOrDefault("children", new ArrayList<Map<String, Object>>()), latestLeafNodes);
                 String visibility = (String) rootNode.getMetadata().get("visibility");
                 if (StringUtils.isNotBlank(bookmarkId)) {
                     List<Map<String, Object>> children = (List<Map<String, Object>>) dataMap.get("children");
@@ -358,4 +362,66 @@ public class GetHierarchyOperation extends BaseContentManager {
         edata.put("contentType", "TextBook");
     }
 
+
+    private void fetchLeafNodeIds(List<Map<String, Object>> children, List<String> leafNodeIds) {
+        children.stream().forEach(child -> {
+            if(StringUtils.equalsIgnoreCase("Default", (String) child.getOrDefault("visibility", ""))) {
+                leafNodeIds.add((String) child.get("identifier"));
+            } else {
+                fetchLeafNodeIds((List<Map<String, Object>>) child.getOrDefault("children", new ArrayList<Map<String, Object>>()), leafNodeIds);
+            }
+        });
+    }
+
+    private Map<String, Object> getLatestLeafNodes(List<String> leafNodeIds) {
+        Map<String, Object> leafNodes = searchNodesByIds(leafNodeIds);
+        List<String> imageNodeIds = leafNodeIds.stream().map(id -> id + IMAGE_SUFFIX).collect(Collectors.toList());
+        Map<String, Object> imageLeafNodes = searchNodesByIds(imageNodeIds);
+        leafNodes.entrySet().forEach(entry -> {
+            if(imageLeafNodes.containsKey(entry.getKey())){
+                entry.setValue(imageLeafNodes.get(entry.getKey()));
+            }
+        });
+       return leafNodes;
+    }
+
+    private Map<String, Object> searchNodesByIds(List<String> leafNodeIds) {
+        try {
+            SearchDTO searchDTO = new SearchDTO();
+            searchDTO.setFuzzySearch(false);
+            searchDTO.setProperties(new ArrayList<Map>() {{
+                add(new HashMap<String, Object>() {{
+                    put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+                    put("propertyName", "childNodes");
+                    put("values", leafNodeIds);
+                }});
+            }});
+            searchDTO.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
+            Future<SearchResponse> searchResp = processor.processSearchQueryWithSearchResult(searchDTO, false,
+                    CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, false);
+            SearchResponse searchResponse = Await.result(searchResp, RequestRouterPool.WAIT_TIMEOUT.duration());
+            List<Object> searchResult = ElasticSearchUtil.getDocumentsFromHits(searchResponse.getHits());
+            if (CollectionUtils.isNotEmpty(searchResult))
+                return searchResult.stream().collect(Collectors.toMap(content -> ((String)((Map<String, Object>)content).get("identifier")).replaceAll(IMAGE_SUFFIX, ""), content -> (Map<String, Object>)content));
+            else
+                return new HashMap<String, Object>();
+        } catch (Exception e) {
+            throw new ServerException(ContentErrorCodes.ERR_CONTENT_SEARCH_ERROR.name(), "Error while fetching latestLeafNodes",
+                    e);
+        }
+        
+    }
+
+    private void updateLatestLeafNodes(List<Map<String, Object>> children, Map<String, Object> latestLeafNodes) {
+        children.stream().forEach(child -> {
+            if(StringUtils.equalsIgnoreCase("Default", (String) child.getOrDefault("visibility", ""))) {
+                Map<String, Object> metadata = (Map<String, Object>) latestLeafNodes.getOrDefault((String)child.get("identifier"), new HashMap<String, Object>());
+                if(StringUtils.equalsIgnoreCase(ContentAPIParams.Retired.name(), (String) metadata.getOrDefault("status", ""))) {
+                    children.remove(child);
+                } else {
+                    child.putAll(metadata);
+                }
+            }
+        });
+    }
 }
