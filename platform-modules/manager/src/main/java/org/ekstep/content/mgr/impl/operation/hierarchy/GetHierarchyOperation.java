@@ -89,7 +89,11 @@ public class GetHierarchyOperation extends BaseContentManager {
             Map<String, Object> dataMap = ConvertGraphNode.convertGraphNode(rootNode, TAXONOMY_ID, definition, fields);
             if(!checkError(hierarchyResponse)) {
                 Map<String, Object> hierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
-                List<Map<String, Object>> children = (List<Map<String, Object>>) hierarchy.get("children");
+                List<Map<String, Object>> children = (List<Map<String, Object>>) hierarchy.getOrDefault("children", new ArrayList<Map<String, Object>>());
+                List<String> leafNodeIds = new ArrayList<>();
+                fetchLeafNodeIds(children, leafNodeIds);
+                Map<String, Object> latestLeafNodes = getLatestLeafNodes(leafNodeIds);
+                updateLatestLeafNodes(children, latestLeafNodes);
                 if (StringUtils.isNotBlank(bookmarkId)) {
                     dataMap = filterBookmark(children, bookmarkId);
                     if (MapUtils.isEmpty(dataMap)) {
@@ -392,7 +396,7 @@ public class GetHierarchyOperation extends BaseContentManager {
             searchDTO.setProperties(new ArrayList<Map>() {{
                 add(new HashMap<String, Object>() {{
                     put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-                    put("propertyName", "childNodes");
+                    put("propertyName", "identifier");
                     put("values", leafNodeIds);
                 }});
             }});
@@ -421,6 +425,8 @@ public class GetHierarchyOperation extends BaseContentManager {
                 } else {
                     child.putAll(metadata);
                 }
+            } else {
+                updateLatestLeafNodes((List<Map<String, Object>>) child.getOrDefault("children", new ArrayList<Map<String, Object>>()), latestLeafNodes);
             }
         });
     }
