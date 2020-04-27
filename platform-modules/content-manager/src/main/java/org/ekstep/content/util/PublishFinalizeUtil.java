@@ -29,7 +29,12 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
 	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
 	
-	private static final ContentStore contentStore = new ContentStore();
+	private ContentStore contentStore = new ContentStore();
+	
+	public PublishFinalizeUtil(ContentStore contentStore) {
+		this.contentStore = contentStore;
+	}
+	public PublishFinalizeUtil() {}
 
 	public String uploadFile(String fileUrl, Node node, String basePath) {
     	
@@ -117,7 +122,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		}
 	}
 	
-	private boolean validateAssetMediaForExternalLink(Media media){
+	protected boolean validateAssetMediaForExternalLink(Media media){
 		boolean isExternal = false;
 		UrlValidator validator = new UrlValidator();
 		String urlLink = media.getSrc();
