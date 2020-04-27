@@ -33,6 +33,9 @@ public class LinkDialCodeOperation extends BaseContentManager {
 
     private final String ERR_DIALCODE_LINK_REQUEST = "Invalid Request.";
 
+    private final List<String> publishStatusList = Arrays.asList("Live", "Unlisted");
+    private final List<String> collectionDraftProperties = Arrays.asList("identifier", "children");
+    
     private final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.api.search.url")
             ? Platform.config.getString("dialcode.api.search.url") : "http://localhost:8080/learning-service/v3/dialcode/search";
 
@@ -295,6 +298,11 @@ public class LinkDialCodeOperation extends BaseContentManager {
             validateDuplicateDialCodes(rootNodeId, existingDialcodes, rootChildren, dials);
         } else {
             validateDuplicateDialCodes(rootNodeId, existingDialcodes, rootChildren, null);
+        }
+        
+        if(rootHierarchy.containsKey("status") && publishStatusList.contains((String)rootHierarchy.get("status"))) {
+        	rootHierarchy.entrySet().removeIf(e -> !collectionDraftProperties.contains(e.getKey()));
+        	rootHierarchyId = getImageId(rootNodeId);
         }
 
         //update cassandra
