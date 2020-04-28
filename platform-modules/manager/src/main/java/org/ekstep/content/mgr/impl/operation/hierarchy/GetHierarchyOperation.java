@@ -378,15 +378,18 @@ public class GetHierarchyOperation extends BaseContentManager {
     }
 
     private Map<String, Object> getLatestLeafNodes(List<String> leafNodeIds) {
-        Map<String, Object> leafNodes = searchNodesByIds(leafNodeIds);
-        List<String> imageNodeIds = leafNodeIds.stream().map(id -> id + IMAGE_SUFFIX).collect(Collectors.toList());
-        Map<String, Object> imageLeafNodes = searchNodesByIds(imageNodeIds);
-        leafNodes.entrySet().forEach(entry -> {
-            if(imageLeafNodes.containsKey(entry.getKey())){
-                entry.setValue(imageLeafNodes.get(entry.getKey()));
-            }
-        });
-       return leafNodes;
+        Map<String, Object> leafNodes = new HashMap<>(); 
+        if(CollectionUtils.isNotEmpty(leafNodeIds)) {
+            leafNodes = searchNodesByIds(leafNodeIds);
+            List<String> imageNodeIds = leafNodeIds.stream().map(id -> id + IMAGE_SUFFIX).collect(Collectors.toList());
+            Map<String, Object> imageLeafNodes = searchNodesByIds(imageNodeIds);
+            leafNodes.entrySet().forEach(entry -> {
+                if(imageLeafNodes.containsKey(entry.getKey())){
+                    entry.setValue(imageLeafNodes.get(entry.getKey()));
+                }
+            });
+        }
+        return leafNodes;
     }
 
     private Map<String, Object> searchNodesByIds(List<String> leafNodeIds) {
