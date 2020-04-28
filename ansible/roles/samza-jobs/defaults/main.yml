@@ -37,3 +37,5 @@ sunbird_installation: "{{env}}"
 dial_base_url: "https://{{domain_name}}/dial/"
 samza_coordinator_replication_factor: 1
 samza_checkpoint_replication_factor: 1
+course_batch_updater_container_count: 1
+course_certificate_generator_container_count: 1
