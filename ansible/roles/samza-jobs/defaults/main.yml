@@ -35,3 +35,5 @@ redis_port: 6379
 google_api_key: "123"
 sunbird_installation: "{{env}}"
 dial_base_url: "https://{{domain_name}}/dial/"
+samza_coordinator_replication_factor: 1
+samza_checkpoint_replication_factor: 1
