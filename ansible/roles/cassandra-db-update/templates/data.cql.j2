@@ -69,6 +69,8 @@ ALTER KEYSPACE {{ orchestrator_keyspace_name }} WITH replication = {
   'class': 'NetworkTopologyStrategy',
   'datacenter1' : 2
 };
+
+ALTER TABLE {{ content_keyspace_name }}.content_data ADD (externallink text);
 {% endif %}
 
 
