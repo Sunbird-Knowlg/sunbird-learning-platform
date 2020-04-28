@@ -227,6 +227,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 						ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null ECRF Object.]");
 
+			publishFinalizeUtil.handleAssetWithExternalLink(ecrf, contentId);
 			// Output only ECML format
 			String ecmlType = ContentWorkflowPipelineParams.ecml.name();
 

@@ -1,5 +1,7 @@
 package org.ekstep.learning.contentstore;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +17,9 @@ import org.junit.Test;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ContentStoreTest extends CassandraTestSetup {
 	static final String keyspace = Platform.config.hasPath("content.keyspace.name")
@@ -25,7 +30,7 @@ public class ContentStoreTest extends CassandraTestSetup {
 	private static String createKeyspace = "CREATE KEYSPACE IF NOT EXISTS " + keyspace
 			+ " WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}";
 	private static String createTable = "CREATE TABLE IF NOT EXISTS " + keyspace + "." + table
-			+ " (content_id text, last_updated_on timestamp, body blob, oldBody blob, stageIcons blob,screenshots blob, PRIMARY KEY (content_id));";
+			+ " (content_id text, last_updated_on timestamp, body blob, oldBody blob, stageIcons blob,screenshots blob, externallink text, PRIMARY KEY (content_id));";
 
 	ContentStore contentStore = new ContentStore();
 
@@ -132,5 +137,30 @@ public class ContentStoreTest extends CassandraTestSetup {
 		String body = "test_content_body";
 		contentStore.updateContentBody(identifier, body);
 		contentStore.getContentProperties("", Arrays.asList("body"));
+	}
+	
+	@Test
+	public void testUpdateExternalLink() throws JsonParseException, JsonMappingException, IOException {
+		String identifier = "test_content";
+		List<Map<String, Object>> externalLinkList = new ArrayList<Map<String,Object>>();
+		Map<String, Object> externalLink = new HashMap<>();
+		externalLink.put("id", "test_asset");
+		externalLink.put("src", "https://www.youtube.com/watch?v=Gi2nuTLse7M");
+		externalLink.put("type", "youtube");
+		externalLinkList.add(externalLink);
+		
+		contentStore.updateExternalLink(identifier, externalLinkList);
+		ResultSet resultSet = getSession().execute(
+				"SELECT content_id, externallink FROM " + keyspace + "." + table + " WHERE content_id='"
+						+ identifier + "';");
+		List<Row> rows = resultSet.all();
+		int count = rows.size();
+		Assert.assertTrue(count == 1);
+		Row row = rows.get(0);
+		Assert.assertTrue(identifier.equals(row.getString("content_id")));
+		String extLink = row.getString("externallink");
+		ObjectMapper o = new ObjectMapper();
+		List<Map<String, Object>> extLinkList = o.readValue(extLink, List.class);
+		Assert.assertEquals("https://www.youtube.com/watch?v=Gi2nuTLse7M", extLinkList.get(0).get("src"));
 	}
 }
