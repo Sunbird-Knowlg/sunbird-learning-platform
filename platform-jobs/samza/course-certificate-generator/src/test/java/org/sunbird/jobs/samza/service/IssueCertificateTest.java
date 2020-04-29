@@ -24,8 +24,8 @@ public class IssueCertificateTest {
         Map<String, Object> request = new HashMap<>();
         request.put("action", "issue-certificate");
         request.put("iteration", 1);
-        request.put("batchId", "0128764408268881921");
-        request.put("courseId", "do_112876410268794880162");
+        request.put("batchId", "0125450863553740809");
+        request.put("courseId", "do_1125098016170639361238");
 
         spy.issue(request, null);
     }
