@@ -456,7 +456,7 @@ public class CassandraESSyncManager {
     		System.out.println("Content came for handling external link:  " + contentIds.toString());
     		List<String> contentWithNoBody = new ArrayList<>();
     		contentIds.stream().forEach(x -> handleAssetWithExternalLink(contentWithNoBody, x));
-    		System.out.println("Content Body exists for content:  " + contentWithNoBody.toString());
+    		System.out.println("Content Body not exists for content:  " + contentWithNoBody.toString());
     	}
     }
     
