@@ -7,12 +7,13 @@ import java.util.Arrays;
 
 import org.ekstep.sync.tool.mgr.CassandraESSyncManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SyncECMLContent {
+public class SyncECMLContent implements CommandMarker{
 	
 	@Autowired
 	CassandraESSyncManager syncManager;
