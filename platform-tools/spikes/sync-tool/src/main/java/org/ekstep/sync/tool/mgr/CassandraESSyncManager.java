@@ -7,6 +7,7 @@ package org.ekstep.sync.tool.mgr;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
@@ -15,18 +16,25 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.util.RequestValidatorUtil;
+import org.ekstep.content.entity.Manifest;
+import org.ekstep.content.entity.Media;
+import org.ekstep.content.entity.Plugin;
+import org.ekstep.content.operation.initializer.BaseInitializer;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
+import org.ekstep.learning.contentstore.ContentStore;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.sync.tool.util.ElasticSearchConnector;
 import org.ekstep.sync.tool.util.GraphUtil;
 import org.ekstep.sync.tool.util.SyncMessageGenerator;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PostConstruct;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,6 +59,7 @@ public class CassandraESSyncManager {
 
 
     private HierarchyStore hierarchyStore = new HierarchyStore();
+    private ContentStore contentStore = new ContentStore();
     private ElasticSearchConnector searchConnector = new ElasticSearchConnector();
     private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
     private static String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
@@ -441,5 +450,60 @@ public class CassandraESSyncManager {
             }
         }
     }
-
+    
+    public void syncECMLContent(List<String> contentIds) {
+    	if(CollectionUtils.isNotEmpty(contentIds)) {
+    		System.out.println("Content came for handling external link:  " + contentIds.toString());
+    		List<String> contentWithNoBody = new ArrayList<>();
+    		contentIds.stream().forEach(x -> handleAssetWithExternalLink(contentWithNoBody, x));
+    		System.out.println("Content Body exists for content:  " + contentWithNoBody.toString());
+    	}
+    }
+    
+    public void handleAssetWithExternalLink(List<String> contentWithNoBody, String contentId) {
+    	String contentBody = contentStore.getContentBody(contentId);
+    	
+    	if(StringUtils.isNoneBlank(contentBody)) {
+    		BaseInitializer baseInitializer = new BaseInitializer();
+    		Plugin plugin = baseInitializer.getPlugin(contentBody);
+    		
+    		if (null != plugin) {
+    			try {
+    				Manifest manifest = plugin.getManifest();
+    				if (null != manifest) {
+    					List<Media> medias = manifest.getMedias();
+    					if(CollectionUtils.isNotEmpty(medias)) {
+    						List<Map<String, Object>> externalLink = new ArrayList<Map<String,Object>>();
+    						for (Media media: medias) {
+    							TelemetryManager.log("Validating Asset for External link: " + media.getId());
+    							if(validateAssetMediaForExternalLink(media)) {
+    								Map<String, Object> assetMap = new HashMap<String, Object>();
+    								assetMap.put("id", media.getId());
+    								assetMap.put("src", media.getSrc());
+    								assetMap.put("type", media.getType());
+    								externalLink.add(assetMap);
+    							}
+    						}
+    						contentStore.updateExternalLink(contentId, externalLink);
+    					}
+    				}
+    			}catch(Exception e) {
+    				TelemetryManager.error("Error while pushing externalLink details of content Id: " + contentId +" into cassandra.", e);
+    			}
+    		}
+    	}else {
+    		contentWithNoBody.add(contentId);
+    	}
+    }
+	
+	protected boolean validateAssetMediaForExternalLink(Media media){
+		boolean isExternal = false;
+		UrlValidator validator = new UrlValidator();
+		String urlLink = media.getSrc();
+		if(StringUtils.isNotBlank(urlLink) && 
+				validator.isValid(media.getSrc()) &&
+				!StringUtils.contains(urlLink, CloudStore.getContainerName()))
+			isExternal = true; 
+		return isExternal;
+	}
 }
