@@ -1,11 +1,16 @@
 package org.ekstep.content.mgr.impl.operation.content;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -27,6 +32,8 @@ import java.util.stream.Collectors;
 
 
 public class RetireOperation extends BaseContentManager {
+
+    private static String COMPOSITE_SEARCH_URL = Platform.config.getString("kp.search_service.base_url") +"/v3/search";
 
     /**
      * @param contentId
@@ -60,6 +67,10 @@ public class RetireOperation extends BaseContentManager {
         List<String> identifiers = (isImageNodeExist) ? Arrays.asList(contentId, getImageId(contentId)) : Arrays.asList(contentId);
 
         if (isCollWithFinalStatus) {
+            List<String> shallowIds = getShallowCopy(node.getIdentifier());
+            if(CollectionUtils.isNotEmpty(shallowIds))
+                throw new ClientException(ContentErrorCodes.ERR_CONTENT_RETIRE.name(),
+                        "Content With Identifier [" + contentId + "] Can Not Be Retired. It Has Been Adopted By Other Users.");
             RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
             Response hierarchyResponse = getCollectionHierarchy(contentId);
             if (checkError(hierarchyResponse)) {
@@ -99,6 +110,42 @@ public class RetireOperation extends BaseContentManager {
         Response res = getSuccessResponse();
         res.put(ContentAPIParams.node_id.name(), contentId);
         return res;
+    }
+
+    private List<String> getShallowCopy(String identifier) {
+        List<String> result = new ArrayList<String>();
+        Map<String, Object> reqMap = getSearchRequest(identifier);
+        try {
+            Response searchResponse = HttpRestUtil.makePostRequest(COMPOSITE_SEARCH_URL, reqMap, new HashMap<String, String>());
+            if (searchResponse.getResponseCode() == ResponseCode.OK && MapUtils.isNotEmpty(searchResponse.getResult())) {
+                Map<String, Object> searchResult = searchResponse.getResult();
+                Integer count = (Integer) searchResult.getOrDefault("count", 0);
+                if (count > 0) {
+                    result = ((List<Map<String, Object>>) searchResult.getOrDefault("content", new ArrayList<Map<String, Object>>())).stream().filter(map -> map.containsKey("identifier")).map(map -> (String) map.get("identifier")).collect(Collectors.toList());
+                }
+            } else {
+                TelemetryManager.info("Recevied Invalid Search Response For Shallow Copy. Response is : "+searchResponse);
+                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+                        "Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+            }
+        } catch (Exception e) {
+            TelemetryManager.error("Exception Occurred While Making Search Call for Shallow Copy Validation. Exception is ",e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+                    "Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+        }
+        return result;
+    }
+
+    private Map<String, Object> getSearchRequest(String identifier) {
+        return new HashMap<String, Object>(){{
+            put("request", new HashMap<String, Object>(){{
+                put("filters", new HashMap<String, Object>(){{
+                    put("objectType", "Content");
+                    put("status", Arrays.asList());
+                    put("origin",identifier);
+                }});
+            }});
+        }};
     }
 
     /**
