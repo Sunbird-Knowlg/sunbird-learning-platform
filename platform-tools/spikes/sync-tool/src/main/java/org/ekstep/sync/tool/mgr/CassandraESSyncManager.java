@@ -469,7 +469,13 @@ public class CassandraESSyncManager {
     	
     	if(StringUtils.isNoneBlank(contentBody)) {
     		BaseInitializer baseInitializer = new BaseInitializer();
-    		Plugin plugin = baseInitializer.getPlugin(contentBody);
+    		Plugin plugin = null;
+    		
+    		try {
+    			plugin = baseInitializer.getPlugin(contentBody);
+    		}catch(Exception e) {
+    			System.out.println("Exception while rendring body for content : " + contentId + " ** Exception: " + e);
+    		}
     		
     		if (null != plugin) {
     			try {
