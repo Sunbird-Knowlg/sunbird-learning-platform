@@ -15,6 +15,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
@@ -50,6 +51,9 @@ public class CertificateGenerator {
             ? Platform.config.getString("certificate.base_path"): "http://localhost:9000/certs";
     protected static final String KP_CONTENT_SERVICE_BASE_URL = Platform.config.hasPath("kp.content_service.base_url")
             ? Platform.config.getString("kp.content_service.base_url"): "http://localhost:9000";
+
+    private static final String certGenerateURL = CERT_SERVICE_URL + "/v1/certs/generate";
+    private static final String certRegistryAddURL = CERT_REG_SERVICE_BASE_URL + "/certs/v1/registry/add";
 
     private static JobLogger LOGGER = new JobLogger(CertificateGenerator.class);
 
@@ -108,9 +112,8 @@ public class CertificateGenerator {
                 if(MapUtils.isNotEmpty(userResponse)){
                     generateCertificate(certificates, courseId, courseName, batchId, userId, userResponse, certTemplate, issuedOn, reIssue);
                 } else {
-                    LOGGER.info("No User details fetched  for userid: " + userId + " : " + userResponse);
+                    LOGGER.info("No User details fetched for userid: " + userId + " : " + userResponse);
                 }
-
             } else {
                 LOGGER.info("No certificate template to generate certificates for: " + courseId);
             }
@@ -128,8 +131,7 @@ public class CertificateGenerator {
             }
             String recipientName = getRecipientName(userResponse);
             Map<String, Object> certServiceRequest = prepareCertServiceRequest(courseName, batchId, userId, userResponse, certTemplate, issuedOn);
-            String url = CERT_SERVICE_URL + "/v1/certs/generate";
-            HttpResponse<String> httpResponse = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(certServiceRequest)).asString();
+            HttpResponse<String> httpResponse = Unirest.post(certGenerateURL).header("Content-Type", "application/json").body(mapper.writeValueAsString(certServiceRequest)).asString();
             if(200 == httpResponse.getStatus()) {
                 Response response = mapper.readValue(httpResponse.getBody(), Response.class);
                 List<Map<String, String>> updatedCerts = certificates.stream().filter(cert -> !StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), cert.get("name"))).collect(Collectors.toList());
@@ -159,8 +161,7 @@ public class CertificateGenerator {
     }
 
     private boolean addCertificateToUser(Map<String, Object> certificate, String courseId, String batchId, String oldId, String recipientName, String certName) {
-        try{
-            String url = CERT_REG_SERVICE_BASE_URL + "/certs/v1/registry/add";
+        try {
             Request request = new Request();
             request.put(CourseCertificateParams.recipientId.name(), certificate.get(CourseCertificateParams.recipientId.name()));
             request.put(CourseCertificateParams.recipientName.name(), recipientName);
@@ -176,7 +177,7 @@ public class CertificateGenerator {
             }});
             if(StringUtils.isNotBlank(oldId))
                 request.put(CourseCertificateParams.oldId.name(), oldId);
-            HttpResponse<String> response = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
+            HttpResponse<String> response = Unirest.post(certRegistryAddURL).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
             LOGGER.info("Add certificate to registry response for batchid: " + batchId  +" and courseid: " + courseId + " is : " + response.getStatus() + " :: "+ response.getBody());
             return (200 == response.getStatus());
         } catch(Exception e) {
@@ -198,7 +199,10 @@ public class CertificateGenerator {
             request.put("body", "email body");
             try {
                 HttpResponse<String> response = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
-                LOGGER.info("email response.getStatus()" + response.getStatus());
+                if (response.getStatus() == 200)
+                    LOGGER.info("email response.getStatus()" + response.getStatus());
+                else
+                    LOGGER.info("email response.getStatus()" + response.getStatus() + " :: " + response.getBody());
             } catch (Exception e) {
                 LOGGER.error("Error while sending email notification to user : " + userId, e);
             }
@@ -208,7 +212,10 @@ public class CertificateGenerator {
                 request.put("body", smsBody);
                 try {
                     HttpResponse<String> response = Unirest.post(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
-                    LOGGER.info("phone response.getStatus()" + response.getStatus());
+                    if (response.getStatus() == 200)
+                        LOGGER.info("phone response.getStatus()" + response.getStatus());
+                    else
+                        LOGGER.info("phone response.getStatus()" + response.getStatus() + " :: " + response.getBody());
                 } catch (Exception e) {
                     LOGGER.error("Error while sending phone notification to user : " + userId, e);
                 }
@@ -274,6 +281,7 @@ public class CertificateGenerator {
     }
 
     private Map<String,Object> getContent(String courseId, String fields) {
+        // TODO: get the content from Redis cache: Pradyumna
         try {
             String url = KP_CONTENT_SERVICE_BASE_URL + "/content/v3/read/" + courseId;
             if(StringUtils.isNotBlank(fields))
@@ -364,15 +372,14 @@ public class CertificateGenerator {
         try {
             String key = dataToSelect.entrySet().stream().map(entry -> (String) entry.getValue()).collect(Collectors.joining("_"));
             String documentJson = ElasticSearchUtil.getDocumentAsStringById(index, type, key);
-            Map<String, Object> courseBatch = new HashMap<>();
+            Map<String, Object> document = new HashMap<>();
             if(StringUtils.isNotBlank(documentJson))
-                courseBatch = mapper.readValue(documentJson, Map.class);
-            courseBatch.putAll(dataToUpdate);
-            ElasticSearchUtil.updateDocument(index, type, mapper.writeValueAsString(courseBatch), key);
+                document = mapper.readValue(documentJson, Map.class);
+            document.putAll(dataToUpdate);
+            ElasticSearchUtil.updateDocument(index, type, mapper.writeValueAsString(document), key);
         } catch (Exception e) {
             LOGGER.error("Error while update to ES: ", e);
         }
-
     }
 
     /**
@@ -383,12 +390,20 @@ public class CertificateGenerator {
     private Map<String,Object> getCertTemplate(Map<String, Object> template) {
         try{
             String id = (String) template.get("identifier");
-            String url = CERT_SERVICE_URL + "/cert/v1/template/read/" + id;
-            HttpResponse<String> httpResponse = Unirest.get(url).header("Content-Type", "application/json").asString();
-            if(200 == httpResponse.getStatus()) {
-                Response response = mapper.readValue(httpResponse.getBody(), Response.class);
-                Map<String, Object> certTemplate = (Map<String, Object>) ((Map<String, Object>) response.getResult().get("certificate")).get("template");
-                return certTemplate;
+            String cacheKey = id +":certtemplate";
+            String templateStr = RedisStoreUtil.get(cacheKey);
+            if (StringUtils.isNotBlank(templateStr)) {
+                return mapper.readValue(templateStr, Map.class);
+            } else {
+                String url = CERT_SERVICE_URL + "/cert/v1/template/read/" + id;
+                HttpResponse<String> httpResponse = Unirest.get(url).header("Content-Type", "application/json").asString();
+                if(200 == httpResponse.getStatus()) {
+                    Response response = mapper.readValue(httpResponse.getBody(), Response.class);
+                    Map<String, Object> certTemplate = (Map<String, Object>) ((Map<String, Object>) response.getResult().get("certificate")).get("template");
+                    if (MapUtils.isNotEmpty(certTemplate))
+                        RedisStoreUtil.save(cacheKey, mapper.writeValueAsString(certTemplate), 600);
+                    return certTemplate;
+                }
             }
         } catch(Exception e) {
             LOGGER.error("Error while fetching the certificate template : " , e);
