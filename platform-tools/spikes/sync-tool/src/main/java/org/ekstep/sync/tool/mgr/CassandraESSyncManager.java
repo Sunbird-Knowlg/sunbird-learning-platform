@@ -456,13 +456,15 @@ public class CassandraESSyncManager {
     		System.out.println("Content came for handling external link:  " + contentIds.toString());
     		List<String> contentWithNoBody = new ArrayList<>();
     		List<String> contentWithExternalLink = new ArrayList<>();
-    		contentIds.stream().forEach(x -> handleAssetWithExternalLink(contentWithExternalLink, contentWithNoBody, x));
+    		List<String> contentWithNoExternalLink = new ArrayList<>();
+    		contentIds.stream().forEach(x -> handleAssetWithExternalLink(contentWithNoExternalLink, contentWithExternalLink, contentWithNoBody, x));
     		System.out.println("Content Body not exists for content:  " + contentWithNoBody.toString());
     		System.out.println("Content with External Link:  " + contentWithExternalLink.toString());
+    		System.out.println("Content with no External Link:  " + contentWithNoExternalLink.toString());
     	}
     }
     
-    public void handleAssetWithExternalLink(List<String> contentWithExternalLink, List<String> contentWithNoBody, String contentId) {
+    public void handleAssetWithExternalLink(List<String> contentWithNoExternalLink, List<String> contentWithExternalLink, List<String> contentWithNoBody, String contentId) {
     	String contentBody = contentStore.getContentBody(contentId);
     	
     	if(StringUtils.isNoneBlank(contentBody)) {
@@ -489,6 +491,8 @@ public class CassandraESSyncManager {
     						if(CollectionUtils.isNotEmpty(externalLink)) {
     							contentWithExternalLink.add(contentId);
     							contentStore.updateExternalLink(contentId, externalLink);
+    						}else {
+    							contentWithNoExternalLink.add(contentId);
     						}
     					}
     				}
