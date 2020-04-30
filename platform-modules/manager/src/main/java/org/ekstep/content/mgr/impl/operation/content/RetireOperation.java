@@ -70,7 +70,7 @@ public class RetireOperation extends BaseContentManager {
             List<String> shallowIds = getShallowCopy(node.getIdentifier());
             if(CollectionUtils.isNotEmpty(shallowIds))
                 throw new ClientException(ContentErrorCodes.ERR_CONTENT_RETIRE.name(),
-                        "Content With Identifier [" + contentId + "] Can Not Be Retired. It Has Been Used By Other Users.");
+                        "Content With Identifier [" + contentId + "] Can Not Be Retired. It Has Been Adopted By Other Users.");
             RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
             Response hierarchyResponse = getCollectionHierarchy(contentId);
             if (checkError(hierarchyResponse)) {
@@ -124,10 +124,12 @@ public class RetireOperation extends BaseContentManager {
                     result = ((List<Map<String, Object>>) searchResult.getOrDefault("content", new ArrayList<Map<String, Object>>())).stream().filter(map -> map.containsKey("identifier")).map(map -> (String) map.get("identifier")).collect(Collectors.toList());
                 }
             } else {
+                TelemetryManager.info("Recevied Invalid Search Response For Shallow Copy. Response is : "+searchResponse);
                 throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
                         "Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
             }
         } catch (Exception e) {
+            TelemetryManager.error("Exception Occurred While Making Search Call for Shallow Copy Validation. Exception is ",e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
                     "Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
         }
