@@ -283,7 +283,11 @@ public class CertificateGenerator {
 
     private Map<String,Object> getContent(String courseId, String fields) {
         try {
-            Map<String, Object> content = mapper.readValue(RedisStoreUtil.get(courseId), new TypeReference<Map<String, Object>>(){});
+            String courseData = RedisStoreUtil.get(courseId);
+            Map<String, Object> content = new HashMap<>();
+            if(StringUtils.isNotBlank(courseData)){
+                content = mapper.readValue(RedisStoreUtil.get(courseId), new TypeReference<Map<String, Object>>(){});    
+            }
             if(MapUtils.isEmpty(content)) {
                 String url = KP_CONTENT_SERVICE_BASE_URL + "/content/v3/read/" + courseId;
                 if(StringUtils.isNotBlank(fields))
