@@ -4,6 +4,7 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.TypeTokens;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
@@ -281,20 +282,26 @@ public class CertificateGenerator {
     }
 
     private Map<String,Object> getContent(String courseId, String fields) {
-        // TODO: get the content from Redis cache: Pradyumna
         try {
-            String url = KP_CONTENT_SERVICE_BASE_URL + "/content/v3/read/" + courseId;
-            if(StringUtils.isNotBlank(fields))
-                url += "?fields=" + fields;
-
-            HttpResponse<String> httpResponse = Unirest.get(url).header("Content-Type", "application/json").asString();
-            if(200 != httpResponse.getStatus()){
-                System.err.println("Error while reading content from KP : " + courseId + " : " + httpResponse.getStatus() + " : " + httpResponse.getBody());
-                throw new ServerException("ERR_COURSE_BATCH_SAMZA", "Error while reading content from KP : " + courseId + " : " + httpResponse.getStatus() + " : " + httpResponse.getBody());
+            String courseData = RedisStoreUtil.get(courseId);
+            Map<String, Object> content = new HashMap<>();
+            if(StringUtils.isNotBlank(courseData)){
+                content = mapper.readValue(RedisStoreUtil.get(courseId), new TypeReference<Map<String, Object>>(){});    
             }
-            Response response = null;
-            response = mapper.readValue(httpResponse.getBody(), Response.class);
-            Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
+            if(MapUtils.isEmpty(content)) {
+                String url = KP_CONTENT_SERVICE_BASE_URL + "/content/v3/read/" + courseId;
+                if(StringUtils.isNotBlank(fields))
+                    url += "?fields=" + fields;
+
+                HttpResponse<String> httpResponse = Unirest.get(url).header("Content-Type", "application/json").asString();
+                if(200 != httpResponse.getStatus()){
+                    System.err.println("Error while reading content from KP : " + courseId + " : " + httpResponse.getStatus() + " : " + httpResponse.getBody());
+                    throw new ServerException("ERR_COURSE_BATCH_SAMZA", "Error while reading content from KP : " + courseId + " : " + httpResponse.getStatus() + " : " + httpResponse.getBody());
+                }
+                Response response = null;
+                response = mapper.readValue(httpResponse.getBody(), Response.class);
+                content = (Map<String, Object>) response.getResult().get("content");
+            }
             return content;
         } catch (Exception e) {
             LOGGER.error("Error while reading course : " + courseId, e);
