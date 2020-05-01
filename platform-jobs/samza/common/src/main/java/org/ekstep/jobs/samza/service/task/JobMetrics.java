@@ -93,7 +93,9 @@ public class JobMetrics {
 									.get(getSamzaMetricKey(sysPartition, "high-watermark")).toString());
 					long checkPointOffset = Long.valueOf(containerMetricsRegistry.get("org.apache.samza.checkpoint.OffsetManagerMetrics")
 							.get(getSamzaMetricKey(sysPartition, "checkpointed-offset")).toString());
-					LOGGER.info("Job Name : " + getJobName() + " , partition : " + sysPartition.getPartition().getPartitionId() + " , Stream : " + sysPartition.toString() + " , Current High Water Mark Offset : " + highWatermarkOffset + " , Current Checkpoint Offset : " + checkPointOffset + " , consumer lag : " + (highWatermarkOffset - checkPointOffset) + " , timestamp :" + System.currentTimeMillis());
+					String lagMessage = "Job Name : " + getJobName() + " , partition : " + sysPartition.getPartition().getPartitionId() + " , Stream : " + sysPartition.toString() + " , Current High Water Mark Offset : " + highWatermarkOffset + " , Current Checkpoint Offset : " + checkPointOffset + " , consumer lag : " + (highWatermarkOffset - checkPointOffset) + " , timestamp :" + System.currentTimeMillis();
+					System.out.println(lagMessage);
+					LOGGER.info(lagMessage);
 					consumerLag += highWatermarkOffset - checkPointOffset;
 					this.partition = sysPartition.getPartition().getPartitionId();
 				}

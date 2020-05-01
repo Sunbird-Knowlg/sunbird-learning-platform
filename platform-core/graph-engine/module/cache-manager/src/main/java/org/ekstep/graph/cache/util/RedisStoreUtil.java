@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.ekstep.graph.cache.factory.JedisFactory.getRedisConncetion;
 import static org.ekstep.graph.cache.factory.JedisFactory.returnConnection;
@@ -148,7 +149,35 @@ public class RedisStoreUtil {
 			returnConnection(jedis);
 		}
 	}
-	
+
+	public static void saveStringList(String key, List<String> values, Integer ttl) {
+		Jedis jedis = getRedisConncetion();
+		try {
+			jedis.del(key);
+			for (String val : values) {
+				jedis.sadd(key, val);
+			}
+			if (ttl > 0) jedis.expire(key, ttl);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			returnConnection(jedis);
+		}
+	}
+
+	public static List<String> getStringList(String key) {
+		Jedis jedis = getRedisConncetion();
+		try {
+			Set<String> set = jedis.smembers(key);
+			List<String> list = new ArrayList<String>(set);
+			return list;
+		} catch (Exception e) {
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
+		} finally {
+			returnConnection(jedis);
+		}
+	}
+
 	public static List<Object> getList(String key) {
 		Jedis jedis = getRedisConncetion();
 		try {
