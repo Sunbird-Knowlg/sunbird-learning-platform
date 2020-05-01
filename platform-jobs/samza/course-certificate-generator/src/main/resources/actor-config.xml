@@ -1,22 +1,22 @@
 <actor-config>
 	<init system="LearningActorSystem">
 		<init-routers>
-			<init-router name="RequestRouter" count="4"
+			<init-router name="RequestRouter" count="1"
 				class="org.ekstep.graph.engine.router.RequestRouter"></init-router>
 		</init-routers>
 	</init>
 	<graph-managers>
 		<manager classes="org.ekstep.graph.engine.mgr.impl.GraphMgrImpl">
-			<graph id="*" count="4"></graph>
+			<graph id="*" count="1"></graph>
 		</manager>
 		<manager classes="org.ekstep.graph.engine.mgr.impl.NodeManagerImpl">
-			<graph id="*" count="4"></graph>
+			<graph id="*" count="1"></graph>
 		</manager>
 		<manager classes="org.ekstep.graph.engine.mgr.impl.CollectionManagerImpl">
-			<graph id="*" count="4"></graph>
+			<graph id="*" count="1"></graph>
 		</manager>
 		<manager classes="org.ekstep.graph.engine.mgr.impl.SearchManagerImpl">
-			<graph id="*" count="4"></graph>
+			<graph id="*" count="1"></graph>
 		</manager>
 	</graph-managers>
 </actor-config>
