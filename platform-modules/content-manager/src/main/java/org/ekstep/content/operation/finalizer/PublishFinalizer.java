@@ -188,15 +188,11 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
-		
-		RedisStoreUtil.delete(contentId, contentId + COLLECTION_CACHE_KEY_SUFFIX, COLLECTION_CACHE_KEY_PREFIX + contentId);
-		
 		boolean isContentShallowCopy = false;
 		isContentShallowCopy = isContentShallowCopy(node);
 		if (isContentShallowCopy)
 			updateOriginPkgVersion(node);
-
-		
+		RedisStoreUtil.delete(contentId, contentId + COLLECTION_CACHE_KEY_SUFFIX, COLLECTION_CACHE_KEY_PREFIX + contentId);
 		if (node.getIdentifier().endsWith(".img")) {
 			String updatedVersion = preUpdateNode(node.getIdentifier());
 			node.getMetadata().put(GraphDACParams.versionKey.name(), updatedVersion);

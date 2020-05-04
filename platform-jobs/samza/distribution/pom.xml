@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>collection-migration</artifactId>
-			<version>0.0.20</version>
+			<version>0.0.21</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -88,7 +88,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-certificate-generator</artifactId>
-			<version>0.0.42</version>
+			<version>0.0.43</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
