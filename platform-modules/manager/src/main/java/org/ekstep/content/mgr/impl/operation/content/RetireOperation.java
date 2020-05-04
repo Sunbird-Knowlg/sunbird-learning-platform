@@ -1,5 +1,7 @@
 package org.ekstep.content.mgr.impl.operation.content;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +23,7 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
+import org.ekstep.telemetry.dto.Telemetry;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.util.ArrayList;
@@ -34,7 +37,7 @@ import java.util.stream.Collectors;
 public class RetireOperation extends BaseContentManager {
 
     private static String COMPOSITE_SEARCH_URL = Platform.config.getString("kp.search_service.base_url") +"/v3/search";
-
+    private static ObjectMapper mapper = new ObjectMapper();
     /**
      * @param contentId
      * @return
@@ -119,9 +122,19 @@ public class RetireOperation extends BaseContentManager {
             Response searchResponse = HttpRestUtil.makePostRequest(COMPOSITE_SEARCH_URL, reqMap, new HashMap<String, String>());
             if (searchResponse.getResponseCode() == ResponseCode.OK && MapUtils.isNotEmpty(searchResponse.getResult())) {
                 Map<String, Object> searchResult = searchResponse.getResult();
+                TelemetryManager.log("Retire Shallow search result log" + searchResult.get("count") + searchResult.get("content"));
                 Integer count = (Integer) searchResult.getOrDefault("count", 0);
                 if (count > 0) {
-                    result = ((List<Map<String, Object>>) searchResult.getOrDefault("content", new ArrayList<Map<String, Object>>())).stream().filter(map -> map.containsKey("identifier")).map(map -> (String) map.get("identifier")).collect(Collectors.toList());
+                    ((List<Map<String, Object>>) searchResult.getOrDefault("content", new ArrayList<Map<String, Object>>())).forEach(res -> {
+                        try {
+                            Map<String, Object> originData = mapper.readValue((String) res.get("originData"), new TypeReference<Map<String, Object>>() {});
+                            if (StringUtils.equalsIgnoreCase((String) originData.get("copyType"), "shallow") && !StringUtils.equalsIgnoreCase((String) res.get("status"), "Retired")) {
+                                result.add((String) res.get("identifier"));
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
                 }
             } else {
                 TelemetryManager.info("Recevied Invalid Search Response For Shallow Copy. Response is : "+searchResponse);
@@ -144,6 +157,8 @@ public class RetireOperation extends BaseContentManager {
                     put("status", Arrays.asList());
                     put("origin",identifier);
                 }});
+                put("exists","originData");
+                put("fields", Arrays.asList( "identifier", "originData", "status"));
             }});
         }};
     }
