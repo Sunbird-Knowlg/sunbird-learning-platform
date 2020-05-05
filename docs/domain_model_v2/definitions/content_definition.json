@@ -1114,7 +1114,8 @@
 						"SelfAssess",
 						"PracticeResource",
 						"eTextBook",
-						"OnboardingResource"
+						"OnboardingResource",
+						"CurriculumCourse"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
