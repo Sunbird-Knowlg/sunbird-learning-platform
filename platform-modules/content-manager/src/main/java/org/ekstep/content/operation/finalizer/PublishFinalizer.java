@@ -134,6 +134,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			? Platform.config.getInt("content.cache.ttl")
 			: 259200;
 	private static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
+    private static final String COLLECTION_CACHE_KEY_SUFFIX = ":leafnodes";
 
 	/**
 	 * Instantiates a new PublishFinalizer and sets the base path and current
@@ -183,8 +184,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
-		RedisStoreUtil.delete(contentId);
-		RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
+		RedisStoreUtil.delete(contentId, contentId + COLLECTION_CACHE_KEY_SUFFIX, COLLECTION_CACHE_KEY_PREFIX + contentId);
 		if (node.getIdentifier().endsWith(".img")) {
 			String updatedVersion = preUpdateNode(node.getIdentifier());
 			node.getMetadata().put(GraphDACParams.versionKey.name(), updatedVersion);

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
+import akka.dispatch.Recover;
 import akka.util.Timeout;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -47,52 +48,63 @@ public class SearchManager extends SearchBaseActor {
 	public Future<Response> onReceive(Request request) throws Throwable {
 		String operation = request.getOperation();
 		SearchProcessor processor = new SearchProcessor();
-		if (StringUtils.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name(), operation)) {
-			SearchDTO searchDTO = getSearchDTO(request);
-			Future<Map<String, Object>> searchResult = processor.processSearch(searchDTO, true);
-			return searchResult.map(new Mapper<Map<String, Object>, Response>() {
-				@Override
-				public Response apply(Map<String, Object> lstResult) {
-					String mode = (String) request.getRequest().get(CompositeSearchParams.mode.name());
-					if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("collection", mode)) {
-						return OK(getCollectionsResult(lstResult, processor, request));
-					} else {
-						return OK(lstResult);
+		try {
+			if (StringUtils.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name(), operation)) {
+				SearchDTO searchDTO = getSearchDTO(request);
+				Future<Map<String, Object>> searchResult = processor.processSearch(searchDTO, true);
+				return searchResult.map(new Mapper<Map<String, Object>, Response>() {
+					@Override
+					public Response apply(Map<String, Object> lstResult) {
+						String mode = (String) request.getRequest().get(CompositeSearchParams.mode.name());
+						if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("collection", mode)) {
+							return OK(getCollectionsResult(lstResult, processor, request));
+						} else {
+							return OK(lstResult);
+						}
 					}
+				}, getContext().dispatcher()).recoverWith(new Recover<Future<Response>>() {
+					@Override
+					public Future<Response> recover(Throwable failure) throws Throwable {
+						TelemetryManager.error("Unable to process the request:: Request: " + mapper.writeValueAsString(request), failure);
+						return ERROR(request.getOperation(), failure);
+					}
+				}, getContext().dispatcher());
+			} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
+				Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
+				if (null != countResult.get("count")) {
+					Integer count = (Integer) countResult.get("count");
+					return Futures.successful(OK("count", count));
+				} else {
+					return Futures.successful(ERROR("", "count is empty or null", ResponseCode.SERVER_ERROR, "", null));
 				}
-			}, getContext().dispatcher());
-		} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
-			Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
-			if (null != countResult.get("count")) {
-				Integer count = (Integer) countResult.get("count");
-				return Futures.successful(OK("count", count));
+			} else if (StringUtils.equalsIgnoreCase(SearchOperations.METRICS.name(), operation)) {
+				Future<Map<String, Object>> searchResult = processor.processSearch(getSearchDTO(request), false);
+				return searchResult.map(new Mapper<Map<String, Object>, Response>() {
+					@Override
+					public Response apply(Map<String, Object> lstResult) {
+						return OK(getCompositeSearchResponse(lstResult));
+					}
+				}, getContext().dispatcher());
+			} else if (StringUtils.equalsIgnoreCase(SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name(), operation)) {
+				Map<String, Object> searchResponse = (Map<String, Object>) request.get("searchResult");
+				return Futures.successful(OK(getCompositeSearchResponse(searchResponse)));
+			} else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_WORD_SEARCH.name(), operation)) {
+				List<String> synsetIdList = (List<String>) request.get("synset_id_list");
+				Map<String, Object> lstResult = processor.multiWordDocSearch(synsetIdList);
+				return Futures.successful(OK(lstResult));
+			} else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_SYNSET_SEARCH.name(), operation)) {
+				List<String> synsetIdList = (List<String>) request.get("synset_ids");
+				Map<String, Object> lstResult = processor.multiSynsetDocSearch(synsetIdList);
+				return Futures.successful(OK(lstResult));
 			} else {
-				return Futures.successful(ERROR("", "count is empty or null", ResponseCode.SERVER_ERROR, "", null));
+				TelemetryManager.info("Invalid Request :: Unsupported operation: " , request.getRequest());
+				return Futures.successful(ERROR(CompositeSearchErrorCodes.ERR_INVALID_OPERATION.name(), "Unsupported operation: " + operation, ResponseCode.CLIENT_ERROR, "", null));
 			}
-		} else if (StringUtils.equalsIgnoreCase(SearchOperations.METRICS.name(), operation)) {
-			Future<Map<String, Object>> searchResult = processor.processSearch(getSearchDTO(request), false);
-			return searchResult.map(new Mapper<Map<String, Object>, Response>() {
-				@Override
-				public Response apply(Map<String, Object> lstResult) {
-					return OK(getCompositeSearchResponse(lstResult));
-				}
-			}, getContext().dispatcher());
-		} else if (StringUtils.equalsIgnoreCase(SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name(), operation)) {
-			Map<String, Object> searchResponse = (Map<String, Object>) request.get("searchResult");
-			return Futures.successful(OK(getCompositeSearchResponse(searchResponse)));
-		} else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_WORD_SEARCH.name(), operation)) {
-			List<String> synsetIdList = (List<String>) request.get("synset_id_list");
-			Map<String, Object> lstResult = processor.multiWordDocSearch(synsetIdList);
-			return Futures.successful(OK(lstResult));
-		} else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_SYNSET_SEARCH.name(), operation)) {
-			List<String> synsetIdList = (List<String>) request.get("synset_ids");
-			Map<String, Object> lstResult = processor.multiSynsetDocSearch(synsetIdList);
-			return Futures.successful(OK(lstResult));
-		} else {
-			TelemetryManager.log("Unsupported operation: " + operation);
-			throw new ClientException(CompositeSearchErrorCodes.ERR_INVALID_OPERATION.name(),
-					"Unsupported operation: " + operation);
+		} catch (Exception e) {
+			TelemetryManager.info("Error while processing the request: REQUEST::" + mapper.writeValueAsString(request));
+			return ERROR(operation, e);
 		}
+		
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -467,6 +479,7 @@ private Integer getIntValue(Object num) {
 								break;
 							}
 							default: {
+								TelemetryManager.error("Invalid filters, Unsupported operation:: " + filterEntry.getKey() + ":: filters::" + filters);
 								throw new Exception("Unsupported operation");
 							}
 							}

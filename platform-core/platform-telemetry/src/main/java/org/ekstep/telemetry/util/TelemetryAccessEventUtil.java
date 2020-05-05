@@ -25,10 +25,11 @@ public class TelemetryAccessEventUtil {
 			Response response = (Response) data.get("Response");
 
 			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("rid", response.getId());
+			if(null != response)
+				params.put("rid", response.getId());
 			params.put("uip", (String) data.get("RemoteAddress"));
 			params.put("url", (String) data.get("path"));
-			params.put("size", (int) data.get("ContentLength"));
+			params.put("size", ((Number) data.get("ContentLength")).intValue());
 			params.put("duration", timeDuration);
 			params.put("status", (int) data.get("Status"));
 			params.put("protocol", data.get("Protocol"));
@@ -39,7 +40,7 @@ public class TelemetryAccessEventUtil {
 
 			Map<String, String> context = new HashMap<String, String>();
 			Map<String, Object> fwApis = getFrameworkAPIs();
-			if (fwApis.containsKey(response.getId()))
+			if (null != response && fwApis.containsKey(response.getId()))
 				context.put(TelemetryParams.ENV.name(), (String) fwApis.get(response.getId()));
 			else
 				context.put(TelemetryParams.ENV.name(), (String) data.get("env"));
