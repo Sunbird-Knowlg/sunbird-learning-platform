@@ -132,8 +132,9 @@ public class RetireOperation extends BaseContentManager {
                                 result.add((String) res.get("identifier"));
                             }
                         } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                            TelemetryManager.error("Something went wrong when fetching shallow copied contents, origin data for id: " + identifier);
+                            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+                                    "Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");                        }
                     });
                 }
             } else {
