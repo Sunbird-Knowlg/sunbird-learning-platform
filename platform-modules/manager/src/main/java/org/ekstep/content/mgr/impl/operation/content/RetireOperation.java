@@ -137,30 +137,30 @@ public class RetireOperation extends BaseContentManager {
                     });
                 }
             } else {
-                TelemetryManager.info("Recevied Invalid Search Response For Shallow Copy. Response is : "+searchResponse);
+                TelemetryManager.info("Recevied Invalid Search Response For Shallow Copy. Response is : " + searchResponse);
                 throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
                         "Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
             }
         } catch (Exception e) {
-            TelemetryManager.error("Exception Occurred While Making Search Call for Shallow Copy Validation. Exception is ",e);
+            TelemetryManager.error("Exception Occurred While Making Search Call for Shallow Copy Validation. Exception is ", e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
                     "Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
         }
         return result;
     }
 
-    private Map<String, Object> getSearchRequest(String identifier) {
-        return new HashMap<String, Object>(){{
-            put("request", new HashMap<String, Object>(){{
-                put("filters", new HashMap<String, Object>(){{
-                    put("objectType", "Content");
-                    put("status", Arrays.asList());
-                    put("origin",identifier);
-                }});
-                put("exists","originData");
-                put("fields", Arrays.asList( "identifier", "originData", "status"));
-            }});
-        }};
+    private  Map<String, Object> getSearchRequest(String identifier) {
+        Map<String, Object> requestMap = new HashMap<String, Object>();
+        Map<String, Object> filters = new HashMap<String, Object>();
+        filters.put("objectType", "Content");
+        filters.put("status", Arrays.asList());
+        filters.put("origin", identifier);
+        requestMap.put("filters", filters);
+        requestMap.put("exists", Arrays.asList("originData"));
+        requestMap.put("fields", Arrays.asList("identifier", "originData", "status"));
+        Map<String, Object> request = new HashMap<String, Object>();
+        request.put("request", requestMap);
+        return request;
     }
 
     /**
