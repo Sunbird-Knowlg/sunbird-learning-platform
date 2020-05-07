@@ -1,3 +1,4 @@
+/*
 package org.ekstep.kernel.extension;
 
 import org.junit.Assert;
@@ -258,3 +259,4 @@ public class TestTransactionEvents {
     }
 
 }
+*/

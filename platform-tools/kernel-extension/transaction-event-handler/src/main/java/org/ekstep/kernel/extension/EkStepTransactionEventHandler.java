@@ -1,13 +1,13 @@
 package org.ekstep.kernel.extension;
 
-import org.ekstep.telemetry.logger.TelemetryManager;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.event.TransactionData;
-import org.neo4j.graphdb.event.TransactionEventHandler;
+import org.neo4j.graphdb.event.TransactionEventListener;
 
 
 @SuppressWarnings("rawtypes")
-public class EkStepTransactionEventHandler implements TransactionEventHandler {
+public class EkStepTransactionEventHandler implements TransactionEventListener {
 
 	public static GraphDatabaseService db;
 
@@ -16,11 +16,16 @@ public class EkStepTransactionEventHandler implements TransactionEventHandler {
 	}
 
 	@Override
-	public Void beforeCommit(TransactionData transactionData) throws Exception {
+	public Object beforeCommit(TransactionData transactionData, Transaction transaction, GraphDatabaseService graphDatabaseService) throws Exception {
 		try {
-			ProcessTransactionData processTransactionData = new ProcessTransactionData(
+			transactionData.createdNodes().forEach(node -> {
+				System.out.println("Received transaction data in before commit" + node.getId() + " Properties" + node.getAllProperties() + " transation id :"+ transaction.);	
+			});
+			
+			
+			/*ProcessTransactionData processTransactionData = new ProcessTransactionData(
 					"domain", db);
-			processTransactionData.processTxnData(transactionData);
+			processTransactionData.processTxnData(transactionData);*/
 		} catch (Exception e) {
 			throw e;
 		}
@@ -28,12 +33,12 @@ public class EkStepTransactionEventHandler implements TransactionEventHandler {
 	}
 
 	@Override
-	public void afterCommit(TransactionData transactionData, Object o) {
-		TelemetryManager.log("After Commit Executed.");
+	public void afterCommit(TransactionData transactionData, Object o, GraphDatabaseService graphDatabaseService) {
+		System.out.println("After Commit Executed.");
 	}
 
 	@Override
-	public void afterRollback(TransactionData transactionData, Object o) {
-		TelemetryManager.log("After Rollback Executed.");
+	public void afterRollback(TransactionData transactionData, Object o, GraphDatabaseService graphDatabaseService) {
+		System.out.println("After Rollback Executed.");
 	}
 }
