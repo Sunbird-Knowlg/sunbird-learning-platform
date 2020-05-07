@@ -19,7 +19,7 @@ public class EkStepTransactionEventHandler implements TransactionEventListener {
 	public Object beforeCommit(TransactionData transactionData, Transaction transaction, GraphDatabaseService graphDatabaseService) throws Exception {
 		try {
 			transactionData.createdNodes().forEach(node -> {
-				System.out.println("Received transaction data in before commit" + node.getId() + " Properties" + node.getAllProperties() + " transation id :"+ transaction.);	
+				System.out.println("Received transaction data in before commit" + node.getId() + " Properties" + node.getAllProperties());	
 			});
 			
 			
