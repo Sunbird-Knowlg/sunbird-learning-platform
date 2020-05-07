@@ -39,9 +39,12 @@ public class RegisterTransactionEventHandlerExtensionFactory extends ExtensionFa
             @Override
             public void start() throws IOException {
                 try {
-                    handler = new EkStepTransactionEventHandler(dependencies.getGraphDatabaseService());
-                    dependencies.getDatabaseManagementService().registerTransactionEventListener(GraphDatabaseSettings.default_database.defaultValue(), handler);
-                    System.out.println("Registering the kernel ext for transaction-event-handler - complete.");
+                    String dbName = dependencies.getGraphDatabaseService().databaseName();
+                    if (!"system".equalsIgnoreCase(dbName)) {
+                        handler = new EkStepTransactionEventHandler(dependencies.getGraphDatabaseService());
+                        dependencies.getDatabaseManagementService().registerTransactionEventListener(dbName, handler);
+                        System.out.println("Registering 'transaction-event-handler' - kernel ext for database: " + dbName + " - complete.");
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw e;

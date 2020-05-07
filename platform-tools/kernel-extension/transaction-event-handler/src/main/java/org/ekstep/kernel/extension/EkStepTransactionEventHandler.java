@@ -18,8 +18,10 @@ public class EkStepTransactionEventHandler implements TransactionEventListener {
 	@Override
 	public Object beforeCommit(TransactionData transactionData, Transaction transaction, GraphDatabaseService graphDatabaseService) throws Exception {
 		try {
+
+			System.out.println("beforeCommit: " + graphDatabaseService.databaseName());
 			transactionData.createdNodes().forEach(node -> {
-				System.out.println("Received transaction data in before commit" + node.getId() + " Properties" + node.getAllProperties());	
+				System.out.println("Received transaction data in before commit " + node.getId() + " Properties" + node.getAllProperties());
 			});
 			
 			
@@ -34,6 +36,7 @@ public class EkStepTransactionEventHandler implements TransactionEventListener {
 
 	@Override
 	public void afterCommit(TransactionData transactionData, Object o, GraphDatabaseService graphDatabaseService) {
+		System.out.println("afterCommit: " + graphDatabaseService.databaseName());
 		System.out.println("After Commit Executed.");
 	}
 
