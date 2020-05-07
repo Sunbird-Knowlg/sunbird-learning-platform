@@ -54,7 +54,9 @@ public class RegisterTransactionEventHandlerExtensionFactory extends ExtensionFa
             @Override
             public void shutdown() {
                 try {
-                    dependencies.getDatabaseManagementService().unregisterTransactionEventListener(GraphDatabaseSettings.default_database.defaultValue(), handler);
+                    String dbName = dependencies.getGraphDatabaseService().databaseName();
+                    dependencies.getDatabaseManagementService().unregisterTransactionEventListener(dbName, handler);
+                    System.out.println("Unregistering 'transaction-event-handler' - kernel ext for database: " + dbName + " - complete.");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
