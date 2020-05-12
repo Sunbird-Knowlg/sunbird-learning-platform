@@ -421,7 +421,7 @@ public class GetHierarchyOperation extends BaseContentManager {
 
     private void updateLatestLeafNodes(List<Map<String, Object>> children, Map<String, Object> latestLeafNodes) {
         if (CollectionUtils.isNotEmpty(children)) {
-            children.stream().forEach(child -> {
+            children.stream().filter(child -> MapUtils.isNotEmpty(child)).forEach(child -> {
                 if(StringUtils.equalsIgnoreCase("Default", (String) child.getOrDefault("visibility", ""))) {
                     Map<String, Object> metadata = (Map<String, Object>) latestLeafNodes.getOrDefault((String)child.get("identifier"), new HashMap<String, Object>());
                     if(StringUtils.equalsIgnoreCase(ContentAPIParams.Retired.name(), (String) metadata.getOrDefault("status", ""))) {
