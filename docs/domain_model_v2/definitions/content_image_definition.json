@@ -1114,8 +1114,7 @@
 						"SelfAssess",
 						"PracticeResource",
 						"eTextBook",
-						"OnboardingResource",
-						"CurriculumCourse"
+						"OnboardingResource"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -2928,7 +2927,20 @@
                     "defaultValue": "",
                     "renderingHints": "{ 'inputType': 'text', 'order': 8 }",
                     "indexed": true
-                }
+                },
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "courseType",
+					"title": "courseType",
+					"description": "Course Types added for E Schooling",
+					"category": "general",
+					"displayProperty": "Editable",
+					"range": ["TrainingCourse", "CurriculumCourse"],
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text', 'order': 8 }",
+					"indexed": true
+				}
 			],
 			"inRelations": [
 				{
@@ -3237,7 +3249,8 @@
 					"leafNodes",
 					"origin",
 					"originData",
-					"plugins"
+					"plugins",
+					"courseType"
 				]
 			}
 		}
