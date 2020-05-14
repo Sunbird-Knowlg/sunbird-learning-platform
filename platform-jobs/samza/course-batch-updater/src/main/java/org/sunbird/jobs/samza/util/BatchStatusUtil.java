@@ -2,6 +2,7 @@ package org.sunbird.jobs.samza.util;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.system.OutgoingMessageEnvelope;
@@ -32,14 +33,14 @@ public class BatchStatusUtil {
             : "course_batch";
     private static final String topic = Platform.config.getString("task.inputs").replace("kafka.","");
 
-    public static void updateOnGoingBatch(MessageCollector collector) {
+    public static void updateOnGoingBatch(Session cassandraSession, MessageCollector collector) {
         try {
             Date currentDate = format.parse(format.format(new Date()));
             format.setTimeZone(TimeZone.getTimeZone(jobTimeZone));
             Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
                 put("status", 0);
             }};
-            ResultSet resultSet = SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
+            ResultSet resultSet = SunbirdCassandraUtil.read(cassandraSession, keyspace, table, dataToSelect);
             List<Row> rows = resultSet.all();
             if(CollectionUtils.isNotEmpty(rows)) {
                 List<String> batchIds = new ArrayList<>();
@@ -64,14 +65,14 @@ public class BatchStatusUtil {
         }
     }
 
-    public static void updateCompletedBatch(MessageCollector collector) {
+    public static void updateCompletedBatch(Session cassandraSession, MessageCollector collector) {
         try {
             Date currentDate = format.parse(format.format(new Date()));
             format.setTimeZone(TimeZone.getTimeZone(jobTimeZone));
             Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
                 put("status", 1);
             }};
-            ResultSet resultSet = SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
+            ResultSet resultSet = SunbirdCassandraUtil.read(cassandraSession, keyspace, table, dataToSelect);
             List<Row> rows = resultSet.all();
             if(CollectionUtils.isNotEmpty(rows)) {
                 List<String> batchIds = new ArrayList<>();

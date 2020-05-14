@@ -1,15 +1,20 @@
 package org.sunbird.jobs.service.util;
 
 
+import com.datastax.driver.core.Session;
+import org.apache.samza.config.Config;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sunbird.jobs.samza.service.util.BaseCourseBatchUpdater;
 import org.sunbird.jobs.samza.service.util.BatchEnrolmentSync;
+import org.sunbird.jobs.samza.util.RedisConnect;
+import redis.clients.jedis.Jedis;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -26,7 +31,9 @@ public class BatchEnrolmentSyncTest {
 
     @Test
     public void testSyncEnrolment() throws Exception {
-        BatchEnrolmentSync enrolSync = PowerMockito.spy(new BatchEnrolmentSync());
+        Config config = Mockito.mock(Config.class);
+        Session session = Mockito.mock(Session.class);
+        BatchEnrolmentSync enrolSync = PowerMockito.spy(new BatchEnrolmentSync(session));
         PowerMockito.doReturn(new HashMap<String, Object>(){{
             put("leafNodes",new ArrayList<String>() {{ add("do_11260735471149056012299");}});
         }}).when(enrolSync, "getContent", anyString(), anyString());
@@ -45,7 +52,9 @@ public class BatchEnrolmentSyncTest {
     
     @Test
     public void testGetLatestReadContent() throws Exception {
-        BatchEnrolmentSync enrolSync = PowerMockito.spy(new BatchEnrolmentSync());
+        Config config = Mockito.mock(Config.class);
+        Session session = Mockito.mock(Session.class);
+        BatchEnrolmentSync enrolSync = PowerMockito.spy(new BatchEnrolmentSync(session));
         Map<String, String> lastReadContents = new HashMap<String, String>(){{
             put("content2", null);
             put("content1", null);

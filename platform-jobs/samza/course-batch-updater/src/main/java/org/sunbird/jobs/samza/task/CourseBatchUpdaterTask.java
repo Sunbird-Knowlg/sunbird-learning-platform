@@ -1,21 +1,40 @@
 package org.sunbird.jobs.samza.task;
 
+import com.datastax.driver.core.Session;
+import org.apache.samza.config.Config;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
+import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
 import org.ekstep.jobs.samza.service.ISamzaService;
+import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.service.CourseBatchUpdaterService;
 import org.sunbird.jobs.samza.util.BatchStatusUtil;
+import org.sunbird.jobs.samza.util.CassandraConnector;
+import org.sunbird.jobs.samza.util.RedisConnect;
+import redis.clients.jedis.Jedis;
 
 import java.util.Arrays;
 import java.util.Map;
 
 public class CourseBatchUpdaterTask extends BaseTask {
-    private ISamzaService service =  new CourseBatchUpdaterService();
+    private CourseBatchUpdaterService service;
 
     private static JobLogger LOGGER = new JobLogger(CourseBatchUpdaterTask.class);
+    private Jedis redisConnect = null;
+    private Session cassandraSession = null;
+    
+    @Override
+    public void init(Config config, TaskContext context) throws Exception {
+        redisConnect = new RedisConnect(config).getConnection();
+        cassandraSession = new CassandraConnector(config).getSession();
+        metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
+        ISamzaService service = initialize();
+        service.initialize(config);
+        this.config = config;
+    }
 
     public ISamzaService initialize() throws Exception {
         LOGGER.info("Task initialized");
@@ -23,6 +42,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
         this.jobStartMessage = "Started processing of course-batch-updater samza job";
         this.jobEndMessage = "course-batch-updater job processing complete";
         this.jobClass = "org.sunbird.jobs.samza.task.CourseBatchUpdaterTask";
+        this.service = new CourseBatchUpdaterService(redisConnect, cassandraSession);
         return service;
     }
 
@@ -44,7 +64,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
         collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", metrics.getTopic()), event));
         metrics.clear();
 
-        BatchStatusUtil.updateOnGoingBatch(collector);
-        BatchStatusUtil.updateCompletedBatch(collector);
+        BatchStatusUtil.updateOnGoingBatch(cassandraSession, collector);
+        BatchStatusUtil.updateCompletedBatch(cassandraSession, collector);
     }
 }

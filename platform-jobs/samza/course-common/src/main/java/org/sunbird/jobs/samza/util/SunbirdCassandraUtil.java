@@ -18,11 +18,10 @@ import java.util.List;
 import java.util.Map;
 
 public class SunbirdCassandraUtil {
-
+    
     private static Map<String, String> COLUMN_MAPPING = SunbirdCassandraColumnMapper.getColumnMapping();
 
-    public static void update(String keyspace, String table, Map<String, Object> propertiesToUpdate, Map<String, Object> propertiesToSelect) {
-        Session session = CassandraConnector.getSession("platform-courses");
+    public static void update(Session session, String keyspace, String table, Map<String, Object> propertiesToUpdate, Map<String, Object> propertiesToSelect) {
         Update.Where updateQuery = QueryBuilder.update(keyspace, table).where();
         propertiesToUpdate.entrySet().forEach(entry -> updateQuery.with(QueryBuilder.set(entry.getKey(), entry.getValue())));
         propertiesToSelect.entrySet().forEach(entry -> {
@@ -34,8 +33,7 @@ public class SunbirdCassandraUtil {
         session.execute(updateQuery);
     }
 
-    public static ResultSet read(String keyspace, String table, Map<String, Object> propertiesToSelect) {
-        Session session = CassandraConnector.getSession("platform-courses");
+    public static ResultSet read(Session session, String keyspace, String table, Map<String, Object> propertiesToSelect) {
         Select.Where selectQuery = QueryBuilder.select().all().from(keyspace, table).where();
         propertiesToSelect.entrySet().forEach(entry -> {
             if (entry.getValue() instanceof List)
@@ -47,8 +45,8 @@ public class SunbirdCassandraUtil {
         return results;
     }
 
-    public static List<Map<String, Object>> readAsListOfMap(String keyspace, String table, Map<String, Object> propertiesToSelect) {
-        ResultSet resultSet = read(keyspace, table, convertKeyCase(propertiesToSelect));
+    public static List<Map<String, Object>> readAsListOfMap(Session session, String keyspace, String table, Map<String, Object> propertiesToSelect) {
+        ResultSet resultSet = read(session, keyspace, table, convertKeyCase(propertiesToSelect));
         List<Row> rows = resultSet.all();
         List<Map<String, Object>> response = new ArrayList<Map<String, Object>>();
         if (CollectionUtils.isNotEmpty(rows)) {
@@ -59,6 +57,11 @@ public class SunbirdCassandraUtil {
             }
         }
         return response;
+    }
+
+    public static List<Map<String, Object>> readAsListOfMap(String keyspace, String table, Map<String, Object> propertiesToSelect) {
+        Session session = CassandraConnector.getSession("platform-courses");
+        return readAsListOfMap(session, keyspace, table, propertiesToSelect);
     }
 
     public static void upsert(String keyspace, String table, Map<String, Object> properties) {
@@ -89,9 +92,8 @@ public class SunbirdCassandraUtil {
         return keyLowerCaseMap;
     }
 
-    public static ResultSet execute(String query) {
-        Session session = CassandraConnector.getSession("platform-courses");
-        ResultSet results = session.execute(query);
+    public static ResultSet execute(Session cassandraSession, String query) {
+        ResultSet results = cassandraSession.execute(query);
         return results;
     }
 
