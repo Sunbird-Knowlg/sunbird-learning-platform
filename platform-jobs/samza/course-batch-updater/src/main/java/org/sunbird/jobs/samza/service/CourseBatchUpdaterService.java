@@ -1,5 +1,6 @@
 package org.sunbird.jobs.samza.service;
 
+import com.datastax.driver.core.Session;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
@@ -13,9 +14,12 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.service.util.BatchEnrolmentSync;
 import org.sunbird.jobs.samza.service.util.BatchStatusUpdater;
 import org.sunbird.jobs.samza.service.util.CourseBatchUpdater;
+import org.sunbird.jobs.samza.util.CassandraConnector;
 import org.sunbird.jobs.samza.util.CourseBatchParams;
 import org.apache.commons.collections.MapUtils;
 import org.sunbird.jobs.samza.service.util.BatchCountUpdater;
+import org.sunbird.jobs.samza.util.RedisConnect;
+import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,17 +34,21 @@ public class CourseBatchUpdaterService implements ISamzaService {
     private BatchEnrolmentSync batchEnrolmentSync = null;
     private BatchStatusUpdater batchStatusUpdater = null;
     private BatchCountUpdater batchCountUpdater = null;
+    private Jedis redisConnect = null;
+    private Session cassandraSession = null;
 
     @Override
     public void initialize(Config config) throws Exception {
         this.config = config;
         JSONUtils.loadProperties(config);
         LOGGER.info("Service config initialized");
+        redisConnect = new RedisConnect(config).getConnection();
+        cassandraSession = new CassandraConnector(config).getSession();
         systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
-        courseBatchUpdater = new CourseBatchUpdater();
-        batchEnrolmentSync = new BatchEnrolmentSync();
-        batchStatusUpdater = new BatchStatusUpdater();
-        batchCountUpdater = new BatchCountUpdater();
+        courseBatchUpdater = new CourseBatchUpdater(redisConnect, cassandraSession);
+        batchEnrolmentSync = new BatchEnrolmentSync(cassandraSession);
+        batchStatusUpdater = new BatchStatusUpdater(cassandraSession);
+        batchCountUpdater = new BatchCountUpdater(cassandraSession);
     }
 
     @Override

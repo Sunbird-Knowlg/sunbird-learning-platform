@@ -2,14 +2,18 @@ package org.sunbird.jobs.samza.service.util;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.sunbird.jobs.samza.util.ESUtil;
+import org.sunbird.jobs.samza.util.RedisConnect;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
+import redis.clients.jedis.Jedis;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -26,10 +30,13 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
     private static final String ES_DOC_TYPE = "_doc";
     private int leafNodesTTL = Platform.config.hasPath("content.leafnodes.ttl")
             ? Platform.config.getInt("content.leafnodes.ttl"): 3600;
+    private Jedis redisConnect= null;
+    private Session cassandraSession = null;
 
-
-    public CourseBatchUpdater() {
+    public CourseBatchUpdater(Jedis redisConnect, Session cassandraSession) {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
+        this.redisConnect = redisConnect;
+        this.cassandraSession = cassandraSession;
     }
 
     public void updateBatchStatus(Map<String, Object> edata) throws Exception {
@@ -46,7 +53,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
 
     private List<String> getLeafNodes(String courseId) throws Exception {
         String key = courseId + ":leafnodes";
-        List<String> leafNodes = RedisStoreUtil.getStringList(key);
+        List<String> leafNodes = getStringList(key);
         if (CollectionUtils.isEmpty(leafNodes)) {
             Map<String, Object> content = getContent(courseId, "leafNodes");
             leafNodes = (List<String>) content.getOrDefault("leafNodes", new ArrayList<String>());
@@ -66,7 +73,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 put("batchid", edata.get("batchId"));
                 put("userid", edata.get("userId"));
             }};
-            ResultSet resultSet =  SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
+            ResultSet resultSet =  SunbirdCassandraUtil.read(cassandraSession, keyspace, table, dataToSelect);
             List<Row> rows = resultSet.all();
             if(CollectionUtils.isNotEmpty(rows)){
                 Map<String, Integer> contentStatusMap =  rows.get(0).getMap("contentStatus", String.class, Integer.class);
@@ -102,7 +109,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
 
             if(MapUtils.isNotEmpty(dataToUpdate)) {
                 //Update cassandra
-                SunbirdCassandraUtil.update(keyspace, table, dataToUpdate, dataToSelect);
+                SunbirdCassandraUtil.update(cassandraSession, keyspace, table, dataToUpdate, dataToSelect);
                 dataToUpdate.put("contentStatus", mapper.writeValueAsString(dataToUpdate.get("contentStatus")));
                 dataToUpdate.put("lastReadContentId", lastReadContent);
                 dataToUpdate.put("lastReadContentStatus", lastReadContentStatus);
@@ -112,5 +119,14 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
     }
 
 
+    public List<String> getStringList(String key) {
+        try {
+            Set<String> set = redisConnect.smembers(key);
+            List<String> list = new ArrayList<String>(set);
+            return list;
+        } catch (Exception e) {
+            throw new ServerException("ERR_CACHE_GET_PROPERTY_ERROR", e.getMessage());
+        }
+    }
 
 }
