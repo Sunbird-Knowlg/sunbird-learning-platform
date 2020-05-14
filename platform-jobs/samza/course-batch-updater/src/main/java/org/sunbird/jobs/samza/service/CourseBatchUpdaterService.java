@@ -38,8 +38,8 @@ public class CourseBatchUpdaterService implements ISamzaService {
     private Session cassandraSession = null;
 
     public CourseBatchUpdaterService(Jedis redisConnect, Session cassandraSession) {
-        this.redisConnect = new RedisConnect(config).getConnection();
-        this.cassandraSession = new CassandraConnector(config).getSession();
+        this.redisConnect = redisConnect;
+        this.cassandraSession = cassandraSession;
     }
 
     @Override

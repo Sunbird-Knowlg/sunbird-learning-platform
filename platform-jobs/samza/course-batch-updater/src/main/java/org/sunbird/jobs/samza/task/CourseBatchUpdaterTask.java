@@ -28,8 +28,8 @@ public class CourseBatchUpdaterTask extends BaseTask {
     
     @Override
     public void init(Config config, TaskContext context) throws Exception {
-        redisConnect = new RedisConnect(config).getConnection();
-        cassandraSession = new CassandraConnector(config).getSession();
+        this.redisConnect = new RedisConnect(config).getConnection();
+        this.cassandraSession = new CassandraConnector(config).getSession();
         metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
         ISamzaService service = initialize();
         service.initialize(config);
@@ -42,7 +42,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
         this.jobStartMessage = "Started processing of course-batch-updater samza job";
         this.jobEndMessage = "course-batch-updater job processing complete";
         this.jobClass = "org.sunbird.jobs.samza.task.CourseBatchUpdaterTask";
-        this.service = new CourseBatchUpdaterService(redisConnect, cassandraSession);
+        this.service = new CourseBatchUpdaterService(this.redisConnect, this.cassandraSession);
         return service;
     }
 
