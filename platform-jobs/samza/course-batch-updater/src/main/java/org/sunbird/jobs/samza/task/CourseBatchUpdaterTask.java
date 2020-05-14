@@ -25,19 +25,11 @@ public class CourseBatchUpdaterTask extends BaseTask {
     private static JobLogger LOGGER = new JobLogger(CourseBatchUpdaterTask.class);
     private Jedis redisConnect = null;
     private Session cassandraSession = null;
-    
-    @Override
-    public void init(Config config, TaskContext context) throws Exception {
-        this.redisConnect = new RedisConnect(config).getConnection();
-        this.cassandraSession = new CassandraConnector(config).getSession();
-        metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
-        ISamzaService service = initialize();
-        service.initialize(config);
-        this.config = config;
-    }
 
     public ISamzaService initialize() throws Exception {
         LOGGER.info("Task initialized");
+        this.redisConnect = new RedisConnect(config).getConnection();
+        this.cassandraSession = new CassandraConnector(config).getSession();
         this.action = Arrays.asList("batch-enrolment-update", "batch-enrolment-sync", "batch-status-update","course-batch-update");
         this.jobStartMessage = "Started processing of course-batch-updater samza job";
         this.jobEndMessage = "course-batch-updater job processing complete";
