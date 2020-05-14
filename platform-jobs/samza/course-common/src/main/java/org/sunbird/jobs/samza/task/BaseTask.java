@@ -27,8 +27,8 @@ import java.util.UUID;
 
 public abstract class BaseTask implements StreamTask, InitableTask, WindowableTask {
     protected JobMetrics metrics;
-    private Config config = null;
-    private String eventId = "";
+    protected Config config = null;
+    protected String eventId = "";
     protected List<String> action = new ArrayList<>();
     protected String jobStartMessage = "";
     protected String jobEndMessage = "";

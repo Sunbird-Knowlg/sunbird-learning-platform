@@ -1,7 +1,9 @@
 package org.sunbird.jobs.service.util;
 
+import com.datastax.driver.core.Session;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -19,7 +21,8 @@ public class BatchCountUpdaterTest {
 
     @Test
     public void testsync() throws Exception {
-        BatchCountUpdater updater = PowerMockito.spy(new BatchCountUpdater());
+        Session session = Mockito.mock(Session.class);
+        BatchCountUpdater updater = PowerMockito.spy(new BatchCountUpdater(session));
 
 
         Map<String, Object> request = new HashMap<String, Object>(){{

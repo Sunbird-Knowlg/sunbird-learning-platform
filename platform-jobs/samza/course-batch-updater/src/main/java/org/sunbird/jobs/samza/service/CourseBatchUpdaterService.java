@@ -37,13 +37,16 @@ public class CourseBatchUpdaterService implements ISamzaService {
     private Jedis redisConnect = null;
     private Session cassandraSession = null;
 
+    public CourseBatchUpdaterService(Jedis redisConnect, Session cassandraSession) {
+        this.redisConnect = new RedisConnect(config).getConnection();
+        this.cassandraSession = new CassandraConnector(config).getSession();
+    }
+
     @Override
     public void initialize(Config config) throws Exception {
         this.config = config;
         JSONUtils.loadProperties(config);
         LOGGER.info("Service config initialized");
-        redisConnect = new RedisConnect(config).getConnection();
-        cassandraSession = new CassandraConnector(config).getSession();
         systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
         courseBatchUpdater = new CourseBatchUpdater(redisConnect, cassandraSession);
         batchEnrolmentSync = new BatchEnrolmentSync(cassandraSession);
