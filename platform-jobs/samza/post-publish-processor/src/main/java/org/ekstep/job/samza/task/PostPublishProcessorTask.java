@@ -28,7 +28,7 @@ public class PostPublishProcessorTask extends BaseTask {
         LOGGER.info("post-publish-processor Task initialized!");
         service = new PostPublishProcessor();
         this.action = Platform.config.hasPath("post_publish_processor.actions") ?
-                Arrays.asList(Platform.config.getString("post_publish_processor.actions").split(",")) : Arrays.asList("link-dialcode","coursebatch-sync","publish-shallow-content");
+                Arrays.asList(Platform.config.getString("post_publish_processor.actions").split(",")) : Arrays.asList("link-dialcode","coursebatch-sync","publish-shallow-content", "coursebatch-create");
         LOGGER.info("Available Actions : " + this.action);
         this.jobStartMessage = "Started processing of post-publish-processor samza job.";
         this.jobEndMessage = "Completed processing of post-publish-processor samza job.";

@@ -5,25 +5,34 @@ import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.common.Platform;
-import org.ekstep.jobs.samza.util.JobLogger;
-import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.exception.ServerException;
 
+import org.ekstep.jobs.samza.util.JobLogger;
+
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class BatchSyncUtil {
+public class CourseBatchUtil {
 
     private static ObjectMapper mapper = new ObjectMapper();
     private static final String keyspace = Platform.config.hasPath("courses.keyspace.name")
@@ -32,7 +41,10 @@ public class BatchSyncUtil {
     private static final String KAFKA_TOPIC = Platform.config.hasPath("courses.topic")
             ? Platform.config.getString("courses.topic"): "local.coursebatch.job.request";
 
-    private static JobLogger LOGGER = new JobLogger(BatchSyncUtil.class);
+    private static final String CREATE_BATCH_URL = Platform.config.getString("lms_service.base_url") + "/v1/course/batch/create";
+    private static final String AUTH_TOKEN = Platform.config.getString("lms_service.auth_token");
+
+    private static JobLogger LOGGER = new JobLogger(CourseBatchUtil.class);
 
 
     public void syncCourseBatch(String courseId, MessageCollector collector) {
@@ -46,6 +58,44 @@ public class BatchSyncUtil {
                 pushEventsToKafka(userCoursesRows, collector);
                 LOGGER.info("Pushed the events to sync courseBatch enrollment for : " + courseId);
             }
+        }
+    }
+
+    public void create(String courseId, String name) {
+        Map<String, Object> result = null;
+        try {
+            Map<String, Object> request = new HashMap<String, Object>() {{
+                put(PostPublishParams.request.name(), new HashMap<String, Object>() {{
+                    put(PostPublishParams.courseId.name(), courseId);
+                    put(PostPublishParams.name.name(), name);
+                    put(PostPublishParams.description.name(), "Batch For "+name);
+                    put(PostPublishParams.enrollmentType.name(), "open");
+                    put(PostPublishParams.startDate.name(), new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+                }});
+            }};
+
+            Map<String, String> headerParam = new HashMap<String, String>() {{
+                put("Content-Type", "application/json");
+                put("X-Authenticated-User-Token", AUTH_TOKEN);
+            }};
+            HttpResponse<String> httpResponse = Unirest.post(CREATE_BATCH_URL)
+                    .headers(headerParam)
+                    .body(mapper.writeValueAsString(request)).asString();
+            Response response = getResponse(httpResponse);
+            if (response.getResponseCode() == ResponseCode.OK) {
+                if (MapUtils.isNotEmpty(response.getResult())) {
+                    result = (Map<String, Object>) response.getResult().get("course");
+                    LOGGER.info("Result Received While Creating Batch for " + courseId +" | Result is : "+response.getResult());
+                    LOGGER.info("Open Batch Successfully Created For "+courseId + " | Batch Id : "+"todo");
+                }
+                else
+                    LOGGER.info("Empty Result Received While Creating Batch for " + courseId);
+            } else {
+                LOGGER.info("Error Response Received While Creating Batch For " + courseId+ " | Error Response Code is :" + response.getResponseCode() + "| Error Result : " + response.getResult());
+            }
+        } catch (Exception e) {
+            LOGGER.error("Exception Occurred While Creating Batch For " + courseId + " | Exception is :" , e);
+            e.printStackTrace();
         }
     }
 
@@ -116,5 +166,22 @@ public class BatchSyncUtil {
                 put("reset", Arrays.asList("completionPercentage","status","progress"));
             }});
         }};
+    }
+
+    private static Response getResponse(HttpResponse<String> response) {
+        String body = null;
+        Response resp = new Response();
+        try {
+            body = response.getBody();
+            if (StringUtils.isNotBlank(body))
+                resp = mapper.readValue(body, Response.class);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("UnsupportedEncodingException:::::" , e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Exception:::::" , e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
+        }
+        return resp;
     }
 }
