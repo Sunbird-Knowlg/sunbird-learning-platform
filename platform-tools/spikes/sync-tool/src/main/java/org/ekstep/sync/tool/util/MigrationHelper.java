@@ -39,7 +39,8 @@ public class MigrationHelper {
         try {
             Node node = util.getNode(graphId, contentId);
             if (null != node) {
-                if (StringUtils.isBlank((String) node.getMetadata().get("courseType"))) {
+                if (StringUtils.equalsIgnoreCase("Course", (String) node.getMetadata().get("contentType"))
+                        && StringUtils.isBlank((String) node.getMetadata().get("courseType"))) {
                     node.getMetadata().putAll(metaDataToBeMigrated);
                     node.getMetadata().put("versionKey", PASSPORT_KEY);
                     Response resp = util.updateNode(node);
@@ -62,7 +63,8 @@ public class MigrationHelper {
         try {
             Map<String, Object> hierarchy = hierarchyStore.getHierarchy(contentId);
             if (MapUtils.isNotEmpty(hierarchy)) {
-                if (StringUtils.isBlank((String) hierarchy.get("courseType"))) {
+                if (StringUtils.equalsIgnoreCase("Course", (String) hierarchy.get("contentType"))
+                        && StringUtils.isBlank((String) hierarchy.get("courseType"))) {
                     hierarchy.putAll(metaDataToBeMigrated);
                     hierarchyStore.saveOrUpdateHierarchy(contentId, hierarchy);
                     cassandraSuccess.add(contentId);

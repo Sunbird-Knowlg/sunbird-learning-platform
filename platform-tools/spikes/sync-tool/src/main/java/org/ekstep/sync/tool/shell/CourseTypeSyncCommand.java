@@ -23,21 +23,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Component
 public class CourseTypeSyncCommand implements CommandMarker {
 
-    @Autowired
-    CassandraESSyncManager syncManager;
-
-    private HierarchyStore hierarchyStore = new HierarchyStore();
-    private ObjectMapper mapper = new ObjectMapper();
-
-    private static final String PASSPORT_KEY = Platform.config.getString("graph.passport.key.base");
-    private static final String HIERARCHY_CACHE_PREFIX = "hierarchy_";
-
-    @CliCommand(value = "migrate-courseType", help = "Set the value of existing Courses without courseType to 'TrainingCourse'")
+    private static final List<String> finalStatus = Arrays.asList("Live", "Unlisted", "Flagged");
+    @CliCommand(value = "migratecoursetype", help = "Set the value of existing Courses without courseType to 'TrainingCourse'")
     public void migrateCourseTypeByIds(
             @CliOption(key = {"graphId"}, mandatory = false, unspecifiedDefaultValue = "domain", help = "graphId of the object") final String graphId,
             @CliOption(key = {"ids"}, mandatory = true, help = "Unique Id of node object") final String[] ids) throws Exception {
@@ -56,6 +47,7 @@ public class CourseTypeSyncCommand implements CommandMarker {
 
     private void updateCourses(String graphId, List<String> identifiers, Map<String, Object> metadataToUpdate) {
         System.out.println("Total Number of object Received for migration : " + identifiers.size());
+        System.out.println("Ids of objects Received for migration : " + identifiers);
         System.out.println("------------------------------------------------------------------------------------");
         MigrationHelper migrationHelperUtil = new MigrationHelper();
         identifiers.forEach(identifier -> {
@@ -64,7 +56,7 @@ public class CourseTypeSyncCommand implements CommandMarker {
             //Migrate ContentImage
             migrationHelperUtil.migrateMetadataInNeo4j(graphId, getImageId(identifier), metadataToUpdate);
             //Migrate Cassandra Root Data
-            if (StringUtils.equalsIgnoreCase("Live", migrationHelperUtil.getNodeStatus(graphId, identifier)))
+            if (finalStatus.contains(migrationHelperUtil.getNodeStatus(graphId, identifier)))
                 migrationHelperUtil.migrateRootDataInCassandra(identifier, metadataToUpdate);
         });
         Map<String, Object> migratedIdStatusMap = migrationHelperUtil.getMigrationStatusOfIds();
@@ -91,7 +83,7 @@ public class CourseTypeSyncCommand implements CommandMarker {
             System.out.println("Identifiers with courseType present in cassandra: " + migratedIdStatusMap.get("cassandraNotApplicable"));
 
         System.out.println("------------------------------------------------------------------------------------");
-        System.out.println("DIAL Migration Successfully processed for " + CollectionUtils.union((HashSet<String>) migratedIdStatusMap.get("neo4jSuccess"), (HashSet<String>) migratedIdStatusMap.get("cassandraSuccess")) + " Ids.");
+        System.out.println("Course Type Migration Successfully processed for " + CollectionUtils.union((HashSet<String>) migratedIdStatusMap.get("neo4jSuccess"), (HashSet<String>) migratedIdStatusMap.get("cassandraSuccess")) + " Ids.");
     }
 
     private String getImageId(String id) {
