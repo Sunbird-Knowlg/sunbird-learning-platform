@@ -86,4 +86,15 @@ public class MigrationHelper {
         return this.migrationStatusOfIds;
     }
 
+    public String getNodeStatus(String graphId, String contentId) {
+        try {
+            Node node = util.getNode(graphId, contentId);
+            if (null != node) {
+                return (String) node.getMetadata().get("status");
+            } else  return  "";
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
 }

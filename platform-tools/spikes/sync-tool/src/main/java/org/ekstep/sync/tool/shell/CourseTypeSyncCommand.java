@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.sync.tool.mgr.CassandraESSyncManager;
@@ -19,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,12 +64,13 @@ public class CourseTypeSyncCommand implements CommandMarker {
             //Migrate ContentImage
             migrationHelperUtil.migrateMetadataInNeo4j(graphId, getImageId(identifier), metadataToUpdate);
             //Migrate Cassandra Root Data
-            migrationHelperUtil.migrateRootDataInCassandra(identifier, metadataToUpdate);
+            if (StringUtils.equalsIgnoreCase("Live", migrationHelperUtil.getNodeStatus(graphId, identifier)))
+                migrationHelperUtil.migrateRootDataInCassandra(identifier, metadataToUpdate);
         });
         Map<String, Object> migratedIdStatusMap = migrationHelperUtil.getMigrationStatusOfIds();
-        if (CollectionUtils.isNotEmpty((List<String>) migratedIdStatusMap.get("neo4jSuccess")))
+        if (CollectionUtils.isNotEmpty((HashSet<String>) migratedIdStatusMap.get("neo4jSuccess")))
             System.out.println("Successfully Migrated Ids (Neo4j): " + migratedIdStatusMap.get("neo4jSuccess"));
-        if (CollectionUtils.isNotEmpty((List<String>) migratedIdStatusMap.get("cassandraSuccess")))
+        if (CollectionUtils.isNotEmpty((HashSet<String>) migratedIdStatusMap.get("cassandraSuccess")))
             System.out.println("Successfully Migrated Ids (Cassandra): " + migratedIdStatusMap.get("cassandraSuccess"));
         System.out.println("======================================= INVALID DATA IDS =================================================");
 
@@ -82,13 +85,13 @@ public class CourseTypeSyncCommand implements CommandMarker {
             System.out.println("Error Map : " + migratedIdStatusMap.get("cassandraFailure"));
         }
         System.out.println("======================================= NOT APPLICABLE NON MIGRATED DATA =============================================");
-        if (CollectionUtils.isNotEmpty((List<String>) migratedIdStatusMap.get("neo4jNotApplicable")))
+        if (CollectionUtils.isNotEmpty((HashSet<String>) migratedIdStatusMap.get("neo4jNotApplicable")))
             System.out.println("Identifiers with courseType present in neo4j: " + migratedIdStatusMap.get("neo4jNotApplicable"));
-        if (CollectionUtils.isNotEmpty((List<String>) migratedIdStatusMap.get("cassandraNotApplicable")))
+        if (CollectionUtils.isNotEmpty((HashSet<String>) migratedIdStatusMap.get("cassandraNotApplicable")))
             System.out.println("Identifiers with courseType present in cassandra: " + migratedIdStatusMap.get("cassandraNotApplicable"));
 
         System.out.println("------------------------------------------------------------------------------------");
-        System.out.println("DIAL Migration Successfully processed for " + ListUtils.union((List<String>) migratedIdStatusMap.get("neo4jSuccess"), (List<String>) migratedIdStatusMap.get("cassandraSuccess")) + " Ids.");
+        System.out.println("DIAL Migration Successfully processed for " + CollectionUtils.union((HashSet<String>) migratedIdStatusMap.get("neo4jSuccess"), (HashSet<String>) migratedIdStatusMap.get("cassandraSuccess")) + " Ids.");
     }
 
     private String getImageId(String id) {
