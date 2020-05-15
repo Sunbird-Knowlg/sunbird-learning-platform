@@ -42,10 +42,10 @@ public abstract class BaseTask implements StreamTask, InitableTask, WindowableTa
     @Override
     public void init(Config config, TaskContext context) throws Exception {
         metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
-        ISamzaService service = initialize();
-        service.initialize(config);
         this.config = config;
         this.eventId = "BE_JOB_REQUEST";
+        ISamzaService service = initialize();
+        service.initialize(config);
     }
 
     public abstract ISamzaService initialize() throws Exception;
