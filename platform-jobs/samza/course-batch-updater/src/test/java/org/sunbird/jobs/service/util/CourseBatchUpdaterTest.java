@@ -51,7 +51,7 @@ public class CourseBatchUpdaterTest {
             put("status", 2);
         }});}});
 
-        updater.updateBatchStatus(request);
+        updater.updateBatchStatus(request, new HashMap<>());
 
     }
 }

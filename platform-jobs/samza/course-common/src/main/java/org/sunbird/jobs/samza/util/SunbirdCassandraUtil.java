@@ -30,8 +30,24 @@ public class SunbirdCassandraUtil {
             else
                 updateQuery.and(QueryBuilder.eq(entry.getKey(), entry.getValue()));
         });
+        
+        
         session.execute(updateQuery);
     }
+
+    public static Update.Where updateBatch(Session session, String keyspace, String table, Map<String, Object> propertiesToUpdate, Map<String, Object> propertiesToSelect) {
+        Update.Where updateQuery = QueryBuilder.update(keyspace, table).where();
+        propertiesToUpdate.entrySet().forEach(entry -> updateQuery.with(QueryBuilder.set(entry.getKey(), entry.getValue())));
+        propertiesToSelect.entrySet().forEach(entry -> {
+            if (entry.getValue() instanceof List)
+                updateQuery.and(QueryBuilder.in(entry.getKey(), (List) entry.getValue()));
+            else
+                updateQuery.and(QueryBuilder.eq(entry.getKey(), entry.getValue()));
+        });
+        return updateQuery;
+    }
+    
+    
 
     public static ResultSet read(Session session, String keyspace, String table, Map<String, Object> propertiesToSelect) {
         Select.Where selectQuery = QueryBuilder.select().all().from(keyspace, table).where();

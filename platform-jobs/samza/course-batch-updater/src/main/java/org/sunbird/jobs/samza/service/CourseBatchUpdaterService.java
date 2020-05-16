@@ -71,10 +71,10 @@ public class CourseBatchUpdaterService implements ISamzaService {
         if (StringUtils.isNotBlank(objectId)) {
             String action = (String) edata.get("action");
             switch (action) {
-                case "batch-enrolment-update":
+               /* case "batch-enrolment-update":
                     LOGGER.info("Enrolment update for : " + edata);
                     courseBatchUpdater.updateBatchStatus(edata);
-                    break;
+                    break;*/
                 case "batch-enrolment-sync":
                     LOGGER.info("Enrolment sync for : " + edata);
                     List reset =  (List) edata.get("reset");

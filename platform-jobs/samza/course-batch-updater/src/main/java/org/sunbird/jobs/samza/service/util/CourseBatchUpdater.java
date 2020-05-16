@@ -1,8 +1,12 @@
 package org.sunbird.jobs.samza.service.util;
 
+import com.datastax.driver.core.RegularStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.querybuilder.Batch;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.querybuilder.Update;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.ekstep.common.Platform;
@@ -10,8 +14,8 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.sunbird.jobs.samza.util.CourseBatchParams;
 import org.sunbird.jobs.samza.util.ESUtil;
-import org.sunbird.jobs.samza.util.RedisConnect;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 import redis.clients.jedis.Jedis;
 
@@ -39,7 +43,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         this.cassandraSession = cassandraSession;
     }
 
-    public void updateBatchStatus(Map<String, Object> edata) throws Exception {
+    public void updateBatchStatus(Map<String, Object> edata, Map<String, Object> batchProgressEvents) throws Exception {
         //Get data from content read
         String courseId = (String) edata.get("courseId");
         List<String> leafNodes = getLeafNodes(courseId);
@@ -47,7 +51,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             LOGGER.info("Content does not have leafNodes : " + courseId);
         } else {
             //Compute status
-            updateData(edata, leafNodes);
+            updateData(edata, leafNodes, batchProgressEvents);
         }
     }
 
@@ -63,8 +67,11 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         return leafNodes;
     }
 
-    private void updateData(Map<String, Object> edata, List<String> leafNodes)  throws Exception {
+    private void updateData(Map<String, Object> edata, List<String> leafNodes, Map<String, Object> batchProgressEvents)  throws Exception {
         List<Map<String, Object>> contents = (List<Map<String, Object>>) edata.get("contents");
+        String batchId = (String)edata.get("batchId");
+        String userId = (String)edata.get("userId");
+        
         if(CollectionUtils.isNotEmpty(contents)) {
             Map<String, Object> contentStatus = new HashMap<>();
             String lastReadContent = null;
@@ -105,15 +112,13 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 put("progress", size);
                 if(status == 2)
                     put("completedOn", new Timestamp(new Date().getTime()));
+                
             }};
+            dataToUpdate.put("lastReadContentId", lastReadContent);
+            dataToUpdate.put("lastReadContentStatus", lastReadContentStatus);
 
             if(MapUtils.isNotEmpty(dataToUpdate)) {
-                //Update cassandra
-                SunbirdCassandraUtil.update(cassandraSession, keyspace, table, dataToUpdate, dataToSelect);
-                dataToUpdate.put("contentStatus", mapper.writeValueAsString(dataToUpdate.get("contentStatus")));
-                dataToUpdate.put("lastReadContentId", lastReadContent);
-                dataToUpdate.put("lastReadContentStatus", lastReadContentStatus);
-                ESUtil.updateCoureBatch(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
+                batchProgressEvents.put(batchId + "_" + userId, dataToUpdate);
             }
         }
     }
@@ -129,4 +134,43 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         }
     }
 
+    public void updateBatchProgress(Session cassandraSession, Map<String, Object> batchProgressEvents) {
+        if (MapUtils.isNotEmpty(batchProgressEvents)) {
+            List<Update.Where> updateQueryList = new ArrayList<>();
+            batchProgressEvents.entrySet().forEach(event -> {
+                try {
+                    Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
+                        put("batchid", event.getKey().split("_")[0]);
+                        put("userid", event.getKey().split("_")[1]);
+                    }};
+                    Map<String, Object> dataToUpdate = (Map<String, Object>) event.getValue();
+                    //Update cassandra
+                    updateQueryList.add(SunbirdCassandraUtil.updateBatch(cassandraSession, keyspace, table, dataToUpdate, dataToSelect));
+                    ESUtil.updateCoureBatch(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            //TODO: enhance this to contain only 65k queries in a batch. It is the batch limit from cassandra.
+            if(CollectionUtils.isNotEmpty(updateQueryList)){
+                Batch batch = QueryBuilder.batch(updateQueryList.toArray(new RegularStatement[updateQueryList.size()]));
+                cassandraSession.execute(batch);
+            }
+            try {
+                ESUtil.updateBatches(ES_INDEX_NAME, ES_DOC_TYPE, batchProgressEvents);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void processBatchProgress(Map<String, Object> message, Map<String, Object> batchProgressEvents) {
+        try {
+            Map<String, Object> eData = (Map<String, Object>) message.get(CourseBatchParams.edata.name());
+            updateBatchStatus(eData, batchProgressEvents);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 }
