@@ -35,9 +35,9 @@ public class CourseTypeSyncCommand implements CommandMarker {
         long startTime = System.currentTimeMillis();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime start = LocalDateTime.now();
-        updateCourses(graphId, new ArrayList<>(Arrays.asList(ids)), new HashMap<String, Object>() {{
-            put("courseType", "TrainingCourse");
-        }});
+        Map<String, Object> metadataToBeMigrated = new HashMap<String, Object>();
+        metadataToBeMigrated.put("courseType", "TrainingCourse");
+        updateCourses(graphId, new ArrayList<>(Arrays.asList(ids)), metadataToBeMigrated );
         long endTime = System.currentTimeMillis();
         long exeTime = endTime - startTime;
         System.out.println("Total time of execution: " + exeTime + "ms");

@@ -43,6 +43,7 @@ public class MigrationHelper {
                         && StringUtils.isBlank((String) node.getMetadata().get("courseType"))) {
                     node.getMetadata().putAll(metaDataToBeMigrated);
                     node.getMetadata().put("versionKey", PASSPORT_KEY);
+                    System.out.println("Passport Key" + PASSPORT_KEY);
                     Response resp = util.updateNode(node);
                     if (null != resp && ResponseCode.OK == resp.getResponseCode()) {
                         if (!StringUtils.contains(contentId, ".img"))
@@ -54,6 +55,7 @@ public class MigrationHelper {
         } catch (Exception ex) {
             System.out.println("Exception Occurred While Migrating Neo4j Node : " + ex.getMessage());
             ex.printStackTrace();
+            System.out.println(ex.getLocalizedMessage());
             neo4jFailed.put(contentId, ex.getMessage());
         }
     }
