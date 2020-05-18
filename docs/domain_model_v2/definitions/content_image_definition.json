@@ -2939,8 +2939,9 @@
 					"range": [
 						"TrainingCourse",
 						"CurriculumCourse"
-					],					"defaultValue": "",
-					"renderingHints": "{ 'inputType': 'text', 'order': 8 }",
+					],
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'select', 'order': 8 }",
 					"indexed": true,
 					"rangeValidation": true
 				}
