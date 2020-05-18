@@ -10,6 +10,7 @@ import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.service.CourseBatchUpdaterService;
 import org.sunbird.jobs.samza.service.util.CourseBatchUpdater;
@@ -39,6 +40,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
         this.jobStartMessage = "Started processing of course-batch-updater samza job";
         this.jobEndMessage = "course-batch-updater job processing complete";
         this.jobClass = "org.sunbird.jobs.samza.task.CourseBatchUpdaterTask";
+        JSONUtils.loadProperties(config);
         this.service = new CourseBatchUpdaterService(this.redisConnect, this.cassandraSession);
         courseBatchUpdater = new CourseBatchUpdater(redisConnect, cassandraSession);
         return service;
@@ -66,8 +68,10 @@ public class CourseBatchUpdaterTask extends BaseTask {
         collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", metrics.getTopic()), event));
         metrics.clear();
 
+        LOGGER.info("Starting CourseBatch updater process :: " + System.currentTimeMillis());
         courseBatchUpdater.updateBatchProgress(cassandraSession, batchProgressEvents);
         batchProgressEvents.clear();
+        LOGGER.info("Completed CourseBatch updater process :: " + System.currentTimeMillis());
 
         BatchStatusUtil.updateOnGoingBatch(cassandraSession, collector);
         BatchStatusUtil.updateCompletedBatch(cassandraSession, collector);
