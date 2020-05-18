@@ -60,6 +60,7 @@ public class CourseTypeSyncCommand implements CommandMarker {
                 migrationHelperUtil.migrateRootDataInCassandra(identifier, metadataToUpdate);
         });
         Map<String, Object> migratedIdStatusMap = migrationHelperUtil.getMigrationStatusOfIds();
+        System.out.println("======================================= SUCCESSFULLY MIGRATED DATA =============================================");
         if (CollectionUtils.isNotEmpty((HashSet<String>) migratedIdStatusMap.get("neo4jSuccess")))
             System.out.println("Successfully Migrated Ids (Neo4j): " + migratedIdStatusMap.get("neo4jSuccess"));
         if (CollectionUtils.isNotEmpty((HashSet<String>) migratedIdStatusMap.get("cassandraSuccess")))
