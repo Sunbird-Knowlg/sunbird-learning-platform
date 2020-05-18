@@ -41,8 +41,7 @@ public class CourseBatchUtil {
     private static final String KAFKA_TOPIC = Platform.config.hasPath("courses.topic")
             ? Platform.config.getString("courses.topic"): "local.coursebatch.job.request";
 
-    private static final String CREATE_BATCH_URL = Platform.config.getString("lms_service.base_url") + "/v1/course/batch/create";
-    private static final String AUTH_TOKEN = Platform.config.getString("lms_service.auth_token");
+    private static final String CREATE_BATCH_URL = Platform.config.getString("lms_service.base_url") + "/private/v1/course/batch/create";
 
     private static JobLogger LOGGER = new JobLogger(CourseBatchUtil.class);
 
@@ -68,7 +67,6 @@ public class CourseBatchUtil {
                 put(PostPublishParams.request.name(), new HashMap<String, Object>() {{
                     put(PostPublishParams.courseId.name(), courseId);
                     put(PostPublishParams.name.name(), name);
-                    put(PostPublishParams.description.name(), "Batch For "+name);
                     put(PostPublishParams.enrollmentType.name(), "open");
                     put(PostPublishParams.startDate.name(), new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
                 }});
@@ -76,17 +74,15 @@ public class CourseBatchUtil {
 
             Map<String, String> headerParam = new HashMap<String, String>() {{
                 put("Content-Type", "application/json");
-                put("X-Authenticated-User-Token", AUTH_TOKEN);
             }};
             HttpResponse<String> httpResponse = Unirest.post(CREATE_BATCH_URL)
                     .headers(headerParam)
                     .body(mapper.writeValueAsString(request)).asString();
             Response response = getResponse(httpResponse);
             if (response.getResponseCode() == ResponseCode.OK) {
-                if (MapUtils.isNotEmpty(response.getResult())) {
-                    result = (Map<String, Object>) response.getResult().get("course");
-                    LOGGER.info("Result Received While Creating Batch for " + courseId +" | Result is : "+response.getResult());
-                    LOGGER.info("Open Batch Successfully Created For "+courseId + " | Batch Id : "+"todo");
+                LOGGER.info("Result Received While Creating Batch for " + courseId +" | Result is : "+response.getResult());
+                if (MapUtils.isNotEmpty(response.getResult()) && StringUtils.isNotBlank((String) response.getResult().get("batchId"))) {
+                    LOGGER.info("Open Batch Successfully Created For "+courseId + " | Batch Id : "+response.getResult().get("batchId") + " , Batch Name : "+name);
                 }
                 else
                     LOGGER.info("Empty Result Received While Creating Batch for " + courseId);
