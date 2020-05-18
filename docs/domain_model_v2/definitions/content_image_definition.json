@@ -2930,16 +2930,20 @@
                 },
 				{
 					"required": false,
-					"dataType": "Text",
+					"dataType": "Select",
 					"propertyName": "courseType",
 					"title": "courseType",
 					"description": "Course Types added for E Schooling",
 					"category": "general",
 					"displayProperty": "Editable",
-					"range": ["TrainingCourse", "CurriculumCourse"],
+					"range": [
+						"TrainingCourse",
+						"CurriculumCourse"
+					],
 					"defaultValue": "",
-					"renderingHints": "{ 'inputType': 'text', 'order': 8 }",
-					"indexed": true
+					"renderingHints": "{ 'inputType': 'select', 'order': 8 }",
+					"indexed": true,
+					"rangeValidation": true
 				}
 			],
 			"inRelations": [
