@@ -12,6 +12,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sunbird.jobs.samza.service.util.BaseCourseBatchUpdater;
 import org.sunbird.jobs.samza.service.util.CourseBatchUpdater;
+import org.sunbird.jobs.samza.task.CourseProgressHandler;
 import org.sunbird.jobs.samza.util.RedisConnect;
 import redis.clients.jedis.Jedis;
 
@@ -51,7 +52,7 @@ public class CourseBatchUpdaterTest {
             put("status", 2);
         }});}});
 
-        updater.updateBatchStatus(request, new HashMap<>());
+        updater.updateBatchStatus(request, new CourseProgressHandler());
 
     }
 }
