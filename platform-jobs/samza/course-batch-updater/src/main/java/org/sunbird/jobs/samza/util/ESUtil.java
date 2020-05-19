@@ -34,7 +34,7 @@ public class ESUtil {
             Map<String, Object> docMap = new HashMap<>();
             for(String doc: documents) {
                 Map<String, Object> document = mapper.readValue(doc, Map.class);
-                String docId = (String) document.getOrDefault("id", "");
+                String docId = (String) document.getOrDefault("identifier", "");
                 Map<String, Object> dataToUpdate = new HashMap<>();
                 dataToUpdate.putAll((Map<String, Object>) batches.getOrDefault(docId, new HashMap<String, Object>()));
                 dataToUpdate.put("contentStatus", mapper.writeValueAsString(dataToUpdate.get("contentStatus")));
