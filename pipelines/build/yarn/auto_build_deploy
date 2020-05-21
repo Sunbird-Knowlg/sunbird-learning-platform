@@ -10,6 +10,7 @@ node() {
         ansiColor('xterm') {
             stage('Checkout') {
                 tag_name = env.JOB_NAME.split("/")[-1]
+                module = env.JOB_NAME.split("/")[-3]
                 pre_checks()
                 cleanWs()
                 def scmVars = checkout scm

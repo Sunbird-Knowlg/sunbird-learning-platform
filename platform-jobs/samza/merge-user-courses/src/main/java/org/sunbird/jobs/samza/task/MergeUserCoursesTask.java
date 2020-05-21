@@ -1,21 +1,13 @@
 package org.sunbird.jobs.samza.task;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.samza.config.Config;
-import org.apache.samza.system.IncomingMessageEnvelope;
-import org.apache.samza.system.OutgoingMessageEnvelope;
-import org.apache.samza.system.SystemStream;
+
 import org.apache.samza.task.MessageCollector;
-import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.util.JobLogger;
-import org.ekstep.jobs.samza.util.SamzaCommonParams;
 import org.sunbird.jobs.samza.service.MergeUserCoursesService;
-import org.sunbird.jobs.samza.task.BaseTask;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 public class MergeUserCoursesTask extends BaseTask {
