@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.system.OutgoingMessageEnvelope;
@@ -31,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class CourseBatchUtil {
 
@@ -60,39 +62,16 @@ public class CourseBatchUtil {
         }
     }
 
-    public void create(String courseId, String name) {
-        Map<String, Object> result = null;
-        try {
-            Map<String, Object> request = new HashMap<String, Object>() {{
-                put(PostPublishParams.request.name(), new HashMap<String, Object>() {{
-                    put(PostPublishParams.courseId.name(), courseId);
-                    put(PostPublishParams.name.name(), name);
-                    put(PostPublishParams.enrollmentType.name(), "open");
-                    put(PostPublishParams.startDate.name(), new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
-                }});
-            }};
-
-            Map<String, String> headerParam = new HashMap<String, String>() {{
-                put("Content-Type", "application/json");
-            }};
-            HttpResponse<String> httpResponse = Unirest.post(CREATE_BATCH_URL)
-                    .headers(headerParam)
-                    .body(mapper.writeValueAsString(request)).asString();
-            Response response = getResponse(httpResponse);
-            if (response.getResponseCode() == ResponseCode.OK) {
-                LOGGER.info("Result Received While Creating Batch for " + courseId +" | Result is : "+response.getResult());
-                if (MapUtils.isNotEmpty(response.getResult()) && StringUtils.isNotBlank((String) response.getResult().get("batchId"))) {
-                    LOGGER.info("Open Batch Successfully Created For "+courseId + " | Batch Id : "+response.getResult().get("batchId") + " , Batch Name : "+name);
-                }
-                else
-                    LOGGER.info("Empty Result Received While Creating Batch for " + courseId);
-            } else {
-                LOGGER.info("Error Response Received While Creating Batch For " + courseId+ " | Error Response Code is :" + response.getResponseCode() + "| Error Result : " + response.getResult());
-            }
-        } catch (Exception e) {
-            LOGGER.error("Exception Occurred While Creating Batch For " + courseId + " | Exception is :" , e);
-            e.printStackTrace();
-        }
+    public void create(String courseId, String name, Double pkgVersion) {
+       if(pkgVersion == 1.0 || pkgVersion == 1) {
+           createBatch(courseId, name);
+       } else {
+           List<Row> openBatchRows = getOpenBatch("course_batch", courseId);
+           if(CollectionUtils.isNotEmpty(openBatchRows) && openBatchRows.size()>=1)
+               LOGGER.info(openBatchRows.size() +" Open Batch Found for : " + courseId+" | So skipping the create batch event.");
+           else
+               createBatch(courseId, name);
+       }
     }
 
 
@@ -164,6 +143,40 @@ public class CourseBatchUtil {
         }};
     }
 
+    private static void createBatch(String courseId, String name) {
+        try {
+            Map<String, Object> request = new HashMap<String, Object>() {{
+                put(PostPublishParams.request.name(), new HashMap<String, Object>() {{
+                    put(PostPublishParams.courseId.name(), courseId);
+                    put(PostPublishParams.name.name(), name);
+                    put(PostPublishParams.enrollmentType.name(), "open");
+                    put(PostPublishParams.startDate.name(), new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+                }});
+            }};
+
+            Map<String, String> headerParam = new HashMap<String, String>() {{
+                put("Content-Type", "application/json");
+            }};
+            HttpResponse<String> httpResponse = Unirest.post(CREATE_BATCH_URL)
+                    .headers(headerParam)
+                    .body(mapper.writeValueAsString(request)).asString();
+            Response response = getResponse(httpResponse);
+            if (response.getResponseCode() == ResponseCode.OK) {
+                LOGGER.info("Result Received While Creating Batch for " + courseId +" | Result is : "+response.getResult());
+                if (MapUtils.isNotEmpty(response.getResult()) && StringUtils.isNotBlank((String) response.getResult().get("batchId"))) {
+                    LOGGER.info("Open Batch Successfully Created For "+courseId + " | Batch Id : "+response.getResult().get("batchId") + " , Batch Name : "+name);
+                }
+                else
+                    LOGGER.info("Empty Result Received While Creating Batch for " + courseId);
+            } else {
+                LOGGER.info("Error Response Received While Creating Batch For " + courseId+ " | Error Response Code is :" + response.getResponseCode() + "| Error Result : " + response.getResult());
+            }
+        } catch (Exception e) {
+            LOGGER.error("Exception Occurred While Creating Batch For " + courseId + " | Exception is :" , e);
+            e.printStackTrace();
+        }
+    }
+
     private static Response getResponse(HttpResponse<String> response) {
         String body = null;
         Response resp = new Response();
@@ -179,5 +192,14 @@ public class CourseBatchUtil {
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
         }
         return resp;
+    }
+
+    private static List<Row> getOpenBatch(String table, String courseId) {
+        Session session = CassandraConnector.getSession("sunbird");
+        Select.Where selectQuery = QueryBuilder.select().all().from(keyspace, table).where(QueryBuilder.eq("courseid", courseId));
+        ResultSet results = session.execute(selectQuery);
+        List<Row> courseBatchRows = results.all();
+        List<Row> openBatchRows = courseBatchRows.stream().filter(row -> (StringUtils.equalsIgnoreCase("Open", row.getString("enrollmenttype")) && (0 == row.getInt("status") || 1 == row.getInt("status")))).collect(Collectors.toList());
+        return openBatchRows;
     }
 }

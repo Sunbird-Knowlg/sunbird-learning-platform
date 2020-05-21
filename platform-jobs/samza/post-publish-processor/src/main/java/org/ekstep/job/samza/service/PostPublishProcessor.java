@@ -128,14 +128,15 @@ public class PostPublishProcessor implements ISamzaService {
             }
 
             case "coursebatch-create" : {
-                if(!(validateContentType(edata) && validateCreateBatchEvent(edata))) {
+                if(!validateCreateBatchEvent(edata)) {
                     LOGGER.info("Event Ignored. Event Validation Failed for coursebatch-create operation. | edata : " + edata);
                     return;
                 }
                 String nodeId = (String) object.get("id");
                 String name = (String) edata.getOrDefault("name", "");
-                LOGGER.info("Started processing of course batch creation for : " + nodeId);
-                courseBatchUtil.create(nodeId, name);
+                Double pkgVersion = (Double) edata.getOrDefault("pkgVersion", 0.0);
+                LOGGER.info("Started processing of course batch creation for : " + nodeId +" | pkgVersion :"+pkgVersion);
+                courseBatchUtil.create(nodeId, name, pkgVersion);
                 LOGGER.info("Completed processing of course batch creation for  : " + nodeId);
                 break;
             }
@@ -206,8 +207,8 @@ public class PostPublishProcessor implements ISamzaService {
 
     private boolean validateCreateBatchEvent(Map<String, Object> edata) {
         String courseType = (String) edata.getOrDefault("courseType", "");
-        Double pkgVersion = (Double) edata.getOrDefault("pkgVersion", 0.0);
-        return (StringUtils.isNotBlank(courseType) && COURSE_TYPE.contains(courseType)) && (pkgVersion == 1.0 || pkgVersion == 1);
+        String contentType = (String) edata.get("contentType");
+        return (CONTENT_TYPES.contains(contentType) && COURSE_TYPE.contains(courseType));
     }
 
 }
