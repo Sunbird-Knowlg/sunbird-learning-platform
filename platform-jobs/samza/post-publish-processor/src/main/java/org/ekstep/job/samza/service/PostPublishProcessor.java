@@ -128,7 +128,7 @@ public class PostPublishProcessor implements ISamzaService {
             }
 
             case "coursebatch-create" : {
-                if(!validateCreateBatchEvent(edata)) {
+                if(!validateContentType(edata)) {
                     LOGGER.info("Event Ignored. Event Validation Failed for coursebatch-create operation. | edata : " + edata);
                     return;
                 }
@@ -203,12 +203,6 @@ public class PostPublishProcessor implements ISamzaService {
             LOGGER.error("Exception Occurred While Validating QR Image Record. | Exception is : ", e);
             return false;
         }
-    }
-
-    private boolean validateCreateBatchEvent(Map<String, Object> edata) {
-        String courseType = (String) edata.getOrDefault("courseType", "");
-        String contentType = (String) edata.get("contentType");
-        return (CONTENT_TYPES.contains(contentType) && COURSE_TYPE.contains(courseType));
     }
 
 }
