@@ -716,6 +716,9 @@ public class PublishFinalizer extends BaseFinalizer {
 		content.put(ContentWorkflowPipelineParams.lastPublishedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastPublishedOn.name()));
 		content.put(ContentWorkflowPipelineParams.pkgVersion.name(), node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()));
 		content.put(ContentWorkflowPipelineParams.leafNodesCount.name(), getLeafNodeCount(content));
+		Set<String> leafNodeIds = new HashSet<>();
+		getLeafNodesIds(content, leafNodeIds);
+		content.put(ContentAPIParams.leafNodes.name(), new ArrayList<String>(leafNodeIds));
 		content.put(ContentWorkflowPipelineParams.status.name(), node.getMetadata().get(ContentWorkflowPipelineParams.status.name()));
 		content.put(ContentWorkflowPipelineParams.lastUpdatedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastUpdatedOn.name()));
 		content.put(ContentWorkflowPipelineParams.downloadUrl.name(), node.getMetadata().get(ContentWorkflowPipelineParams.downloadUrl.name()));

@@ -2927,24 +2927,7 @@
                     "defaultValue": "",
                     "renderingHints": "{ 'inputType': 'text', 'order': 8 }",
                     "indexed": true
-                },
-				{
-					"required": false,
-					"dataType": "Select",
-					"propertyName": "courseType",
-					"title": "courseType",
-					"description": "Course Types added for E Schooling",
-					"category": "general",
-					"displayProperty": "Editable",
-					"range": [
-						"TrainingCourse",
-						"CurriculumCourse"
-					],
-					"defaultValue": "",
-					"renderingHints": "{ 'inputType': 'select', 'order': 8 }",
-					"indexed": true,
-					"rangeValidation": true
-				}
+                }
 			],
 			"inRelations": [
 				{
@@ -3253,8 +3236,7 @@
 					"leafNodes",
 					"origin",
 					"originData",
-					"plugins",
-					"courseType"
+					"plugins"
 				]
 			}
 		}
