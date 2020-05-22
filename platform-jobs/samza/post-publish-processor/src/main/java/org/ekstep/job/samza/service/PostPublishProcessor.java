@@ -9,6 +9,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.job.samza.util.CourseBatchUtil;
 import org.ekstep.job.samza.util.DIALCodeUtil;
+import org.ekstep.job.samza.util.PostPublishParams;
 import org.ekstep.job.samza.util.QRImageUtil;
 import org.ekstep.job.samza.util.ShallowPublishUtil;
 import org.ekstep.jobs.samza.service.ISamzaService;
@@ -21,6 +22,7 @@ import org.ekstep.learning.util.ControllerUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +38,6 @@ public class PostPublishProcessor implements ISamzaService {
     private List<String> ACTIONS = null;
     private List<String> CONTENT_TYPES = null;
     private Integer MAX_ITERATION_COUNT = null;
-    private List<String> COURSE_TYPE = null;
     private ControllerUtil util = new ControllerUtil();
     private DIALCodeUtil dialUtil = null;
     private CourseBatchUtil courseBatchUtil = null;
@@ -57,8 +58,6 @@ public class PostPublishProcessor implements ISamzaService {
                 Arrays.asList(Platform.config.getString("post_publish_processor.contentTypes").split(",")) : Collections.emptyList();
         MAX_ITERATION_COUNT = (Platform.config.hasPath("max.iteration.count.samza.job")) ?
                 Platform.config.getInt("max.iteration.count.samza.job") : 1;
-        COURSE_TYPE = Platform.config.hasPath("post_publish_processor.courseTypes") ?
-                Arrays.asList(Platform.config.getString("post_publish_processor.courseTypes").split(",")) : Arrays.asList("CurriculumCourse");
         LearningRequestRouterPool.init();
         LOGGER.info("Learning Actor System initialized");
         dialUtil = new DIALCodeUtil();
@@ -128,7 +127,7 @@ public class PostPublishProcessor implements ISamzaService {
             }
 
             case "coursebatch-create" : {
-                if(!validateContentType(edata)) {
+                if(!(validateContentType(edata) && validateBatchCreateEvent(message, (String) object.get("id")))) {
                     LOGGER.info("Event Ignored. Event Validation Failed for coursebatch-create operation. | edata : " + edata);
                     return;
                 }
@@ -203,6 +202,23 @@ public class PostPublishProcessor implements ISamzaService {
             LOGGER.error("Exception Occurred While Validating QR Image Record. | Exception is : ", e);
             return false;
         }
+    }
+
+    private Boolean validateBatchCreateEvent(Map<String, Object> event, String courseId) {
+        try {
+            Map<String, Object> context = (Map<String, Object>) event.get(SamzaCommonParams.context.name());
+            String channel = (String) context.getOrDefault(PostPublishParams.channel.name(), "");
+            if (StringUtils.isBlank(channel)) {
+                LOGGER.info("Event Ignored. Event Validation Failed for coursebatch-create operation. Received Blank Channel Id for : "+courseId);
+                return false;
+            } else {
+                return courseBatchUtil.validateChannel(channel, courseId);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Exception Occurred While Validating Channel for coursebatch-create operation. | Exception is : ", e);
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }
