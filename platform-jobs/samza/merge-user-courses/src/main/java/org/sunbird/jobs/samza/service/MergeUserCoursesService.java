@@ -24,7 +24,6 @@ import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MergeUserCoursesService implements ISamzaService {
     private static JobLogger LOGGER = new JobLogger(MergeUserCoursesService.class);
@@ -115,7 +114,6 @@ public class MergeUserCoursesService implements ISamzaService {
             return;
         }
 
-        String action = (String) edata.get(MergeUserCoursesParams.action.name());
         String fromUserId = (String) edata.get(MergeUserCoursesParams.fromAccountId.name());
         String toUserId = (String) edata.get(MergeUserCoursesParams.toAccountId.name());
 
@@ -195,17 +193,6 @@ public class MergeUserCoursesService implements ISamzaService {
                 }
             }
         }
-
-        //Clear fromUserId batches from Cassandra and ES
-        if (CollectionUtils.isNotEmpty(fromBatchIds)) {
-            for (String batchId : fromBatchIds) {
-                Map<String, Object> key = new HashMap<>();
-                key.put(MergeUserCoursesParams.batchId.name(), batchId);
-                key.put(MergeUserCoursesParams.userId.name(), fromUserId);
-                SunbirdCassandraUtil.delete(KEYSPACE, USER_COURSES_TABLE, key);
-                ElasticSearchUtil.deleteDocument(USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE, batchId + UNDERSCORE + fromUserId);
-            }
-        }
     }
 
     private void mergeContentConsumption(String fromUserId, String toUserId) {
@@ -224,11 +211,6 @@ public class MergeUserCoursesService implements ISamzaService {
                 }
                 SunbirdCassandraUtil.upsert(KEYSPACE, CONTENT_CONSUMPTION_TABLE, matchingRecord);
             }
-
-            //Clear fromUserId content consumption data
-            Map<String, Object> key = new HashMap<>();
-            key.put(MergeUserCoursesParams.userId.name(), fromUserId);
-            SunbirdCassandraUtil.delete(KEYSPACE, CONTENT_CONSUMPTION_TABLE, key);
         }
     }
 

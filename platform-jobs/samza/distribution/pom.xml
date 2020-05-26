@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.112</version>
+			<version>0.0.113</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>asset-enrichment</artifactId>
-			<version>0.0.99</version>
+			<version>0.0.100</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 			<exclusions>
@@ -60,35 +60,35 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>collection-migration</artifactId>
-			<version>0.0.20</version>
+			<version>0.0.21</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-batch-updater</artifactId>
-			<version>0.0.32</version>
+			<version>0.0.33</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>post-publish-processor</artifactId>
-			<version>0.0.23</version>
+			<version>0.0.24</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>merge-user-courses</artifactId>
-			<version>0.0.11</version>
+			<version>0.0.12</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-certificate-generator</artifactId>
-			<version>0.0.40</version>
+			<version>0.0.43</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

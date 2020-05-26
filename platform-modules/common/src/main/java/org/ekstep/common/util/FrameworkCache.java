@@ -30,11 +30,18 @@ public class FrameworkCache {
 
 
     public static Map<String, Object> get(String id, List<String> returnCategories) throws IOException {
-        if(CollectionUtils.isNotEmpty(returnCategories) && cacheEnabled) {
-            Collections.sort(returnCategories);
-            String cachedCategories = RedisStoreUtil.get(getFwCacheKey(id, returnCategories));
-            if(StringUtils.isNotBlank(cachedCategories)) {
-               return mapper.readValue(cachedCategories, new TypeReference<Map<String, Object>>(){});
+        if(cacheEnabled) {
+            if(CollectionUtils.isNotEmpty(returnCategories)) {
+                Collections.sort(returnCategories);
+                String cachedCategories = RedisStoreUtil.get(getFwCacheKey(id, returnCategories));
+                if(StringUtils.isNotBlank(cachedCategories)) {
+                    return mapper.readValue(cachedCategories, new TypeReference<Map<String, Object>>(){});
+                }
+            } else {
+                String frameworkMetadata = RedisStoreUtil.get(id);
+                if(StringUtils.isNotBlank(frameworkMetadata)) {
+                    return mapper.readValue(frameworkMetadata, new TypeReference<Map<String, Object>>(){});
+                }
             }
         }
         return null;
@@ -42,7 +49,7 @@ public class FrameworkCache {
 
 
     public static void save(Map<String, Object> framework, List<String> categoryNames) throws JsonProcessingException {
-        if(cacheEnabled && MapUtils.isNotEmpty(framework) && StringUtils.isNotBlank((String) framework.get("identifier"))) {
+        if(cacheEnabled && MapUtils.isNotEmpty(framework) && StringUtils.isNotBlank((String) framework.get("identifier")) && CollectionUtils.isNotEmpty(categoryNames)) {
             Collections.sort(categoryNames);
             String key = getFwCacheKey((String) framework.get("identifier"), categoryNames);
             RedisStoreUtil.save(key, mapper.writeValueAsString(framework), cacheTtl);

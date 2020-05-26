@@ -44,7 +44,8 @@ node() {
                 }
             }
         }
-    }
+         summary()
+     }
     catch (err) {
         currentBuild.result = "FAILURE"
         throw err

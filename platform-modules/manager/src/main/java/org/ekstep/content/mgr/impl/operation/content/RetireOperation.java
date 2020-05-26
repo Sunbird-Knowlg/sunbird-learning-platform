@@ -1,11 +1,18 @@
 package org.ekstep.content.mgr.impl.operation.content;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -16,6 +23,7 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
+import org.ekstep.telemetry.dto.Telemetry;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.util.ArrayList;
@@ -28,6 +36,8 @@ import java.util.stream.Collectors;
 
 public class RetireOperation extends BaseContentManager {
 
+    private static String COMPOSITE_SEARCH_URL = Platform.config.getString("kp.search_service.base_url") +"/v3/search";
+    private static ObjectMapper mapper = new ObjectMapper();
     /**
      * @param contentId
      * @return
@@ -60,6 +70,10 @@ public class RetireOperation extends BaseContentManager {
         List<String> identifiers = (isImageNodeExist) ? Arrays.asList(contentId, getImageId(contentId)) : Arrays.asList(contentId);
 
         if (isCollWithFinalStatus) {
+            List<String> shallowIds = getShallowCopy(node.getIdentifier());
+            if(CollectionUtils.isNotEmpty(shallowIds))
+                throw new ClientException(ContentErrorCodes.ERR_CONTENT_RETIRE.name(),
+                        "Content With Identifier [" + contentId + "] Can Not Be Retired. It Has Been Adopted By Other Users.");
             RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
             Response hierarchyResponse = getCollectionHierarchy(contentId);
             if (checkError(hierarchyResponse)) {
@@ -99,6 +113,55 @@ public class RetireOperation extends BaseContentManager {
         Response res = getSuccessResponse();
         res.put(ContentAPIParams.node_id.name(), contentId);
         return res;
+    }
+
+    private List<String> getShallowCopy(String identifier) {
+        List<String> result = new ArrayList<String>();
+        Map<String, Object> reqMap = getSearchRequest(identifier);
+        try {
+            Response searchResponse = HttpRestUtil.makePostRequest(COMPOSITE_SEARCH_URL, reqMap, new HashMap<String, String>());
+            if (searchResponse.getResponseCode() == ResponseCode.OK && MapUtils.isNotEmpty(searchResponse.getResult())) {
+                Map<String, Object> searchResult = searchResponse.getResult();
+                TelemetryManager.log("Retire Shallow search result log" + searchResult.get("count") + searchResult.get("content"));
+                Integer count = (Integer) searchResult.getOrDefault("count", 0);
+                if (count > 0) {
+                    ((List<Map<String, Object>>) searchResult.getOrDefault("content", new ArrayList<Map<String, Object>>())).forEach(res -> {
+                        try {
+                            Map<String, Object> originData = mapper.readValue((String) res.get("originData"), new TypeReference<Map<String, Object>>() {});
+                            if (StringUtils.equalsIgnoreCase((String) originData.get("copyType"), "shallow") && !StringUtils.equalsIgnoreCase((String) res.get("status"), "Retired")) {
+                                result.add((String) res.get("identifier"));
+                            }
+                        } catch (Exception e) {
+                            TelemetryManager.error("Something went wrong when fetching shallow copied contents, origin data for id: " + identifier);
+                            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+                                    "Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");                        }
+                    });
+                }
+            } else {
+                TelemetryManager.info("Recevied Invalid Search Response For Shallow Copy. Response is : " + searchResponse);
+                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+                        "Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+            }
+        } catch (Exception e) {
+            TelemetryManager.error("Exception Occurred While Making Search Call for Shallow Copy Validation. Exception is ", e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+                    "Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+        }
+        return result;
+    }
+
+    private  Map<String, Object> getSearchRequest(String identifier) {
+        Map<String, Object> requestMap = new HashMap<String, Object>();
+        Map<String, Object> filters = new HashMap<String, Object>();
+        filters.put("objectType", "Content");
+        filters.put("status", Arrays.asList());
+        filters.put("origin", identifier);
+        requestMap.put("filters", filters);
+        requestMap.put("exists", Arrays.asList("originData"));
+        requestMap.put("fields", Arrays.asList("identifier", "originData", "status"));
+        Map<String, Object> request = new HashMap<String, Object>();
+        request.put("request", requestMap);
+        return request;
     }
 
     /**

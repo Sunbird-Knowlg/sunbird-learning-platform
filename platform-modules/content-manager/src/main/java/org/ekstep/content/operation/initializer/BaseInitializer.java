@@ -98,5 +98,9 @@ public class BaseInitializer extends BasePipeline {
 		}
 		return type;
 	}
+	
+	public Plugin getPlugin(String contentBody) {
+		return getECRFObject(contentBody);
+	}
 
 }
