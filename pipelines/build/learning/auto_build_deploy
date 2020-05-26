@@ -39,7 +39,7 @@ node() {
                 """
 
  //       stage Build
-            sh 'mvn clean install -DskipTests -P ${profile_id} -T10'
+            sh 'mvn clean install -DskipTests -P learning-services -T10'
         
 
 //        stage Post-Build

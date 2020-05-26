@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.reflect.TypeToken;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -78,12 +77,13 @@ public class IssueCertificate {
         try {
             for (String key : templates.keySet()) {
                 Map<String, String> template = templates.get(key);
+                String certName = template.getOrDefault("name", "");
                 String criteriaString = template.get("criteria");
                 if (StringUtils.isNotBlank(criteriaString)) {
                     Map<String, Object> criteria = mapper.readValue(criteriaString, new TypeReference<Map<String, Object>>() {
                     });
                     if (MapUtils.isNotEmpty(criteria) && CollectionUtils.isNotEmpty(CollectionUtils.intersection(criteria.keySet(), certFilterKeys))) {
-                        List<String> enrollmentList = getUserFromEnrolmentCriteria((Map<String, Object>) criteria.get("enrollment"), batchId, courseId, userIds);
+                        List<String> enrollmentList = getUserFromEnrolmentCriteria((Map<String, Object>) criteria.get("enrollment"), batchId, courseId, userIds, certName, reIssue);
                         List<String> assessmentList = getUsersFromAssessmentCriteria((Map<String, Object>) criteria.get("assessment"), batchId, courseId, userIds);
                         List<String> userList = getUsersFromUserCriteria((Map<String, Object>) criteria.get("user"), new ArrayList<String>() {{
                             addAll(enrollmentList);
@@ -234,7 +234,7 @@ public class IssueCertificate {
         return result;
     }
 
-    private List<String> getUserFromEnrolmentCriteria(Map<String, Object> enrollment, String batchId, String courseId, List<String> userIds) {
+    private List<String> getUserFromEnrolmentCriteria(Map<String, Object> enrollment, String batchId, String courseId, List<String> userIds, String certName, Boolean reIssue) {
         List<String> enrolledUsers = new ArrayList<>();
         try {
             if(MapUtils.isNotEmpty(enrollment)){
@@ -249,7 +249,10 @@ public class IssueCertificate {
                 Iterator<Row> rowIterator = resultSet.iterator();
                 while (rowIterator.hasNext()) {
                     Row row = rowIterator.next();
-                    if (row.getBool("active")) {
+                    List<Map<String, String>> certificates = row.getList("certificates", TypeTokens.mapOf(String.class, String.class));
+                    boolean isCertIssued = CollectionUtils.isNotEmpty(certificates) && 
+                            (CollectionUtils.isNotEmpty(certificates.stream().filter(map -> StringUtils.equalsIgnoreCase(certName, (String)map.getOrDefault("name", ""))).collect(Collectors.toList())));
+                    if (row.getBool("active") && (!isCertIssued || reIssue)) {
                         enrolledUsers.add(row.getString("userid"));
                     }
                 }
