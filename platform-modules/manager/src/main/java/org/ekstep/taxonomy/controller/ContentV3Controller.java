@@ -107,7 +107,7 @@ public class ContentV3Controller extends BaseController {
 	 *            The Content Package File
 	 * @return The Response entity with Content Id in its Result Set.
 	 */
-	@RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
+//	@RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
 			@RequestParam(value = "file", required = false) MultipartFile file,
@@ -288,7 +288,7 @@ public class ContentV3Controller extends BaseController {
 	 *            The Content Id whose hierarchy needs to be fetched
 	 * @return The Response entity with Content hierarchy in the result set
 	 */
-	@RequestMapping(value = "/hierarchy/{id:.+}", method = RequestMethod.GET)
+//	@RequestMapping(value = "/hierarchy/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> hierarchy(@PathVariable(value = "id") String contentId,
 											  @RequestParam(value = "mode", required = false) String mode,
@@ -321,7 +321,7 @@ public class ContentV3Controller extends BaseController {
 	 * @param bookmarkId The BookMarkId for the which the hierarchy is to be fetched.
 	 * @return The Response entity with Content hierarchy in the result set
 	 */
-	@RequestMapping(value = "/hierarchy/{id:.+}/{bookmarkId:.+}", method = RequestMethod.GET)
+//	@RequestMapping(value = "/hierarchy/{id:.+}/{bookmarkId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> hierarchy(@PathVariable(value = "id") String contentId,
 											  @PathVariable(value = "bookmarkId") String bookmarkId,
@@ -369,7 +369,7 @@ public class ContentV3Controller extends BaseController {
 	}
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
+//	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> preSignedURL(@PathVariable(value = "id") String contentId,
 												 @RequestBody Map<String, Object> map, @PathParam(value = "type") String type) {
@@ -410,7 +410,7 @@ public class ContentV3Controller extends BaseController {
 	}
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/hierarchy/update", method = RequestMethod.PATCH)
+//	@RequestMapping(value = "/hierarchy/update", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> updateHierarchy(@RequestBody Map<String, Object> requestMap) {
 		String apiId = "content.hierarchy.update";
@@ -446,7 +446,7 @@ public class ContentV3Controller extends BaseController {
 	 * @param requestMap
 	 * @return
 	 */
-	@RequestMapping(value = "/dialcode/link", method = RequestMethod.POST)
+//	@RequestMapping(value = "/dialcode/link", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> linkDialCode(@RequestBody Map<String, Object> requestMap,
 			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
@@ -521,7 +521,7 @@ public class ContentV3Controller extends BaseController {
 	 *         result set
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/copy/{id:.+}", method = RequestMethod.POST)
+//	@RequestMapping(value = "/copy/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> copy(@PathVariable(value = "id") String contentId,
 			@RequestParam(value = "mode", required = false) String mode, @RequestBody Map<String, Object> requestMap) {
@@ -545,7 +545,7 @@ public class ContentV3Controller extends BaseController {
 		return API_VERSION_3;
 	}
 
-	@RequestMapping(value="/retire/{id:.+}", method = RequestMethod.DELETE)
+//	@RequestMapping(value="/retire/{id:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> retire(@PathVariable(value = "id") String contentId) {
 		String apiId = "ekstep.content.retire";
@@ -560,7 +560,7 @@ public class ContentV3Controller extends BaseController {
 		}
 	}
 	
-	@RequestMapping(value="/flag/accept/{id:.+}", method = RequestMethod.POST)
+//	@RequestMapping(value="/flag/accept/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> acceptFlag(@PathVariable(value = "id") String contentId){
 		String apiId = "ekstep.content.accept.flag";
@@ -606,7 +606,7 @@ public class ContentV3Controller extends BaseController {
 	 * @return The Response entity with Content Id and Version Key in its Result
 	 *         Set.
 	 */
-	@RequestMapping(value="/flag/{id:.+}", method = RequestMethod.POST)
+//	@RequestMapping(value="/flag/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> flag(@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> map){
@@ -629,7 +629,7 @@ public class ContentV3Controller extends BaseController {
 	 * @param contentId
 	 * @return
 	 */
-	@RequestMapping(value = "/discard/{id:.+}", method = RequestMethod.DELETE)
+//	@RequestMapping(value = "/discard/{id:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> discard(@PathVariable(value = "id") String contentId) {
 		String apiId = "ekstep.learning.content.discard";
