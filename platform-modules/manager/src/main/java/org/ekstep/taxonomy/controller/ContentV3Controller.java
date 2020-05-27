@@ -446,7 +446,7 @@ public class ContentV3Controller extends BaseController {
 	 * @param requestMap
 	 * @return
 	 */
-//	@RequestMapping(value = "/dialcode/link", method = RequestMethod.POST)
+	@RequestMapping(value = "/dialcode/link", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> linkDialCode(@RequestBody Map<String, Object> requestMap,
 			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
@@ -545,7 +545,7 @@ public class ContentV3Controller extends BaseController {
 		return API_VERSION_3;
 	}
 
-//	@RequestMapping(value="/retire/{id:.+}", method = RequestMethod.DELETE)
+	@RequestMapping(value="/retire/{id:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> retire(@PathVariable(value = "id") String contentId) {
 		String apiId = "ekstep.content.retire";
