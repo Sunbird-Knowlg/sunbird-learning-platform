@@ -1,4 +1,6 @@
 env: dev
+ingestion_kafka_topics: ""
+ingestion_kafka_overriden_topics: ""
 
 processing_kafka_topics:
   - name: telemetry.raw
