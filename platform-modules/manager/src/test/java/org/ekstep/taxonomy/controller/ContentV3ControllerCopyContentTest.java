@@ -188,6 +188,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 	 * Copy Content with Invalid createdBy Value
 	 * 
 	 */
+	@Ignore
 	@Test
 	public void copyContentTest_02() throws Exception {
 		String reqPath = basePath + "copy/" + contentId;
@@ -240,6 +241,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 	 * Copy Content with Invalid Content Id
 	 * 
 	 */
+	@Ignore
 	@Test
 	public void copyContentTest_05() throws Exception {
 		String reqPath = basePath + "copy/" + "do_ABC1111";
