@@ -333,7 +333,6 @@ public class PublishPipelineService implements ISamzaService {
 		edata.put("pkgVersion", metadata.get("pkgVersion"));
 		edata.put("mimeType", metadata.get("mimeType"));
 		if (StringUtils.equalsIgnoreCase("coursebatch-create", action)) {
-			edata.put("courseType", metadata.get("courseType"));
 			edata.put("name", metadata.get("name"));
 		}
 		// generate event structure
