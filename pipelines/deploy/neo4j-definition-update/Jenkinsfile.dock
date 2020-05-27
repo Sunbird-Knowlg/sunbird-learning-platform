@@ -13,7 +13,7 @@ node() {
 	    sh'''
 	      rm -rf docs/domain_model_v2/definitions/*
 	      git clone https://github.com/Sunbird-Ed/creation-portal.git -b creation_portal
-              cp creation_portal/neo4j_schemas/* docs/domain_model_v2/definitions
+              cp creation-portal/neo4j_schemas/* docs/domain_model_v2/definitions
 	    '''
         }
 
