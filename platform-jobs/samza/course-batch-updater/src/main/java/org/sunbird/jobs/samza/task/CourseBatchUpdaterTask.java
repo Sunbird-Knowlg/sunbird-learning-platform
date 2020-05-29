@@ -58,10 +58,10 @@ public class CourseBatchUpdaterTask extends BaseTask {
             LOGGER.info("Starting to process for mid : " + message.get("mid") + " at :: " + System.currentTimeMillis());
             Map<String, Object> edata = (Map<String, Object>) message.getOrDefault(CourseBatchParams.edata.name(), new HashMap<>());
             if(MapUtils.isNotEmpty(edata) && StringUtils.equalsIgnoreCase("batch-enrolment-update", (CharSequence) edata.get("action"))) {
-                courseBatchUpdater.processBatchProgress(message, courseProgressHandler);
                 if(courseProgressBatchSize < courseProgressHandler.size()) {
                     executeCourseProgressBatch();
                 }
+                courseBatchUpdater.processBatchProgress(message, courseProgressHandler);
             } else {
                 service.processMessage(message, null, null);
             }
