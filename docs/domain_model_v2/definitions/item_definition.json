@@ -528,7 +528,7 @@
         },
         {
           "required": false,
-          "dataType": "List",
+          "dataType": "TermList",
           "propertyName": "gradeLevel",
           "title": "Grade Level",
           "description": "",
@@ -543,7 +543,7 @@
         },
         {
           "required": false,
-          "dataType": "List",
+          "dataType": "TermList",
           "propertyName": "topic",
           "title": "Topic",
           "description": "",
@@ -558,7 +558,7 @@
         },
         {
           "required": false,
-          "dataType": "Text",
+          "dataType": "Term",
           "propertyName": "board",
           "title": "Curriculum (Board)",
           "description": "Education Board (Like MP Board, NCERT, etc)",
@@ -573,7 +573,7 @@
         },
         {
           "required": false,
-          "dataType": "Text",
+          "dataType": "Term",
           "propertyName": "subject",
           "title": "Subject",
           "description": "Subject of the Content to use to teach",
@@ -588,7 +588,7 @@
         },
         {
           "required": false,
-          "dataType": "Text",
+          "dataType": "Term",
           "propertyName": "medium",
           "title": "Medium",
           "description": "Medium of instruction",
