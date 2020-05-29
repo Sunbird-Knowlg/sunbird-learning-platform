@@ -103,11 +103,14 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 }
             }
 
-            contentStatus.putAll(contents.stream().collect(Collectors.toMap(c -> (String) c.get("contentId"), c -> {
-                if(contentStatus.containsKey((String) c.get("contentId")))
-                   return Math.max(((Integer) contentStatus.get((String) c.get("contentId"))), ((Integer)c.get("status")));
-                else return c.get("status");
-            })));
+            contents.forEach(c -> {
+                String id = (String) c.get("contentId");
+                if(contentStatus.containsKey(id)) {
+                    contentStatus.put((String) c.get("contentId"), Math.max(((Integer) contentStatus.get(id)), ((Integer)c.get("status"))));
+                } else {
+                    contentStatus.put(id, c.get("status"));
+                }
+            });
 
             List<String> completedIds = contentStatus.entrySet().stream()
                     .filter(entry -> (2 == ((Number) entry.getValue()).intValue()))
