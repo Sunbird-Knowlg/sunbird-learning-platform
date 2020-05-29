@@ -106,7 +106,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             contents.forEach(c -> {
                 String id = (String) c.get("contentId");
                 if(contentStatus.containsKey(id)) {
-                    contentStatus.put((String) c.get("contentId"), Math.max(((Integer) contentStatus.get(id)), ((Integer)c.get("status"))));
+                    contentStatus.put(id, Math.max(((Integer) contentStatus.get(id)), ((Integer)c.get("status"))));
                 } else {
                     contentStatus.put(id, c.get("status"));
                 }
