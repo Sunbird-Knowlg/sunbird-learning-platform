@@ -335,6 +335,7 @@ public class PublishPipelineService implements ISamzaService {
 		if (StringUtils.equalsIgnoreCase("coursebatch-create", action)) {
 			edata.put("name", metadata.get("name"));
 			edata.put("createdBy", metadata.get("createdBy"));
+			edata.put("createdFor", metadata.get("createdFor"));
 		}
 		// generate event structure
 		long unixTime = System.currentTimeMillis();
