@@ -20,6 +20,7 @@ import org.ekstep.jobs.samza.util.SamzaCommonParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -134,7 +135,7 @@ public class PostPublishProcessor implements ISamzaService {
                 String nodeId = (String) object.get("id");
                 String name = (String) edata.getOrDefault("name", "");
                 String createdBy = (String) edata.getOrDefault("createdBy", "");
-                List<String> createdFor = (List<String>) edata.getOrDefault("createdFor", "");
+                List<String> createdFor = (List<String>) edata.getOrDefault("createdFor",  new ArrayList<String>());
                 Double pkgVersion = (Double) edata.getOrDefault("pkgVersion", 0.0);
                 LOGGER.info("Started processing of course batch creation for : " + nodeId +" | pkgVersion :"+pkgVersion);
                 courseBatchUtil.create(nodeId, name, pkgVersion, createdBy, createdFor);
