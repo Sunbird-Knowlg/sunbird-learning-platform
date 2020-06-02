@@ -134,7 +134,7 @@ public class PostPublishProcessor implements ISamzaService {
                 String nodeId = (String) object.get("id");
                 String name = (String) edata.getOrDefault("name", "");
                 String createdBy = (String) edata.getOrDefault("createdBy", "");
-                String createdFor = (String) edata.getOrDefault("createdFor", "");
+                List<String> createdFor = (List<String>) edata.getOrDefault("createdFor", "");
                 Double pkgVersion = (Double) edata.getOrDefault("pkgVersion", 0.0);
                 LOGGER.info("Started processing of course batch creation for : " + nodeId +" | pkgVersion :"+pkgVersion);
                 courseBatchUtil.create(nodeId, name, pkgVersion, createdBy, createdFor);

@@ -67,7 +67,7 @@ public class CourseBatchUtil {
         }
     }
 
-	public void create(String courseId, String name, Double pkgVersion, String createdBy, String createdFor) {
+	public void create(String courseId, String name, Double pkgVersion, String createdBy, List<String> createdFor) {
 		try {
 			if (pkgVersion == 1.0 || pkgVersion == 1) {
 				createBatch(courseId, name, createdBy, createdFor);
@@ -156,7 +156,7 @@ public class CourseBatchUtil {
         }};
     }
 
-    private static void createBatch(String courseId, String name, String createdBy, String createdFor) {
+    private static void createBatch(String courseId, String name, String createdBy, List<String> createdFor) {
         try {
             Map<String, Object> request = new HashMap<String, Object>() {{
                 put(PostPublishParams.request.name(), new HashMap<String, Object>() {{
@@ -164,7 +164,7 @@ public class CourseBatchUtil {
                     put(PostPublishParams.name.name(), name);
                     if(StringUtils.isNotBlank(createdBy))
 	                    put(PostPublishParams.createdBy.name(), createdBy);
-                    if(StringUtils.isNotBlank(createdFor))
+                    if(CollectionUtils.isNotEmpty(createdFor))
                         put(PostPublishParams.createdFor.name(), createdFor);
                     put(PostPublishParams.enrollmentType.name(), "open");
                     put(PostPublishParams.startDate.name(), new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
