@@ -67,10 +67,10 @@ public class CourseBatchUtil {
         }
     }
 
-	public void create(String courseId, String name, Double pkgVersion, String createdBy) {
+	public void create(String courseId, String name, Double pkgVersion, String createdBy, String createdFor) {
 		try {
 			if (pkgVersion == 1.0 || pkgVersion == 1) {
-				createBatch(courseId, name, createdBy);
+				createBatch(courseId, name, createdBy, createdFor);
 			} else {
 				List<Row> courseBatchRows = readBatch(COURSE_BATCH_TABLE, courseId);
 				if (null != courseBatchRows) {
@@ -78,7 +78,7 @@ public class CourseBatchUtil {
 					if (CollectionUtils.isNotEmpty(openBatchRows) && openBatchRows.size() >= 1)
 						LOGGER.info(openBatchRows.size() + " Open Batch Found for : " + courseId + " | So skipping the create batch event.");
 					else
-						createBatch(courseId, name, createdBy);
+						createBatch(courseId, name, createdBy, createdFor);
 				}
 			}
 		} catch (Exception e) {
@@ -156,7 +156,7 @@ public class CourseBatchUtil {
         }};
     }
 
-    private static void createBatch(String courseId, String name, String createdBy) {
+    private static void createBatch(String courseId, String name, String createdBy, String createdFor) {
         try {
             Map<String, Object> request = new HashMap<String, Object>() {{
                 put(PostPublishParams.request.name(), new HashMap<String, Object>() {{
@@ -164,6 +164,8 @@ public class CourseBatchUtil {
                     put(PostPublishParams.name.name(), name);
                     if(StringUtils.isNotBlank(createdBy))
 	                    put(PostPublishParams.createdBy.name(), createdBy);
+                    if(StringUtils.isNotBlank(createdFor))
+                        put(PostPublishParams.createdFor.name(), createdFor);
                     put(PostPublishParams.enrollmentType.name(), "open");
                     put(PostPublishParams.startDate.name(), new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
                 }});
