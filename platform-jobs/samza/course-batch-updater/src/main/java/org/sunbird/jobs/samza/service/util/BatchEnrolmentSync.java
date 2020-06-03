@@ -2,6 +2,7 @@ package org.sunbird.jobs.samza.service.util;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -10,6 +11,7 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.sunbird.jobs.samza.util.ESUtil;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
+import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -30,9 +32,11 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
     private String consumptionTable = "content_consumption";
     private static final String ES_INDEX_NAME = "user-courses";
     private static final String ES_DOC_TYPE = "_doc";
-
-    public BatchEnrolmentSync() {
+    private Session cassandraSession = null;
+    
+    public BatchEnrolmentSync(Session cassandraSession) {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
+        this.cassandraSession = cassandraSession;
     }
 
     public void syncEnrolment(Map<String, Object> edata) throws Exception {
@@ -56,7 +60,7 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
                             dataToUpdate.remove(key);
                         }
                     }
-                    ResultSet resultSet = SunbirdCassandraUtil.read(keyspace, table, dataToSelect);
+                    ResultSet resultSet = SunbirdCassandraUtil.read(cassandraSession, keyspace, table, dataToSelect);
                     Date existingCompletedOn = resultSet.one().getTimestamp("completedOn");
 
                     if(null != dataToUpdate.get("status") && (2 == ((Number)dataToUpdate.get("status")).intValue()) && (null == existingCompletedOn))
@@ -65,7 +69,7 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
                     if(null != dataToUpdate.get("status") && (2 != ((Number)dataToUpdate.get("status")).intValue()) && (null != existingCompletedOn))
                         dataToUpdate.put("completedOn", null);
 
-                    SunbirdCassandraUtil.update(keyspace, table, dataToUpdate, dataToSelect);
+                    SunbirdCassandraUtil.update(cassandraSession, keyspace, table, dataToUpdate, dataToSelect);
                 }
                 if(dataToUpdate.keySet().contains("contentStatus"))
                     dataToUpdate.put("contentStatus", mapper.writeValueAsString(dataToUpdate.get("contentStatus")));
@@ -83,7 +87,7 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
             put("contentid", leafNodes);
         }};
         Map<String, String> lastReadContents = new HashMap<>();
-        ResultSet resultSet = SunbirdCassandraUtil.read(keyspace, consumptionTable, dataToSelect);
+        ResultSet resultSet = SunbirdCassandraUtil.read(cassandraSession, keyspace, consumptionTable, dataToSelect);
         List<Row> rows = resultSet.all();
         if (CollectionUtils.isNotEmpty(rows)) {
             for(Row row: rows) {

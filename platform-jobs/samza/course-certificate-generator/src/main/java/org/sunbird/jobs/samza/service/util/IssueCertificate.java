@@ -2,6 +2,7 @@ package org.sunbird.jobs.samza.service.util;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
 import com.datastax.driver.core.TypeTokens;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,6 +48,11 @@ public class IssueCertificate {
     private static final String topic = Platform.config.getString("task.inputs").replace("kafka.", "");
     private static final List<String> certFilterKeys = Arrays.asList("enrollment", "assessment", "user");
     private static JobLogger LOGGER = new JobLogger(IssueCertificate.class);
+    private Session cassandraSession = null;
+    
+    public IssueCertificate(Session cassandraSession) {
+        this.cassandraSession = cassandraSession;
+    }
 
     public void issue(Map<String, Object> edata, MessageCollector collector) {
         String batchId = (String) edata.get(CourseCertificateParams.batchId.name());
@@ -68,7 +74,7 @@ public class IssueCertificate {
             put(CourseCertificateParams.batchId.name(), batchId);
             put(CourseCertificateParams.courseId.name(), courseId);
         }};
-        ResultSet resultSet = SunbirdCassandraUtil.read(KEYSPACE, COURSE_BATCH_TABLE, dataToFetch);
+        ResultSet resultSet = SunbirdCassandraUtil.read(cassandraSession, KEYSPACE, COURSE_BATCH_TABLE, dataToFetch);
         Row row = resultSet.one();
         return row.getMap("cert_templates", TypeToken.of(String.class), TypeTokens.mapOf(String.class, String.class));
     }
@@ -211,7 +217,7 @@ public class IssueCertificate {
         String query = "SELECT user_id, max(total_score) as score, total_max_score FROM " + KEYSPACE +"." + ASSESSMENT_AGGREGATOR_TABLE +
                 " where course_id='" +courseId + "' AND batch_id='" + batchId + "' " +
                 "GROUP BY course_id,batch_id,user_id,content_id ORDER BY batch_id,user_id,content_id;";
-        ResultSet resultSet = SunbirdCassandraUtil.execute(query);
+        ResultSet resultSet = SunbirdCassandraUtil.execute(cassandraSession, query);
         Iterator<Row> rows = resultSet.iterator();
         Map<String, Map<String, Double>> userScore = new HashMap<>();
         while(rows.hasNext()) {
@@ -245,7 +251,7 @@ public class IssueCertificate {
                 if(CollectionUtils.isNotEmpty(userIds)) {
                     dataToFetch.put(CourseCertificateParams.userId.name(), userIds);
                 }
-                ResultSet resultSet = SunbirdCassandraUtil.read(KEYSPACE, USER_COURSES_TABLE, dataToFetch);
+                ResultSet resultSet = SunbirdCassandraUtil.read(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToFetch);
                 Iterator<Row> rowIterator = resultSet.iterator();
                 while (rowIterator.hasNext()) {
                     Row row = rowIterator.next();

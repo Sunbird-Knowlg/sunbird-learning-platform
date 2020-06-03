@@ -1,5 +1,6 @@
 package org.sunbird.jobs.samza.service.util;
 
+import com.datastax.driver.core.Session;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -9,7 +10,13 @@ import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 public class BatchCountUpdater extends BaseCourseBatchUpdater {
     private static String jobTimeZone = Platform.config.hasPath("job.time_zone") ? Platform.config.getString("job.time_zone"): "IST";
@@ -19,6 +26,12 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
             : "sunbird_courses";
     private static final String courseBatchTable = "course_batch";
     private static String installation = Platform.config.hasPath("sunbird.installation") ? Platform.config.getString("sunbird.installation").toLowerCase(): "sunbird_dev";
+
+    private Session cassandraSession = null;
+    
+    public BatchCountUpdater(Session cassandraSession) {
+        this.cassandraSession = cassandraSession;
+    }
 
     public void update(Map<String, Object> edata) throws Exception {
         String courseId = (String) edata.get(CourseBatchParams.courseId.name());
@@ -34,7 +47,7 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
         Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
             put("courseid", courseId);
         }};
-        List<Map<String,Object>> courseBatches = SunbirdCassandraUtil.readAsListOfMap(keyspace,courseBatchTable,dataToSelect);
+        List<Map<String,Object>> courseBatches = SunbirdCassandraUtil.readAsListOfMap(cassandraSession, keyspace,courseBatchTable,dataToSelect);
         if(CollectionUtils.isNotEmpty(courseBatches)){
             for(Map<String,Object> batch : courseBatches){
                 String enrollmentType =(String) batch.get("enrollmentType");
@@ -64,7 +77,7 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
         Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
             put("courseid",courseId);
         }};
-        List<Map<String,Object>> batches = SunbirdCassandraUtil.readAsListOfMap(keyspace,courseBatchTable,dataToSelect);
+        List<Map<String,Object>> batches = SunbirdCassandraUtil.readAsListOfMap(cassandraSession, keyspace,courseBatchTable,dataToSelect);
         if(CollectionUtils.isNotEmpty(batches)){
             for(Map<String,Object> batch : batches) {
                 if((Integer)batch.get("status")< 2) {
