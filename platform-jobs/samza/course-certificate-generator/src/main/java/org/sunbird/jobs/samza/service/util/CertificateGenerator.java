@@ -2,6 +2,7 @@ package org.sunbird.jobs.samza.service.util;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
 import com.datastax.driver.core.TypeTokens;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -21,6 +22,7 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
+import redis.clients.jedis.Jedis;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -57,13 +59,17 @@ public class CertificateGenerator {
     private static final String certRegistryAddURL = CERT_REG_SERVICE_BASE_URL + "/certs/v1/registry/add";
 
     private static JobLogger LOGGER = new JobLogger(CertificateGenerator.class);
-
-    public CertificateGenerator() {
+    private Session cassandraSession = null;
+    private Jedis redisConnect =null;
+    
+    public CertificateGenerator(Jedis redisConnect, Session cassandraSession) {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
-        formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSSZ");
+        formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
         mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        this.cassandraSession = cassandraSession;
+        this.redisConnect = redisConnect;
     }
 
     public void generate(Map<String, Object> edata) {
@@ -81,7 +87,7 @@ public class CertificateGenerator {
                 put(CourseCertificateParams.batchId.name(), batchId);
                 put(CourseCertificateParams.userId.name(), userId);
             }};
-            ResultSet resulSet = SunbirdCassandraUtil.read(KEYSPACE, USER_COURSES_TABLE, dataToFetch);
+            ResultSet resulSet = SunbirdCassandraUtil.read(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToFetch);
             List<Row> rows = resulSet.all();
 
             for(Row row: rows) {
@@ -147,7 +153,7 @@ public class CertificateGenerator {
                         put(CourseCertificateParams.batchId.name(), batchId);
                         put(CourseCertificateParams.userId.name(), userId);
                     }};
-                    SunbirdCassandraUtil.update(KEYSPACE, USER_COURSES_TABLE, dataToUpdate, dataToSelect);
+                    SunbirdCassandraUtil.update(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToUpdate, dataToSelect);
                     updatedES(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
                 }
                 if(addCertificateToUser(certificate, courseId, batchId, oldId, recipientName, (String)certTemplate.get("name"))) {
@@ -283,10 +289,10 @@ public class CertificateGenerator {
 
     private Map<String,Object> getContent(String courseId, String fields) {
         try {
-            String courseData = RedisStoreUtil.get(courseId);
+            String courseData = redisConnect.get(courseId);
             Map<String, Object> content = new HashMap<>();
             if(StringUtils.isNotBlank(courseData)){
-                content = mapper.readValue(RedisStoreUtil.get(courseId), new TypeReference<Map<String, Object>>(){});    
+                content = mapper.readValue(courseData, new TypeReference<Map<String, Object>>(){});    
             }
             if(MapUtils.isEmpty(content)) {
                 String url = KP_CONTENT_SERVICE_BASE_URL + "/content/v3/read/" + courseId;
@@ -424,7 +430,7 @@ public class CertificateGenerator {
             put(CourseCertificateParams.id.name(), (String) certificate.get(CourseCertificateParams.id.name()));
             put(CourseCertificateParams.url.name(), (String) certificate.get(CourseCertificateParams.pdfUrl.name()));
             put(CourseCertificateParams.token.name(), (String) certificate.get(CourseCertificateParams.accessCode.name()));
-            put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(issuedOn));
+            put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(new Date()));
             if(reIssue){
                 put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(new Date()));
             }
