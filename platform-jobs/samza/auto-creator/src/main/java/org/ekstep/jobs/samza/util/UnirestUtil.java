@@ -9,7 +9,6 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ServerException;
 
-import java.io.File;
 import java.util.Map;
 
 public class UnirestUtil {
