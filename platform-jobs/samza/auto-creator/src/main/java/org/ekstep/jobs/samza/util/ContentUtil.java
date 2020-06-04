@@ -68,7 +68,7 @@ public class ContentUtil {
 				internalId = create(channelId, identifier, repository, createMetadata);
 			}
 			case "upload": {
-				upload(internalId, getFile(internalId, (String) metadata.get(AutoCreatorParams.artifactUrl.name())));
+				upload(channelId, internalId, getFile(internalId, (String) metadata.get(AutoCreatorParams.artifactUrl.name())));
 			}
 			case "publish": {
 				publish(channelId, internalId, (String) metadata.get(AutoCreatorParams.lastPublishedBy.name()));
@@ -180,15 +180,28 @@ public class ContentUtil {
 		return contentId;
 	}
 
-	private void upload(String identifier, File file) throws Exception {
+	private void upload(String channelId, String identifier, File file) throws Exception {
 		if (null != file && !file.exists())
 			LOGGER.info("ContentUtil :: upload :: File Path for " + identifier + "is : " + file.getAbsolutePath() + " | File Size : " + file.length());
-
 		String preSignedUrl = getPreSignedUrl(identifier, file.getName());
-		if (uploadBlob(identifier, preSignedUrl, file)) {
-			LOGGER.info("ContentUtil :: upload :: Content Uploaded Successfully for : " + identifier + " | artifactUrl : " + preSignedUrl.split("\\?")[0]);
+		String fileUrl = preSignedUrl.split("\\?")[0];
+		Boolean isUploaded = uploadBlob(identifier, preSignedUrl, file);
+		if (isUploaded) {
+			String url = KP_CS_BASE_URL + "/content/v3/upload/" + identifier;
+			Map<String, String> header = new HashMap<String, String>() {{
+				put("X-Channel-Id", channelId);
+			}};
+			Response resp = UnirestUtil.post(url, "fileUrl", fileUrl, header);
+			if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
+				String artifactUrl = (String) resp.getResult().get(AutoCreatorParams.artifactUrl.name());
+				if (StringUtils.isNotBlank(artifactUrl) && StringUtils.equalsIgnoreCase(fileUrl, artifactUrl))
+					LOGGER.info("ContentUtil :: upload :: Content Uploaded Successfully for : " + identifier + " | artifactUrl : " + artifactUrl);
+			} else {
+				LOGGER.info("ContentUtil :: upload :: Invalid Response received while uploading for: " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while uploading : " + identifier);
+			}
 		} else {
-			LOGGER.info("ContentUtil :: upload :: Upload failed for: " + identifier);
+			LOGGER.info("ContentUtil :: upload :: Blob upload failed for: " + identifier);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Upload failed for: " + identifier);
 		}
 	}

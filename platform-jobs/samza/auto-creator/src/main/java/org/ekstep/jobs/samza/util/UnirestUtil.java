@@ -29,13 +29,13 @@ public class UnirestUtil {
 		}
 	}
 
-	public static Response post(String url, File file, Map<String, String> headerParam)
+	public static Response post(String url, String paramName, Object value, Map<String, String> headerParam)
 			throws Exception {
 		validateRequest(url, headerParam);
-		if (null == file || !file.exists())
-			throw new ServerException("ERR_INVALID_REQUEST_FILE", "Invalid Request File!");
+		if (null == value || null == value)
+			throw new ServerException("ERR_INVALID_REQUEST_PARAM", "Invalid Request Param!");
 		try {
-			HttpResponse<String> response = Unirest.post(url).headers(headerParam).field("file", new File(file.getAbsolutePath())).asString();
+			HttpResponse<String> response = Unirest.post(url).headers(headerParam).field(paramName, value).asString();
 			return getResponse(response);
 		} catch (Exception e) {
 			throw new ServerException("ERR_API_CALL", "Something Went Wrong While Making API Call | Error is: " + e.getMessage());
@@ -53,7 +53,7 @@ public class UnirestUtil {
 			throw new ServerException("ERR_API_CALL", "Something Went Wrong While Making API Call | Error is: " + e.getMessage());
 		}
 	}
-	
+
 	private static void validateRequest(String url, Map<String, String> headerParam) {
 		if (StringUtils.isBlank(url))
 			throw new ServerException("ERR_INVALID_URL", "Url Parameter is Missing!");
