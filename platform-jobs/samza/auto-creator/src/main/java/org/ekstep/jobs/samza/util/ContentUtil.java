@@ -1,11 +1,14 @@
 package org.ekstep.jobs.samza.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tika.Tika;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
@@ -36,6 +39,7 @@ public class ContentUtil {
 	private static final List<String> FINAL_STATUS = Arrays.asList("Live", "Unlisted", "Processing");
 	private static final String DEFAULT_CONTENT_TYPE = "application/json";
 	private static ObjectMapper mapper = new ObjectMapper();
+	private static Tika tika = new Tika();
 	private static JobLogger LOGGER = new JobLogger(ContentUtil.class);
 
 
@@ -64,7 +68,7 @@ public class ContentUtil {
 				internalId = create(channelId, identifier, repository, createMetadata);
 			}
 			case "upload": {
-				upload(channelId, internalId, getFile(internalId, (String) metadata.get(AutoCreatorParams.artifactUrl.name())));
+				upload(internalId, getFile(internalId, (String) metadata.get(AutoCreatorParams.artifactUrl.name())));
 			}
 			case "publish": {
 				publish(channelId, internalId, (String) metadata.get(AutoCreatorParams.lastPublishedBy.name()));
@@ -176,21 +180,16 @@ public class ContentUtil {
 		return contentId;
 	}
 
-	private void upload(String channelId, String identifier, File file) throws Exception {
+	private void upload(String identifier, File file) throws Exception {
 		if (null != file && !file.exists())
 			LOGGER.info("ContentUtil :: upload :: File Path for " + identifier + "is : " + file.getAbsolutePath() + " | File Size : " + file.length());
-		String url = KP_CS_BASE_URL + "/content/v3/upload/" + identifier;
-		Map<String, String> header = new HashMap<String, String>() {{
-			put("X-Channel-Id", channelId);
-		}};
-		Response resp = UnirestUtil.post(url, file, header);
-		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
-			String artifactUrl = (String) resp.getResult().get(AutoCreatorParams.artifactUrl.name());
-			if (StringUtils.isNotBlank(artifactUrl))
-				LOGGER.info("ContentUtil :: upload :: Content Uploaded Successfully for : " + identifier + " | artifactUrl : " + artifactUrl);
+
+		String preSignedUrl = getPreSignedUrl(identifier, file.getName());
+		if (uploadBlob(identifier, preSignedUrl, file)) {
+			LOGGER.info("ContentUtil :: upload :: Content Uploaded Successfully for : " + identifier + " | artifactUrl : " + preSignedUrl.split("\\?")[0]);
 		} else {
-			LOGGER.info("ContentUtil :: upload :: Invalid Response received while uploading for: " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while uploading : " + identifier);
+			LOGGER.info("ContentUtil :: upload :: Upload failed for: " + identifier);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Upload failed for: " + identifier);
 		}
 	}
 
@@ -211,14 +210,54 @@ public class ContentUtil {
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String publishStatus = (String) resp.getResult().get("publishStatus");
 			if (StringUtils.isNotBlank(publishStatus))
-				LOGGER.info("ContentUtil :: create :: Content sent for publish successfully for : " + identifier);
+				LOGGER.info("ContentUtil :: publish :: Content sent for publish successfully for : " + identifier);
 			else
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Content Publish Call Failed For : " + identifier);
 		} else {
-			LOGGER.info("ContentUtil :: create :: Invalid Response received while publishing content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			LOGGER.info("ContentUtil :: publish :: Invalid Response received while publishing content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while publishing content for : " + identifier);
 		}
 
+	}
+
+	private String getPreSignedUrl(String identifier, String fileName) throws Exception {
+		String preSignedUrl = "";
+		Map<String, Object> request = new HashMap<>();
+		Map<String, Object> content = new HashMap<String, Object>();
+		Map<String, String> header = new HashMap<String, String>(){{
+			put("Content-Type","application/json");
+		}};
+		content.put("fileName", fileName);
+		request.put("content", content);
+		Map<String, Object> presignedReq = new HashMap<String, Object>();
+		presignedReq.put("request", request);
+		String url = KP_CS_BASE_URL + "/content/v3/upload/url/" + identifier;
+		Response resp = UnirestUtil.post(url, presignedReq, header);
+		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
+			preSignedUrl = (String) resp.getResult().get("pre_signed_url");
+			return preSignedUrl;
+		} else {
+			LOGGER.info("ContentUtil :: getPreSignedUrl :: Invalid Response received while generating pre-signed url for : " + identifier + " | Response Code : " + resp.getResponseCode().toString());
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while generating pre-signed url for : " + identifier);
+		}
+	}
+
+	private Boolean uploadBlob(String identifier, String url, File file) throws Exception {
+		Boolean result = false;
+		String contentType = tika.detect(file);
+		LOGGER.info("contentType of file : "+contentType);
+		Map<String, String> header = new HashMap<String, String>(){{
+			put("x-ms-blob-type", "BlockBlob");
+			put("Content-Type", contentType);
+		}};
+		HttpResponse<String> response = Unirest.put(url).headers(header).field("file", new File(file.getAbsolutePath())).asString();
+		if (null != response && response.getStatus()==201) {
+			result = true;
+		} else {
+			LOGGER.info("ContentUtil :: uploadBlob :: Invalid Response received while uploading file to blob store for : " + identifier + " | Response Code : " + response.getStatus());
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while uploading file to blob store for : " + identifier);
+		}
+		return result;
 	}
 
 	private String getBasePath(String objectId) {

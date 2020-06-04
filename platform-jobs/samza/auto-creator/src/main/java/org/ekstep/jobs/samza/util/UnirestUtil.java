@@ -53,18 +53,7 @@ public class UnirestUtil {
 			throw new ServerException("ERR_API_CALL", "Something Went Wrong While Making API Call | Error is: " + e.getMessage());
 		}
 	}
-
-	public static Response put(String url, File file, Map<String, String> headerParam) throws Exception {
-		try {
-			HttpResponse<String> response = Unirest.put(url).headers(headerParam).body(file).asString();
-			return getResponse(response);
-		} catch (Exception e) {
-			throw new ServerException("ERR_API_CALL", "Something Went Wrong While Making API Call | Error is: " + e.getMessage());
-		}
-	}
-
-
-
+	
 	private static void validateRequest(String url, Map<String, String> headerParam) {
 		if (StringUtils.isBlank(url))
 			throw new ServerException("ERR_INVALID_URL", "Url Parameter is Missing!");
