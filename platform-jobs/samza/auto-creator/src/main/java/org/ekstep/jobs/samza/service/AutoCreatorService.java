@@ -95,7 +95,7 @@ public class AutoCreatorService implements ISamzaService {
 	}
 
 	private Boolean validateEvent(Integer currentIteration, String channel, String identifier, String objectType, Map<String, Object> metadata) {
-		if ((currentIteration < MAX_ITERATION_COUNT) && (StringUtils.isNotBlank(channel) && StringUtils.isNotBlank(identifier) && MapUtils.isNotEmpty(metadata)) &&
+		if ((currentIteration <= MAX_ITERATION_COUNT) && (StringUtils.isNotBlank(channel) && StringUtils.isNotBlank(identifier) && MapUtils.isNotEmpty(metadata)) &&
 				(StringUtils.isNotBlank(objectType) && ALLOWED_OBJECT_TYPES.contains(objectType))) {
 			return true;
 		}

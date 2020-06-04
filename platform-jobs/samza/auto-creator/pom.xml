@@ -13,9 +13,20 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.konghq</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>3.7.02</version>
+        </dependency>
+        <dependency>
             <groupId>org.ekstep</groupId>
             <artifactId>course-common</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>unirest-java</artifactId>
+                    <groupId>com.mashape.unirest</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.ekstep</groupId>

@@ -1,8 +1,8 @@
 package org.ekstep.jobs.samza.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;

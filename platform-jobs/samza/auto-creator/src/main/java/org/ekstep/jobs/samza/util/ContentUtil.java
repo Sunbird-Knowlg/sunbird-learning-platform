@@ -1,8 +1,8 @@
 package org.ekstep.jobs.samza.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -235,17 +235,18 @@ public class ContentUtil {
 
 	private String getPreSignedUrl(String identifier, String fileName) throws Exception {
 		String preSignedUrl = "";
-		Map<String, Object> request = new HashMap<>();
-		Map<String, Object> content = new HashMap<String, Object>();
+		Map<String, Object> request = new HashMap<String, Object>(){{
+			put("request", new HashMap<String, Object>(){{
+				put("content", new HashMap<String, Object>(){{
+					put("fileName", fileName);
+				}});
+			}});
+		}};
 		Map<String, String> header = new HashMap<String, String>(){{
 			put("Content-Type","application/json");
 		}};
-		content.put("fileName", fileName);
-		request.put("content", content);
-		Map<String, Object> presignedReq = new HashMap<String, Object>();
-		presignedReq.put("request", request);
 		String url = KP_CS_BASE_URL + "/content/v3/upload/url/" + identifier;
-		Response resp = UnirestUtil.post(url, presignedReq, header);
+		Response resp = UnirestUtil.post(url, request, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			preSignedUrl = (String) resp.getResult().get("pre_signed_url");
 			return preSignedUrl;
