@@ -48,11 +48,11 @@ public class ContentUtil {
 		return CollectionUtils.isEmpty(reqFields) ? true : false;
 	}
 
-	public void process(String channelId, String identifier, String repository, Map<String, Object> metadata) throws Exception {
-		LOGGER.info("ContentUtil :: process :: started processing for: " + identifier + " | Channel : " + channelId + " | Metadata : " + metadata);
+	public void process(String channelId, String identifier, String repository, Map<String, Object> metadata, Map<String, Object> textbookInfo) throws Exception {
+		LOGGER.info("ContentUtil :: process :: started processing for: " + identifier + " | Channel : " + channelId + " | Metadata : " + metadata+ " | textbookInfo :"+textbookInfo);
 		String contentStage = "";
 		String internalId = "";
-		Double pkgVersion = (Double) metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), 0.0);
+		Double pkgVersion = Double.parseDouble((String) metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), "0.0"));
 		Map<String, Object> createMetadata = new HashMap<String, Object>();
 		Map<String, Object> contentMetadata = searchContent(identifier);
 		if (MapUtils.isEmpty(contentMetadata)) {
