@@ -28,13 +28,13 @@ public class UnirestUtil {
 		}
 	}
 
-	public static Response post(String url, String paramName, Object value, Map<String, String> headerParam)
+	public static Response post(String url, String paramName, String value, Map<String, String> headerParam)
 			throws Exception {
 		validateRequest(url, headerParam);
 		if (null == value || null == value)
 			throw new ServerException("ERR_INVALID_REQUEST_PARAM", "Invalid Request Param!");
 		try {
-			HttpResponse<String> response = Unirest.post(url).headers(headerParam).field(paramName, value).asString();
+			HttpResponse<String> response = Unirest.post(url).headers(headerParam).multiPartContent().field(paramName, value).asString();
 			return getResponse(response);
 		} catch (Exception e) {
 			throw new ServerException("ERR_API_CALL", "Something Went Wrong While Making API Call | Error is: " + e.getMessage());
