@@ -148,11 +148,12 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         Map<String, Object> enrollmentDetails = (Map<String, Object>) courseProgressHandler.get(key);
         if(MapUtils.isNotEmpty(enrollmentDetails)) {
             Map<String, Integer> contentStatusMap = (Map<String, Integer>) enrollmentDetails.get("contentStatus");
+            Map<String, Integer> contentStatusDeltaMap = (Map<String, Integer>) enrollmentDetails.getOrDefault("contentStatusDelta", new HashMap<>());
             lastReadContentStats.put("lastReadContentId", (String) enrollmentDetails.get("lastReadContentId"));
             lastReadContentStats.put("lastReadContentStatus", (int) enrollmentDetails.get("lastReadContentStatus"));
             if(MapUtils.isNotEmpty(contentStatusMap)){
                 contentStatus.putAll(contentStatusMap);
-                contentStatusDelta.putAll(contentStatusMap);
+                contentStatusDelta.putAll(contentStatusDeltaMap);
             }
         }
     }
