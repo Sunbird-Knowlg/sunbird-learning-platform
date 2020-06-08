@@ -41,3 +41,4 @@ course_batch_updater_container_count: 1
 course_certificate_generator_container_count: 1
 course_progress_batch_size: 100
 itemset_generate_pdf: true
+auto_creator_container_count: 1
