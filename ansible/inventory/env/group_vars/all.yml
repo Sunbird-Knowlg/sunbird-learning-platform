@@ -83,3 +83,5 @@ kp_search_service_base_url: "http://{{swarm_manager_lb_ip}}:9004"
 kp_print_service_base_url: "http://{{swarm_manager_lb_ip}}:5001"
 cert_reg_service_base_url: "http://{{swarm_manager_lb_ip}}:9013"
 
+### Add below for neo4j backup script 
+learning-neo4j-node1_host: {{ groups['learning-neo4j-cluster'][0] }}
