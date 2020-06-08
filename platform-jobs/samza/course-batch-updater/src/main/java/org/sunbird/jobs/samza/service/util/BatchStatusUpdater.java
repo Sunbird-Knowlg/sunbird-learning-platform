@@ -2,6 +2,7 @@ package org.sunbird.jobs.samza.service.util;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
@@ -9,6 +10,7 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.sunbird.jobs.samza.util.CourseBatchParams;
 import org.sunbird.jobs.samza.util.ESUtil;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
+import redis.clients.jedis.Jedis;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,10 +24,12 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
     private static final String courseBatchTable = "course_batch";
     private static final String ES_INDEX_NAME = "course-batch";
     private BatchCountUpdater batchCountUpdater = null;
-
-    public BatchStatusUpdater() {
+    private Session cassandraSession = null;
+    
+    public BatchStatusUpdater(Session cassandraSession) {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
-        batchCountUpdater = new BatchCountUpdater();
+        batchCountUpdater = new BatchCountUpdater(cassandraSession);
+        this.cassandraSession = cassandraSession;
     }
 
     public void update(Map<String, Object> edata) throws Exception {
@@ -36,7 +40,7 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
         batchCountUpdater.update(edata);
     }
 
-    private static void updateStatusOfBatch(String batchId, String courseId, int status) throws Exception {
+    private void updateStatusOfBatch(String batchId, String courseId, int status) throws Exception {
         Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
             put(CourseBatchParams.status.name(), status);
         }};
@@ -44,7 +48,7 @@ public class BatchStatusUpdater extends BaseCourseBatchUpdater {
             put(CourseBatchParams.batchId.name(), batchId);
             put(CourseBatchParams.courseId.name(), courseId);
         }};
-        SunbirdCassandraUtil.update(keyspace, courseBatchTable, dataToUpdate, dataToFetch);
+        SunbirdCassandraUtil.update(cassandraSession, keyspace, courseBatchTable, dataToUpdate, dataToFetch);
         dataToFetch.remove(CourseBatchParams.courseId.name());
         ESUtil.updateCoureBatch(ES_INDEX_NAME, "_doc", dataToUpdate, dataToFetch);
     }

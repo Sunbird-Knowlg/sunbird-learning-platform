@@ -4,6 +4,7 @@ package org.sunbird.jobs.samza.service;
  * @author Pradyumna
  */
 
+import com.datastax.driver.core.Session;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
@@ -16,7 +17,10 @@ import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.service.util.CertificateGenerator;
 import org.sunbird.jobs.samza.service.util.IssueCertificate;
+import org.sunbird.jobs.samza.util.CassandraConnector;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
+import org.sunbird.jobs.samza.util.RedisConnect;
+import redis.clients.jedis.Jedis;
 
 import java.util.Map;
 
@@ -28,6 +32,8 @@ public class CertificateGeneratorService implements ISamzaService {
     private static int MAXITERTIONCOUNT = 2;
     private CertificateGenerator certificateGenerator =null;
     private IssueCertificate issueCertificate = null;
+    private Jedis redisConnect = null;
+    private Session cassandraSession = null;
     /**
      * @param config
      * @throws Exception
@@ -37,9 +43,11 @@ public class CertificateGeneratorService implements ISamzaService {
         this.config = config;
         JSONUtils.loadProperties(config);
         LOGGER.info("Service config initialized");
+        redisConnect = new RedisConnect(config).getConnection();
+        cassandraSession = new CassandraConnector(config).getSession();
         systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
-        certificateGenerator = new CertificateGenerator();
-        issueCertificate = new IssueCertificate();
+        certificateGenerator = new CertificateGenerator(redisConnect, cassandraSession);
+        issueCertificate = new IssueCertificate(cassandraSession);
     }
 
     /**

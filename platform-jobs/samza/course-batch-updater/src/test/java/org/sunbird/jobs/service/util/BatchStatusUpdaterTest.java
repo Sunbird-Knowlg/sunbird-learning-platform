@@ -1,13 +1,18 @@
 package org.sunbird.jobs.service.util;
 
+import com.datastax.driver.core.Session;
+import org.apache.samza.config.Config;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sunbird.jobs.samza.service.util.BaseCourseBatchUpdater;
 import org.sunbird.jobs.samza.service.util.BatchStatusUpdater;
+import org.sunbird.jobs.samza.util.RedisConnect;
+import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +27,9 @@ public class BatchStatusUpdaterTest {
 
     @Test
     public void testsync() throws Exception {
-        BatchStatusUpdater updater = PowerMockito.spy(new BatchStatusUpdater());
+        Config config = Mockito.mock(Config.class);
+        Session session = Mockito.mock(Session.class);
+        BatchStatusUpdater updater = PowerMockito.spy(new BatchStatusUpdater(session));
         PowerMockito.doReturn(new HashMap<String, Object>(){{
             put("leafNodes",new ArrayList<String>() {{ add("do_11260735471149056012299");}});
         }}).when(updater, "getContent", anyString(), anyString());

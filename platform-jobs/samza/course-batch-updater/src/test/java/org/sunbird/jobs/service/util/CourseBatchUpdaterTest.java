@@ -1,14 +1,20 @@
 package org.sunbird.jobs.service.util;
 
+import com.datastax.driver.core.Session;
+import org.apache.samza.config.Config;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sunbird.jobs.samza.service.util.BaseCourseBatchUpdater;
 import org.sunbird.jobs.samza.service.util.CourseBatchUpdater;
+import org.sunbird.jobs.samza.task.CourseProgressHandler;
+import org.sunbird.jobs.samza.util.RedisConnect;
+import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +30,12 @@ public class CourseBatchUpdaterTest {
 
     @Test
     public void testUpdatebatchStatus() throws Exception {
-        CourseBatchUpdater updater = PowerMockito.spy(new CourseBatchUpdater());
+        Config config = Mockito.mock(Config.class);
+        Mockito.when(config.get("redis.host")).thenReturn("localhost");
+        Mockito.when(config.getInt("redis.port")).thenReturn(6379);
+        Jedis redisConnect = new RedisConnect(config).getConnection();
+        Session session = Mockito.mock(Session.class);
+        CourseBatchUpdater updater = PowerMockito.spy(new CourseBatchUpdater(redisConnect, session));
         PowerMockito.doReturn(new HashMap<String, Object>(){{
             put("leafNodes",new ArrayList<String>() {{ add("do_112719210075947008187");}});
         }}).when(updater, "getContent", anyString(), anyString());
@@ -41,7 +52,7 @@ public class CourseBatchUpdaterTest {
             put("status", 2);
         }});}});
 
-        updater.updateBatchStatus(request);
+        updater.updateBatchStatus(request, new CourseProgressHandler());
 
     }
 }
