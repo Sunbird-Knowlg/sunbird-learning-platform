@@ -1,0 +1,33 @@
+- import_playbook: artifacts-download.yml
+  vars:
+    download_neo4j: true
+    artifact: "{{ neo4j_zip }}"
+    artifact_path: "{{ playbook_dir }}/artifacts/{{ artifact }}"
+  when: download_neo4j
+
+- hosts: db-backup-server
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
+  pre_tasks:
+    - name: Create learner group
+      become: yes
+      group:
+        state: present
+        name: "{{ learner_group }}"
+        system: yes
+    - name: Create learner user
+      become: yes
+      user:
+        state: present
+        name: "{{ learner_user }}"
+        comment: learner user
+        system: yes
+        createhome: yes
+        group: "{{ learner_group }}"
+    - name: Registering server_id
+      set_fact:
+        server_id: "{% for servername in play_hosts %}{% if inventory_hostname==servername %}{{ loop.index }}{% endif %}{% endfor %}"
+  become: yes
+  roles:
+    - jdk-1.8.0_121
+    - backup-server-neo4j

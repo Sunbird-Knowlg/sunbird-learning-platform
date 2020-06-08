@@ -1,4 +1,4 @@
-- hosts: learning-neo4j-node1  #if it is a cluster learning-neo4j-node1 should be always master node
+- hosts: db-backup-server  #server using for backups
   vars_files:
     - "{{inventory_dir}}/secrets.yml"
   environment:
