@@ -53,7 +53,7 @@ public class AutoCreatorService implements ISamzaService {
 		Map<String, Object> object = (Map<String, Object>) message.get(SamzaCommonParams.object.name());
 		Map<String, Object> context = (Map<String, Object>) message.get(AutoCreatorParams.context.name());
 		try {
-			Integer currentIteration = (Integer) edata.get(SamzaCommonParams.iteration.name());
+			Integer currentIteration = (Integer) edata.getOrDefault(SamzaCommonParams.iteration.name(),1);
 			String channel = (String) context.getOrDefault(AutoCreatorParams.channel.name(), "");
 			String identifier = (String) object.getOrDefault(AutoCreatorParams.id.name(), "");
 			String objectType = (String) edata.getOrDefault(AutoCreatorParams.objectType.name(), "");
@@ -82,7 +82,7 @@ public class AutoCreatorService implements ISamzaService {
 		} catch (Exception e) {
 			LOGGER.error("AutoCreatorService :: Message processing failed for mid : " + message.get("mid"), message, e);
 			metrics.incErrorCounter();
-			Integer currentIteration = (Integer) edata.get(SamzaCommonParams.iteration.name());
+			Integer currentIteration = (Integer) edata.getOrDefault(SamzaCommonParams.iteration.name(), 1);
 			if (currentIteration < MAX_ITERATION_COUNT) {
 				((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).put(SamzaCommonParams.iteration.name(), currentIteration + 1);
 				FailedEventsUtil.pushEventForRetry(failedEventStream, message, metrics, collector,
