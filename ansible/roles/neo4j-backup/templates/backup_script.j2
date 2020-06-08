@@ -1,6 +1,6 @@
 #!/bin/sh
 cd {{neo4j_home}}
-bin/neo4j-admin backup --from={{backup_add}} --backup-dir={{learner_user_home}}/{{graph_machine}} --name=graph.db --check-consistency=false
+bin/neo4j-admin backup --from={{backup_add}}:7362 --backup-dir={{learner_user_home}}/{{graph_machine}} --name=graph.db --check-consistency=false
 time="$(date '+%e%b%Y')"
 var="{{graph_machine}}"
 var1="_"
