@@ -2,7 +2,7 @@ learner_user: learning
 learner_group: learning
 learner_user_home: /home/{{learner_user}}
 
-backup_add: "{{learning-neo4j-node1_host}}"
+backup_add: "{{learning_neo4j_node1_host}}:7362"
 var1: "_graph"
 service: learning
 graph_machine: "{{service}}{{var1}}"
