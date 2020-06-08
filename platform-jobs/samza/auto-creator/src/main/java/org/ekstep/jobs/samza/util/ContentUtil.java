@@ -18,6 +18,7 @@ import org.ekstep.common.exception.ServerException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +53,7 @@ public class ContentUtil {
 		LOGGER.info("ContentUtil :: process :: started processing for: " + identifier + " | Channel : " + channelId + " | Metadata : " + metadata+ " | textbookInfo :"+textbookInfo);
 		String contentStage = "";
 		String internalId = "";
+		Boolean isPublished = false;
 		Double pkgVersion = Double.parseDouble((String) metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), "0.0"));
 		Map<String, Object> createMetadata = new HashMap<String, Object>();
 		Map<String, Object> contentMetadata = searchContent(identifier);
@@ -71,16 +73,20 @@ public class ContentUtil {
 				upload(channelId, internalId, getFile(internalId, (String) metadata.get(AutoCreatorParams.artifactUrl.name())));
 			}
 			case "publish": {
-				publish(channelId, internalId, (String) metadata.get(AutoCreatorParams.lastPublishedBy.name()));
+				isPublished = publish(channelId, internalId, (String) metadata.get(AutoCreatorParams.lastPublishedBy.name()));
 				break;
 			}
 			default: {
-				LOGGER.info("ContentUtil :: process :: Event Skipped for: " + identifier + " | Content Stage : " + contentStage);
+				LOGGER.info("ContentUtil :: process :: Event Skipped for operations (create, upload, publish) for: " + identifier + " | Content Stage : " + contentStage);
 			}
+		}
+		if(MapUtils.isNotEmpty(textbookInfo) && (isPublished || StringUtils.equalsIgnoreCase("na", contentStage))) {
+			linkTextbook(channelId, identifier, textbookInfo, internalId);
+		} else {
+			LOGGER.info("ContentUtil :: process :: Textbook Linking Skipped because received empty textbookInfo for : " + identifier);
 		}
 		LOGGER.info("ContentUtil :: process :: finished processing for: " + identifier);
 	}
-
 
 	private Map<String, Object> searchContent(String identifier) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -206,7 +212,7 @@ public class ContentUtil {
 		}
 	}
 
-	private void publish(String channelId, String identifier, String lastPublishedBy) throws Exception {
+	private Boolean publish(String channelId, String identifier, String lastPublishedBy) throws Exception {
 		String url = KP_LEARNING_BASE_URL + "/content/v3/publish/" + identifier;
 		Map<String, Object> request = new HashMap<String, Object>() {{
 			put("request", new HashMap<String, Object>() {{
@@ -222,8 +228,10 @@ public class ContentUtil {
 		Response resp = UnirestUtil.post(url, request, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String publishStatus = (String) resp.getResult().get("publishStatus");
-			if (StringUtils.isNotBlank(publishStatus))
+			if (StringUtils.isNotBlank(publishStatus)) {
 				LOGGER.info("ContentUtil :: publish :: Content sent for publish successfully for : " + identifier);
+				return true;
+			}
 			else
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Content Publish Call Failed For : " + identifier);
 		} else {
@@ -272,6 +280,75 @@ public class ContentUtil {
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while uploading file to blob store for : " + identifier);
 		}
 		return result;
+	}
+
+	private void linkTextbook(String channel, String eventObjectId, Map<String, Object> textbookInfo, String resourceId) throws Exception {
+		String textbookId = (String) textbookInfo.getOrDefault(AutoCreatorParams.identifier.name(), "");
+		List<String> unitIdentifiers = (List<String>) textbookInfo.getOrDefault(AutoCreatorParams.unitIdentifiers.name(), new ArrayList<String>());
+		if (StringUtils.isNotBlank(textbookId) && CollectionUtils.isNotEmpty(unitIdentifiers)) {
+			Map<String, Object> rootHierarchy = getHierarchy(textbookId);
+			if (validateHierarchy(textbookId, rootHierarchy, unitIdentifiers)) {
+				Map<String, Object> hierarchyReq = new HashMap<String, Object>() {{
+					put(AutoCreatorParams.request.name(), new HashMap<String, Object>() {{
+						put(AutoCreatorParams.rootId.name(), textbookId);
+						put(AutoCreatorParams.unitId.name(), unitIdentifiers.get(0));
+						put(AutoCreatorParams.children.name(), Arrays.asList(resourceId));
+					}});
+				}};
+				addToHierarchy(channel, textbookId, hierarchyReq);
+			} else {
+				LOGGER.info("ContentUtil :: linkTextbook :: Hierarchy Validation Failed For : " + textbookId);
+			}
+		} else {
+			LOGGER.info("ContentUtil :: linkTextbook :: Textbook Linking Skipped because required data is not available for : " + eventObjectId);
+		}
+	}
+
+	private boolean validateHierarchy(String textbookId, Map<String, Object> rootHierarchy, List<String> units) {
+		List<String> childNodes = (List<String>) rootHierarchy.getOrDefault(AutoCreatorParams.childNodes.name(), new ArrayList<String>());
+		if (CollectionUtils.isNotEmpty(childNodes) && childNodes.containsAll(units)) {
+			return true;
+		} else {
+			LOGGER.info("ContentUtil :: validateHierarchy :: Unit Identifier is not found under : " + textbookId);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Unit Identifier is not found under : " + textbookId);
+		}
+	}
+
+	private Boolean addToHierarchy(String channel, String textbookId, Map<String, Object> hierarchyReq) throws Exception {
+		Boolean result = false;
+		String url = KP_CS_BASE_URL + "/content/v3/hierarchy/add";
+		Map<String, String> header = new HashMap<String, String>() {{
+			put("X-Channel-Id", channel);
+			put("Content-Type", DEFAULT_CONTENT_TYPE);
+		}};
+		Response resp = UnirestUtil.patch(url, hierarchyReq, header);
+		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
+			String contentId = (String) resp.getResult().get("rootId");
+			if (StringUtils.equalsIgnoreCase(contentId, textbookId)) {
+				LOGGER.info("ContentUtil :: addToHierarchy :: Content Hierarchy Updated Successfully for: " + textbookId);
+				result = true;
+			}
+		} else {
+			LOGGER.info("ContentUtil :: updateHierarchy :: Invalid Response received while adding resource to hierarchy for : " + textbookId + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while adding resource to hierarchy for : " + textbookId);
+		}
+		return result;
+	}
+
+	private Map<String, Object> getHierarchy(String identifier) throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		String url = KP_CS_BASE_URL + "/content/v3/hierarchy/" + identifier;
+		Map<String, String> header = new HashMap<String, String>(){{
+			put("Content-Type", DEFAULT_CONTENT_TYPE);
+		}};
+		Response resp = UnirestUtil.get(url, "mode=edit", header);
+		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
+			result = (Map<String, Object>) resp.getResult().getOrDefault("content", new HashMap<String, Object>());
+			return result;
+		} else {
+			LOGGER.info("ContentUtil :: getHierarchy :: Invalid Response received while fetching hierarchy for : " + identifier + " | Response Code : " + resp.getResponseCode().toString());
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while fetching hierarchy for : " + identifier);
+		}
 	}
 
 	private String getBasePath(String objectId) {

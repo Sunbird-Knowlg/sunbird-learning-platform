@@ -28,6 +28,19 @@ public class UnirestUtil {
 		}
 	}
 
+	public static Response patch(String url, Map<String, Object> requestMap, Map<String, String> headerParam)
+			throws Exception {
+		validateRequest(url, headerParam);
+		if (MapUtils.isEmpty(requestMap))
+			throw new ServerException("ERR_INVALID_REQUEST_BODY", "Request Body is Missing!");
+		try {
+			HttpResponse<String> response = Unirest.patch(url).headers(headerParam).body(mapper.writeValueAsString(requestMap)).asString();
+			return getResponse(response);
+		} catch (Exception e) {
+			throw new ServerException("ERR_API_CALL", "Something Went Wrong While Making API Call | Error is: " + e.getMessage());
+		}
+	}
+
 	public static Response post(String url, String paramName, String value, Map<String, String> headerParam)
 			throws Exception {
 		validateRequest(url, headerParam);
