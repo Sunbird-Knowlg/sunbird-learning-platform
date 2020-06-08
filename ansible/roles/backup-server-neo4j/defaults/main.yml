@@ -1,0 +1,12 @@
+learner_user: learning
+learner_user_home: /home/{{learner_user}}
+
+neo4j_dir: neo4j-learning
+neo4j_home: #"{{learner_user_home}}/{{neo4j_dir}}/neo4j-file-version"
+neo4j_zip: #neo4j enterprise zip file
+neo4j_enterprise: "false"
+instance: "{{env}}"
+product: lp
+
+#server_id: 1
+dbms_mode: SINGLE

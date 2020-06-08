@@ -2,8 +2,9 @@ learner_user: learning
 learner_group: learning
 learner_user_home: /home/{{learner_user}}
 
-backup_add: "127.0.0.1:7362"
+backup_add: "{{learning-neo4j-node1_host}}:7362"
 var1: "_graph"
 service: learning
 graph_machine: "{{service}}{{var1}}"
 neo4j_backup_azure_container_name: neo4j-backup
+neo4j_home: "{{learner_user_home}}/neo4j-learning/neo4j-enterprise-3.3.0"
