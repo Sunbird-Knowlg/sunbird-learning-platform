@@ -59,6 +59,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -107,6 +108,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	protected static final String PRINT_SERVICE_BASE_URL = Platform.config.hasPath("kp.print.service.base.url")
 			? Platform.config.getString("kp.print.service.base.url") : "http://localhost:5001";
 
+	private static final Boolean IS_STREAMING_ENABLED = Platform.config.hasPath("content.streaming_enabled") ? Platform.config.getBoolean("content.streaming_enabled") : true;
 	private static final Boolean CONTENT_UPLOAD_CONTEXT_DRIVEN = Platform.config.hasPath("content.upload.context.driven") ? Platform.config.getBoolean("content.upload.context.driven") : true;
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -360,8 +362,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		getResponse(request);
 
 		List<String> streamableMimeType = Platform.config.hasPath("stream.mime.type") ?
-				Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Arrays.asList("video/mp4");
-		if (streamableMimeType.contains((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()))) {
+				Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Collections.emptyList();
+		if (IS_STREAMING_ENABLED && streamableMimeType.contains((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()))) {
 			streamJobRequest.insert(contentId, (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()),
 					(String) node.getMetadata().get(ContentWorkflowPipelineParams.channel.name()),
 					String.valueOf(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name())));
