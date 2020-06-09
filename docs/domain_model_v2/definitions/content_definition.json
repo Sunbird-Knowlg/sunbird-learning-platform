@@ -1115,7 +1115,13 @@
 						"SelfAssess",
 						"PracticeResource",
 						"eTextBook",
-						"OnboardingResource"
+						"OnboardingResource",
+						"ExplanationVideo",
+						"ClassroomTeachingVideo",
+						"ExplanationReadingMaterial",
+						"LearningActivity",
+						"PreviousBoardExamPapers",
+						"LessonPlanResource"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
