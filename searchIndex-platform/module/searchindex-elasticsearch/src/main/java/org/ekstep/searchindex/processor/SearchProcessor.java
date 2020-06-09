@@ -93,7 +93,7 @@ public class SearchProcessor {
 					}
 
 				}
-				resp.put("count", (int) searchResult.getHits().getTotalHits());
+				resp.put("count", (int) searchResult.getHits().getTotalHits().value);
 				return resp;
 			}
 		}, ExecutionContext.Implicits$.MODULE$.global());
