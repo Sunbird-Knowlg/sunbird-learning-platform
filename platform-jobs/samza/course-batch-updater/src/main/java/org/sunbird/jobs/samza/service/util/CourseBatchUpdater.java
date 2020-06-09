@@ -21,7 +21,12 @@ import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 import redis.clients.jedis.Jedis;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CourseBatchUpdater extends BaseCourseBatchUpdater {
@@ -75,40 +80,24 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         
         if(CollectionUtils.isNotEmpty(contents)) {
             Map<String, Object> contentStatus = new HashMap<>();
-            String lastReadContent = null;
-            int lastReadContentStatus = 0;
+            Map<String, Object> contentStatusDelta = new HashMap<>();
+            Map<String, Object> lastReadContentStats = new HashMap<>(); 
             String key = courseProgressHandler.getKey(batchId, userId);
-            if(courseProgressHandler.containsKey(key)) {
-                Map<String, Object> enrollmentDetails = (Map<String, Object>) courseProgressHandler.get(key);
-                if(MapUtils.isNotEmpty(enrollmentDetails)) {
-                    Map<String, Integer> contentStatusMap = (Map<String, Integer>) enrollmentDetails.get("contentStatus");
-                    lastReadContent = (String) enrollmentDetails.get("lastReadContentId");
-                    lastReadContentStatus = (int) enrollmentDetails.get("lastReadContentStatus");
-                    if(MapUtils.isNotEmpty(contentStatusMap))
-                        contentStatus.putAll(contentStatusMap);
-                }
-            } else {
-                Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
-                    put("batchid", edata.get("batchId"));
-                    put("userid", edata.get("userId"));
-                }};
-                ResultSet resultSet =  SunbirdCassandraUtil.read(cassandraSession, keyspace, table, dataToSelect);
-                List<Row> rows = resultSet.all();
-                if(CollectionUtils.isNotEmpty(rows)){
-                    Map<String, Integer> contentStatusMap =  rows.get(0).getMap("contentStatus", String.class, Integer.class);
-                    lastReadContent = rows.get(0).getString("lastreadcontentid");
-                    lastReadContentStatus = rows.get(0).getInt("lastreadcontentstatus");
-                    if(MapUtils.isNotEmpty(contentStatusMap))
-                        contentStatus.putAll(contentStatusMap);
-                }
+            
+            if(courseProgressHandler.containsKey(key)) {// Get Progress from the unprocessed list
+                populateContentStatusFromHandler(key, courseProgressHandler, contentStatus, contentStatusDelta, lastReadContentStats);
+            } else { // Get progress from cassandra
+                populateContentStatusFromDB(batchId, userId, contentStatus, lastReadContentStats);
             }
-
+            
             contents.forEach(c -> {
                 String id = (String) c.get("contentId");
                 if(contentStatus.containsKey(id)) {
                     contentStatus.put(id, Math.max(((Integer) contentStatus.get(id)), ((Integer)c.get("status"))));
+                    contentStatusDelta.put(id, Math.max(((Integer) contentStatus.get(id)), ((Integer)c.get("status"))));
                 } else {
                     contentStatus.put(id, c.get("status"));
+                    contentStatusDelta.put(id, c.get("status"));
                 }
             });
 
@@ -123,18 +112,48 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
 
             Map<String, Object> dataToUpdate =  new HashMap<String, Object>() {{
                 put("contentStatus", contentStatus);
+                put("contentStatusDelta", contentStatusDelta);
                 put("status", status);
                 put("completionPercentage", ((Number)completionPercentage).intValue());
                 put("progress", size);
+                putAll(lastReadContentStats);
                 if(status == 2)
                     put("completedOn", new Timestamp(new Date().getTime()));
                 
             }};
-            dataToUpdate.put("lastReadContentId", lastReadContent);
-            dataToUpdate.put("lastReadContentStatus", lastReadContentStatus);
 
             if(MapUtils.isNotEmpty(dataToUpdate)) {
                 courseProgressHandler.put(key, dataToUpdate);
+            }
+        }
+    }
+
+    private void populateContentStatusFromDB(String batchId, String userId, Map<String, Object> contentStatus, Map<String, Object> lastReadContentStats) {
+        Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
+            put("batchid", batchId);
+            put("userid", userId);
+        }};
+        ResultSet resultSet =  SunbirdCassandraUtil.read(cassandraSession, keyspace, table, dataToSelect);
+        List<Row> rows = resultSet.all();
+        if(CollectionUtils.isNotEmpty(rows)){
+            Map<String, Integer> contentStatusMap =  rows.get(0).getMap("contentStatus", String.class, Integer.class);
+            lastReadContentStats.put("lastReadContentId", rows.get(0).getString("lastreadcontentid"));
+            lastReadContentStats.put("lastReadContentStatus", rows.get(0).getInt("lastreadcontentstatus"));
+            if(MapUtils.isNotEmpty(contentStatusMap))
+                contentStatus.putAll(contentStatusMap);
+        }
+    }
+
+    private void populateContentStatusFromHandler(String key, CourseProgressHandler courseProgressHandler, Map<String, Object> contentStatus, Map<String, Object> contentStatusDelta, Map<String, Object> lastReadContentStats) {
+        Map<String, Object> enrollmentDetails = (Map<String, Object>) courseProgressHandler.get(key);
+        if(MapUtils.isNotEmpty(enrollmentDetails)) {
+            Map<String, Integer> contentStatusMap = (Map<String, Integer>) enrollmentDetails.get("contentStatus");
+            Map<String, Integer> contentStatusDeltaMap = (Map<String, Integer>) enrollmentDetails.getOrDefault("contentStatusDelta", new HashMap<>());
+            lastReadContentStats.put("lastReadContentId", (String) enrollmentDetails.get("lastReadContentId"));
+            lastReadContentStats.put("lastReadContentStatus", (int) enrollmentDetails.get("lastReadContentStatus"));
+            if(MapUtils.isNotEmpty(contentStatusMap)){
+                contentStatus.putAll(contentStatusMap);
+                contentStatusDelta.putAll(contentStatusDeltaMap);
             }
         }
     }
@@ -159,9 +178,10 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                         put("batchid", event.getKey().split("_")[0]);
                         put("userid", event.getKey().split("_")[1]);
                     }};
-                    Map<String, Object> dataToUpdate = (Map<String, Object>) event.getValue();
+                    Map<String, Object> dataToUpdate = new HashMap<>();
+                    dataToUpdate.putAll((Map<String, Object>) event.getValue());
                     //Update cassandra
-                    updateQueryList.add(SunbirdCassandraUtil.updateBatch(cassandraSession, keyspace, table, dataToUpdate, dataToSelect));
+                    updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -187,5 +207,19 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             e.printStackTrace();
         }
 
+    }
+
+    public Update.Where updateQuery(String keyspace, String table, Map<String, Object> propertiesToUpdate, Map<String, Object> propertiesToSelect) {
+        Update.Where updateQuery = QueryBuilder.update(keyspace, table).where();
+        updateQuery.with(QueryBuilder.putAll("contentStatus", (Map<String, Object>)propertiesToUpdate.getOrDefault("contentStatusDelta", new HashMap<>())));
+        propertiesToUpdate.entrySet().stream().filter(entry -> !entry.getKey().contains("contentStatus"))
+                .forEach(entry -> updateQuery.with(QueryBuilder.set(entry.getKey(), entry.getValue())));
+        propertiesToSelect.entrySet().forEach(entry -> {
+            if (entry.getValue() instanceof List)
+                updateQuery.and(QueryBuilder.in(entry.getKey(), (List) entry.getValue()));
+            else
+                updateQuery.and(QueryBuilder.eq(entry.getKey(), entry.getValue()));
+        });
+        return updateQuery;
     }
 }

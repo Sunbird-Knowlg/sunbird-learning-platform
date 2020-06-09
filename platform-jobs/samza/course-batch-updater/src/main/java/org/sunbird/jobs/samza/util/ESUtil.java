@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 public class ESUtil {
     private static ObjectMapper mapper = new ObjectMapper();
 
-
     public static void updateCoureBatch(String index, String type, Map<String, Object> dataToUpdate, Map<String, Object> dataToSelect) throws Exception {
         String key = dataToSelect.entrySet().stream().map(entry -> (String) entry.getValue()).collect(Collectors.joining("_"));
         String documentJson = ElasticSearchUtil.getDocumentAsStringById(index, type, key);
@@ -38,6 +37,7 @@ public class ESUtil {
                 Map<String, Object> dataToUpdate = new HashMap<>();
                 dataToUpdate.putAll((Map<String, Object>) batches.getOrDefault(docId, new HashMap<String, Object>()));
                 dataToUpdate.put("contentStatus", mapper.writeValueAsString(dataToUpdate.get("contentStatus")));
+                dataToUpdate.remove("contentStatusDelta");
                 document.putAll(dataToUpdate);
                 docMap.put(docId, document);
             }
