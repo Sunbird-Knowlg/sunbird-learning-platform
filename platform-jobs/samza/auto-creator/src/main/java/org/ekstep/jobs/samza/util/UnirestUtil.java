@@ -9,6 +9,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ServerException;
 
+import java.io.File;
 import java.util.Map;
 
 public class UnirestUtil {
@@ -35,6 +36,19 @@ public class UnirestUtil {
 			throw new ServerException("ERR_INVALID_REQUEST_BODY", "Request Body is Missing!");
 		try {
 			HttpResponse<String> response = Unirest.patch(url).headers(headerParam).body(mapper.writeValueAsString(requestMap)).asString();
+			return getResponse(response);
+		} catch (Exception e) {
+			throw new ServerException("ERR_API_CALL", "Something Went Wrong While Making API Call | Error is: " + e.getMessage());
+		}
+	}
+
+	public static Response post(String url, String paramName, File value, Map<String, String> headerParam)
+			throws Exception {
+		validateRequest(url, headerParam);
+		if (null == value || null == value)
+			throw new ServerException("ERR_INVALID_REQUEST_PARAM", "Invalid Request Param!");
+		try {
+			HttpResponse<String> response = Unirest.post(url).headers(headerParam).multiPartContent().field(paramName, new File(value.getAbsolutePath())).asString();
 			return getResponse(response);
 		} catch (Exception e) {
 			throw new ServerException("ERR_API_CALL", "Something Went Wrong While Making API Call | Error is: " + e.getMessage());
