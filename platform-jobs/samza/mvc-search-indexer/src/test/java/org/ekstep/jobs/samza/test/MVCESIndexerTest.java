@@ -14,7 +14,7 @@ import org.ekstep.jobs.samza.service.MVCSearchIndexerService;
 import org.ekstep.jobs.samza.service.util.MVCSearchIndexer;
 import org.ekstep.jobs.samza.service.util.MVCDialCodeIndexer;
 import org.ekstep.jobs.samza.service.util.MVCDialCodeMetricsIndexer;
-import org.ekstep.jobs.samza.task.CompositeSearchIndexerTask;
+import org.ekstep.jobs.samza.task.MVCSearchIndexerTask;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -37,8 +37,8 @@ public class MVCESIndexerTest {
     private IncomingMessageEnvelope envelopeMock;
     private SystemStreamPartition streamMock;
     private Config configMock;
-    private CompositeSearchIndexerTask compositeSearchIndexerTask;
-    private MVCSearchIndexerService compositeSearchIndexerService;
+    private MVCSearchIndexerTask MVCSearchIndexerTask;
+    private MVCSearchIndexerService MVCSearchIndexerService;
     private MVCSearchIndexer csIndexerMock;
     private MVCDialCodeIndexer dcIndexerMock;
     private MVCDialCodeMetricsIndexer dialCodeMetricsIndexerMock;
@@ -66,9 +66,9 @@ public class MVCESIndexerTest {
         stub(configMock.get("task.window.ms")).toReturn("10");
         stub(configMock.get("definitions.update.window.ms")).toReturn("20");
 
-        compositeSearchIndexerService = Mockito.spy(new MVCSearchIndexerService(csIndexerMock, dcIndexerMock, dialCodeMetricsIndexerMock));
-        doNothing().when(compositeSearchIndexerService).initialize(configMock);
-        compositeSearchIndexerTask = new CompositeSearchIndexerTask(configMock, contextMock, compositeSearchIndexerService);
+        MVCSearchIndexerService = Mockito.spy(new MVCSearchIndexerService(csIndexerMock, dcIndexerMock, dialCodeMetricsIndexerMock));
+        doNothing().when(MVCSearchIndexerService).initialize(configMock);
+        MVCSearchIndexerTask = new MVCSearchIndexerTask(configMock, contextMock, MVCSearchIndexerService);
 
     }
 
@@ -79,7 +79,7 @@ public class MVCESIndexerTest {
         ArgumentCaptor<String> stringArgument = ArgumentCaptor.forClass(String.class);
         Class<Map<String, Object>> mapClass = (Class<Map<String, Object>>)(Class) Map.class;
         ArgumentCaptor<Map<String, Object>> mapArgument = ArgumentCaptor.forClass(mapClass);
-        compositeSearchIndexerTask.process(envelopeMock, collectorMock, coordinatorMock);
+        MVCSearchIndexerTask.process(envelopeMock, collectorMock, coordinatorMock);
         verify(dialCodeMetricsIndexerMock, times(1))
                 .upsertDocument(stringArgument.capture(), mapArgument.capture());
         assertEquals("QR1234", stringArgument.getValue());

@@ -20,9 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class CompositeSearchIndexerTask extends BaseTask {
+public class MVCSearchIndexerTask extends BaseTask {
 	
-	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexerTask.class);
+	private JobLogger LOGGER = new JobLogger(MVCSearchIndexerTask.class);
 	private ControllerUtil controllerUtil = new ControllerUtil();
 
 	private ISamzaService service;
@@ -32,11 +32,11 @@ public class CompositeSearchIndexerTask extends BaseTask {
 		return service;
 	}
 
-	public CompositeSearchIndexerTask(Config config, TaskContext context, ISamzaService service) throws Exception {
+	public MVCSearchIndexerTask(Config config, TaskContext context, ISamzaService service) throws Exception {
 		init(config, context, service);
 	}
 
-	public CompositeSearchIndexerTask() {
+	public MVCSearchIndexerTask() {
 
 	}
 

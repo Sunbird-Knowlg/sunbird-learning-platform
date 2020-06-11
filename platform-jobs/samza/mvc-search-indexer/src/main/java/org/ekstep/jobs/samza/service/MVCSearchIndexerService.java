@@ -45,7 +45,7 @@ public class MVCSearchIndexerService implements ISamzaService {
 		LOGGER.info("Learning actors initialized");
 		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
 		csIndexer = csIndexer == null ? new MVCSearchIndexer(): csIndexer;
-		csIndexer.createCompositeSearchIndex();
+		csIndexer.createMVCSearchIndex();
 		LOGGER.info(CompositeSearchConstants.MVC_SEARCH_INDEX + " created");
 		dcIndexer = dcIndexer == null ? new MVCDialCodeIndexer() : dcIndexer;
 		dcIndexer.createDialCodeIndex();
@@ -87,16 +87,15 @@ public class MVCSearchIndexerService implements ISamzaService {
 	}
 
 	public void processMessage(Map<String, Object> message, JobMetrics metrics) throws Exception {
-		if (message != null && message.get("operationType") != null) {
-			String nodeType = (String) message.get("nodeType");
-			String objectType = (String) message.get("objectType");
-			String graphId = (String) message.get("graphId");
-			String uniqueId = (String) message.get("nodeUniqueId");
-			String messageId = (String) message.get("mid");
+		if (message != null && message.get("eventData") != null) {
+			Map<String, Object> eventData = (Map<String, Object>) message.get("eventData");
+			String nodeType =  eventData.get("nodeType") != null ? (String) eventData.get("nodeType") : CompositeSearchConstants.NODE_TYPE_DATA;
+			String uniqueId = (String) ((Map<String, Object>) message.get("object")).get("id");
 			switch (nodeType) {
 				case CompositeSearchConstants.NODE_TYPE_SET:
 				case CompositeSearchConstants.NODE_TYPE_DATA: {
-					csIndexer.processESMessage(graphId, objectType, uniqueId, messageId, message, metrics);
+					// csIndexer.processESMessage(graphId, objectType, uniqueId, messageId, message, metrics);
+					csIndexer.upsertDocument(uniqueId,eventData);
 					break;
 				}
 				case CompositeSearchConstants.NODE_TYPE_EXTERNAL: {
