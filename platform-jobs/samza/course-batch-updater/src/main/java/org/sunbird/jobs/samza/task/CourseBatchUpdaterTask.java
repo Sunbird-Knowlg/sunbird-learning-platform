@@ -75,9 +75,8 @@ public class CourseBatchUpdaterTask extends BaseTask {
     @Override
     public void window(MessageCollector collector, TaskCoordinator coordinator) throws Exception {
         executeCourseProgressBatch();
-
-        BatchStatusUtil.updateOnGoingBatch(cassandraSession, collector);
-        BatchStatusUtil.updateCompletedBatch(cassandraSession, collector);
+//        BatchStatusUtil.updateOnGoingBatch(cassandraSession, collector);
+//        BatchStatusUtil.updateCompletedBatch(cassandraSession, collector);
         super.window(collector, coordinator);
     }
     
