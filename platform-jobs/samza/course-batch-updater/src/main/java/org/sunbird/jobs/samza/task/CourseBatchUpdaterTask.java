@@ -55,7 +55,6 @@ public class CourseBatchUpdaterTask extends BaseTask {
         this.courseProgressBatchSize = Platform.config.hasPath("course.progress.batch_size") ? Platform.config.getInt("course.progress.batch_size"): 5000;
         String pattern = Platform.config.hasPath("course.batch.update_time") ? Platform.config.getString("course.batch.update_time") : "HH";
         dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
-        executionHour = dateTimeFormatter.format(LocalDateTime.now());
         return service;
     }
 
