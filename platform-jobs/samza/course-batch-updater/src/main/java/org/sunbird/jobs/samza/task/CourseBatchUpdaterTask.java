@@ -22,6 +22,8 @@ import org.sunbird.jobs.samza.util.CourseBatchParams;
 import org.sunbird.jobs.samza.util.RedisConnect;
 import redis.clients.jedis.Jedis;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +37,8 @@ public class CourseBatchUpdaterTask extends BaseTask {
     private CourseProgressHandler courseProgressHandler;
     private CourseBatchUpdater courseBatchUpdater;
     private int courseProgressBatchSize = 5000;
+    private DateTimeFormatter dateTimeFormatter;
+    private static String executionHour = "00";
 
     public ISamzaService initialize() throws Exception {
         LOGGER.info("Task initialized");
@@ -49,6 +53,8 @@ public class CourseBatchUpdaterTask extends BaseTask {
         courseBatchUpdater = new CourseBatchUpdater(redisConnect, cassandraSession);
         courseProgressHandler = new CourseProgressHandler();
         this.courseProgressBatchSize = Platform.config.hasPath("course.progress.batch_size") ? Platform.config.getInt("course.progress.batch_size"): 5000;
+        String pattern = Platform.config.hasPath("course.batch.update_time") ? Platform.config.getString("course.batch.update_time") : "HH";
+        dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         return service;
     }
 
@@ -75,8 +81,11 @@ public class CourseBatchUpdaterTask extends BaseTask {
     @Override
     public void window(MessageCollector collector, TaskCoordinator coordinator) throws Exception {
         executeCourseProgressBatch();
-//        BatchStatusUtil.updateOnGoingBatch(cassandraSession, collector);
-//        BatchStatusUtil.updateCompletedBatch(cassandraSession, collector);
+        if(!StringUtils.equalsIgnoreCase(executionHour, dateTimeFormatter.format(LocalDateTime.now()))){
+            BatchStatusUtil.updateOnGoingBatch(cassandraSession, collector);
+            BatchStatusUtil.updateCompletedBatch(cassandraSession, collector);
+            executionHour = dateTimeFormatter.format(LocalDateTime.now());
+        }
         super.window(collector, coordinator);
     }
     
