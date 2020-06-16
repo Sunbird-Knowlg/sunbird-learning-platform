@@ -117,7 +117,9 @@ public class PublishFinalizer extends BaseFinalizer {
 	private ControllerUtil util = new ControllerUtil();
 	private ItemsetPublishManager itemsetPublishManager = new ItemsetPublishManager(util);
 	private PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil();
-	private long SMALL_VIDEO_SIZE_LIMIT = Platform.config.hasPath("content.small.video.size.limit") ? Platform.config.getLong("content.small.video.size.limit") : 209715200;
+	private long CONTENT_ARTIFACT_ONLINE_SIZE = Platform.config.hasPath("content.artifact.size.for_online") ? Platform.config.getLong("content.artifact.size.for_online") : 209715200;
+	private List<String> CONTENT_ARTIFACT_ONLINE_MIMETYPES = Platform.config.hasPath("content.artifact.mimetypes.for_online") ? Platform.config.getStringList("content.artifact.mimetypes.for_online") : new ArrayList<>();
+
 
 	public void setItemsetPublishManager(ItemsetPublishManager itemsetPublishManager) {
 		this.itemsetPublishManager = itemsetPublishManager;
@@ -1015,7 +1017,9 @@ public class PublishFinalizer extends BaseFinalizer {
 			List<String> nodeChildList = getList(node.getMetadata().get("childNodes"));
 			if(CollectionUtils.isNotEmpty(nodeChildList))
 				childrenIds = nodeChildList;
-		} else if (((Number) node.getMetadata().get(ContentAPIParams.size.name())).doubleValue() > SMALL_VIDEO_SIZE_LIMIT) {
+		} else if (((Number) node.getMetadata().get(ContentAPIParams.size.name())).doubleValue() > CONTENT_ARTIFACT_ONLINE_SIZE
+				&& ((CollectionUtils.isNotEmpty(CONTENT_ARTIFACT_ONLINE_MIMETYPES) && CONTENT_ARTIFACT_ONLINE_MIMETYPES.contains(node.getMetadata().get(ContentAPIParams.mimeType)))
+				|| CollectionUtils.isEmpty(CONTENT_ARTIFACT_ONLINE_MIMETYPES))) {
 			TelemetryManager.log("Disabled full ECAR generation for content with size greater than 200MB id : " + node.getIdentifier());
 			node.getMetadata().put(TaxonomyAPIParams.contentDisposition.name(), "online-only");
 			downloadUrl = "";
