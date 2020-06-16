@@ -1016,6 +1016,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			if(CollectionUtils.isNotEmpty(nodeChildList))
 				childrenIds = nodeChildList;
 		} else if (((Number) node.getMetadata().get(ContentAPIParams.size.name())).doubleValue() > SMALL_VIDEO_SIZE_LIMIT) {
+			TelemetryManager.log("Disabled full ECAR generation for content with size greater than 200MB id : " + node.getIdentifier());
 			node.getMetadata().put(TaxonomyAPIParams.contentDisposition.name(), "online-only");
 			downloadUrl = "";
 		} else {
