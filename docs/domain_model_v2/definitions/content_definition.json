@@ -300,7 +300,8 @@
 					"range": [
 						"inline",
 						"online",
-						"attachment"
+						"attachment",
+						"online-only"
 					],
 					"defaultValue": "inline",
 					"renderingHints": "{ 'inputType': 'text',  'order': 5 }",
