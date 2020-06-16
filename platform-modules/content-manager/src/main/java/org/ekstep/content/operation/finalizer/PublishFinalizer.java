@@ -52,6 +52,7 @@ import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.File;
@@ -116,6 +117,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	private ControllerUtil util = new ControllerUtil();
 	private ItemsetPublishManager itemsetPublishManager = new ItemsetPublishManager(util);
 	private PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil();
+	private long SMALL_VIDEO_SIZE_LIMIT = Platform.config.hasPath("content.small.video.size.limit") ? Platform.config.getLong("content.small.video.size.limit") : 209715200;
+
 	public void setItemsetPublishManager(ItemsetPublishManager itemsetPublishManager) {
 		this.itemsetPublishManager = itemsetPublishManager;
 	}
@@ -1012,6 +1015,9 @@ public class PublishFinalizer extends BaseFinalizer {
 			List<String> nodeChildList = getList(node.getMetadata().get("childNodes"));
 			if(CollectionUtils.isNotEmpty(nodeChildList))
 				childrenIds = nodeChildList;
+		} else if (((Number) node.getMetadata().get(ContentAPIParams.size.name())).doubleValue() > SMALL_VIDEO_SIZE_LIMIT) {
+			node.getMetadata().put(TaxonomyAPIParams.contentDisposition.name(), "online-only");
+			downloadUrl = "";
 		} else {
 			List<String> fullECARURL = generateEcar(EcarPackageType.FULL, node, contentBundle, contents, childrenIds, null);
 			downloadUrl = fullECARURL.get(IDX_S3_URL);
