@@ -1018,10 +1018,14 @@ public class PublishFinalizer extends BaseFinalizer {
 			if(CollectionUtils.isNotEmpty(nodeChildList))
 				childrenIds = nodeChildList;
 		} else if (((Number) node.getMetadata().get(ContentAPIParams.size.name())).doubleValue() > CONTENT_ARTIFACT_ONLINE_SIZE
-				&& ((CollectionUtils.isNotEmpty(CONTENT_ARTIFACT_ONLINE_MIMETYPES) && CONTENT_ARTIFACT_ONLINE_MIMETYPES.contains(node.getMetadata().get(ContentAPIParams.mimeType)))
+				&& ((CollectionUtils.isNotEmpty(CONTENT_ARTIFACT_ONLINE_MIMETYPES) && CONTENT_ARTIFACT_ONLINE_MIMETYPES.contains(node.getMetadata().get(ContentAPIParams.mimeType.name())))
 				|| CollectionUtils.isEmpty(CONTENT_ARTIFACT_ONLINE_MIMETYPES))) {
 			TelemetryManager.log("Disabled full ECAR generation for content with size greater than 200MB id : " + node.getIdentifier());
 			node.getMetadata().put(TaxonomyAPIParams.contentDisposition.name(), "online-only");
+			spineContents.stream().filter(content -> StringUtils.equals((String) content.get(ContentAPIParams.identifier.name()), node.getIdentifier())).forEach(content -> {
+				content.put(TaxonomyAPIParams.contentDisposition.name(), "online-only");
+				content.put(ContentAPIParams.downloadUrl.name(), "");
+			});
 			downloadUrl = "";
 		} else {
 			List<String> fullECARURL = generateEcar(EcarPackageType.FULL, node, contentBundle, contents, childrenIds, null);

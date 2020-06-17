@@ -19,6 +19,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 
+import info.aduna.text.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -42,6 +43,7 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.common.JSONUtils;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
@@ -104,7 +106,7 @@ public class ContentBundle {
 		for (Map<String, Object> content : contents) {
 			String identifier = (String) content.get(ContentWorkflowPipelineParams.identifier.name());
 			String mimeType = (String) content.get(ContentWorkflowPipelineParams.mimeType.name());
-
+			String contentDisposition = (String) content.get(ContentAPIParams.contentDisposition.name());
 			// TODO: START : Remove this when mobile app is ready
 			if (children.contains(identifier))
 				content.put(ContentWorkflowPipelineParams.visibility.name(),
@@ -121,7 +123,7 @@ public class ContentBundle {
 				if (urlFields.contains(entry.getKey())) {
 					Object val = entry.getValue();
 					if (null != val) {
-						if (!isOnlineContent(mimeType)) {
+						if (!isOnlineContent(mimeType, contentDisposition)) {
 							if (val instanceof File) {
 								File file = (File) val;
 								addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
@@ -165,16 +167,20 @@ public class ContentBundle {
 					}
 				}
 			}
-			content.put(ContentWorkflowPipelineParams.downloadUrl.name(),
-					(String) content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
+			if (StringUtils.equalsIgnoreCase(contentDisposition, "online-only")) {
+				content.put(ContentWorkflowPipelineParams.downloadUrl.name(), "");
+			} else
+				content.put(ContentWorkflowPipelineParams.downloadUrl.name(),
+						(String) content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
 		}
 		return downloadUrls;
 
 	}
 
 	
-	private boolean isOnlineContent(String mimeType) {
-		return StringUtils.equalsIgnoreCase(mimeType, YOUTUBE_MIMETYPE) || StringUtils.equalsIgnoreCase(mimeType, ARTIFACT_YOUTUBE_MIMETYPE)  || StringUtils.equalsIgnoreCase(mimeType, WEB_URL_MIMETYPE);
+	private boolean isOnlineContent(String mimeType, String contentDisposition) {
+		return StringUtils.equalsIgnoreCase(mimeType, YOUTUBE_MIMETYPE) || StringUtils.equalsIgnoreCase(mimeType, ARTIFACT_YOUTUBE_MIMETYPE)
+				|| StringUtils.equalsIgnoreCase(mimeType, WEB_URL_MIMETYPE) || StringUtils.equalsIgnoreCase(contentDisposition, "online-only");
 	}
 	
 	/**
