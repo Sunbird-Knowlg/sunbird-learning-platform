@@ -52,6 +52,7 @@ import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.File;
@@ -116,6 +117,9 @@ public class PublishFinalizer extends BaseFinalizer {
 	private ControllerUtil util = new ControllerUtil();
 	private ItemsetPublishManager itemsetPublishManager = new ItemsetPublishManager(util);
 	private PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil();
+	private long CONTENT_ARTIFACT_ONLINE_SIZE = Platform.config.hasPath("content.artifact.size.for_online") ? Platform.config.getLong("content.artifact.size.for_online") : 209715200;
+
+
 	public void setItemsetPublishManager(ItemsetPublishManager itemsetPublishManager) {
 		this.itemsetPublishManager = itemsetPublishManager;
 	}
@@ -1012,6 +1016,14 @@ public class PublishFinalizer extends BaseFinalizer {
 			List<String> nodeChildList = getList(node.getMetadata().get("childNodes"));
 			if(CollectionUtils.isNotEmpty(nodeChildList))
 				childrenIds = nodeChildList;
+		} else if (((Number) node.getMetadata().getOrDefault(ContentAPIParams.size.name(), 0)).doubleValue() > CONTENT_ARTIFACT_ONLINE_SIZE) {
+			TelemetryManager.log("Disabled full ECAR generation for content with size greater than 200MB id : " + node.getIdentifier());
+			node.getMetadata().put(TaxonomyAPIParams.contentDisposition.name(), "online-only");
+			downloadUrl = "";
+			spineContents.stream().filter(content -> StringUtils.equals((String) content.get(ContentAPIParams.identifier.name()), node.getIdentifier())).forEach(content -> {
+				content.put(TaxonomyAPIParams.contentDisposition.name(), "online-only");
+				content.put(ContentAPIParams.downloadUrl.name(), "");
+			});
 		} else {
 			List<String> fullECARURL = generateEcar(EcarPackageType.FULL, node, contentBundle, contents, childrenIds, null);
 			downloadUrl = fullECARURL.get(IDX_S3_URL);
