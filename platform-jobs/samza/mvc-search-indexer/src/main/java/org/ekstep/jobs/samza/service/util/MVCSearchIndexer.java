@@ -5,27 +5,22 @@ package org.ekstep.jobs.samza.service.util;
 
 import com.datastax.driver.core.*;
 import net.sf.json.JSON;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.HttpGet;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
-import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.jobs.samza.MVCElasticSearchProperties;
-import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
-import org.ekstep.jobs.samza.exception.PlatformException;
-import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.task.Postman;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
+import java.io.InputStream;
 import java.util.*;
 
-import org.apache.http.HttpResponse;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -38,9 +33,26 @@ public class MVCSearchIndexer extends AbstractESIndexer {
 	private ObjectMapper mapper = new ObjectMapper();
 	private List<String> nestedFields = new ArrayList<String>();
 	private ControllerUtil util = new ControllerUtil();
-
+	JSONArray arr;
+    String contentreadapi = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlkeywordapi = "" , mlvectorapi = "";
 	public MVCSearchIndexer() {
 		setNestedFields();
+		Properties prop = new Properties();
+		try {
+			InputStream ip = (this.getClass().getResourceAsStream("/MVCSearchConstants.properties"));
+			prop.load(ip);
+			arr = new JSONArray(prop.getProperty("propertyArray"));
+			contentreadapi = prop.getProperty("api");
+			mlworkbenchapirequest = prop.getProperty("mlworkbenchapirequest");
+			mlvectorListRequest = prop.getProperty("mlvectorListRequest");
+			jobname = prop.getProperty("jobname");
+			mlkeywordapi = prop.getProperty("mlkeywordapi");
+			mlvectorapi = prop.getProperty("mlvectorapi");
+
+		}
+		catch (Exception e) {
+         System.out.println(e);
+		}
 	}
 
 	@Override
@@ -222,6 +234,7 @@ public class MVCSearchIndexer extends AbstractESIndexer {
 				 bound = prepared.bind(ml_level1,ml_level2,ml_level3,label ,identifier);
 			} else if(action.equalsIgnoreCase("update-ml-keywords")) {
 				cqlquery = "UPDATE content_data SET ml_keywords = ? , ml_content_text = ? WHERE content_id = ?";
+				makepostreqForVectorApi(ml_contentText);
 				PreparedStatement prepared = preparestaement(session,cqlquery);
 				 bound = prepared.bind(ml_Keywords,ml_contentText,identifier);
 			}
@@ -243,9 +256,10 @@ public class MVCSearchIndexer extends AbstractESIndexer {
 	// Read content definition
 	Map<String,Object> getContentDefinition(Map<String,Object> newmap , String identifer) {
 		try {
-			String content = Postman.getContent(MVCElasticSearchProperties.api,identifer);
+			String content = Postman.getContent(contentreadapi,identifer);
 			JSONObject obj = new JSONObject(content);
 			JSONObject contentobj = (JSONObject) (((JSONObject)obj.get("result")).get("content"));
+			makepostreqForMlAPI(contentobj);
 			newmap = filterData(newmap,contentobj);
 
 		}catch (Exception e) {
@@ -253,14 +267,23 @@ public class MVCSearchIndexer extends AbstractESIndexer {
 		}
 		return newmap;
 }
-
+    void makepostreqForMlAPI(JSONObject contentdef) {
+	JSONObject obj = new JSONObject(mlworkbenchapirequest);
+	JSONObject req = ((JSONObject)(obj.get("request")));
+	JSONObject input = (JSONObject)req.get("input");
+		JSONArray content = (JSONArray)input.get("content");
+		content.put(contentdef);
+	req.put("job",jobname);
+	// input.put("content",contentdef);
+	Postman.POST(obj.toString(),mlkeywordapi);
+}
    // Filter the params of content defintion to add in ES
 	public  Map<String,Object> filterData(Map<String,Object> obj ,JSONObject content) {
-		String[] arr = MVCElasticSearchProperties.propertyArray;
+
 		String key = null;
 		Object value = null;
-		for(int i = 0 ; i < arr.length ; i++ ) {
-			key = arr[i];
+		for(int i = 0 ; i < arr.length() ; i++ ) {
+			key = (arr.get(i)).toString();
 			value = content.has(key)  ? content.get(key) : null;
 			if(value != null) {
 				obj.put(key,value);
@@ -270,7 +293,18 @@ public class MVCSearchIndexer extends AbstractESIndexer {
 		return obj;
 
 	 }
+	public  void makepostreqForVectorApi(String contentText) {
+		try {
+			JSONObject obj = new JSONObject(mlworkbenchapirequest);
+			JSONObject req = ((JSONObject) (obj.get("request")));
+			JSONArray text = (JSONArray) req.get("text");
+			text.put(contentText);
+			Postman.POST(obj.toString(),mlvectorapi);
+		}
+		catch (Exception e) {
 
+		}
+	}
 	/*@SuppressWarnings("rawtypes")
 	private Map<String, String> getRelationMap(String objectType, Map definitionNode) throws Exception {
 		Map<String, String> relationDefinition = retrieveRelations(definitionNode, "IN", "inRelations");
