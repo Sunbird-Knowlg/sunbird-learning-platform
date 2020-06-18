@@ -8,7 +8,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <artifactId>audit-event-generator</artifactId>
-  <version>0.0.54</version>
+  <version>0.0.55</version>
   <dependencies>
   	<dependency>
 		<groupId>org.ekstep</groupId>
