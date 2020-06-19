@@ -12,18 +12,7 @@
 	<version>1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Base for all EkStep modules</name>
-
-	<repositories>
-		<repository>
-			<id>cloud-store-sdk</id>
-			<name>cloud-store-sdk</name>
-			<url>https://oss.sonatype.org/content/repositories/orgsunbird-1075</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-
+    
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring.version>4.2.4.RELEASE</spring.version>
