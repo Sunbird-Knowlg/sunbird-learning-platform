@@ -214,10 +214,13 @@ public class MVCSearchIndexer extends AbstractESIndexer {
 		String ml_level3 = obj.get("ml_level3Concept") != null ? obj.get("ml_level3Concept").toString() : null;
 		List<String> ml_Keywords = obj.get("ml_Keywords") != null ? (List<String>) obj.get("ml_Keywords") : null;
 		String ml_contentText = obj.get("ml_contentText") != null ? obj.get("ml_contentText").toString() : null;
-		List<Double> ml_contentTextVectorList = obj.get("ml_contentTextVector") != null ? (List<Double>) obj.get("ml_contentTextVector") : null;
+		List<List<Double>> ml_contentTextVectorList = obj.get("ml_contentTextVector") != null ? (List<List<Double>>) obj.get("ml_contentTextVector") : null;
 		if(ml_contentTextVectorList != null)
-		 ml_contentTextVector = new HashSet<Double>(ml_contentTextVectorList);
-        
+		{
+			ml_contentTextVector = new HashSet<Double>(ml_contentTextVectorList.get(0));
+
+		}
+
 		String serverIP = "127.0.0.1";
 		String keyspace = "sunbirddev_content_store";
 		Cluster cluster = Cluster.builder()
@@ -234,7 +237,7 @@ public class MVCSearchIndexer extends AbstractESIndexer {
 				 bound = prepared.bind(ml_level1,ml_level2,ml_level3,label ,identifier);
 			} else if(action.equalsIgnoreCase("update-ml-keywords")) {
 				cqlquery = "UPDATE content_data SET ml_keywords = ? , ml_content_text = ? WHERE content_id = ?";
-				makepostreqForVectorApi(ml_contentText);
+				makepostreqForVectorApi(ml_contentText,identifier);
 				PreparedStatement prepared = preparestaement(session,cqlquery);
 				 bound = prepared.bind(ml_Keywords,ml_contentText,identifier);
 			}
@@ -275,7 +278,7 @@ public class MVCSearchIndexer extends AbstractESIndexer {
 		content.put(contentdef);
 	req.put("job",jobname);
 	// input.put("content",contentdef);
-	Postman.POST(obj.toString(),mlkeywordapi);
+	String resp = Postman.POST(obj.toString(),mlkeywordapi);
 }
    // Filter the params of content defintion to add in ES
 	public  Map<String,Object> filterData(Map<String,Object> obj ,JSONObject content) {
@@ -293,13 +296,17 @@ public class MVCSearchIndexer extends AbstractESIndexer {
 		return obj;
 
 	 }
-	public  void makepostreqForVectorApi(String contentText) {
+	public  void makepostreqForVectorApi(String contentText,String identifier) {
 		try {
 			JSONObject obj = new JSONObject(mlworkbenchapirequest);
 			JSONObject req = ((JSONObject) (obj.get("request")));
 			JSONArray text = (JSONArray) req.get("text");
+			req.put("cid",identifier);
 			text.put(contentText);
-			Postman.POST(obj.toString(),mlvectorapi);
+			String resp = Postman.POST(obj.toString(),mlvectorapi);
+			JSONObject respobj = new JSONObject(resp);
+			String status = (((JSONObject)respobj.get("result")).get("status")).toString();
+			System.out.println("Vector list api status is " + status);
 		}
 		catch (Exception e) {
 

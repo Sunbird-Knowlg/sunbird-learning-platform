@@ -52,7 +52,7 @@ public class Postman {
             strResponse = response.getStatusLine().getReasonPhrase();
         return strResponse;
     }
-     public static void POST(String requestbody,String url) {
+     public static String POST(String requestbody,String url) {
          @SuppressWarnings("deprecation")
          DefaultHttpClient httpClient = new DefaultHttpClient();
           HttpPost httpPost = new HttpPost(url);
@@ -72,11 +72,13 @@ public class Postman {
              while ((output = br.readLine()) != null) {
                  strResponse = output;
              }
-             System.out.println(strResponse);
+             return  strResponse;
          } catch (ClientProtocolException e) {
              System.out.println(e);
+             return null;
          } catch (IOException e) {
              System.out.println(e);
+             return  null;
          }
     }
 }
