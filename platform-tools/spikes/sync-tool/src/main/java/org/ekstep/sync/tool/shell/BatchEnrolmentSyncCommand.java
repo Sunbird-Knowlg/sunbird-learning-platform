@@ -41,8 +41,6 @@ public class BatchEnrolmentSyncCommand implements CommandMarker {
     @CliCommand(value = "syncenrolment", help = "Sync data from lms cassandra to elasticsearch")
     public void syncEnrolment(
                           @CliOption(key = {
-                                  "limit"}, mandatory = false, help = "limit") final String limit,
-                          @CliOption(key = {
                                   "reset-progress"}, mandatory = false, unspecifiedDefaultValue="false", specifiedDefaultValue="true",  help = "reset progress of user enrolment") final String resetProgress,
                           @CliOption(key = {
                                   "userId"}, mandatory = true, help = "userId") final String userId,
@@ -50,7 +48,7 @@ public class BatchEnrolmentSyncCommand implements CommandMarker {
                                   "batchId"}, mandatory = true, help = "batchid") final String batchId)
             throws Exception {
         System.out.println("-----------------------------------------");
-        batchEnrolmentSyncManager.syncEnrol(userId, batchId, resetProgress, limit);
+        batchEnrolmentSyncManager.syncEnrol(userId, batchId, resetProgress);
         System.out.println("-----------------------------------------");
     }
     

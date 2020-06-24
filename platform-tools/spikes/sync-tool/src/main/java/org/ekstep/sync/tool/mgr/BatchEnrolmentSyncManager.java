@@ -278,10 +278,9 @@ public class BatchEnrolmentSyncManager {
         return results.all();
     }
 
-    public void syncEnrol(String userId, String batchId, String resetProgress, String limit) throws Exception {
+    public void syncEnrol(String userId, String batchId, String resetProgress) throws Exception {
         ElasticSearchUtil.initialiseESClient("user-courses", Platform.config.getString("search.lms_es_conn_info"));
-        int lmt = (StringUtils.isNotBlank(limit)) ? Integer.parseInt(limit) : 0;
-        List<Row> rows = readEnrolment("user_courses", lmt, batchId, userId);
+        List<Row> rows = readEnrolment("user_courses", batchId, userId);
         System.out.println("Number of rows to be synced : " + rows.size());
 
         List<String> docids = Arrays.asList("batchId", "userId");
@@ -297,11 +296,9 @@ public class BatchEnrolmentSyncManager {
         }
     }
 
-    private List<Row> readEnrolment(String user_courses, int limit, String batchId, String userId) {
+    private List<Row> readEnrolment(String user_courses, String batchId, String userId) {
         Session session = CassandraConnector.getSession("platform-courses");
         Select.Where selectQuery = QueryBuilder.select().json().all().from(keyspace, "user_courses").where(QueryBuilder.eq("batchid", batchId)).and(QueryBuilder.eq("userid", userId));;
-        if(limit != 0)
-            selectQuery.limit(limit);
         ResultSet results = session.execute(selectQuery);
         return results.all();
     }
