@@ -535,7 +535,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					if (!errors.isEmpty())
 						TelemetryManager.error("Error! while forming ES document data from nodes, below nodes are ignored: " + errors);
 					if(MapUtils.isNotEmpty(messages)) {
-						boolean isEsSyncEnable = Platform.config.hasPath("es.sync.graph.event.enable")? Platform.config.getBoolean("es.sync.graph.event.enable"):true;
+						boolean isEsSyncEnable = Platform.config.hasPath("content.es.sync.enable")? Platform.config.getBoolean("content.es.sync.enable"):true;
 						if (isEsSyncEnable) {
 							try {
 								System.out.println("Number of units to be synced : " + messages.size());
