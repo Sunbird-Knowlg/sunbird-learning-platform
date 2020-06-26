@@ -32,7 +32,7 @@ public class SyncMessageGenerator {
 	private static List<String> nestedFields = Arrays.asList(Platform.config.getString("content.nested.fields").split(","));
 	private static List<String> ALLOWED_ES_PROPS = Arrays.asList("IL_FUNC_OBJECT_TYPE", "IL_SYS_NODE_TYPE", "IL_UNIQUE_ID", "SYS_INTERNAL_LAST_UPDATED_ON");
 
-	public static Map<String, Object> getMessages(List<Node> nodes, String objectType,  Map<String, String> relationMap, Map<String, String> errors){
+	public static Map<String, Object> getMessages(List<Node> nodes, String objectType,  Map<String, String> relationMap, Map<String, String> errors, List<Map<String, Object>> unitEvents){
 		Map<String, Object> messages = new HashMap<>();
 		List<String> indexablePropslist = null;
 
@@ -51,6 +51,7 @@ public class SyncMessageGenerator {
 				//Map<String, String> relationMap = definitionMap.get(node.getObjectType());
 				if (relationMap != null) {
 					Map<String, Object> nodeMap = getMessage(node);
+					unitEvents.add(nodeMap);
 					Map<String, Object>  message = getJSONMessage(nodeMap, relationMap, indexablePropslist);
 					messages.put(node.getIdentifier(), message);
 				}

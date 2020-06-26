@@ -45,6 +45,7 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.itemset.publish.ItemsetPublishManager;
+import org.ekstep.kafka.KafkaClient;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.contentstore.VideoStreamingJobRequest;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
@@ -529,18 +530,40 @@ public class PublishFinalizer extends BaseFinalizer {
 				if (CollectionUtils.isNotEmpty(nodeBatch)) {
 					
 					errors = new HashMap<>();
-					Map<String, Object> messages = SyncMessageGenerator.getMessages(nodeBatch, ContentWorkflowPipelineParams.Content.name(), relationMap, errors);
+					List<Map<String, Object>> unitEvents = new ArrayList<>();
+					Map<String, Object> messages = SyncMessageGenerator.getMessages(nodeBatch, ContentWorkflowPipelineParams.Content.name(), relationMap, errors, unitEvents);
 					if (!errors.isEmpty())
 						TelemetryManager.error("Error! while forming ES document data from nodes, below nodes are ignored: " + errors);
 					if(MapUtils.isNotEmpty(messages)) {
-						try {
-                            System.out.println("Number of units to be synced : " + messages.size());
-							ElasticSearchUtil.bulkIndexWithIndexId(ES_INDEX_NAME, DOCUMENT_TYPE, messages);
-                            System.out.println("UnitIds synced : " + messages.keySet());
-						} catch (Exception e) {
-						    e.printStackTrace();
-							TelemetryManager.error("Elastic Search indexing failed: " + e);
-						}					
+						boolean isEsSyncEnable = Platform.config.hasPath("es.sync.graph.event.enable")? Platform.config.getBoolean("es.sync.graph.event.enable"):true;
+						if (isEsSyncEnable) {
+							try {
+								System.out.println("Number of units to be synced : " + messages.size());
+								ElasticSearchUtil.bulkIndexWithIndexId(ES_INDEX_NAME, DOCUMENT_TYPE, messages);
+								System.out.println("UnitIds synced : " + messages.keySet());
+							} catch (Exception e) {
+								e.printStackTrace();
+								TelemetryManager.error("Elastic Search indexing failed: " + e);
+							}
+						}
+					}
+					if(CollectionUtils.isNotEmpty(unitEvents)) {
+						String topic = Platform.config.getString("kafka.topics.learning.graph");
+						System.out.println("PublishFinalizer:syncNodes: kafka.topics.learning.graph : " + topic);
+						if(StringUtils.isNotBlank(topic)) {
+							unitEvents.stream().forEach(unitEvent -> {
+								try {
+									KafkaClient.send(mapper.writeValueAsString(unitEvent), topic);
+									System.out.println("PublishFinalizer:syncNodes: unitEvent : " + mapper.writeValueAsString(unitEvent));
+								} catch (Exception e) {
+									System.out.println("PublishFinalizer:syncNodes: unitEvent : Kafka topic unit event failed");
+									TelemetryManager.error("Kafka topic unit event failed: " + e);
+								}
+							});
+						} else {
+							TelemetryManager.error("Invalid topic id. # topic : " + topic);
+							throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Invalid topic id.");
+						}
 					}
 				}
 				// clear the already batched node ids from the list
