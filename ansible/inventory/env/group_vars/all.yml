@@ -57,6 +57,7 @@ zookeepers: "{{groups['processing-cluster-zookeepers']|join(':2181,')}}:2181"
 audit_es_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
 search_es_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
 search_lms_es_host: "{{ groups['core-es']|join(':9200,')}}:9200"
+graphevent_kafka_url: "{{groups['processing-cluster-zookeepers']|join(':9092,')}}:9092"
 
 graph_passport_key: "{{ lp_vault_graph_passport_key }}"
 dial_service_authorization: "{{ lp_vault_dial_service_authorization }}"
