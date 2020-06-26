@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -14,6 +15,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.common.enums.CompositeSearchParams;
+import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
@@ -31,6 +33,7 @@ public class SyncMessageGenerator {
 	private static final String TAXONOMY_ID = "domain";
 	private static List<String> nestedFields = Arrays.asList(Platform.config.getString("content.nested.fields").split(","));
 	private static List<String> ALLOWED_ES_PROPS = Arrays.asList("IL_FUNC_OBJECT_TYPE", "IL_SYS_NODE_TYPE", "IL_UNIQUE_ID", "SYS_INTERNAL_LAST_UPDATED_ON");
+	private static String DEFAULT_CHANNEL_ID = Platform.config.hasPath("channel.default") ? Platform.config.getString("channel.default") : "in.ekstep";
 
 	public static Map<String, Object> getMessages(List<Node> nodes, String objectType,  Map<String, String> relationMap, Map<String, String> errors, List<Map<String, Object>> unitEvents){
 		Map<String, Object> messages = new HashMap<>();
@@ -164,6 +167,11 @@ public class SyncMessageGenerator {
 		map.put(CompositeSearchParams.nodeType.name(), SystemNodeTypes.DATA_NODE.name());
 		map.put(CompositeSearchParams.transactionData.name(), transactionData);
 		map.put(CompositeSearchParams.syncMessage.name(), true);
+		map.put(CompositeSearchParams.ets.name(), System.currentTimeMillis());
+		map.put(CompositeSearchParams.channel.name(), node.getMetadata().getOrDefault(CompositeSearchParams.channel.name(), DEFAULT_CHANNEL_ID));
+		map.put(CompositeSearchParams.label.name(), node.getMetadata().getOrDefault(CompositeSearchParams.name.name(), ""));
+		map.put(CompositeSearchParams.userId.name(), CompositeSearchParams.ANONYMOUS.name());
+		map.put(CompositeSearchParams.createdOn.name(), DateUtils.format(new Date()));
 		return map;
 	}
 
