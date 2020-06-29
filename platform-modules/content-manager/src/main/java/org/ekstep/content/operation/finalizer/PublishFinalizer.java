@@ -120,6 +120,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	private PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil();
 	private long CONTENT_ARTIFACT_ONLINE_SIZE = Platform.config.hasPath("content.artifact.size.for_online") ? Platform.config.getLong("content.artifact.size.for_online") : 209715200;
 
+	private static final String LEARNING_GRAPH_KAFKA_TOPIC = Platform.config.hasPath("kafka.topics.learning.graph") ? Platform.config.getString("kafka.topics.learning.graph") : "";
+	private static final Boolean IS_ES_SYNC_ENABLED = Platform.config.hasPath("content.es.sync.enable") ? Platform.config.getBoolean("content.es.sync.enable") : true;
 
 	public void setItemsetPublishManager(ItemsetPublishManager itemsetPublishManager) {
 		this.itemsetPublishManager = itemsetPublishManager;
@@ -535,12 +537,11 @@ public class PublishFinalizer extends BaseFinalizer {
 					if (!errors.isEmpty())
 						TelemetryManager.error("Error! while forming ES document data from nodes, below nodes are ignored: " + errors);
 					if(MapUtils.isNotEmpty(messages)) {
-						boolean isEsSyncEnable = Platform.config.hasPath("content.es.sync.enable")? Platform.config.getBoolean("content.es.sync.enable"):true;
-						if (isEsSyncEnable) {
+						if (IS_ES_SYNC_ENABLED) {
 							try {
-								System.out.println("Number of units to be synced : " + messages.size());
+								TelemetryManager.log("Number of units to be synced : " + messages.size());
 								ElasticSearchUtil.bulkIndexWithIndexId(ES_INDEX_NAME, DOCUMENT_TYPE, messages);
-								System.out.println("UnitIds synced : " + messages.keySet());
+								TelemetryManager.log("UnitIds synced : " + messages.keySet());
 							} catch (Exception e) {
 								e.printStackTrace();
 								TelemetryManager.error("Elastic Search indexing failed: " + e);
@@ -548,20 +549,18 @@ public class PublishFinalizer extends BaseFinalizer {
 						}
 					}
 					if(CollectionUtils.isNotEmpty(unitEvents)) {
-						String topic = Platform.config.getString("kafka.topics.learning.graph");
-						System.out.println("PublishFinalizer:syncNodes: kafka.topics.learning.graph : " + topic);
-						if(StringUtils.isNotBlank(topic)) {
+						if(StringUtils.isNotBlank(LEARNING_GRAPH_KAFKA_TOPIC)) {
 							unitEvents.stream().forEach(unitEvent -> {
 								try {
-									KafkaClient.send(mapper.writeValueAsString(unitEvent), topic);
-									System.out.println("PublishFinalizer:syncNodes: unitEvent : " + mapper.writeValueAsString(unitEvent));
+									KafkaClient.send(mapper.writeValueAsString(unitEvent), LEARNING_GRAPH_KAFKA_TOPIC);
+									TelemetryManager.log("Collection units pushed into learning graph topic : " + mapper.writeValueAsString(unitEvent));
 								} catch (Exception e) {
-									System.out.println("PublishFinalizer:syncNodes: unitEvent : Kafka topic unit event failed");
-									TelemetryManager.error("Kafka topic unit event failed: " + e);
+									e.printStackTrace();
+									TelemetryManager.error("Learning graph topic unit event failed: " + e);
 								}
 							});
 						} else {
-							TelemetryManager.error("Invalid topic id. # topic : " + topic);
+							TelemetryManager.error("Invalid topic id. # topic : " + LEARNING_GRAPH_KAFKA_TOPIC);
 							throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Invalid topic id.");
 						}
 					}
