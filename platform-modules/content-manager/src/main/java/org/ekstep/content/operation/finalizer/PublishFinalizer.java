@@ -553,7 +553,6 @@ public class PublishFinalizer extends BaseFinalizer {
 							unitEvents.stream().forEach(unitEvent -> {
 								try {
 									KafkaClient.send(mapper.writeValueAsString(unitEvent), LEARNING_GRAPH_KAFKA_TOPIC);
-									TelemetryManager.log("Collection units pushed into learning graph topic : " + mapper.writeValueAsString(unitEvent));
 								} catch (Exception e) {
 									e.printStackTrace();
 									TelemetryManager.error("Learning graph topic unit event failed: " + e);
