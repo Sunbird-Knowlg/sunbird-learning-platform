@@ -35,16 +35,16 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
     private String keyspace = Platform.config.hasPath("courses.keyspace.name")
             ? Platform.config.getString("courses.keyspace.name")
             : "sunbird_courses";
-    private String table = "user_courses";
-    private static final String ES_INDEX_NAME = "user-courses";
-    private static final String ES_DOC_TYPE = "_doc";
+    private String table = "user_enrolments";
+  /*  private static final String ES_INDEX_NAME = "user-courses";
+    private static final String ES_DOC_TYPE = "_doc";*/
     private int leafNodesTTL = Platform.config.hasPath("content.leafnodes.ttl")
             ? Platform.config.getInt("content.leafnodes.ttl"): 3600;
     private Jedis redisConnect= null;
     private Session cassandraSession = null;
 
     public CourseBatchUpdater(Jedis redisConnect, Session cassandraSession) {
-        ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
+        //ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
         this.redisConnect = redisConnect;
         this.cassandraSession = cassandraSession;
     }
@@ -77,6 +77,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         List<Map<String, Object>> contents = (List<Map<String, Object>>) edata.get("contents");
         String batchId = (String)edata.get("batchId");
         String userId = (String)edata.get("userId");
+        String courseId = (String) edata.get("courseId");
         
         if(CollectionUtils.isNotEmpty(contents)) {
             Map<String, Object> contentStatus = new HashMap<>();
@@ -85,9 +86,9 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             String key = courseProgressHandler.getKey(batchId, userId);
             
             if(courseProgressHandler.containsKey(key)) {// Get Progress from the unprocessed list
-                populateContentStatusFromHandler(key, courseProgressHandler, contentStatus, contentStatusDelta, lastReadContentStats);
+                populateContentStatusFromHandler(key, courseId, courseProgressHandler, contentStatus, contentStatusDelta, lastReadContentStats);
             } else { // Get progress from cassandra
-                populateContentStatusFromDB(batchId, userId, contentStatus, lastReadContentStats);
+                populateContentStatusFromDB(batchId, courseId, userId, contentStatus, lastReadContentStats);
             }
             
             contents.forEach(c -> {
@@ -111,6 +112,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             int status = (size == leafNodes.size()) ? 2 : 1;
 
             Map<String, Object> dataToUpdate =  new HashMap<String, Object>() {{
+                put("courseId", courseId);
                 put("contentStatus", contentStatus);
                 put("contentStatusDelta", contentStatusDelta);
                 put("status", status);
@@ -128,10 +130,12 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         }
     }
 
-    private void populateContentStatusFromDB(String batchId, String userId, Map<String, Object> contentStatus, Map<String, Object> lastReadContentStats) {
+    private void populateContentStatusFromDB(String batchId, String courseId, String userId, Map<String, Object> contentStatus, Map<String, Object> lastReadContentStats) {
         Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
             put("batchid", batchId);
             put("userid", userId);
+            put("courseid", courseId);
+            
         }};
         ResultSet resultSet =  SunbirdCassandraUtil.read(cassandraSession, keyspace, table, dataToSelect);
         List<Row> rows = resultSet.all();
@@ -144,7 +148,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         }
     }
 
-    private void populateContentStatusFromHandler(String key, CourseProgressHandler courseProgressHandler, Map<String, Object> contentStatus, Map<String, Object> contentStatusDelta, Map<String, Object> lastReadContentStats) {
+    private void populateContentStatusFromHandler(String key, String courseId, CourseProgressHandler courseProgressHandler, Map<String, Object> contentStatus, Map<String, Object> contentStatusDelta, Map<String, Object> lastReadContentStats) {
         Map<String, Object> enrollmentDetails = (Map<String, Object>) courseProgressHandler.get(key);
         if(MapUtils.isNotEmpty(enrollmentDetails)) {
             Map<String, Integer> contentStatusMap = (Map<String, Integer>) enrollmentDetails.get("contentStatus");
@@ -180,6 +184,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     }};
                     Map<String, Object> dataToUpdate = new HashMap<>();
                     dataToUpdate.putAll((Map<String, Object>) event.getValue());
+                    dataToSelect.put("courseid", dataToUpdate.remove("courseId"));
                     //Update cassandra
                     updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
                 } catch (Exception e) {
@@ -191,11 +196,11 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 Batch batch = QueryBuilder.batch(updateQueryList.toArray(new RegularStatement[updateQueryList.size()]));
                 cassandraSession.execute(batch);
             }
-            try {
+           /* try {
                 ESUtil.updateBatches(ES_INDEX_NAME, ES_DOC_TYPE, courseProgressHandler.getMap());
             } catch (Exception e) {
                 e.printStackTrace();
-            }
+            }*/
         }
     }
 

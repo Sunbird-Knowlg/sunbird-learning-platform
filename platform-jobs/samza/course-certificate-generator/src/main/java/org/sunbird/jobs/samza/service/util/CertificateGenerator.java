@@ -45,7 +45,7 @@ public class CertificateGenerator {
 
     private static final String KEYSPACE = Platform.config.hasPath("courses.keyspace.name")
             ? Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
-    private static final String USER_COURSES_TABLE = "user_courses";
+    private static final String USER_COURSES_TABLE = "user_enrolments";
     private SimpleDateFormat formatter = null;
     private SimpleDateFormat dateFormatter = null;
     private static final String ES_INDEX_NAME = "user-courses";
@@ -84,8 +84,9 @@ public class CertificateGenerator {
         if(MapUtils.isNotEmpty(certTemplate)) {
             certTemplate.putAll(template);
             Map<String, Object> dataToFetch = new HashMap<String, Object>() {{
-                put(CourseCertificateParams.batchId.name(), batchId);
                 put(CourseCertificateParams.userId.name(), userId);
+                put(CourseCertificateParams.courseId.name(), courseId);
+                put(CourseCertificateParams.batchId.name(), batchId);
             }};
             ResultSet resulSet = SunbirdCassandraUtil.read(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToFetch);
             List<Row> rows = resulSet.all();
@@ -150,8 +151,9 @@ public class CertificateGenerator {
                         put(CourseCertificateParams.certificates.name(), updatedCerts);
                     }};
                     Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
-                        put(CourseCertificateParams.batchId.name(), batchId);
                         put(CourseCertificateParams.userId.name(), userId);
+                        put(CourseCertificateParams.courseId.name(), courseId);
+                        put(CourseCertificateParams.batchId.name(), batchId);
                     }};
                     SunbirdCassandraUtil.update(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToUpdate, dataToSelect);
                     updatedES(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);

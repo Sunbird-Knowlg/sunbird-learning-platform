@@ -38,7 +38,7 @@ public class IssueCertificate {
     private static final String LEARNER_SERVICE_PRIVATE_URL = Platform.config.hasPath("learner_service.base_url")
             ? Platform.config.getString("learner_service.base_url"): "http://localhost:9000";
     private static final String COURSE_BATCH_TABLE = "course_batch";
-    private static final String USER_COURSES_TABLE = "user_courses";
+    private static final String USER_COURSES_TABLE = "user_enrolments";
     private static final String ASSESSMENT_AGGREGATOR_TABLE = "assessment_aggregator";
     protected static ObjectMapper mapper = new ObjectMapper();
 
@@ -246,6 +246,7 @@ public class IssueCertificate {
             if(MapUtils.isNotEmpty(enrollment)){
                 Map<String, Object> dataToFetch = new HashMap<String, Object>() {{
                     put(CourseCertificateParams.batchId.name(), batchId);
+                    put(CourseCertificateParams.courseId.name(), courseId);
                     putAll(enrollment);
                 }};
                 if(CollectionUtils.isNotEmpty(userIds)) {
