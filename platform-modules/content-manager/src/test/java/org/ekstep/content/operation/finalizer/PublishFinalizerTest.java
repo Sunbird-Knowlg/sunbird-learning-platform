@@ -3,6 +3,7 @@ package org.ekstep.content.operation.finalizer;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
@@ -10,13 +11,17 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.util.HttpRestUtil;
+import org.ekstep.content.util.GraphUtil;
+import org.ekstep.content.util.SyncMessageGenerator;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.itemset.publish.ItemsetPublishManager;
+import org.ekstep.kafka.KafkaClient;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -34,7 +39,7 @@ import org.ekstep.content.util.PublishFinalizeUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ ItemsetPublishManager.class, HttpRestUtil.class, CloudStore.class, PublishFinalizeUtil.class})
+@PrepareForTest({ ItemsetPublishManager.class, HttpRestUtil.class, CloudStore.class, PublishFinalizeUtil.class, ElasticSearchUtil.class, KafkaClient.class, SyncMessageGenerator.class, GraphUtil.class})
 @PowerMockIgnore({ "javax.management.*", "sun.security.ssl.*", "javax.net.ssl.*", "javax.crypto.*" })
 public class PublishFinalizerTest extends GraphEngineTestSetup {
 
@@ -277,4 +282,36 @@ public class PublishFinalizerTest extends GraphEngineTestSetup {
 		publishFinalizer.contextDrivenContentUpload(contentNode);
 		
 	}
+
+	@Test
+	public void testCollectionUnitsSyncIntoESAndKafkaTopic() throws Exception {
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		Method syncNodesMethod = PublishFinalizer.class.getDeclaredMethod("syncNodes", List.class, List.class);
+		syncNodesMethod.setAccessible(true);
+		mockDependencies();
+		syncNodesMethod.invoke(publishFinalizer, getChildNode(), new ArrayList<String>() {{ add("1test1"); }});
+	}
+
+	private void mockDependencies() throws Exception {
+		PowerMockito.mockStatic(ElasticSearchUtil.class);
+		PowerMockito.doNothing().when(ElasticSearchUtil.class);
+		ElasticSearchUtil.bulkIndexWithIndexId(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap());
+		ElasticSearchUtil.bulkDeleteDocumentById(Mockito.anyString(), Mockito.anyString(), Mockito.anyList());
+
+		PowerMockito.mockStatic(KafkaClient.class);
+		PowerMockito.doNothing().when(KafkaClient.class);
+		KafkaClient.send(Mockito.anyString(), Mockito.anyString());
+
+		PowerMockito.mockStatic(GraphUtil.class);
+		PowerMockito.when(GraphUtil.getRelationMap("", new HashMap<>())).thenReturn(new HashMap<String, String>());
+	}
+
+	private List<Map<String, Object>> getChildNode() throws Exception {
+		String childMap = "{\"ownershipType\":[\"createdBy\"],\"parent\":\"do_113053289443917824115\",\"code\":\"b9a50833-eff6-4ef5-a2a4-2413f2d51f6c\",\"channel\":\"in.ekstep\",\"description\":\"Test_CourseUnit_desc_1\",\"language\":[\"English\"],\"mimeType\":\"application/vnd.ekstep.content-collection\",\"idealScreenSize\":\"normal\",\"createdOn\":\"2020-06-29T13:55:29.587+0530\",\"objectType\":\"Content\",\"children\":[{\"ownershipType\":[\"createdBy\"],\"parent\":\"do_113053289509576704120\",\"code\":\"b9a50833-eff6-4ef5-a2a4-2413f2d51f6d\",\"channel\":\"in.ekstep\",\"description\":\"Test_CourseSubUnit_desc_1\",\"language\":[\"English\"],\"mimeType\":\"application/vnd.ekstep.content-collection\",\"idealScreenSize\":\"normal\",\"createdOn\":\"2020-06-29T13:55:29.583+0530\",\"objectType\":\"Content\",\"contentDisposition\":\"inline\",\"lastUpdatedOn\":\"2020-06-29T13:55:29.796+0530\",\"contentEncoding\":\"gzip\",\"contentType\":\"TextBookUnit\",\"dialcodeRequired\":\"No\",\"identifier\":\"do_113053289509543936118\",\"lastStatusChangedOn\":\"2020-06-29T13:55:29.583+0530\",\"audience\":[\"Learner\"],\"os\":[\"All\"],\"visibility\":\"Parent\",\"index\":1,\"mediaType\":\"content\",\"osId\":\"org.ekstep.launcher\",\"languageCode\":[\"en\"],\"versionKey\":\"1593419129583\",\"license\":\"CC BY 4.0\",\"idealScreenDensity\":\"hdpi\",\"depth\":2,\"compatibilityLevel\":1,\"name\":\"Test_Course_SubUnit_name_1\",\"status\":\"Live\",\"lastPublishedOn\":\"2020-06-29T18:55:00.479+0530\",\"pkgVersion\":6.0,\"leafNodesCount\":0,\"leafNodes\":[],\"downloadUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/ecar_files/do_113053289443917824115/marigold_1593437125852_do_113053289443917824115_6.0_spine.ecar\",\"variants\":\"{\\\"online\\\":{\\\"ecarUrl\\\":\\\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/ecar_files/do_113053289443917824115/marigold_1593437129524_do_113053289443917824115_6.0_online.ecar\\\",\\\"size\\\":2788.0},\\\"spine\\\":{\\\"ecarUrl\\\":\\\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/ecar_files/do_113053289443917824115/marigold_1593437125852_do_113053289443917824115_6.0_spine.ecar\\\",\\\"size\\\":2764.0}}\"},{\"ownershipType\":[\"createdBy\"],\"parent\":\"do_113053289509576704120\",\"code\":\"b9a50833-eff6-4ef5-a2a4-2413f2d51f6e\",\"channel\":\"in.ekstep\",\"description\":\"Test_CourseSubUnit_desc_2\",\"language\":[\"English\"],\"mimeType\":\"application/vnd.ekstep.content-collection\",\"idealScreenSize\":\"normal\",\"createdOn\":\"2020-06-29T13:55:29.579+0530\",\"objectType\":\"Content\",\"contentDisposition\":\"inline\",\"lastUpdatedOn\":\"2020-06-29T13:55:29.796+0530\",\"contentEncoding\":\"gzip\",\"contentType\":\"TextBookUnit\",\"dialcodeRequired\":\"No\",\"identifier\":\"do_113053289509511168116\",\"lastStatusChangedOn\":\"2020-06-29T13:55:29.579+0530\",\"audience\":[\"Learner\"],\"os\":[\"All\"],\"visibility\":\"Parent\",\"index\":2,\"mediaType\":\"content\",\"osId\":\"org.ekstep.launcher\",\"languageCode\":[\"en\"],\"versionKey\":\"1593419129579\",\"license\":\"CC BY 4.0\",\"idealScreenDensity\":\"hdpi\",\"depth\":2,\"compatibilityLevel\":1,\"name\":\"Test_Course_SubUnit_name_2\",\"status\":\"Live\",\"lastPublishedOn\":\"2020-06-29T18:55:00.479+0530\",\"pkgVersion\":6.0,\"leafNodesCount\":0,\"leafNodes\":[],\"downloadUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/ecar_files/do_113053289443917824115/marigold_1593437125852_do_113053289443917824115_6.0_spine.ecar\",\"variants\":\"{\\\"online\\\":{\\\"ecarUrl\\\":\\\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/ecar_files/do_113053289443917824115/marigold_1593437129524_do_113053289443917824115_6.0_online.ecar\\\",\\\"size\\\":2788.0},\\\"spine\\\":{\\\"ecarUrl\\\":\\\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/ecar_files/do_113053289443917824115/marigold_1593437125852_do_113053289443917824115_6.0_spine.ecar\\\",\\\"size\\\":2764.0}}\"}],\"contentDisposition\":\"inline\",\"lastUpdatedOn\":\"2020-06-29T13:55:29.796+0530\",\"contentEncoding\":\"gzip\",\"contentType\":\"TextBookUnit\",\"dialcodeRequired\":\"No\",\"identifier\":\"do_113053289509576704120\",\"lastStatusChangedOn\":\"2020-06-29T13:55:29.587+0530\",\"audience\":[\"Learner\"],\"os\":[\"All\"],\"visibility\":\"Parent\",\"index\":1,\"mediaType\":\"content\",\"osId\":\"org.ekstep.launcher\",\"languageCode\":[\"en\"],\"versionKey\":\"1593419129587\",\"license\":\"CC BY 4.0\",\"idealScreenDensity\":\"hdpi\",\"depth\":1,\"compatibilityLevel\":1,\"name\":\"Test_CourseUnit_1\",\"status\":\"Live\",\"lastPublishedOn\":\"2020-06-29T18:55:00.479+0530\",\"pkgVersion\":6.0,\"leafNodesCount\":0,\"leafNodes\":[],\"downloadUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/ecar_files/do_113053289443917824115/marigold_1593437125852_do_113053289443917824115_6.0_spine.ecar\",\"variants\":\"{\\\"online\\\":{\\\"ecarUrl\\\":\\\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/ecar_files/do_113053289443917824115/marigold_1593437129524_do_113053289443917824115_6.0_online.ecar\\\",\\\"size\\\":2788.0},\\\"spine\\\":{\\\"ecarUrl\\\":\\\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/ecar_files/do_113053289443917824115/marigold_1593437125852_do_113053289443917824115_6.0_spine.ecar\\\",\\\"size\\\":2764.0}}\"}";
+		Map<String, Object> children = mapper.readValue(childMap, Map.class);
+		return new ArrayList<Map<String, Object>>() {{
+			add(children);
+		}};
+	}
+
 }

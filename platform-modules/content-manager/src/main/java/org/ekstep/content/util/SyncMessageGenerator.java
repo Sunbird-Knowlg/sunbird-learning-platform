@@ -33,7 +33,7 @@ public class SyncMessageGenerator {
 	private static final String TAXONOMY_ID = "domain";
 	private static List<String> nestedFields = Arrays.asList(Platform.config.getString("content.nested.fields").split(","));
 	private static List<String> ALLOWED_ES_PROPS = Arrays.asList("IL_FUNC_OBJECT_TYPE", "IL_SYS_NODE_TYPE", "IL_UNIQUE_ID", "SYS_INTERNAL_LAST_UPDATED_ON");
-	private static String DEFAULT_CHANNEL_ID = Platform.config.hasPath("channel.default") ? Platform.config.getString("channel.default") : "in.ekstep";
+	private static final String DEFAULT_CHANNEL_ID = Platform.config.hasPath("channel.default") ? Platform.config.getString("channel.default") : "in.ekstep";
 
 	public static Map<String, Object> getMessages(List<Node> nodes, String objectType,  Map<String, String> relationMap, Map<String, String> errors, List<Map<String, Object>> unitEvents){
 		Map<String, Object> messages = new HashMap<>();
