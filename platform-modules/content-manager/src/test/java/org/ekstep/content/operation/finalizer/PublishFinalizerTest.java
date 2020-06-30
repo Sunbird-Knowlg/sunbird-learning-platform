@@ -292,6 +292,15 @@ public class PublishFinalizerTest extends GraphEngineTestSetup {
 		syncNodesMethod.invoke(publishFinalizer, getChildNode(), new ArrayList<String>() {{ add("1test1"); }});
 	}
 
+	@Test
+	public void testCollectionUnitsSyncIntoESAndKafkaTopicFailed() throws Exception {
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		Method syncNodesMethod = PublishFinalizer.class.getDeclaredMethod("syncNodes", List.class, List.class);
+		syncNodesMethod.setAccessible(true);
+		mockDependenciesThrowError();
+		syncNodesMethod.invoke(publishFinalizer, getChildNode(), new ArrayList<String>() {{ add("1test1"); }});
+	}
+
 	private void mockDependencies() throws Exception {
 		PowerMockito.mockStatic(ElasticSearchUtil.class);
 		PowerMockito.doNothing().when(ElasticSearchUtil.class);
@@ -303,7 +312,21 @@ public class PublishFinalizerTest extends GraphEngineTestSetup {
 		KafkaClient.send(Mockito.anyString(), Mockito.anyString());
 
 		PowerMockito.mockStatic(GraphUtil.class);
-		PowerMockito.when(GraphUtil.getRelationMap("", new HashMap<>())).thenReturn(new HashMap<String, String>());
+		PowerMockito.when(GraphUtil.getRelationMap("", new HashMap<>())).thenReturn(new HashMap<>());
+	}
+
+	private void mockDependenciesThrowError() throws Exception {
+		PowerMockito.mockStatic(ElasticSearchUtil.class);
+		PowerMockito.doThrow(new Exception()).when(ElasticSearchUtil.class);
+		ElasticSearchUtil.bulkIndexWithIndexId(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap());
+		ElasticSearchUtil.bulkDeleteDocumentById(Mockito.anyString(), Mockito.anyString(), Mockito.anyList());
+
+		PowerMockito.mockStatic(KafkaClient.class);
+		PowerMockito.doThrow(new Exception()).when(KafkaClient.class);
+		KafkaClient.send(Mockito.anyString(), Mockito.anyString());
+
+		PowerMockito.mockStatic(GraphUtil.class);
+		PowerMockito.when(GraphUtil.getRelationMap("", new HashMap<>())).thenReturn(new HashMap<>());
 	}
 
 	private List<Map<String, Object>> getChildNode() throws Exception {
