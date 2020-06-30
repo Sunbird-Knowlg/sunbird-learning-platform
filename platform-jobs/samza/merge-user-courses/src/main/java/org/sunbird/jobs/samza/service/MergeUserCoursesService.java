@@ -67,7 +67,7 @@ public class MergeUserCoursesService implements ISamzaService {
                 Platform.config.getString("content.consumption.table") : "content_consumption";
 
         USER_COURSES_TABLE = Platform.config.hasPath("user.courses.table") ?
-                Platform.config.getString("user.courses.table") : "user_courses";
+                Platform.config.getString("user.courses.table") : "user_enrolments";
 
         USER_COURSE_ES_INDEX = Platform.config.hasPath("user.courses.es.index") ?
                 Platform.config.getString("user.courses.es.index") : "user-courses";
@@ -154,40 +154,41 @@ public class MergeUserCoursesService implements ISamzaService {
         List<BatchEnrollmentSyncModel> fromBatches = getBatchDetailsOfUser(fromUserId);
         List<BatchEnrollmentSyncModel> toBatches = getBatchDetailsOfUser(toUserId);
 
-        List<String> fromBatchIds = new ArrayList<>();
-        List<String> toBatchIds = new ArrayList<>();
+        Map<String, BatchEnrollmentSyncModel> fromBatchIds = new HashMap<>();
+        Map<String, BatchEnrollmentSyncModel> toBatchIds = new HashMap<>();
         if (CollectionUtils.isNotEmpty(fromBatches)) {
             for (BatchEnrollmentSyncModel fromBatch : fromBatches) {
                 if (StringUtils.isNotBlank(fromBatch.getBatchId()))
-                    fromBatchIds.add(fromBatch.getBatchId());
+                    fromBatchIds.put(fromBatch.getBatchId(), fromBatch);
             }
         }
         if (CollectionUtils.isNotEmpty(toBatches)) {
             for (BatchEnrollmentSyncModel toBatch : toBatches) {
                 if (StringUtils.isNotBlank(toBatch.getBatchId()))
-                    toBatchIds.add(toBatch.getBatchId());
+                    toBatchIds.put(toBatch.getBatchId(), toBatch);
             }
         }
 
-        List<String> batchIdsToBeMigrated = (List<String>) CollectionUtils.subtract(fromBatchIds, toBatchIds);
+        List<String> batchIdsToBeMigrated = (List<String>) CollectionUtils.subtract(fromBatchIds.keySet(), toBatchIds.keySet());
 
         //Migrate batch records in Cassandra and ES
         if (CollectionUtils.isNotEmpty(batchIdsToBeMigrated)) {
             for (String batchId : batchIdsToBeMigrated) {
-                Map<String, Object> userCourse = getUserCourse(batchId, fromUserId);
+                String courseId = fromBatchIds.get(batchId).getCourseId();
+                Map<String, Object> userCourse = getUserCourse(batchId, fromUserId, courseId);
                 if (MapUtils.isNotEmpty(userCourse)) {
                     userCourse.put(MergeUserCoursesParams.userId.name(), toUserId);
                     LOGGER.info("MergeUserCoursesService:mergeUserBatches: Merging batch:" + batchId + " updated record:" + userCourse);
                     SunbirdCassandraUtil.upsert(KEYSPACE, USER_COURSES_TABLE, userCourse);
 
-                    String documentJson = ElasticSearchUtil.getDocumentAsStringById(USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE,
+                    /*String documentJson = ElasticSearchUtil.getDocumentAsStringById(USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE,
                             batchId + UNDERSCORE + fromUserId);
                     Map<String, Object> userCourseDoc = mapper.readValue(documentJson, Map.class);
                     userCourseDoc.put(MergeUserCoursesParams.userId.name(), toUserId);
                     userCourseDoc.put(MergeUserCoursesParams.id.name(), batchId + UNDERSCORE + toUserId);
                     userCourseDoc.put(MergeUserCoursesParams.identifier.name(), batchId + UNDERSCORE + toUserId);
                     ElasticSearchUtil.addDocumentWithId(USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE,
-                            batchId + UNDERSCORE + toUserId, mapper.writeValueAsString(userCourseDoc));
+                            batchId + UNDERSCORE + toUserId, mapper.writeValueAsString(userCourseDoc));*/
                 } else {
                     LOGGER.info("MergeUserCoursesService:mergeUserBatches: user_courses record with batchId:" + batchId + " userId:" + fromUserId + " found in ES but not in Cassandra");
                 }
@@ -326,10 +327,11 @@ public class MergeUserCoursesService implements ISamzaService {
         return SunbirdCassandraUtil.readAsListOfMap(KEYSPACE, CONTENT_CONSUMPTION_TABLE, key);
     }
 
-    private Map<String, Object> getUserCourse(String batchId, String userId) {
+    private Map<String, Object> getUserCourse(String batchId, String userId, String courseId) {
         Map<String, Object> key = new HashMap<>();
         key.put(MergeUserCoursesParams.batchId.name(), batchId);
         key.put(MergeUserCoursesParams.userId.name(), userId);
+        key.put(MergeUserCoursesParams.courseId.name(), courseId);
         List<Map<String, Object>> data = SunbirdCassandraUtil.readAsListOfMap(KEYSPACE, USER_COURSES_TABLE, key);
         return CollectionUtils.isEmpty(data) ? new HashMap() : data.get(0);
     }
@@ -340,7 +342,10 @@ public class MergeUserCoursesService implements ISamzaService {
         List<String> userIdList = new ArrayList<>();
         userIdList.add(userId);
         searchQuery.put(MergeUserCoursesParams.userId.name(), userIdList);
-        List<Map> documents = ElasticSearchUtil.textSearchReturningId(searchQuery, USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE);
+        Map<String, Object> key = new HashMap<>();
+        key.put(MergeUserCoursesParams.userId.name(), userIdList);
+        List<Map<String, Object>> documents = SunbirdCassandraUtil.readAsListOfMap(KEYSPACE, USER_COURSES_TABLE, key);
+        //List<Map> documents = ElasticSearchUtil.textSearchReturningId(searchQuery, USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE);
         if (CollectionUtils.isNotEmpty(documents)) {
             documents.forEach(doc -> {
                 BatchEnrollmentSyncModel model = new BatchEnrollmentSyncModel();
