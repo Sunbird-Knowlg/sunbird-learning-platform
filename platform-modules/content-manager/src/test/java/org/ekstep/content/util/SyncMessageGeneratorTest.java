@@ -32,8 +32,12 @@ public class SyncMessageGeneratorTest extends GraphEngineTestSetup {
         ArrayList unitEvents = new ArrayList<Map<String, Object>>();
         Map<String, Object> message = SyncMessageGenerator.getMessages(getNodes(), "Content", getRelationMap(), new HashMap<>(), unitEvents);
         Assert.assertTrue(MapUtils.isNotEmpty(message));
-        Assert.assertEquals("ANONYMOUS", ((HashMap<String, Object>) unitEvents.get(0)).get("userId"));
         Assert.assertEquals("Test_CourseUnit_1", ((HashMap<String, Object>) unitEvents.get(0)).get("label"));
+        Assert.assertEquals("in.ekstep", ((HashMap<String, Object>) unitEvents.get(0)).get("channel"));
+        Assert.assertEquals("do_113053289509576704120", ((HashMap<String, Object>) unitEvents.get(0)).get("nodeUniqueId"));
+        Assert.assertTrue(((HashMap<String, Object>) unitEvents.get(0)).containsKey("ets"));
+        Assert.assertTrue(((HashMap<String, Object>) unitEvents.get(0)).containsKey("userId"));
+        Assert.assertTrue(((HashMap<String, Object>) unitEvents.get(0)).containsKey("transactionData"));
     }
 
     private List<Node> getNodes() throws Exception {
