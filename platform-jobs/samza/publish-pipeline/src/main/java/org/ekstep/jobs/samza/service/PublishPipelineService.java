@@ -33,6 +33,8 @@ import org.ekstep.telemetry.dto.TelemetryBJREvent;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.rits.cloning.Cloner;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -53,7 +55,7 @@ public class PublishPipelineService implements ISamzaService {
 
 	private SystemStream systemStream = null;
 	private SystemStream postPublishStream = null;
-	
+	private SystemStream postPublishMVCStream = null;
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -76,6 +78,9 @@ public class PublishPipelineService implements ISamzaService {
 		LOGGER.info("Stream initialized for Failed Events");
 		postPublishStream = new SystemStream("kafka", config.get("post.publish.event.topic"));
 		LOGGER.info("Stream initialized for Post Publish Events");
+		postPublishMVCStream = new SystemStream("kafka",config.get("post.publish.mvc.topic"));
+		LOGGER.info("Stream initialized for Post Publish MVC Content Events");
+
 	}
 
 	@Override
@@ -269,8 +274,22 @@ public class PublishPipelineService implements ISamzaService {
 		Map<String, Object> context = new HashMap<String, Object>();
 		Map<String, Object> object = new HashMap<String, Object>();
 		Map<String, Object> edata = new HashMap<String, Object>();
+	//	String ml_level1 = node.getMetadata().get("ml_level1Concept") != null ? (String)node.getMetadata().get("ml_level1Concept") : null;
+	//	String ml_level2 = node.getMetadata().get("ml_level2Concept") != null ? (String)node.getMetadata().get("ml_level2Concept") : null;
+	//	String ml_level3 = node.getMetadata().get("ml_level3Concept") != null ? (String)node.getMetadata().get("ml_level3Concept") : null;
 		String mimeType = (String) node.getMetadata().get("mimeType");
-		if (StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
+		String label = node.getMetadata().get("label") != null ? (String)node.getMetadata().get("label") : null;
+		if(StringUtils.isNotBlank(label) && StringUtils.equals(label,"mvc")){
+			Map<String, Object> linkDialcodeEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
+			linkDialcodeEvent=  updatevalues(linkDialcodeEvent);
+			if (MapUtils.isEmpty(linkDialcodeEvent)) {
+				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + linkDialcodeEvent);
+				throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+			}
+			collector.send(new OutgoingMessageEnvelope(postPublishMVCStream, linkDialcodeEvent));
+			LOGGER.info("All Events sent to post publish event topic");
+		}
+		else if (StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
 			Map<String, Object> linkDialcodeEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
 
 			if (MapUtils.isEmpty(linkDialcodeEvent)) {
@@ -299,6 +318,25 @@ public class PublishPipelineService implements ISamzaService {
 		}
 	}
 
+	Map<String,Object> updatevalues(Map<String,Object> linkDialcodeEvent) {
+		linkDialcodeEvent.put("eventData",linkDialcodeEvent.get("edata"));
+		linkDialcodeEvent.put("eid","MVC_JOB_PROCESSOR");
+		linkDialcodeEvent.remove("edata");
+		Map<String,Object> eventData = (Map<String,Object>) linkDialcodeEvent.get("eventData");
+		eventData.put("identifier",eventData.get("id"));
+		eventData.remove("id");
+		eventData.remove("iteration");
+		eventData.remove("mimeType");
+		eventData.remove("contentType");
+        eventData.remove("pkgVersion");
+        eventData.remove("status");
+		eventData.put("action","update-es-index");
+		eventData.put("stage",1);
+	//	eventData.put("ml_level1Concept",ml_level1);
+	//	eventData.put("ml_level2Concept",ml_level2);
+	//	eventData.put("ml_level3Concept",ml_level3);
+		return linkDialcodeEvent;
+	}
 	private Map<String, Object> generateInstructionEventMetadata(Map<String, Object> actor, Map<String, Object> context,
 																 Map<String, Object> object, Map<String, Object> edata, Map<String, Object> metadata, String contentId, String action) {
 		TelemetryBJREvent te = new TelemetryBJREvent();
