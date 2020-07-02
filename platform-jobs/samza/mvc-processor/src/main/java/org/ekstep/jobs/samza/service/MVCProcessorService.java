@@ -7,7 +7,7 @@ import org.apache.samza.task.MessageCollector;
 import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.jobs.samza.service.util.MVCSearchIndexer;
+import org.ekstep.jobs.samza.service.util.MVCProcessorIndexer;
 import org.ekstep.jobs.samza.service.util.MVCDialCodeIndexer;
 import org.ekstep.jobs.samza.service.util.MVCDialCodeMetricsIndexer;
 import org.ekstep.jobs.samza.util.FailedEventsUtil;
@@ -19,19 +19,19 @@ import org.elasticsearch.client.transport.NoNodeAvailableException;
 
 import java.util.Map;
 
-public class MVCSearchIndexerService implements ISamzaService {
+public class MVCProcessorService implements ISamzaService {
 
-	private JobLogger LOGGER = new JobLogger(MVCSearchIndexerService.class);
+	private JobLogger LOGGER = new JobLogger(MVCProcessorService.class);
 
-	private MVCSearchIndexer csIndexer = null;
+	private MVCProcessorIndexer csIndexer = null;
 	private MVCDialCodeIndexer dcIndexer = null;
 	private MVCDialCodeMetricsIndexer dcMetricsIndexer;
 	private SystemStream systemStream = null;
 
-	public MVCSearchIndexerService() {}
+	public MVCProcessorService() {}
 
-	public MVCSearchIndexerService(MVCSearchIndexer csIndexer, MVCDialCodeIndexer dcIndexer,
-								   MVCDialCodeMetricsIndexer dcMetricsIndexer) throws Exception {
+	public MVCProcessorService(MVCProcessorIndexer csIndexer, MVCDialCodeIndexer dcIndexer,
+							   MVCDialCodeMetricsIndexer dcMetricsIndexer) throws Exception {
 		this.csIndexer = csIndexer;
 		this.dcIndexer = dcIndexer;
 		this.dcMetricsIndexer = dcMetricsIndexer;
@@ -44,7 +44,7 @@ public class MVCSearchIndexerService implements ISamzaService {
 		LearningRequestRouterPool.init();
 		LOGGER.info("Learning actors initialized");
 		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
-		csIndexer = csIndexer == null ? new MVCSearchIndexer(): csIndexer;
+		csIndexer = csIndexer == null ? new MVCProcessorIndexer(): csIndexer;
 		csIndexer.createMVCSearchIndex();
 		LOGGER.info(CompositeSearchConstants.MVC_SEARCH_INDEX + " created");
 		dcIndexer = dcIndexer == null ? new MVCDialCodeIndexer() : dcIndexer;

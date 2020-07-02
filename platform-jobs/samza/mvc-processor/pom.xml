@@ -6,7 +6,7 @@
 		<artifactId>samza</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>mvc-search-indexer</artifactId>
+	<artifactId>mvc-processor</artifactId>
 	<version>1.0.0</version>
 	<dependencies>
 		<dependency>

@@ -10,8 +10,8 @@ import org.apache.samza.system.SystemStreamPartition;
 import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
-import org.ekstep.jobs.samza.service.MVCSearchIndexerService;
-import org.ekstep.jobs.samza.service.util.MVCSearchIndexer;
+import org.ekstep.jobs.samza.service.MVCProcessorService;
+import org.ekstep.jobs.samza.service.util.MVCProcessorIndexer;
 import org.ekstep.jobs.samza.service.util.MVCDialCodeIndexer;
 import org.ekstep.jobs.samza.service.util.MVCDialCodeMetricsIndexer;
 import org.ekstep.jobs.samza.task.MVCSearchIndexerTask;
@@ -38,8 +38,8 @@ public class MVCESIndexerTest {
     private SystemStreamPartition streamMock;
     private Config configMock;
     private MVCSearchIndexerTask MVCSearchIndexerTask;
-    private MVCSearchIndexerService MVCSearchIndexerService;
-    private MVCSearchIndexer csIndexerMock;
+    private MVCProcessorService MVCProcessorService;
+    private MVCProcessorIndexer csIndexerMock;
     private MVCDialCodeIndexer dcIndexerMock;
     private MVCDialCodeMetricsIndexer dialCodeMetricsIndexerMock;
 
@@ -66,9 +66,9 @@ public class MVCESIndexerTest {
         stub(configMock.get("task.window.ms")).toReturn("10");
         stub(configMock.get("definitions.update.window.ms")).toReturn("20");
 
-        MVCSearchIndexerService = Mockito.spy(new MVCSearchIndexerService(csIndexerMock, dcIndexerMock, dialCodeMetricsIndexerMock));
-        doNothing().when(MVCSearchIndexerService).initialize(configMock);
-        MVCSearchIndexerTask = new MVCSearchIndexerTask(configMock, contextMock, MVCSearchIndexerService);
+        MVCProcessorService = Mockito.spy(new MVCProcessorService(csIndexerMock, dcIndexerMock, dialCodeMetricsIndexerMock));
+        doNothing().when(MVCProcessorService).initialize(configMock);
+        MVCSearchIndexerTask = new MVCSearchIndexerTask(configMock, contextMock, MVCProcessorService);
 
     }
 

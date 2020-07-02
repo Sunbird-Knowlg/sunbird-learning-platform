@@ -12,7 +12,7 @@ import org.apache.samza.config.MapConfig;
 import org.apache.samza.task.MessageCollector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.ekstep.jobs.samza.service.MVCSearchIndexerService;
+import org.ekstep.jobs.samza.service.MVCProcessorService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.elasticsearch.action.search.SearchRequest;
@@ -30,7 +30,7 @@ public class MVCSearchServiceTestMVC extends MVCBaseTest {
 	String messageWithAddedRelations = "{\"ets\":1502102183388,\"nodeUniqueId\":\"do_112276071067320320114\",\"requestId\":null,\"transactionData\":{\"removedTags\":[],\"addedRelations\":[{\"rel\":\"hasSequenceMember\",\"id\":\"do_1123032073439723521148\",\"label\":\"Test unit 11\",\"dir\":\"IN\",\"type\":\"Content\"}],\"removedRelations\":[],\"addedTags\":[],\"properties\":{}},\"operationType\":\"CREATE\",\"nodeGraphId\":105631,\"label\":\"collaborator test\",\"graphId\":\"domain\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2017-08-07T10:36:23.388+0000\",\"objectType\":\"Content\"}";
     String messageWithRemovedRelations = "{\"ets\":1502102183388,\"nodeUniqueId\":\"do_1123032073439723521148\",\"requestId\":null,\"transactionData\":{\"removedTags\":[],\"addedRelations\":[],\"removedRelations\":[{\"rel\":\"hasSequenceMember\",\"id\":\"do_11225638792242790415\",\"label\":\"collabarotor issue\",\"dir\":\"OUT\",\"type\":\"Content\"}],\"addedTags\":[],\"properties\":{}},\"operationType\":\"UPDATE\",\"nodeGraphId\":110067,\"label\":\"Test unit 11\",\"graphId\":\"domain\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2017-08-07T10:36:23.388+0000\",\"objectType\":\"Content\"}";
 	
-	private MVCSearchIndexerService service = new MVCSearchIndexerService();
+	private MVCProcessorService service = new MVCProcessorService();
 	private MessageCollector collector;
 	private ObjectMapper mapper = new ObjectMapper();
 	static String clusterName = null;

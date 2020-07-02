@@ -9,7 +9,7 @@ import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
-import org.ekstep.jobs.samza.service.MVCSearchIndexerService;
+import org.ekstep.jobs.samza.service.MVCProcessorService;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -43,7 +43,7 @@ public class MVCSearchIndexerTask extends BaseTask {
 	public void init(Config config, TaskContext context, ISamzaService service) throws Exception {
 		try {
 			metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
-			this.service = (service == null ? new MVCSearchIndexerService() : service);
+			this.service = (service == null ? new MVCProcessorService() : service);
 			this.service.initialize(config);
 			LOGGER.info("Task initialized");
 		} catch (Exception ex) {
