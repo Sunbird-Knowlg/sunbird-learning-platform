@@ -13,7 +13,9 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
+import org.ekstep.kafka.KafkaClient;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.sunbird.jobs.samza.task.CourseProgressHandler;
 import org.sunbird.jobs.samza.util.CourseBatchParams;
 import org.sunbird.jobs.samza.util.ESUtil;
@@ -42,6 +44,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             ? Platform.config.getInt("content.leafnodes.ttl"): 3600;
     private Jedis redisConnect= null;
     private Session cassandraSession = null;
+    private final String KAFKA_TOPIC_INSTRUCTION = Platform.config.hasPath("kafka_topics_instruction") ? Platform.config.getString("kafka_topics_instruction") : "";
 
     public CourseBatchUpdater(Jedis redisConnect, Session cassandraSession) {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
@@ -172,6 +175,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
     public void updateBatchProgress(Session cassandraSession, CourseProgressHandler courseProgressHandler) {
         if (courseProgressHandler.isNotEmpty()) {
             List<Update.Where> updateQueryList = new ArrayList<>();
+            List<Map<String, Object>> courseCompletedEvent = new ArrayList<>();
             courseProgressHandler.getMap().entrySet().forEach(event -> {
                 try {
                     Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
@@ -195,6 +199,19 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 ESUtil.updateBatches(ES_INDEX_NAME, ES_DOC_TYPE, courseProgressHandler.getMap());
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+            if (CollectionUtils.isNotEmpty(courseCompletedEvent)) {
+                TelemetryManager.log("Kafka instruction topic : " + KAFKA_TOPIC_INSTRUCTION);
+                courseCompletedEvent.stream().forEach(certificateEvent -> {
+                    try {
+                        TelemetryManager.log("Kafka topic instruction event started: " + mapper.writeValueAsString(certificateEvent));
+                        KafkaClient.send(mapper.writeValueAsString(certificateEvent), KAFKA_TOPIC_INSTRUCTION);
+                        TelemetryManager.log("Kafka topic instruction event success: " + mapper.writeValueAsString(certificateEvent));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        TelemetryManager.error("Kafka topic instruction event failed: " + e);
+                    }
+                });
             }
         }
     }
