@@ -222,7 +222,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
               LOGGER.info("CourseBatchUpdater:updateBatchProgress: certificate issue called : ");
               if (CollectionUtils.isNotEmpty(courseCompletedEvent)) {
                   LOGGER.info("CourseBatchUpdater:updateBatchProgress: instruction stream : " + certificateInstructionStream);
-                  LOGGER.info("CourseBatchUpdater:updateBatchProgress: courseCompletedEvent : " + courseCompletedEvent);
+                  LOGGER.info("CourseBatchUpdater:updateBatchProgress: courseCompletedEvent : " + mapper.writeValueAsString(courseCompletedEvent));
                   courseCompletedEvent.stream().forEach(certificateEvent -> {
                       try {
                           Map<String, Object> updatedCertificateEvent =  generateInstructionEvent(certificateEvent);
@@ -268,7 +268,11 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
     }
 
     private Map<String, Object> generateInstructionEvent(Map<String, Object> certificateEvent) {
-        LOGGER.info("CourseBatchUpdater:generateInstructionEvent: started");
+        try{
+            LOGGER.info("CourseBatchUpdater:generateInstructionEvent: started : certificateEvent" + mapper.writeValueAsString(certificateEvent));
+        }catch(Exception e){
+
+        }
         Map<String, Object> data = new HashMap<>();
 
         data.put(
