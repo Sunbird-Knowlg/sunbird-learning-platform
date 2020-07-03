@@ -198,7 +198,9 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     dataToUpdate.putAll((Map<String, Object>) event.getValue());
                     //Update cassandra
                     updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
-                    if((Integer) dataToUpdate.get("status") == 2) {
+                    LOGGER.info("CourseBatchUpdater:updateBatchProgress: status instance : " + dataToUpdate.get("status") + " instanceOf : " + ((Number) dataToUpdate.get("status")).intValue());
+                    LOGGER.info("CourseBatchUpdater:updateBatchProgress: condition : " + (((Number) dataToUpdate.get("status")).intValue() == 2));
+                    if(((Number) dataToUpdate.get("status")).intValue() == 2) {
                         courseCompletedEvent.add(dataToUpdate);
                     }
                 } catch (Exception e) {
@@ -217,15 +219,16 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             }
 
           try{
+              LOGGER.info("CourseBatchUpdater:updateBatchProgress: certificate issue called : ");
               if (CollectionUtils.isNotEmpty(courseCompletedEvent)) {
-                  TelemetryManager.log("CourseBatchUpdater:updateBatchProgress: instruction stream : " + certificateInstructionStream);
-                  TelemetryManager.log("CourseBatchUpdater:updateBatchProgress: courseCompletedEvent : " + courseCompletedEvent);
+                  LOGGER.info("CourseBatchUpdater:updateBatchProgress: instruction stream : " + certificateInstructionStream);
+                  LOGGER.info("CourseBatchUpdater:updateBatchProgress: courseCompletedEvent : " + courseCompletedEvent);
                   courseCompletedEvent.stream().forEach(certificateEvent -> {
                       try {
                           Map<String, Object> updatedCertificateEvent =  generateInstructionEvent(certificateEvent);
-                          TelemetryManager.log("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event started: " + mapper.writeValueAsString(updatedCertificateEvent));
+                          LOGGER.info("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event started: " + mapper.writeValueAsString(updatedCertificateEvent));
                           collector.send(new OutgoingMessageEnvelope(certificateInstructionStream, updatedCertificateEvent));
-                          TelemetryManager.log("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event success.");
+                          LOGGER.info("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event success.");
                       } catch (Exception e) {
                           e.printStackTrace();
                           TelemetryManager.error("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event failed: " + e);
@@ -265,6 +268,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
     }
 
     private Map<String, Object> generateInstructionEvent(Map<String, Object> certificateEvent) {
+        LOGGER.info("CourseBatchUpdater:generateInstructionEvent: started");
         Map<String, Object> data = new HashMap<>();
 
         data.put(
@@ -301,12 +305,13 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     }
                 });
         try{
-            TelemetryManager.log("CourseBatchUpdater:generateInstructionEvent: data : " + mapper.writeValueAsString(data));
+            LOGGER.info("CourseBatchUpdater:generateInstructionEvent: data : " + mapper.writeValueAsString(data));
         }catch (Exception e){
-            TelemetryManager.log("CourseBatchUpdater:generateInstructionEvent: data : error" + e);
+            LOGGER.info("CourseBatchUpdater:generateInstructionEvent: data : error" + e);
         }
 
-        TelemetryManager.log("CourseBatchUpdater:generateInstructionEvent: userId : " + Arrays.asList((String) certificateEvent.get("userId") + "batchId : " + (String) certificateEvent.get("batchId") + "courseId : " + (String) certificateEvent.get("courseId")));
+        LOGGER.info("CourseBatchUpdater:generateInstructionEvent: userId : " + Arrays.asList((String) certificateEvent.get("userId") + "batchId : " + (String) certificateEvent.get("batchId") + "courseId : " + (String) certificateEvent.get("courseId")));
+        LOGGER.info("CourseBatchUpdater:generateInstructionEvent: completed");
         return data;
     }
 }

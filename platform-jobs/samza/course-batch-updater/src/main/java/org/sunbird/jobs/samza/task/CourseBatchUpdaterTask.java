@@ -1,6 +1,7 @@
 package org.sunbird.jobs.samza.task;
 
 import com.datastax.driver.core.Session;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
@@ -93,7 +94,14 @@ public class CourseBatchUpdaterTask extends BaseTask {
     
     public void executeCourseProgressBatch(MessageCollector collector) {
         LOGGER.info("Starting CourseBatch updater process :: " + System.currentTimeMillis());
+        try{
+            ObjectMapper mapper = new ObjectMapper();
+            LOGGER.info("CourseBatchUpdaterTask:executeCourseProgressBatch: Starting CourseBatch updater process Yarn-45:: " + mapper.writeValueAsString(courseProgressHandler));
+        }catch(Exception e){
+            e.printStackTrace();
+        }
         courseBatchUpdater.updateBatchProgress(cassandraSession, courseProgressHandler, collector);
+        LOGGER.info("CourseBatchUpdaterTask:executeCourseProgressBatch: Completed CourseBatch updater process :: " );
         courseProgressHandler.clear();
         LOGGER.info("Completed CourseBatch updater process :: " + System.currentTimeMillis());
     }
