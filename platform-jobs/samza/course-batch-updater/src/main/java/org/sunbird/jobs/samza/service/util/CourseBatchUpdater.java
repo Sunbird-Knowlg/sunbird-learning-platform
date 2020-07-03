@@ -9,11 +9,13 @@ import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Update;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.samza.system.OutgoingMessageEnvelope;
+import org.apache.samza.system.SystemStream;
+import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
-import org.ekstep.kafka.KafkaClient;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.sunbird.jobs.samza.task.CourseProgressHandler;
@@ -29,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class CourseBatchUpdater extends BaseCourseBatchUpdater {
@@ -44,12 +47,19 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             ? Platform.config.getInt("content.leafnodes.ttl"): 3600;
     private Jedis redisConnect= null;
     private Session cassandraSession = null;
-    private final String KAFKA_TOPIC_INSTRUCTION = Platform.config.hasPath("kafka_topics_instruction") ? Platform.config.getString("kafka_topics_instruction") : "";
+    private SystemStream certificateInstructionStream = null;
 
     public CourseBatchUpdater(Jedis redisConnect, Session cassandraSession) {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
         this.redisConnect = redisConnect;
         this.cassandraSession = cassandraSession;
+    }
+
+    public CourseBatchUpdater(Jedis redisConnect, Session cassandraSession, SystemStream certificateInstructionStream) {
+        ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
+        this.redisConnect = redisConnect;
+        this.cassandraSession = cassandraSession;
+        this.certificateInstructionStream = certificateInstructionStream;
     }
 
     public void updateBatchStatus(Map<String, Object> edata, CourseProgressHandler courseProgressHandler) throws Exception {
@@ -172,10 +182,12 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         }
     }
 
-    public void updateBatchProgress(Session cassandraSession, CourseProgressHandler courseProgressHandler) {
+    public void updateBatchProgress(Session cassandraSession, CourseProgressHandler courseProgressHandler, MessageCollector collector) {
         if (courseProgressHandler.isNotEmpty()) {
             List<Update.Where> updateQueryList = new ArrayList<>();
+
             List<Map<String, Object>> courseCompletedEvent = new ArrayList<>();
+
             courseProgressHandler.getMap().entrySet().forEach(event -> {
                 try {
                     Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
@@ -186,6 +198,9 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     dataToUpdate.putAll((Map<String, Object>) event.getValue());
                     //Update cassandra
                     updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
+                    if((Integer) dataToUpdate.get("status") == 2) {
+                        courseCompletedEvent.add(dataToUpdate);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -200,19 +215,28 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (CollectionUtils.isNotEmpty(courseCompletedEvent)) {
-                TelemetryManager.log("Kafka instruction topic : " + KAFKA_TOPIC_INSTRUCTION);
-                courseCompletedEvent.stream().forEach(certificateEvent -> {
-                    try {
-                        TelemetryManager.log("Kafka topic instruction event started: " + mapper.writeValueAsString(certificateEvent));
-                        KafkaClient.send(mapper.writeValueAsString(certificateEvent), KAFKA_TOPIC_INSTRUCTION);
-                        TelemetryManager.log("Kafka topic instruction event success: " + mapper.writeValueAsString(certificateEvent));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        TelemetryManager.error("Kafka topic instruction event failed: " + e);
-                    }
-                });
-            }
+
+          try{
+              if (CollectionUtils.isNotEmpty(courseCompletedEvent)) {
+                  TelemetryManager.log("CourseBatchUpdater:updateBatchProgress: instruction stream : " + certificateInstructionStream);
+                  TelemetryManager.log("CourseBatchUpdater:updateBatchProgress: courseCompletedEvent : " + courseCompletedEvent);
+                  courseCompletedEvent.stream().forEach(certificateEvent -> {
+                      try {
+                          Map<String, Object> updatedCertificateEvent =  generateInstructionEvent(certificateEvent);
+                          TelemetryManager.log("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event started: " + mapper.writeValueAsString(updatedCertificateEvent));
+                          collector.send(new OutgoingMessageEnvelope(certificateInstructionStream, updatedCertificateEvent));
+                          TelemetryManager.log("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event success.");
+                      } catch (Exception e) {
+                          e.printStackTrace();
+                          TelemetryManager.error("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event failed: " + e);
+                      }
+                  });
+              }
+          } catch (Exception e){
+              e.printStackTrace();
+              TelemetryManager.error("CourseBatchUpdater:updateBatchProgress: courseCompletedEvent failed: " + e);
+          }
+
         }
     }
 
@@ -238,5 +262,51 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 updateQuery.and(QueryBuilder.eq(entry.getKey(), entry.getValue()));
         });
         return updateQuery;
+    }
+
+    private Map<String, Object> generateInstructionEvent(Map<String, Object> certificateEvent) {
+        Map<String, Object> data = new HashMap<>();
+
+        data.put(
+                CourseBatchParams.actor.name(),
+                new HashMap<String, Object>() {
+                    {
+                        put(CourseBatchParams.id.name(), "Course Certificate Generator");
+                        put(CourseBatchParams.type.name(), "System");
+                    }
+                });
+
+        String id = (String) certificateEvent.get("batchId") + "_" + (String) certificateEvent.get("courseId");
+        data.put(
+                CourseBatchParams.object.name(),
+                new HashMap<String, Object>() {
+                    {
+                        put(CourseBatchParams.id.name(), id);
+                        put(CourseBatchParams.type.name(), "CourseCertificateGeneration");
+                    }
+                });
+
+        data.put(CourseBatchParams.action.name(), "issue-certificate");
+
+        data.put(
+                CourseBatchParams.edata.name(),
+                new HashMap<String, Object>() {
+                    {
+                        put(CourseBatchParams.userIds.name(), Arrays.asList((String) certificateEvent.get("userId")));
+                        put(CourseBatchParams.batchId.name(), (String) certificateEvent.get("batchId"));
+                        put(CourseBatchParams.courseId.name(), (String) certificateEvent.get("courseId"));
+                        put(CourseBatchParams.action.name(), "issue-certificate");
+                        put(CourseBatchParams.iteration.name(), 1);
+                        put(CourseBatchParams.reIssue.name(), false);
+                    }
+                });
+        try{
+            TelemetryManager.log("CourseBatchUpdater:generateInstructionEvent: data : " + mapper.writeValueAsString(data));
+        }catch (Exception e){
+            TelemetryManager.log("CourseBatchUpdater:generateInstructionEvent: data : error" + e);
+        }
+
+        TelemetryManager.log("CourseBatchUpdater:generateInstructionEvent: userId : " + Arrays.asList((String) certificateEvent.get("userId") + "batchId : " + (String) certificateEvent.get("batchId") + "courseId : " + (String) certificateEvent.get("courseId")));
+        return data;
     }
 }

@@ -39,18 +39,20 @@ public class CourseBatchUpdaterTask extends BaseTask {
     private int courseProgressBatchSize = 5000;
     private DateTimeFormatter dateTimeFormatter;
     private static String executionHour = "00";
+    private SystemStream certificateInstructionStream = null;
 
     public ISamzaService initialize() throws Exception {
         LOGGER.info("Task initialized");
         this.redisConnect = new RedisConnect(config).getConnection();
         this.cassandraSession = new CassandraConnector(config).getSession();
+        this.certificateInstructionStream = new SystemStream("kafka", config.get("certificate.instruction.topic"));
         this.action = Arrays.asList("batch-enrolment-update", "batch-enrolment-sync", "batch-status-update","course-batch-update");
         this.jobStartMessage = "Started processing of course-batch-updater samza job";
         this.jobEndMessage = "course-batch-updater job processing complete";
         this.jobClass = "org.sunbird.jobs.samza.task.CourseBatchUpdaterTask";
         JSONUtils.loadProperties(config);
         this.service = new CourseBatchUpdaterService(this.redisConnect, this.cassandraSession);
-        courseBatchUpdater = new CourseBatchUpdater(redisConnect, cassandraSession);
+        courseBatchUpdater = new CourseBatchUpdater(redisConnect, cassandraSession, certificateInstructionStream);
         courseProgressHandler = new CourseProgressHandler();
         this.courseProgressBatchSize = Platform.config.hasPath("course.progress.batch_size") ? Platform.config.getInt("course.progress.batch_size"): 5000;
         String pattern = Platform.config.hasPath("course.batch.update_time") ? Platform.config.getString("course.batch.update_time") : "HH";
@@ -65,7 +67,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
             Map<String, Object> edata = (Map<String, Object>) message.getOrDefault(CourseBatchParams.edata.name(), new HashMap<>());
             if(MapUtils.isNotEmpty(edata) && StringUtils.equalsIgnoreCase("batch-enrolment-update", (CharSequence) edata.get("action"))) {
                 if(courseProgressBatchSize < courseProgressHandler.size()) {
-                    executeCourseProgressBatch();
+                    executeCourseProgressBatch(collector);
                 }
                 courseBatchUpdater.processBatchProgress(message, courseProgressHandler);
             } else {
@@ -80,7 +82,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
 
     @Override
     public void window(MessageCollector collector, TaskCoordinator coordinator) throws Exception {
-        executeCourseProgressBatch();
+        executeCourseProgressBatch(collector);
         if(!StringUtils.equalsIgnoreCase(executionHour, dateTimeFormatter.format(LocalDateTime.now()))){
             BatchStatusUtil.updateOnGoingBatch(cassandraSession, collector);
             BatchStatusUtil.updateCompletedBatch(cassandraSession, collector);
@@ -89,9 +91,9 @@ public class CourseBatchUpdaterTask extends BaseTask {
         super.window(collector, coordinator);
     }
     
-    public void executeCourseProgressBatch() {
+    public void executeCourseProgressBatch(MessageCollector collector) {
         LOGGER.info("Starting CourseBatch updater process :: " + System.currentTimeMillis());
-        courseBatchUpdater.updateBatchProgress(cassandraSession, courseProgressHandler);
+        courseBatchUpdater.updateBatchProgress(cassandraSession, courseProgressHandler, collector);
         courseProgressHandler.clear();
         LOGGER.info("Completed CourseBatch updater process :: " + System.currentTimeMillis());
     }
