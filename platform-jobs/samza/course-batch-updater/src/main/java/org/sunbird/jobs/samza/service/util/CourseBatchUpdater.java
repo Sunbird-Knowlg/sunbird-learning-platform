@@ -90,12 +90,13 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         List<Map<String, Object>> contents = (List<Map<String, Object>>) edata.get("contents");
         String batchId = (String)edata.get("batchId");
         String userId = (String)edata.get("userId");
+        String courseId = (String) edata.get("courseId");
         
         if(CollectionUtils.isNotEmpty(contents)) {
             Map<String, Object> contentStatus = new HashMap<>();
             Map<String, Object> contentStatusDelta = new HashMap<>();
             Map<String, Object> lastReadContentStats = new HashMap<>(); 
-            String key = courseProgressHandler.getKey(batchId, userId);
+            String key = courseProgressHandler.getKey(batchId, userId, courseId);
             
             if(courseProgressHandler.containsKey(key)) {// Get Progress from the unprocessed list
                 populateContentStatusFromHandler(key, courseProgressHandler, contentStatus, contentStatusDelta, lastReadContentStats);
@@ -198,9 +199,14 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     dataToUpdate.putAll((Map<String, Object>) event.getValue());
                     //Update cassandra
                     updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
-                    LOGGER.info("CourseBatchUpdater:updateBatchProgress: status instance : " + dataToUpdate.get("status") + " instanceOf : " + ((Number) dataToUpdate.get("status")).intValue());
-                    LOGGER.info("CourseBatchUpdater:updateBatchProgress: condition : " + (((Number) dataToUpdate.get("status")).intValue() == 2));
                     if(((Number) dataToUpdate.get("status")).intValue() == 2) {
+                        Map<String, Object> idDetails = new HashMap<String, Object>() {{
+                            put("batchId", event.getKey().split("_")[0]);
+                            put("userId", event.getKey().split("_")[1]);
+                            put("courseId", event.getKey().split("_")[2]);
+                        }};
+                        dataToUpdate.putAll(idDetails);
+                        LOGGER.info("CourseBatchUpdater:updateBatchProgress: dataToUpdate : " + mapper.writeValueAsString(dataToUpdate));
                         courseCompletedEvent.add(dataToUpdate);
                     }
                 } catch (Exception e) {
@@ -314,7 +320,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             LOGGER.info("CourseBatchUpdater:generateInstructionEvent: data : error" + e);
         }
 
-        LOGGER.info("CourseBatchUpdater:generateInstructionEvent: userId : " + Arrays.asList((String) certificateEvent.get("userId") + "batchId : " + (String) certificateEvent.get("batchId") + "courseId : " + (String) certificateEvent.get("courseId")));
+        LOGGER.info("CourseBatchUpdater:generateInstructionEvent: userId : " + Arrays.asList((String) certificateEvent.get("userId") + " batchId : " + (String) certificateEvent.get("batchId") + " courseId : " + (String) certificateEvent.get("courseId")));
         LOGGER.info("CourseBatchUpdater:generateInstructionEvent: completed");
         return data;
     }
