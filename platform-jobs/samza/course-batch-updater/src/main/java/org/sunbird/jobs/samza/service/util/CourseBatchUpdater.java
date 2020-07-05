@@ -200,10 +200,11 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     //Update cassandra
                     updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
                     if(((Number) dataToUpdate.get("status")).intValue() == 2) {
+                        LOGGER.info("CourseBatchUpdater:updateBatchProgress: event.getkey() : " + event.getKey().split("_"));
                         Map<String, Object> idDetails = new HashMap<String, Object>() {{
                             put("batchId", event.getKey().split("_")[0]);
                             put("userId", event.getKey().split("_")[1]);
-                            put("courseId", event.getKey().split("_")[2]);
+                            put("courseId", event.getKey().split("_")[2]+ "_" +event.getKey().split("_")[3]);
                         }};
                         dataToUpdate.putAll(idDetails);
                         LOGGER.info("CourseBatchUpdater:updateBatchProgress: dataToUpdate : " + mapper.writeValueAsString(dataToUpdate));

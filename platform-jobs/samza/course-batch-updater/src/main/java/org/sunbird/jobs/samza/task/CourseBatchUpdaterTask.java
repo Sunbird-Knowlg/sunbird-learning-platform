@@ -96,7 +96,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
         LOGGER.info("Starting CourseBatch updater process :: " + System.currentTimeMillis());
         try{
             ObjectMapper mapper = new ObjectMapper();
-            LOGGER.info("CourseBatchUpdaterTask:executeCourseProgressBatch: Starting CourseBatch updater process Yarn-47:: " + mapper.writeValueAsString(courseProgressHandler.getMap()));
+            LOGGER.info("CourseBatchUpdaterTask:executeCourseProgressBatch: Starting CourseBatch updater process Yarn-48:: " + mapper.writeValueAsString(courseProgressHandler.getMap()));
         }catch(Exception e){
             e.printStackTrace();
         }
