@@ -207,9 +207,6 @@ public class MVCProcessorIndexer extends AbstractESIndexer {
 		String cqlquery = "";
 		Set<Double> ml_contentTextVector = null;
 		BoundStatement bound = null;
-      //  String ml_level1 = obj.get("ml_level1Concept") != null ? obj.get("ml_level1Concept").toString() : null;
-		// String ml_level2 = obj.get("ml_level2Concept") != null ? obj.get("ml_level2Concept").toString() : null;
-	//	String ml_level3 = obj.get("ml_level3Concept") != null ? obj.get("ml_level3Concept").toString() : null;
 		List<String> ml_Keywords = obj.get("ml_Keywords") != null ? (List<String>) obj.get("ml_Keywords") : null;
 		String ml_contentText = obj.get("ml_contentText") != null ? obj.get("ml_contentText").toString() : null;
 		List<List<Double>> ml_contentTextVectorList = obj.get("ml_contentTextVector") != null ? (List<List<Double>>) obj.get("ml_contentTextVector") : null;
@@ -271,15 +268,15 @@ public class MVCProcessorIndexer extends AbstractESIndexer {
 }
 
 	private void extractFieldstobeinserted(JSONObject contentobj) {
-		ml_level1 = contentobj.get("ml_level1Concept") != null ? (List<String>)contentobj.get("ml_level1Concept") : null;
-		ml_level2 = contentobj.get("ml_level2Concept") != null ? (List<String>)contentobj.get("ml_level2Concept") : null;
-		ml_level3 = contentobj.get("ml_level3Concept") != null ? (List<String>)contentobj.get("ml_level3Concept") : null;
-		textbook_name = contentobj.get("textbookName") != null ? (List<String>)contentobj.get("textbookName") : null;
-		level1_name = contentobj.get("level1ConceptName") != null ? (List<String>)contentobj.get("level1ConceptName") : null;
-		level2_name = contentobj.get("level2ConceptName") != null ? (List<String>)contentobj.get("level2ConceptName") : null;
-		level3_name = contentobj.get("level3ConceptName") != null ? (List<String>)contentobj.get("level3ConceptName") : null;
+		ml_level1 = contentobj.get("level1Concept") != null ? (List<String>)contentobj.get("level1Concept") : null;
+		ml_level2 = contentobj.get("level2Concept") != null ? (List<String>)contentobj.get("level2Concept") : null;
+		ml_level3 = contentobj.get("level3Concept") != null ? (List<String>)contentobj.get("level3Concept") : null;
+		textbook_name = contentobj.get("textbook_name") != null ? (List<String>)contentobj.get("textbook_name") : null;
+		level1_name = contentobj.get("level1Name") != null ? (List<String>)contentobj.get("level1Name") : null;
+		level2_name = contentobj.get("level2Name") != null ? (List<String>)contentobj.get("level2Name") : null;
+		level3_name = contentobj.get("level3Name") != null ? (List<String>)contentobj.get("level3Name") : null;
 		source = contentobj.get("source") != null ? (List<String>)contentobj.get("source") : null;
-		source_url = contentobj.get("sourceurl") != null ? contentobj.get("sourceurl").toString() : null;
+		source_url = contentobj.get("sourceURL") != null ? contentobj.get("sourceURL").toString() : null;
 		label = contentobj.get("label") != null ? contentobj.get("label").toString() : null;
 	}
 
@@ -311,7 +308,7 @@ public class MVCProcessorIndexer extends AbstractESIndexer {
 	 }
 	public  void makepostreqForVectorApi(String contentText,String identifier) {
 		try {
-			JSONObject obj = new JSONObject(mlworkbenchapirequest);
+			JSONObject obj = new JSONObject(mlvectorListRequest);
 			JSONObject req = ((JSONObject) (obj.get("request")));
 			JSONArray text = (JSONArray) req.get("text");
 			req.put("cid",identifier);
