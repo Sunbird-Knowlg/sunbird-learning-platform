@@ -7,6 +7,7 @@ import com.datastax.driver.core.Session;
 import com.datastax.driver.core.querybuilder.Batch;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Update;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.samza.system.OutgoingMessageEnvelope;
@@ -231,8 +232,8 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
               if (CollectionUtils.isNotEmpty(courseCompletedEvent)) {
                   courseCompletedEvent.stream().forEach(certificateEvent -> {
                       try {
-                          String updatedCertificateEvent =  generateInstructionEvent(certificateEvent);
-                          LOGGER.info("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event started: " + updatedCertificateEvent);
+                          Map<String, Object> updatedCertificateEvent =  generateInstructionEvent(certificateEvent);
+                          LOGGER.info("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event started: " + mapper.writeValueAsString(updatedCertificateEvent));
                           collector.send(new OutgoingMessageEnvelope(certificateInstructionStream, updatedCertificateEvent));
                           LOGGER.info("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event success.");
                       } catch (Exception e) {
@@ -272,7 +273,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         return updateQuery;
     }
 
-    private String generateInstructionEvent(Map<String, Object> certificateEvent) {
+    private Map<String, Object> generateInstructionEvent(Map<String, Object> certificateEvent) throws Exception {
         Map<String, Object> actor = new HashMap<>();
         Map<String, Object> context = new HashMap<>();
         Map<String, Object> object = new HashMap<>();
@@ -305,6 +306,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                         put(CourseBatchParams.reIssue.name(), false);
                     }
                 });
-        return LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+        String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+        return mapper.readValue(beJobRequestEvent, new TypeReference<Map<String, Object>>() {});
     }
 }
