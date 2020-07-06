@@ -64,7 +64,7 @@ public class MergeUserCoursesService implements ISamzaService {
                 Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
 
         CONTENT_CONSUMPTION_TABLE = Platform.config.hasPath("content.consumption.table") ?
-                Platform.config.getString("content.consumption.table") : "content_consumption";
+                Platform.config.getString("content.consumption.table") : "user_content_consumption";
 
         USER_COURSES_TABLE = Platform.config.hasPath("user.courses.table") ?
                 Platform.config.getString("user.courses.table") : "user_enrolments";

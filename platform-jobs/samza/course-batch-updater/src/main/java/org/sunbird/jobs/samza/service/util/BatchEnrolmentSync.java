@@ -29,7 +29,7 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
             ? Platform.config.getString("courses.keyspace.name")
             : "sunbird_courses";
     private String table = "user_enrolments";
-    private String consumptionTable = "content_consumption";
+    private String consumptionTable = "user_content_consumption";
     private static final String ES_INDEX_NAME = "user-courses";
     private static final String ES_DOC_TYPE = "_doc";
     private Session cassandraSession = null;
@@ -84,6 +84,7 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
         Map<String, Object> contentStatus = new HashMap<>();
         Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
             put("userid", edata.get("userId"));
+            put("courseid", edata.get("courseId"));
             put("batchid", edata.get("batchId"));
             put("contentid", leafNodes);
         }};
