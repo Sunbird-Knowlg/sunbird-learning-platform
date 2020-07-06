@@ -18,6 +18,7 @@ import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 import org.sunbird.jobs.samza.task.CourseProgressHandler;
 import org.sunbird.jobs.samza.util.CourseBatchParams;
 import org.sunbird.jobs.samza.util.ESUtil;
@@ -228,12 +229,10 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
           try{
               LOGGER.info("CourseBatchUpdater:updateBatchProgress: certificate issue called : ");
               if (CollectionUtils.isNotEmpty(courseCompletedEvent)) {
-                  LOGGER.info("CourseBatchUpdater:updateBatchProgress: instruction stream : " + certificateInstructionStream);
-                  LOGGER.info("CourseBatchUpdater:updateBatchProgress: courseCompletedEvent : " + mapper.writeValueAsString(courseCompletedEvent));
                   courseCompletedEvent.stream().forEach(certificateEvent -> {
                       try {
-                          Map<String, Object> updatedCertificateEvent =  generateInstructionEvent(certificateEvent);
-                          LOGGER.info("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event started: " + mapper.writeValueAsString(updatedCertificateEvent));
+                          String updatedCertificateEvent =  generateInstructionEvent(certificateEvent);
+                          LOGGER.info("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event started: " + updatedCertificateEvent);
                           collector.send(new OutgoingMessageEnvelope(certificateInstructionStream, updatedCertificateEvent));
                           LOGGER.info("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event success.");
                       } catch (Exception e) {
@@ -246,7 +245,6 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
               e.printStackTrace();
               TelemetryManager.error("CourseBatchUpdater:updateBatchProgress: courseCompletedEvent failed: " + e);
           }
-
         }
     }
 
@@ -274,55 +272,39 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         return updateQuery;
     }
 
-    private Map<String, Object> generateInstructionEvent(Map<String, Object> certificateEvent) {
-        try{
-            LOGGER.info("CourseBatchUpdater:generateInstructionEvent: started : certificateEvent" + mapper.writeValueAsString(certificateEvent));
-        }catch(Exception e){
+    private String generateInstructionEvent(Map<String, Object> certificateEvent) {
+        Map<String, Object> actor = new HashMap<>();
+        Map<String, Object> context = new HashMap<>();
+        Map<String, Object> object = new HashMap<>();
+        Map<String, Object> edata = new HashMap<>();
 
-        }
-        Map<String, Object> data = new HashMap<>();
-
-        data.put(
-                CourseBatchParams.actor.name(),
-                new HashMap<String, Object>() {
-                    {
-                        put(CourseBatchParams.id.name(), "Course Certificate Generator");
-                        put(CourseBatchParams.type.name(), "System");
-                    }
-                });
+        actor.put(CourseBatchParams.id.name(), "Course Certificate Generator");
+        actor.put(CourseBatchParams.type.name(), "System");
 
         String id = (String) certificateEvent.get("batchId") + "_" + (String) certificateEvent.get("courseId");
-        data.put(
-                CourseBatchParams.object.name(),
+
+        context.put(
+                CourseBatchParams.pdata.name(),
                 new HashMap<String, Object>() {
                     {
-                        put(CourseBatchParams.id.name(), id);
-                        put(CourseBatchParams.type.name(), "CourseCertificateGeneration");
+                        put(CourseBatchParams.id.name(), "org.sunbird.platform");
+                        put(CourseBatchParams.ver.name(), "1.0");
                     }
                 });
 
-        data.put(CourseBatchParams.action.name(), "issue-certificate");
+        object.put(CourseBatchParams.id.name(), id);
+        object.put(CourseBatchParams.type.name(), "CourseCertificateGeneration");
 
-        data.put(
-                CourseBatchParams.edata.name(),
+        edata.putAll(
                 new HashMap<String, Object>() {
                     {
                         put(CourseBatchParams.userIds.name(), Arrays.asList((String) certificateEvent.get("userId")));
                         put(CourseBatchParams.batchId.name(), (String) certificateEvent.get("batchId"));
                         put(CourseBatchParams.courseId.name(), (String) certificateEvent.get("courseId"));
                         put(CourseBatchParams.action.name(), "issue-certificate");
-                        put(CourseBatchParams.iteration.name(), 1);
                         put(CourseBatchParams.reIssue.name(), false);
                     }
                 });
-        try{
-            LOGGER.info("CourseBatchUpdater:generateInstructionEvent: data : " + mapper.writeValueAsString(data));
-        }catch (Exception e){
-            LOGGER.info("CourseBatchUpdater:generateInstructionEvent: data : error" + e);
-        }
-
-        LOGGER.info("CourseBatchUpdater:generateInstructionEvent: userId : " + Arrays.asList((String) certificateEvent.get("userId") + " batchId : " + (String) certificateEvent.get("batchId") + " courseId : " + (String) certificateEvent.get("courseId")));
-        LOGGER.info("CourseBatchUpdater:generateInstructionEvent: completed");
-        return data;
+        return LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
     }
 }
