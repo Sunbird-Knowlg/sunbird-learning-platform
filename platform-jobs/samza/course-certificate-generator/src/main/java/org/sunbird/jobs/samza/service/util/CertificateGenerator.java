@@ -196,7 +196,7 @@ public class CertificateGenerator {
     private boolean notifyUser(String userId, Map<String, Object> certTemplate, String courseName, Map<String, Object> userResponse, Date issuedOn) {
         if(certTemplate.containsKey("notifyTemplate")) {
             Map<String, Object> notifyTemplate = getNotificationTemplate(certTemplate);
-            String url = LEARNER_SERVICE_PRIVATE_URL + "/v1/notification/email";
+            String url = LEARNER_SERVICE_PRIVATE_URL + "/v2/notification/email";
             Request request = new Request();
             notifyTemplate.entrySet().forEach(entry -> request.put(entry.getKey(), entry.getValue()));
             request.put("firstName", (String) userResponse.get("firstName"));
