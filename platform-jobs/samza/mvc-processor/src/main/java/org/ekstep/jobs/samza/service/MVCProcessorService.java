@@ -8,8 +8,6 @@ import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.service.util.MVCProcessorIndexer;
-import org.ekstep.jobs.samza.service.util.MVCDialCodeIndexer;
-import org.ekstep.jobs.samza.service.util.MVCDialCodeMetricsIndexer;
 import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -24,17 +22,12 @@ public class MVCProcessorService implements ISamzaService {
 	private JobLogger LOGGER = new JobLogger(MVCProcessorService.class);
 
 	private MVCProcessorIndexer csIndexer = null;
-	private MVCDialCodeIndexer dcIndexer = null;
-	private MVCDialCodeMetricsIndexer dcMetricsIndexer;
 	private SystemStream systemStream = null;
 
 	public MVCProcessorService() {}
 
-	public MVCProcessorService(MVCProcessorIndexer csIndexer, MVCDialCodeIndexer dcIndexer,
-							   MVCDialCodeMetricsIndexer dcMetricsIndexer) throws Exception {
+	public MVCProcessorService(MVCProcessorIndexer csIndexer) throws Exception {
 		this.csIndexer = csIndexer;
-		this.dcIndexer = dcIndexer;
-		this.dcMetricsIndexer = dcMetricsIndexer;
 	}
 
 	@Override
@@ -47,12 +40,6 @@ public class MVCProcessorService implements ISamzaService {
 		csIndexer = csIndexer == null ? new MVCProcessorIndexer(): csIndexer;
 		csIndexer.createMVCSearchIndex();
 		LOGGER.info(CompositeSearchConstants.MVC_SEARCH_INDEX + " created");
-		dcIndexer = dcIndexer == null ? new MVCDialCodeIndexer() : dcIndexer;
-		dcIndexer.createDialCodeIndex();
-		LOGGER.info(CompositeSearchConstants.DIAL_CODE_INDEX + " created");
-		dcMetricsIndexer = dcMetricsIndexer == null ? new MVCDialCodeMetricsIndexer() : dcMetricsIndexer;
-		dcMetricsIndexer.createDialCodeIndex();
-		LOGGER.info(CompositeSearchConstants.DIAL_CODE_METRICS_INDEX + " created");
 	}
 
 	@Override
@@ -96,14 +83,6 @@ public class MVCProcessorService implements ISamzaService {
 				case CompositeSearchConstants.NODE_TYPE_DATA: {
 					// csIndexer.processESMessage(graphId, objectType, uniqueId, messageId, message, metrics);
 					csIndexer.upsertDocument(uniqueId,eventData);
-					break;
-				}
-				case CompositeSearchConstants.NODE_TYPE_EXTERNAL: {
-					dcIndexer.upsertDocument(uniqueId, message);
-					break;
-				}
-				case CompositeSearchConstants.NODE_TYPE_DIALCODE_METRICS: {
-					dcMetricsIndexer.upsertDocument(uniqueId, message);
 					break;
 				}
 				default: break;

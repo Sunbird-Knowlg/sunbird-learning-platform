@@ -12,8 +12,6 @@ import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
 import org.ekstep.jobs.samza.service.MVCProcessorService;
 import org.ekstep.jobs.samza.service.util.MVCProcessorIndexer;
-import org.ekstep.jobs.samza.service.util.MVCDialCodeIndexer;
-import org.ekstep.jobs.samza.service.util.MVCDialCodeMetricsIndexer;
 import org.ekstep.jobs.samza.task.MVCSearchIndexerTask;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,8 +38,6 @@ public class MVCESIndexerTest {
     private MVCSearchIndexerTask MVCSearchIndexerTask;
     private MVCProcessorService MVCProcessorService;
     private MVCProcessorIndexer csIndexerMock;
-    private MVCDialCodeIndexer dcIndexerMock;
-    private MVCDialCodeMetricsIndexer dialCodeMetricsIndexerMock;
 
     private String dialcodeMetricsValidEvent = "{\"ets\":1543561000015,\"nodeUniqueId\":\"QR1234\",\"transactionData\":{\"properties\":{\"average_scans_per_day\":{\"nv\":2},\"last_scan\":{\"nv\":1541456052000},\"total_dial_scans_global\":{\"nv\":25},\"total_dial_scans_local\":{\"nv\":25},\"first_scan\":{\"nv\":1540469152000}}},\"objectType\":\"\",\"operationType\":\"UPDATE\",\"nodeType\":\"DIALCODE_METRICS\",\"graphId\":\"domain\",\"nodeGraphId\":0}";
 
@@ -56,7 +52,6 @@ public class MVCESIndexerTest {
         envelopeMock = mock(IncomingMessageEnvelope.class);
         configMock = Mockito.mock(Config.class);
 
-        dialCodeMetricsIndexerMock = Mockito.mock(MVCDialCodeMetricsIndexer.class);
         streamMock = Mockito.mock(SystemStreamPartition.class);
 
         stub(envelopeMock.getSystemStreamPartition()).toReturn(streamMock);
@@ -66,7 +61,7 @@ public class MVCESIndexerTest {
         stub(configMock.get("task.window.ms")).toReturn("10");
         stub(configMock.get("definitions.update.window.ms")).toReturn("20");
 
-        MVCProcessorService = Mockito.spy(new MVCProcessorService(csIndexerMock, dcIndexerMock, dialCodeMetricsIndexerMock));
+        MVCProcessorService = Mockito.spy(new MVCProcessorService(csIndexerMock));
         doNothing().when(MVCProcessorService).initialize(configMock);
         MVCSearchIndexerTask = new MVCSearchIndexerTask(configMock, contextMock, MVCProcessorService);
 
@@ -80,8 +75,6 @@ public class MVCESIndexerTest {
         Class<Map<String, Object>> mapClass = (Class<Map<String, Object>>)(Class) Map.class;
         ArgumentCaptor<Map<String, Object>> mapArgument = ArgumentCaptor.forClass(mapClass);
         MVCSearchIndexerTask.process(envelopeMock, collectorMock, coordinatorMock);
-        verify(dialCodeMetricsIndexerMock, times(1))
-                .upsertDocument(stringArgument.capture(), mapArgument.capture());
         assertEquals("QR1234", stringArgument.getValue());
         Map<String, Object> message = mapArgument.getValue();
         assertEquals("UPDATE", message.get("operationType"));
