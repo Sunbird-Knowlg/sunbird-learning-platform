@@ -13,8 +13,8 @@ public class CourseProgressHandler {
         batchProgressEvents.clear();
     }
     
-    public String getKey(String batchId, String userId, String courseId) {
-        return batchId + "_" + userId + "_" + courseId;
+    public String getKey(String batchId, String userId) {
+        return batchId + "_" + userId;
     }
     
     public CourseProgressHandler put(String key, Map<String, Object> value) {

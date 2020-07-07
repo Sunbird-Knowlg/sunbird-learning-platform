@@ -1,6 +1,7 @@
 package org.sunbird.jobs.samza.task;
 
 import com.datastax.driver.core.Session;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
@@ -27,6 +28,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CourseBatchUpdaterTask extends BaseTask {
     private CourseBatchUpdaterService service;
@@ -45,7 +48,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
         LOGGER.info("Task initialized");
         this.redisConnect = new RedisConnect(config).getConnection();
         this.cassandraSession = new CassandraConnector(config).getSession();
-        this.certificateInstructionStream = new SystemStream("kafka", config.get("certificate.instruction.topic"));
+        this.certificateInstructionStream = new SystemStream("kafka", config.get("course.batch.certificate.topic"));
         this.action = Arrays.asList("batch-enrolment-update", "batch-enrolment-sync", "batch-status-update","course-batch-update");
         this.jobStartMessage = "Started processing of course-batch-updater samza job";
         this.jobEndMessage = "course-batch-updater job processing complete";
@@ -93,7 +96,13 @@ public class CourseBatchUpdaterTask extends BaseTask {
     
     public void executeCourseProgressBatch(MessageCollector collector) {
         LOGGER.info("Starting CourseBatch updater process :: " + System.currentTimeMillis());
-        courseBatchUpdater.updateBatchProgress(cassandraSession, courseProgressHandler, collector);
+        List<Map<String, Object>> userCertificateEvents = new ArrayList<>();
+        courseBatchUpdater.updateBatchProgress(cassandraSession, courseProgressHandler, userCertificateEvents);
+        if(CollectionUtils.isNotEmpty(userCertificateEvents)) {
+            LOGGER.info("CourseBatchUpdaterTask:executeCourseProgressBatch: Pushing user certificate event : starts :: " + System.currentTimeMillis());
+            courseBatchUpdater.pushCertificateEvents(userCertificateEvents, collector);
+            LOGGER.info("CourseBatchUpdaterTask:executeCourseProgressBatch: Pushing user certificate event : ends :: " + System.currentTimeMillis());
+        }
         courseProgressHandler.clear();
         LOGGER.info("Completed CourseBatch updater process :: " + System.currentTimeMillis());
     }

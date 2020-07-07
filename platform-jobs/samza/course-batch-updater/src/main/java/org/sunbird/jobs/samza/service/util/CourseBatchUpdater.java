@@ -98,7 +98,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             Map<String, Object> contentStatus = new HashMap<>();
             Map<String, Object> contentStatusDelta = new HashMap<>();
             Map<String, Object> lastReadContentStats = new HashMap<>(); 
-            String key = courseProgressHandler.getKey(batchId, userId, courseId);
+            String key = courseProgressHandler.getKey(batchId, userId);
             
             if(courseProgressHandler.containsKey(key)) {// Get Progress from the unprocessed list
                 populateContentStatusFromHandler(key, courseProgressHandler, contentStatus, contentStatusDelta, lastReadContentStats);
@@ -133,9 +133,14 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 put("completionPercentage", ((Number)completionPercentage).intValue());
                 put("progress", size);
                 putAll(lastReadContentStats);
-                if(status == 2)
+                if(status == 2) {
                     put("completedOn", new Timestamp(new Date().getTime()));
-                
+                    put("userCourseBatch", new HashMap<String, Object>() {{
+                        put("userId", userId);
+                        put("batchId", batchId);
+                        put("courseId", courseId);
+                    }});
+                }
             }};
 
             if(MapUtils.isNotEmpty(dataToUpdate)) {
@@ -185,11 +190,9 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         }
     }
 
-    public void updateBatchProgress(Session cassandraSession, CourseProgressHandler courseProgressHandler, MessageCollector collector) {
+    public void updateBatchProgress(Session cassandraSession, CourseProgressHandler courseProgressHandler, List<Map<String, Object>> userCertificateEvents) {
         if (courseProgressHandler.isNotEmpty()) {
             List<Update.Where> updateQueryList = new ArrayList<>();
-            List<Map<String, Object>> courseCompletedEvent = new ArrayList<>();
-
             courseProgressHandler.getMap().entrySet().forEach(event -> {
                 try {
                     Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
@@ -198,18 +201,12 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     }};
                     Map<String, Object> dataToUpdate = new HashMap<>();
                     dataToUpdate.putAll((Map<String, Object>) event.getValue());
+                    if(((Number) dataToUpdate.get("status")).intValue() == 2) {
+                        userCertificateEvents.add((Map<String, Object>) dataToUpdate.get("userCourseBatch"));
+                        dataToUpdate.remove("userCourseBatch");
+                    }
                     //Update cassandra
                     updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
-
-                    if(((Number) dataToUpdate.get("status")).intValue() == 2) {
-                        Map<String, Object> idDetails = new HashMap<String, Object>() {{
-                            put("batchId", event.getKey().split("_")[0]);
-                            put("userId", event.getKey().split("_")[1]);
-                            put("courseId", event.getKey().split("_")[2]+ "_" +event.getKey().split("_")[3]);
-                        }};
-                        dataToUpdate.putAll(idDetails);
-                        courseCompletedEvent.add(dataToUpdate);
-                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -223,26 +220,6 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 ESUtil.updateBatches(ES_INDEX_NAME, ES_DOC_TYPE, courseProgressHandler.getMap());
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-
-            try {
-                LOGGER.info("CourseBatchUpdater:updateBatchProgress: certificate.request called.");
-                if (CollectionUtils.isNotEmpty(courseCompletedEvent)) {
-                    courseCompletedEvent.stream().forEach(certificateEvent -> {
-                        try {
-                            Map<String, Object> updatedCertificateEvent = generateInstructionEvent(certificateEvent);
-                            LOGGER.info("CourseBatchUpdater:updateBatchProgress: certificate.request started: " + mapper.writeValueAsString(updatedCertificateEvent));
-                            collector.send(new OutgoingMessageEnvelope(certificateInstructionStream, updatedCertificateEvent));
-                            LOGGER.info("CourseBatchUpdater:updateBatchProgress: certificate.request success.");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            TelemetryManager.error("CourseBatchUpdater:updateBatchProgress: Kafka topic instruction event failed: " + e);
-                        }
-                    });
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                TelemetryManager.error("CourseBatchUpdater:updateBatchProgress: certificate.request failed: " + e);
             }
         }
     }
@@ -269,6 +246,18 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 updateQuery.and(QueryBuilder.eq(entry.getKey(), entry.getValue()));
         });
         return updateQuery;
+    }
+
+    public void pushCertificateEvents(List<Map<String, Object>> userCertificateEvents, MessageCollector collector) {
+        userCertificateEvents.stream().forEach(certificateEvent -> {
+            try {
+                Map<String, Object> updatedCertificateEvent = generateInstructionEvent(certificateEvent);
+                collector.send(new OutgoingMessageEnvelope(certificateInstructionStream, updatedCertificateEvent));
+            } catch (Exception e) {
+                e.printStackTrace();
+                LOGGER.error("CourseBatchUpdater:pushCertificateEvents: push user course certificate event failed: ", e);
+            }
+        });
     }
 
     private Map<String, Object> generateInstructionEvent(Map<String, Object> certificateEvent) throws Exception {

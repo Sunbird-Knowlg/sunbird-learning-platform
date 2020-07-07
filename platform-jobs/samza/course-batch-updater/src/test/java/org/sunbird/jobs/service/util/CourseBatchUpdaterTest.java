@@ -37,7 +37,7 @@ public class CourseBatchUpdaterTest {
 
     private MessageCollector collectorMock;
     @Mock(name = "certificateInstructionStream")
-        SystemStream certificateInstructionStream = new SystemStream("kafka", Platform.config.getString("certificate.instruction.topic"));;
+        SystemStream certificateInstructionStream = new SystemStream("kafka", Platform.config.getString("course.batch.certificate.topic"));;
 
     @Before
     public void setup(){
