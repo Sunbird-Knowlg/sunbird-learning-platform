@@ -170,16 +170,18 @@ public class MVCProcessorIndexer extends AbstractESIndexer {
 
    //Getting Fields to be inserted into cassandra
    private void extractFieldstobeinserted(JSONObject contentobj) {
-	   ml_level1 = contentobj.get("level1Concept") != null ? (List<String>)contentobj.get("level1Concept") : null;
-	   ml_level2 = contentobj.get("level2Concept") != null ? (List<String>)contentobj.get("level2Concept") : null;
-	   ml_level3 = contentobj.get("level3Concept") != null ? (List<String>)contentobj.get("level3Concept") : null;
-	   textbook_name = contentobj.get("textbook_name") != null ? (List<String>)contentobj.get("textbook_name") : null;
-	   level1_name = contentobj.get("level1Name") != null ? (List<String>)contentobj.get("level1Name") : null;
-	   level2_name = contentobj.get("level2Name") != null ? (List<String>)contentobj.get("level2Name") : null;
-	   level3_name = contentobj.get("level3Name") != null ? (List<String>)contentobj.get("level3Name") : null;
-	   source = contentobj.get("source") != null ? (List<String>)contentobj.get("source") : null;
-	   source_url = contentobj.get("sourceURL") != null ? contentobj.get("sourceURL").toString() : null;
-	   label = contentobj.get("label") != null ? contentobj.get("label").toString() : null;
+		if(contentobj.has("level1Concept")) {
+			ml_level1 =  (List<String>)contentobj.get("level1Concept") ;
+		}
+	   ml_level2 = contentobj.has("level2Concept")  ? (List<String>)contentobj.get("level2Concept") : null;
+	   ml_level3 = contentobj.has("level3Concept")  ? (List<String>)contentobj.get("level3Concept") : null;
+	   textbook_name = contentobj.has("textbook_name")  ? (List<String>)contentobj.get("textbook_name") : null;
+	   level1_name = contentobj.has("level1Name")  ? (List<String>)contentobj.get("level1Name") : null;
+	   level2_name = contentobj.has("level2Name")  ? (List<String>)contentobj.get("level2Name") : null;
+	   level3_name = contentobj.has("level3Name")  ? (List<String>)contentobj.get("level3Name") : null;
+	   source = contentobj.has("source")  ? (List<String>)contentobj.get("source") : null;
+	   source_url = contentobj.has("sourceURL")  ? contentobj.get("sourceURL").toString() : null;
+	   label = contentobj.has("label")  ? contentobj.get("label").toString() : null;
    }
 
 	// POST reqeuest for ml keywords api
