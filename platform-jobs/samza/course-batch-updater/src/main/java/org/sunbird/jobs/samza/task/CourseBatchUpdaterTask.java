@@ -73,6 +73,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
                     executeCourseProgressBatch(collector);
                 }
                 courseBatchUpdater.processBatchProgress(message, courseProgressHandler);
+                LOGGER.info("process: mid of message : " + message.get("mid") + " at :: " + System.currentTimeMillis());
             } else {
                 service.processMessage(message, null, null);
             }
