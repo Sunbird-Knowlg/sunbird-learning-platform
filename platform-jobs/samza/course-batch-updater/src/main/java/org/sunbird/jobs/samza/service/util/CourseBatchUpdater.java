@@ -202,13 +202,12 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     Map<String, Object> dataToUpdate = new HashMap<>();
                     dataToUpdate.putAll((Map<String, Object>) event.getValue());
                     if(((Number) dataToUpdate.get("status")).intValue() == 2) {
+                        //adding userCourseBatch for auto certificate generation
                         userCertificateEvents.add((Map<String, Object>) dataToUpdate.get("userCourseBatch"));
-                        LOGGER.info("CourseBatchUpdater:updateBatchProgress: userCertificateEvents : " + mapper.writeValueAsString(userCertificateEvents));
                         dataToUpdate.remove("userCourseBatch");
                     }
-                    LOGGER.info("CourseBatchUpdater:updateBatchProgress: dataToUpdate : " + mapper.writeValueAsString(dataToUpdate));
-                            //Update cassandra
-                        updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
+                    //Update cassandra
+                    updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -216,12 +215,6 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             //TODO: enhance this to contain only 65k queries in a batch. It is the batch limit from cassandra.
             if(CollectionUtils.isNotEmpty(updateQueryList)){
                 Batch batch = QueryBuilder.batch(updateQueryList.toArray(new RegularStatement[updateQueryList.size()]));
-                try {
-                    LOGGER.info("CourseBatchUpdater:updateBatchProgress: batch : " + mapper.writeValueAsString(batch));
-                }catch (Exception e){
-                    LOGGER.info("CourseBatchUpdater:updateBatchProgress: batch error: ");
-                }
-                LOGGER.info("CourseBatchUpdater:updateBatchProgress: cassandraSession : " + cassandraSession.toString());
                 cassandraSession.execute(batch);
             }
             try {
@@ -260,9 +253,8 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         userCertificateEvents.stream().forEach(certificateEvent -> {
             try {
                 Map<String, Object> updatedCertificateEvent = generateInstructionEvent(certificateEvent);
-                LOGGER.info("CourseBatchUpdater:pushCertificateEvents: updatedCertificateEvent : " + mapper.writeValueAsString(updatedCertificateEvent) + " ***certificateInstructionStream : " + certificateInstructionStream);
+                LOGGER.info("CourseBatchUpdater:pushCertificateEvents: updatedCertificateEvent mid : " + mapper.writeValueAsString(updatedCertificateEvent.getOrDefault("mid", "")));
                 collector.send(new OutgoingMessageEnvelope(certificateInstructionStream, updatedCertificateEvent));
-                LOGGER.info("CourseBatchUpdater:pushCertificateEvents: success");
             } catch (Exception e) {
                 e.printStackTrace();
                 LOGGER.error("CourseBatchUpdater:pushCertificateEvents: push user course certificate event failed: ", e);
