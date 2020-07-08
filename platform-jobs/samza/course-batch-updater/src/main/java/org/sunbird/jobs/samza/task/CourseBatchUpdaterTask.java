@@ -96,15 +96,16 @@ public class CourseBatchUpdaterTask extends BaseTask {
     }
     
     public void executeCourseProgressBatch(MessageCollector collector) {
-        LOGGER.info("Starting CourseBatch updater process :: " + System.currentTimeMillis());
+        LOGGER.info("CourseBatchUpdaterTask:executeCourseProgressBatch: Starting CourseBatch updater process :: " + System.currentTimeMillis());
         List<Map<String, Object>> userCertificateEvents = new ArrayList<>();
         courseBatchUpdater.updateBatchProgress(cassandraSession, courseProgressHandler, userCertificateEvents);
+        LOGGER.info("CourseBatchUpdaterTask:executeCourseProgressBatch: size of userCertificateEvents:: " + userCertificateEvents.size());
         if(CollectionUtils.isNotEmpty(userCertificateEvents)) {
             LOGGER.info("CourseBatchUpdaterTask:executeCourseProgressBatch: Pushing user certificate event : starts :: " + System.currentTimeMillis());
             courseBatchUpdater.pushCertificateEvents(userCertificateEvents, collector);
             LOGGER.info("CourseBatchUpdaterTask:executeCourseProgressBatch: Pushing user certificate event : ends :: " + System.currentTimeMillis());
         }
         courseProgressHandler.clear();
-        LOGGER.info("Completed CourseBatch updater process :: " + System.currentTimeMillis());
+        LOGGER.info("CourseBatchUpdaterTask:executeCourseProgressBatch: Completed CourseBatch updater process :: " + System.currentTimeMillis());
     }
 }

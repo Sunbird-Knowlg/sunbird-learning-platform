@@ -221,6 +221,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 }catch (Exception e){
                     LOGGER.info("CourseBatchUpdater:updateBatchProgress: batch error: ");
                 }
+                LOGGER.info("CourseBatchUpdater:updateBatchProgress: cassandraSession : " + cassandraSession.toString());
                 cassandraSession.execute(batch);
             }
             try {
@@ -259,7 +260,9 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         userCertificateEvents.stream().forEach(certificateEvent -> {
             try {
                 Map<String, Object> updatedCertificateEvent = generateInstructionEvent(certificateEvent);
+                LOGGER.info("CourseBatchUpdater:pushCertificateEvents: updatedCertificateEvent : " + mapper.writeValueAsString(updatedCertificateEvent) + " ***certificateInstructionStream : " + certificateInstructionStream);
                 collector.send(new OutgoingMessageEnvelope(certificateInstructionStream, updatedCertificateEvent));
+                LOGGER.info("CourseBatchUpdater:pushCertificateEvents: success");
             } catch (Exception e) {
                 e.printStackTrace();
                 LOGGER.error("CourseBatchUpdater:pushCertificateEvents: push user course certificate event failed: ", e);
