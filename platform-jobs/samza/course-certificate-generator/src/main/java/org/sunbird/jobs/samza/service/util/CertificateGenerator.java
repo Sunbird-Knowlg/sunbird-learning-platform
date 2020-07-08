@@ -61,6 +61,8 @@ public class CertificateGenerator {
     private static JobLogger LOGGER = new JobLogger(CertificateGenerator.class);
     private Session cassandraSession = null;
     private Jedis redisConnect =null;
+    private static final String NOTIFICATION_URL = Platform.config.hasPath("notification.api.endpoint")
+            ? Platform.config.getString("notification.api.endpoint"): "/v2/notification/email";
     
     public CertificateGenerator(Jedis redisConnect, Session cassandraSession) {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
@@ -196,7 +198,7 @@ public class CertificateGenerator {
     private boolean notifyUser(String userId, Map<String, Object> certTemplate, String courseName, Map<String, Object> userResponse, Date issuedOn) {
         if(certTemplate.containsKey("notifyTemplate")) {
             Map<String, Object> notifyTemplate = getNotificationTemplate(certTemplate);
-            String url = LEARNER_SERVICE_PRIVATE_URL + "/v2/notification/email";
+            String url = LEARNER_SERVICE_PRIVATE_URL + NOTIFICATION_URL;
             Request request = new Request();
             notifyTemplate.entrySet().forEach(entry -> request.put(entry.getKey(), entry.getValue()));
             request.put("firstName", (String) userResponse.get("firstName"));
