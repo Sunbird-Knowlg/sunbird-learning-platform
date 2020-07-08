@@ -203,10 +203,12 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     dataToUpdate.putAll((Map<String, Object>) event.getValue());
                     if(((Number) dataToUpdate.get("status")).intValue() == 2) {
                         userCertificateEvents.add((Map<String, Object>) dataToUpdate.get("userCourseBatch"));
+                        LOGGER.info("CourseBatchUpdater:updateBatchProgress: userCertificateEvents : " + mapper.writeValueAsString(userCertificateEvents));
                         dataToUpdate.remove("userCourseBatch");
                     }
-                    //Update cassandra
-                    updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
+                    LOGGER.info("CourseBatchUpdater:updateBatchProgress: dataToUpdate : " + mapper.writeValueAsString(dataToUpdate));
+                            //Update cassandra
+                        updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -214,6 +216,11 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             //TODO: enhance this to contain only 65k queries in a batch. It is the batch limit from cassandra.
             if(CollectionUtils.isNotEmpty(updateQueryList)){
                 Batch batch = QueryBuilder.batch(updateQueryList.toArray(new RegularStatement[updateQueryList.size()]));
+                try {
+                    LOGGER.info("CourseBatchUpdater:updateBatchProgress: batch : " + mapper.writeValueAsString(batch));
+                }catch (Exception e){
+                    LOGGER.info("CourseBatchUpdater:updateBatchProgress: batch error: ");
+                }
                 cassandraSession.execute(batch);
             }
             try {

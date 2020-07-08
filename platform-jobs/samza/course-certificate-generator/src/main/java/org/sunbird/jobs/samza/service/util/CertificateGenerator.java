@@ -134,7 +134,10 @@ public class CertificateGenerator {
         try{
             String oldId = null;
             if(reIssue) {
+                LOGGER.info("CertificateGenerator:generateCertificate: certificates : " + mapper.writeValueAsString(certificates));
+                LOGGER.info("CertificateGenerator:generateCertificate: certTemplate : " + mapper.writeValueAsString(certTemplate));
                 oldId = certificates.stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), cert.get("name"))).map(cert -> {return  cert.get("name");}).findFirst().orElse("");
+                LOGGER.info("CertificateGenerator:generateCertificate: oldId : " + mapper.writeValueAsString(oldId));
             }
             String recipientName = getRecipientName(userResponse);
             Map<String, Object> certServiceRequest = prepareCertServiceRequest(courseName, batchId, userId, userResponse, certTemplate, issuedOn);
