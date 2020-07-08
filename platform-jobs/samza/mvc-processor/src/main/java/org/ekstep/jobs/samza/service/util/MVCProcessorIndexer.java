@@ -10,7 +10,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.task.Postman;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.util.ControllerUtil;
-import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.mvcsearchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import java.io.IOException;

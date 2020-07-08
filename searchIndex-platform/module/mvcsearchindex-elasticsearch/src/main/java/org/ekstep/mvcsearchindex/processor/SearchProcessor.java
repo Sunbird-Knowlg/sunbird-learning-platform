@@ -1,4 +1,4 @@
-package org.ekstep.searchindex.processor;
+package org.ekstep.mvcsearchindex.processor;
 
 import akka.dispatch.Mapper;
 import org.apache.commons.collections.CollectionUtils;
@@ -8,8 +8,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.searchindex.dto.SearchDTO;
-import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
-import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
+import org.ekstep.mvcsearchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.mvcsearchindex.transformer.AggregationsResultTransformer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.elasticsearch.action.search.SearchResponse;
@@ -93,7 +93,7 @@ public class SearchProcessor {
 					}
 
 				}
-				resp.put("count", (int) searchResult.getHits().getTotalHits());
+				resp.put("count", (int) searchResult.getHits().getTotalHits().value);
 				return resp;
 			}
 		}, ExecutionContext.Implicits$.MODULE$.global());

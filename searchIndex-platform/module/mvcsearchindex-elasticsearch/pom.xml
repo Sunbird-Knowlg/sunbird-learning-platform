@@ -7,9 +7,9 @@
 		<version>1.0-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
-	<artifactId>searchindex-elasticsearch</artifactId>
+	<artifactId>mvcsearchindex-elasticsearch</artifactId>
 	<packaging>jar</packaging>
-	<name>searchindex-elasticsearch</name>
+	<name>mvcsearchindex-elasticsearch</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -52,12 +52,17 @@
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
-			<version>6.2.4</version>
+			<version>7.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.elasticsearch.client</groupId>
 			<artifactId>elasticsearch-rest-high-level-client</artifactId>
-			<version>6.2.4</version>
+			<version>7.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.elasticsearch.client</groupId>
+			<artifactId>transport</artifactId>
+			<version>7.5.0</version>
 		</dependency>
 	</dependencies>
 
