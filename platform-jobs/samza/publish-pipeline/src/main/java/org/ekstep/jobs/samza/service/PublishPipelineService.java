@@ -278,8 +278,8 @@ public class PublishPipelineService implements ISamzaService {
 	//	String ml_level2 = node.getMetadata().get("ml_level2Concept") != null ? (String)node.getMetadata().get("ml_level2Concept") : null;
 	//	String ml_level3 = node.getMetadata().get("ml_level3Concept") != null ? (String)node.getMetadata().get("ml_level3Concept") : null;
 		String mimeType = (String) node.getMetadata().get("mimeType");
-		String label = node.getMetadata().get("label") != null ? (String)node.getMetadata().get("label") : null;
-		if(StringUtils.isNotBlank(label) && StringUtils.equals(label,"mvc")){
+		String sourceURL = node.getMetadata().get("sourceURL") != null ? (String)node.getMetadata().get("sourceURL") : null;
+		if(StringUtils.isNotBlank(sourceURL)){
 			Map<String, Object> linkDialcodeEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
 			linkDialcodeEvent=  updatevalues(linkDialcodeEvent);
 			if (MapUtils.isEmpty(linkDialcodeEvent)) {
