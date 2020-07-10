@@ -7,13 +7,19 @@ import com.datastax.driver.core.Session;
 import com.datastax.driver.core.querybuilder.Batch;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Update;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.samza.system.OutgoingMessageEnvelope;
+import org.apache.samza.system.SystemStream;
+import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.telemetry.logger.TelemetryManager;
+import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 import org.sunbird.jobs.samza.task.CourseProgressHandler;
 import org.sunbird.jobs.samza.util.CourseBatchParams;
 import org.sunbird.jobs.samza.util.ESUtil;
@@ -27,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class CourseBatchUpdater extends BaseCourseBatchUpdater {
@@ -42,11 +49,19 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             ? Platform.config.getInt("content.leafnodes.ttl"): 3600;
     private Jedis redisConnect= null;
     private Session cassandraSession = null;
+    private SystemStream certificateInstructionStream = null;
 
     public CourseBatchUpdater(Jedis redisConnect, Session cassandraSession) {
         //ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
         this.redisConnect = redisConnect;
         this.cassandraSession = cassandraSession;
+    }
+
+    public CourseBatchUpdater(Jedis redisConnect, Session cassandraSession, SystemStream certificateInstructionStream) {
+       // ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
+        this.redisConnect = redisConnect;
+        this.cassandraSession = cassandraSession;
+        this.certificateInstructionStream = certificateInstructionStream;
     }
 
     public void updateBatchStatus(Map<String, Object> edata, CourseProgressHandler courseProgressHandler) throws Exception {
@@ -78,7 +93,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         String batchId = (String)edata.get("batchId");
         String userId = (String)edata.get("userId");
         String courseId = (String) edata.get("courseId");
-        
+
         if(CollectionUtils.isNotEmpty(contents)) {
             Map<String, Object> contentStatus = new HashMap<>();
             Map<String, Object> contentStatusDelta = new HashMap<>();
@@ -119,9 +134,14 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 put("completionPercentage", ((Number)completionPercentage).intValue());
                 put("progress", size);
                 putAll(lastReadContentStats);
-                if(status == 2)
+                if(status == 2) {
                     put("completedOn", new Timestamp(new Date().getTime()));
-                
+                    put("userCourseBatch", new HashMap<String, Object>() {{
+                        put("userId", userId);
+                        put("batchId", batchId);
+                        put("courseId", courseId);
+                    }});
+                }
             }};
 
             if(MapUtils.isNotEmpty(dataToUpdate)) {
@@ -135,7 +155,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             put("batchid", batchId);
             put("userid", userId);
             put("courseid", courseId);
-            
+
         }};
         ResultSet resultSet =  SunbirdCassandraUtil.read(cassandraSession, keyspace, table, dataToSelect);
         List<Row> rows = resultSet.all();
@@ -173,7 +193,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         }
     }
 
-    public void updateBatchProgress(Session cassandraSession, CourseProgressHandler courseProgressHandler) {
+    public void updateBatchProgress(Session cassandraSession, CourseProgressHandler courseProgressHandler, List<Map<String, Object>> userCertificateEvents) {
         if (courseProgressHandler.isNotEmpty()) {
             List<Update.Where> updateQueryList = new ArrayList<>();
             courseProgressHandler.getMap().entrySet().forEach(event -> {
@@ -185,6 +205,11 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     Map<String, Object> dataToUpdate = new HashMap<>();
                     dataToUpdate.putAll((Map<String, Object>) event.getValue());
                     dataToSelect.put("courseid", dataToUpdate.remove("courseId"));
+                    if(((Number) dataToUpdate.get("status")).intValue() == 2) {
+                        //adding userCourseBatch for auto certificate generation
+                        userCertificateEvents.add((Map<String, Object>) dataToUpdate.get("userCourseBatch"));
+                        dataToUpdate.remove("userCourseBatch");
+                    }
                     //Update cassandra
                     updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
                 } catch (Exception e) {
@@ -226,5 +251,55 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 updateQuery.and(QueryBuilder.eq(entry.getKey(), entry.getValue()));
         });
         return updateQuery;
+    }
+
+    public void pushCertificateEvents(List<Map<String, Object>> userCertificateEvents, MessageCollector collector) {
+        userCertificateEvents.stream().forEach(certificateEvent -> {
+            try {
+                Map<String, Object> updatedCertificateEvent = generateInstructionEvent(certificateEvent);
+                LOGGER.info("CourseBatchUpdater:pushCertificateEvents: updatedCertificateEvent mid : " + mapper.writeValueAsString(updatedCertificateEvent.getOrDefault("mid", "")));
+                collector.send(new OutgoingMessageEnvelope(certificateInstructionStream, updatedCertificateEvent));
+            } catch (Exception e) {
+                e.printStackTrace();
+                LOGGER.error("CourseBatchUpdater:pushCertificateEvents: push user course certificate event failed: ", e);
+            }
+        });
+    }
+
+    private Map<String, Object> generateInstructionEvent(Map<String, Object> certificateEvent) throws Exception {
+        Map<String, Object> actor = new HashMap<>();
+        Map<String, Object> context = new HashMap<>();
+        Map<String, Object> object = new HashMap<>();
+        Map<String, Object> edata = new HashMap<>();
+
+        actor.put(CourseBatchParams.id.name(), "Course Certificate Generator");
+        actor.put(CourseBatchParams.type.name(), "System");
+
+        String id = certificateEvent.get("batchId") + "_" + certificateEvent.get("courseId");
+
+        context.put(
+                CourseBatchParams.pdata.name(),
+                new HashMap<String, Object>() {
+                    {
+                        put(CourseBatchParams.id.name(), "org.sunbird.platform");
+                        put(CourseBatchParams.ver.name(), "1.0");
+                    }
+                });
+
+        object.put(CourseBatchParams.id.name(), id);
+        object.put(CourseBatchParams.type.name(), "CourseCertificateGeneration");
+
+        edata.putAll(
+                new HashMap<String, Object>() {
+                    {
+                        put(CourseBatchParams.userIds.name(), Arrays.asList((String) certificateEvent.get("userId")));
+                        put(CourseBatchParams.batchId.name(), certificateEvent.get("batchId"));
+                        put(CourseBatchParams.courseId.name(), certificateEvent.get("courseId"));
+                        put(CourseBatchParams.action.name(), "issue-certificate");
+                        put(CourseBatchParams.reIssue.name(), false);
+                    }
+                });
+        String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+        return mapper.readValue(beJobRequestEvent, new TypeReference<Map<String, Object>>() {});
     }
 }

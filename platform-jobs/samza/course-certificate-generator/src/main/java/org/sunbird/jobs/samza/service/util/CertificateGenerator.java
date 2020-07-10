@@ -137,7 +137,7 @@ public class CertificateGenerator {
         try{
             String oldId = null;
             if(reIssue) {
-                oldId = certificates.stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), cert.get("name"))).map(cert -> {return  cert.get("name");}).findFirst().orElse("");
+                oldId = certificates.stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), cert.get("name"))).map(cert -> {return  cert.get("id");}).findFirst().orElse("");
             }
             String recipientName = getRecipientName(userResponse);
             Map<String, Object> certServiceRequest = prepareCertServiceRequest(courseName, batchId, userId, userResponse, certTemplate, issuedOn);
@@ -188,8 +188,9 @@ public class CertificateGenerator {
             }});
             if(StringUtils.isNotBlank(oldId))
                 request.put(CourseCertificateParams.oldId.name(), oldId);
+            LOGGER.info("CertificateGenerator:addCertificateToUser: Add certificate to registry request : " + mapper.writeValueAsString(request));
             HttpResponse<String> response = Unirest.post(certRegistryAddURL).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
-            LOGGER.info("Add certificate to registry response for batchid: " + batchId  +" and courseid: " + courseId + " is : " + response.getStatus() + " :: "+ response.getBody());
+            LOGGER.info("CertificateGenerator:addCertificateToUser: Add certificate to registry response for batchid: " + batchId  +" and courseid: " + courseId + " is : " + response.getStatus() + " :: "+ response.getBody());
             return (200 == response.getStatus());
         } catch(Exception e) {
             LOGGER.error("Error while adding the certificate to user: " + certificate, e);
