@@ -10,13 +10,13 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 @Ignore
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({BatchSyncUtil.class})
+@PrepareForTest({CourseBatchUtil.class})
 @PowerMockIgnore({"javax.management.*", "sun.security.ssl.*", "javax.net.ssl.*" , "javax.crypto.*"})
-public class BatchSyncUtilTest {
+public class CourseBatchUtilTest {
 
     @Test
     public void testSyncBatch() {
-        BatchSyncUtil spy = PowerMockito.spy(new BatchSyncUtil());
+        CourseBatchUtil spy = PowerMockito.spy(new CourseBatchUtil());
 
         spy.syncCourseBatch("do_11282833211754086411", null);
     }

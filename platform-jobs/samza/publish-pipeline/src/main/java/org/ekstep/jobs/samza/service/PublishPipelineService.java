@@ -305,6 +305,15 @@ public class PublishPipelineService implements ISamzaService {
 			}
 			collector.send(new OutgoingMessageEnvelope(postPublishStream, courseBatchSyncEvent));
 
+			if(StringUtils.equalsIgnoreCase("Course", (String) node.getMetadata().get("contentType"))) {
+				Map<String, Object> createCourseBatchEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "coursebatch-create");
+				if (MapUtils.isEmpty(createCourseBatchEvent)) {
+					TelemetryManager.error("Post Publish event is not generated properly for action (coursebatch-create) : " + createCourseBatchEvent);
+					throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly for coursebatch-create action.");
+				}
+				collector.send(new OutgoingMessageEnvelope(postPublishStream, createCourseBatchEvent));
+			}
+
 			String originId = (String) node.getMetadata().getOrDefault("origin", "");
 			if(StringUtils.isBlank(originId) && !isShallowCopy(node)) {
 				Map<String, Object> publishShallowContentEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "publish-shallow-content");
@@ -361,6 +370,11 @@ public class PublishPipelineService implements ISamzaService {
 		edata.put("id", contentId);
 		edata.put("pkgVersion", metadata.get("pkgVersion"));
 		edata.put("mimeType", metadata.get("mimeType"));
+		if (StringUtils.equalsIgnoreCase("coursebatch-create", action)) {
+			edata.put("name", metadata.get("name"));
+			edata.put("createdBy", metadata.get("createdBy"));
+			edata.put("createdFor", metadata.get("createdFor"));
+		}
 		// generate event structure
 		long unixTime = System.currentTimeMillis();
 		String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();

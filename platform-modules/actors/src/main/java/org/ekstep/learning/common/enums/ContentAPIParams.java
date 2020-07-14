@@ -15,5 +15,5 @@ public enum ContentAPIParams {
 	contentTypesCount, leafNodesCount, pre_signed_url, url_expiry, h5p, Unlisted, childNodes, screenshots, 
 	framework, targets, TextBook, channel, reservedDialcodes, batchCode, count, publisher, dialcodes, Retired,
 	children, releasedDialcodes, thumbnail, duration, nodesModified, hierarchy, depth, parent, index, edit, root, isNew,
-	totalCompressedSize, leafNodes, pdfUrl;
+	totalCompressedSize, leafNodes, pdfUrl, contentDisposition;
 }

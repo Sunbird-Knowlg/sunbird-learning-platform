@@ -37,4 +37,19 @@ public class BatchEnrolmentSyncCommand implements CommandMarker {
         batchEnrolmentSyncManager.sync(objectType, offset, limit, resetProgress, batchIds, courseIds);
         System.out.println("-----------------------------------------");
     }
+
+    @CliCommand(value = "syncenrolment", help = "Sync data from lms cassandra to elasticsearch")
+    public void syncEnrolment(
+                          @CliOption(key = {
+                                  "reset-progress"}, mandatory = false, unspecifiedDefaultValue="false", specifiedDefaultValue="true",  help = "reset progress of user enrolment") final String resetProgress,
+                          @CliOption(key = {
+                                  "userId"}, mandatory = true, help = "userId") final String userId,
+                          @CliOption(key = {
+                                  "batchId"}, mandatory = true, help = "batchid") final String batchId)
+            throws Exception {
+        System.out.println("-----------------------------------------");
+        batchEnrolmentSyncManager.syncEnrol(userId, batchId, resetProgress);
+        System.out.println("-----------------------------------------");
+    }
+    
 }

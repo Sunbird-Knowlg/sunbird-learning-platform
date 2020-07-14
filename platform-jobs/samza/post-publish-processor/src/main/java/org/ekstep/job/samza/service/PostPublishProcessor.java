@@ -6,11 +6,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
-import org.ekstep.common.exception.ResourceNotFoundException;
-import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.job.samza.util.BatchSyncUtil;
+import org.ekstep.job.samza.util.CourseBatchUtil;
 import org.ekstep.job.samza.util.DIALCodeUtil;
+import org.ekstep.job.samza.util.PostPublishParams;
 import org.ekstep.job.samza.util.QRImageUtil;
 import org.ekstep.job.samza.util.ShallowPublishUtil;
 import org.ekstep.jobs.samza.service.ISamzaService;
@@ -20,10 +19,11 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.SamzaCommonParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
-import org.ekstep.telemetry.logger.TelemetryManager;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +41,7 @@ public class PostPublishProcessor implements ISamzaService {
     private Integer MAX_ITERATION_COUNT = null;
     private ControllerUtil util = new ControllerUtil();
     private DIALCodeUtil dialUtil = null;
-    private BatchSyncUtil batchSyncUtil = null;
+    private CourseBatchUtil courseBatchUtil = null;
     private ShallowPublishUtil publishUtil = null;
 
     /**
@@ -63,8 +63,8 @@ public class PostPublishProcessor implements ISamzaService {
         LOGGER.info("Learning Actor System initialized");
         dialUtil = new DIALCodeUtil();
         LOGGER.info("DIAL Util initialized");
-        batchSyncUtil = new BatchSyncUtil();
-        LOGGER.info("Batch Sync Util initialized");
+        courseBatchUtil = new CourseBatchUtil();
+        LOGGER.info("Course Batch Util initialized");
         publishUtil = new ShallowPublishUtil();
         LOGGER.info("Shallow Publish Util initialized");
     }
@@ -111,7 +111,7 @@ public class PostPublishProcessor implements ISamzaService {
                 }
                 String nodeId = (String) object.get("id");
                 LOGGER.info("Started Syncing the courseBatch enrollment for : " + nodeId);
-                batchSyncUtil.syncCourseBatch(nodeId, collector);
+                courseBatchUtil.syncCourseBatch(nodeId, collector);
                 LOGGER.info("Synced the courseBatch enrollment for : " + nodeId);
                 break;
             }
@@ -127,11 +127,28 @@ public class PostPublishProcessor implements ISamzaService {
                 break;
             }
 
+            case "coursebatch-create" : {
+                if(!(validateContentType(edata) && validateBatchCreateEvent(message, (String) object.get("id")))) {
+                    LOGGER.info("Event Ignored. Event Validation Failed for coursebatch-create operation. | edata : " + edata);
+                    return;
+                }
+                String nodeId = (String) object.get("id");
+                String name = (String) edata.getOrDefault("name", "");
+                String createdBy = (String) edata.getOrDefault("createdBy", "");
+                List<String> createdFor = (List<String>) edata.getOrDefault("createdFor",  new ArrayList<String>());
+                Double pkgVersion = (Double) edata.getOrDefault("pkgVersion", 0.0);
+                LOGGER.info("Started processing of course batch creation for : " + nodeId +" | pkgVersion :"+pkgVersion);
+                courseBatchUtil.create(nodeId, name, pkgVersion, createdBy, createdFor);
+                LOGGER.info("Completed processing of course batch creation for  : " + nodeId);
+                break;
+            }
+
             default: {
                 LOGGER.info("Event Ignored. Event Action Doesn't match for post-publish-processor operations.");
             }
         }
     }
+
 
     private boolean validateContentType(Map<String, Object> edata) {
         String contentType = (String) edata.get("contentType");
@@ -188,6 +205,23 @@ public class PostPublishProcessor implements ISamzaService {
             LOGGER.error("Exception Occurred While Validating QR Image Record. | Exception is : ", e);
             return false;
         }
+    }
+
+    private Boolean validateBatchCreateEvent(Map<String, Object> event, String courseId) {
+        try {
+            Map<String, Object> context = (Map<String, Object>) event.get(SamzaCommonParams.context.name());
+            String channel = (String) context.getOrDefault(PostPublishParams.channel.name(), "");
+            if (StringUtils.isBlank(channel)) {
+                LOGGER.info("Event Ignored. Event Validation Failed for coursebatch-create operation. Received Blank Channel Id for : "+courseId);
+                return false;
+            } else {
+                return courseBatchUtil.validateChannel(channel, courseId);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Exception Occurred While Validating Channel for coursebatch-create operation. | Exception is : ", e);
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }
