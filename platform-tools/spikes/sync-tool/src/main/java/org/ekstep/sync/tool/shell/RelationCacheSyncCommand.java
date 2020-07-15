@@ -27,7 +27,7 @@ public class RelationCacheSyncCommand implements CommandMarker {
                     "ids"}, mandatory = false, help = "ids") final String[] ids,
             @CliOption(key = {
         "all"}, mandatory = false, unspecifiedDefaultValue="false", specifiedDefaultValue="true",  help = "Generate events for all the Collections") final String forAll,
-            @CliOption(key = {"limit"}, mandatory = false, help = "ignored identifiers to sync") final int limit,
+            @CliOption(key = {"limit"}, mandatory = false, unspecifiedDefaultValue="0", help = "ignored identifiers to sync") final int limit,
             @CliOption(key = {
                     "verbose"}, mandatory = false, unspecifiedDefaultValue="false", specifiedDefaultValue="true",  help = "Print more data for debug.") final String verbose
     ) throws Exception  {

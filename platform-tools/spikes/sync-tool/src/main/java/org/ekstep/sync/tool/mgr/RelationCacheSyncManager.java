@@ -36,7 +36,6 @@ public class RelationCacheSyncManager {
 
                 for (Map<String, Object> content : list) {
                     String event = generateKafkaEvent(content);
-                    System.out.println(event);
                     KafkaClient.send(event, KAFKA_TOPIC);
                     if (verbose) {
                         System.out.println(event);
