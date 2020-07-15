@@ -28,6 +28,7 @@ public class RelationCacheSyncCommand implements CommandMarker {
             @CliOption(key = {
         "all"}, mandatory = false, unspecifiedDefaultValue="false", specifiedDefaultValue="true",  help = "Generate events for all the Collections") final String forAll,
             @CliOption(key = {"limit"}, mandatory = false, unspecifiedDefaultValue="0", help = "ignored identifiers to sync") final int limit,
+            @CliOption(key = {"offset"}, mandatory = false, unspecifiedDefaultValue="0", help = "ignored identifiers to sync") final int offset,
             @CliOption(key = {
                     "verbose"}, mandatory = false, unspecifiedDefaultValue="false", specifiedDefaultValue="true",  help = "Print more data for debug.") final String verbose
     ) throws Exception  {
@@ -38,7 +39,7 @@ public class RelationCacheSyncCommand implements CommandMarker {
             System.out.println("Total Collections: " + totalCollections + " and processing " + finalLimit + " collections.");
             boolean verboseBool = (StringUtils.equalsIgnoreCase("true", verbose)) ? true : false;
             if (totalCollections > 0) {
-                relationCacheSyncManager.syncAllCollections(totalCollections, finalLimit, verboseBool);
+                relationCacheSyncManager.syncAllCollections(totalCollections, finalLimit, offset, verboseBool);
                 System.out.println("Completed processing " + totalCollections + " collections.");
             }
         } else if (null != ids && CollectionUtils.isEmpty(Arrays.asList(ids))) {

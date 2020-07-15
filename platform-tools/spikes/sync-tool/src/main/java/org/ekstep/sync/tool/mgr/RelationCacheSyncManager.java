@@ -24,9 +24,8 @@ public class RelationCacheSyncManager {
     private static final String KAFKA_TOPIC = Platform.config.hasPath("content.postpublish.topic")? Platform.config.getString("content.postpublish.topic"): "local.content.postpublish.request";
     int defaultBatch = 100;
 
-    public void syncAllCollections(int total, int limit, boolean verbose) throws Exception {
+    public void syncAllCollections(int total, int limit, int offset, boolean verbose) throws Exception {
         if (total > 0) {
-            int offset = 0;
             defaultBatch = (defaultBatch > limit) ?  limit: defaultBatch;
             while (offset < limit) {
                 int finalIndex = ((defaultBatch + offset) > limit)? total: (defaultBatch + offset);
