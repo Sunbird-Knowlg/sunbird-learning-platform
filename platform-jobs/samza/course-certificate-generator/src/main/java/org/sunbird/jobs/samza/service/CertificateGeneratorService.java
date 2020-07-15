@@ -11,8 +11,11 @@ import org.apache.samza.config.Config;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.service.util.CertificateGenerator;
@@ -34,6 +37,7 @@ public class CertificateGeneratorService implements ISamzaService {
     private IssueCertificate issueCertificate = null;
     private Jedis redisConnect = null;
     private Session cassandraSession = null;
+    private static final String certificateFailedTopic = Platform.config.hasPath("output.failed.events.topic.name") ? Platform.config.getString("output.failed.events.topic.name") : "";
     /**
      * @param config
      * @throws Exception
@@ -90,6 +94,8 @@ public class CertificateGeneratorService implements ISamzaService {
             }
         } catch(Exception e) {
             LOGGER.error("Error while serving the event : "  + message, e);
+            FailedEventsUtil.pushEventForRetry(new SystemStream("kafka", certificateFailedTopic), message, metrics, collector,
+                    PlatformErrorCodes.SYSTEM_ERROR.name(), new ServerException("ERR_GENERATE_CERTIFICATE_NOT_EXECUTED", e.getMessage()));
         }
 
     }
