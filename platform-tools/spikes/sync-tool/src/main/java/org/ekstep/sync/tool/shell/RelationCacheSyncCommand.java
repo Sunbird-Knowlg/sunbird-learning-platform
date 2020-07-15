@@ -39,6 +39,7 @@ public class RelationCacheSyncCommand implements CommandMarker {
             boolean verboseBool = (StringUtils.equalsIgnoreCase("true", verbose)) ? true : false;
             if (totalCollections > 0) {
                 relationCacheSyncManager.syncAllCollections(totalCollections, finalLimit, verboseBool);
+                System.out.println("Completed processing " + totalCollections + " collections.");
             }
         } else if (null != ids && CollectionUtils.isEmpty(Arrays.asList(ids))) {
             System.out.println("Generating relations sync events for collections with id: " + ids);
