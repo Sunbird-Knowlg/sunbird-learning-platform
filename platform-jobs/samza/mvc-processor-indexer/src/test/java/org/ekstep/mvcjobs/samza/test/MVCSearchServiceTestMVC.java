@@ -17,6 +17,7 @@ import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -90,7 +91,7 @@ public class MVCSearchServiceTestMVC extends MVCBaseTest {
 	
 	public Map<String, Object> findById(String identifier) throws IOException {
 		SearchResponse response = client.search(new SearchRequest(CompositeSearchConstants.MVC_SEARCH_INDEX)
-				.source(new SearchSourceBuilder().query(QueryBuilders.termQuery("_id", identifier))));
+				.source(new SearchSourceBuilder().query(QueryBuilders.termQuery("_id", identifier))), RequestOptions.DEFAULT);
 		SearchHits hits = response.getHits();
 		for (SearchHit hit : hits.getHits()) {
 			Map<String, Object> fields = hit.getSourceAsMap();

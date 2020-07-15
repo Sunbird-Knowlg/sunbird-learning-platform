@@ -68,6 +68,22 @@
                     <groupId>io.netty</groupId>
                     <artifactId>netty-handler</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.ekstep</groupId>
+                    <artifactId>searchindex-elasticsearch</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.ekstep</groupId>
+            <artifactId>mvcsearchindex-elasticsearch</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-core</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
