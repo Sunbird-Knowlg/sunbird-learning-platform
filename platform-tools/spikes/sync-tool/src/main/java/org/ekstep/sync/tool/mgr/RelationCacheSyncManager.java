@@ -24,7 +24,7 @@ public class RelationCacheSyncManager {
     private static final String KAFKA_TOPIC = Platform.config.hasPath("content.postpublish.topic")? Platform.config.getString("content.postpublish.topic"): "local.content.postpublish.request";
     int defaultBatch = 100;
 
-    public void syncAllCollections(int total, int limit) throws Exception {
+    public void syncAllCollections(int total, int limit, boolean verbose) throws Exception {
         if (total > 0) {
             int offset = 0;
             defaultBatch = (defaultBatch > limit) ?  limit: defaultBatch;
@@ -37,7 +37,10 @@ public class RelationCacheSyncManager {
                 for (Map<String, Object> content : list) {
                     String event = generateKafkaEvent(content);
                     System.out.println(event);
-//                    KafkaClient.send(event, KAFKA_TOPIC);
+                    KafkaClient.send(event, KAFKA_TOPIC);
+                    if (verbose) {
+                        System.out.println(event);
+                    }
                 }
             }
         }
@@ -89,6 +92,8 @@ public class RelationCacheSyncManager {
 
 
     private String generateKafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
+        rowMap.put("action", "publish-shallow-content");
+        rowMap.put("iteration", 1);
         Map<String, Object> event = new HashMap<String, Object>() {{
             put("eid", "BE_JOB_REQUEST");
             put("ets", System.currentTimeMillis());

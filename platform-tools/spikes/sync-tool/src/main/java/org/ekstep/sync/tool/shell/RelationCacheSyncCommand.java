@@ -27,15 +27,18 @@ public class RelationCacheSyncCommand implements CommandMarker {
                     "ids"}, mandatory = false, help = "ids") final String[] ids,
             @CliOption(key = {
         "all"}, mandatory = false, unspecifiedDefaultValue="false", specifiedDefaultValue="true",  help = "Generate events for all the Collections") final String forAll,
-            @CliOption(key = {"limit"}, mandatory = false, help = "ignored identifiers to sync") final int limit
+            @CliOption(key = {"limit"}, mandatory = false, help = "ignored identifiers to sync") final int limit,
+            @CliOption(key = {
+                    "verbose"}, mandatory = false, unspecifiedDefaultValue="false", specifiedDefaultValue="true",  help = "Print more data for debug.") final String verbose
     ) throws Exception  {
         if (StringUtils.equalsIgnoreCase("true", forAll)) {
             System.out.println("Generating relations sync events for all collections.");
             int totalCollections = relationCacheSyncManager.getCollectionCount();
             int finalLimit = (limit > 0) ? limit : totalCollections;
             System.out.println("Total Collections: " + totalCollections + " and processing " + finalLimit + " collections.");
+            boolean verboseBool = (StringUtils.equalsIgnoreCase("true", verbose)) ? true : false;
             if (totalCollections > 0) {
-                relationCacheSyncManager.syncAllCollections(totalCollections, finalLimit);
+                relationCacheSyncManager.syncAllCollections(totalCollections, finalLimit, verboseBool);
             }
         } else if (null != ids && CollectionUtils.isEmpty(Arrays.asList(ids))) {
             System.out.println("Generating relations sync events for collections with id: " + ids);
