@@ -36,7 +36,7 @@
 		<module>merge-user-courses</module>
 		<module>course-certificate-generator</module>
         <module>auto-creator</module>
-		<module>mvc-processor</module>
+		<module>mvc-processor-indexer</module>
     </modules>
 
 	<build>
