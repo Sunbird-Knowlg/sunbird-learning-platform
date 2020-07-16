@@ -1,7 +1,6 @@
 package org.ekstep.sync.tool.shell;
 
-import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.exception.ClientException;
+
 import org.ekstep.sync.tool.mgr.BatchEnrolmentSyncManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
