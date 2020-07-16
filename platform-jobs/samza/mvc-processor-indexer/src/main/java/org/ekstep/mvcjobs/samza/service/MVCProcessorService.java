@@ -8,6 +8,7 @@ import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.mvcjobs.samza.service.util.CassandraManager;
 import org.ekstep.mvcjobs.samza.service.util.MVCProcessorIndexer;
 import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
@@ -24,7 +25,7 @@ public class MVCProcessorService implements ISamzaService {
 
 	private MVCProcessorIndexer csIndexer = null;
 	private SystemStream systemStream = null;
-
+    private CassandraManager cassandraManager;
 	public MVCProcessorService() {}
 
 	public MVCProcessorService(MVCProcessorIndexer csIndexer) throws Exception {
@@ -83,6 +84,7 @@ public class MVCProcessorService implements ISamzaService {
 				case CompositeSearchConstants.NODE_TYPE_SET:
 				case CompositeSearchConstants.NODE_TYPE_DATA: {
 					// csIndexer.processESMessage(graphId, objectType, uniqueId, messageId, message, metrics);
+					eventData = cassandraManager.insertintoCassandra(eventData,uniqueId);
 					csIndexer.upsertDocument(uniqueId,eventData);
 					break;
 				}
