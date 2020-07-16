@@ -86,7 +86,7 @@ public class AutoCreatorService implements ISamzaService {
 			if (currentIteration < MAX_ITERATION_COUNT) {
 				((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).put(SamzaCommonParams.iteration.name(), currentIteration + 1);
 				FailedEventsUtil.pushEventForRetry(failedEventStream, message, metrics, collector,
-						PlatformErrorCodes.PROCESSING_ERROR.name(), new ServerException("ERR_AUTO_CREATE", "Auto Creation Failed!"));
+						PlatformErrorCodes.PROCESSING_ERROR.name(), e);
 				LOGGER.info("Failed Event Sent To Kafka Topic : " + config.get("output.failed.events.topic.name") + " | for mid : " + message.get("mid"), message);
 			}else{
 				LOGGER.info("Event Reached Maximum Retry Limit having mid : " + message.get("mid"), message);
