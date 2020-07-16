@@ -35,7 +35,7 @@ public class ContentUtil {
 			Platform.config.getString("lp.tempfile.location") : "/tmp/content";
 	public static final List<String> REQUIRED_METADATA_FIELDS = Arrays.asList(Platform.config.getString("auto_creator.content_mandatory_fields").split(","));
 	public static final List<String> METADATA_FIELDS_TO_BE_REMOVED = Arrays.asList(Platform.config.getString("auto_creator.content_props_to_removed").split(","));
-	private static final List<String> SEARCH_FIELDS = Arrays.asList("identifier", "mimeType", "pkgVersion", "channel", "status", "origin", "originData");
+	private static final List<String> SEARCH_FIELDS = Arrays.asList("identifier", "mimeType", "pkgVersion", "channel", "status", "origin", "originData","artifactUrl");
 	private static final List<String> SEARCH_EXISTS_FIELDS = Arrays.asList("originData");
 	private static final List<String> FINAL_STATUS = Arrays.asList("Live", "Unlisted", "Processing");
 	private static final String DEFAULT_CONTENT_TYPE = "application/json";
@@ -70,7 +70,7 @@ public class ContentUtil {
 				internalId = create(channelId, identifier, repository, createMetadata);
 			}
 			case "upload": {
-				upload(channelId, internalId, getFile(internalId, (String) metadata.get(AutoCreatorParams.artifactUrl.name())));
+				upload(channelId, internalId, metadata);
 			}
 			case "publish": {
 				isPublished = publish(channelId, internalId, (String) metadata.get(AutoCreatorParams.lastPublishedBy.name()));
@@ -213,10 +213,14 @@ public class ContentUtil {
 		}
 	}*/
 
-	private void upload(String channelId, String identifier, File file) throws Exception {
+	private void upload(String channelId, String identifier, Map<String, Object> metadata) throws Exception {
+		File file = getFile(identifier, (String) metadata.get(AutoCreatorParams.artifactUrl.name()));
+		String mimeType = (String) metadata.getOrDefault("mimeType", "");
 		if (null != file && !file.exists())
 			LOGGER.info("ContentUtil :: upload :: File Path for " + identifier + "is : " + file.getAbsolutePath() + " | File Size : " + file.length());
-		String url = KP_CS_BASE_URL + "/content/v3/upload/" + identifier;
+		String url = KP_CS_BASE_URL + "/content/v3/upload/" + identifier + "?validation=false";
+		if (StringUtils.isNotBlank(mimeType) && (StringUtils.equalsIgnoreCase("application/vnd.ekstep.h5p-archive", mimeType) && ".h5p" != FilenameUtils.getExtension(file.getAbsolutePath())))
+			url = url + "&fileFormat=composed-h5p-zip";
 		Map<String, String> header = new HashMap<String, String>() {{
 			put("X-Channel-Id", channelId);
 		}};
