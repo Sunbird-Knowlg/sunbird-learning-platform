@@ -8,8 +8,8 @@ import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.mvcjobs.samza.service.util.CassandraManager;
-import org.ekstep.mvcjobs.samza.service.util.MVCProcessorIndexer;
+import org.ekstep.mvcjobs.samza.service.util.MVCProcessorCassandraIndexer;
+import org.ekstep.mvcjobs.samza.service.util.MVCProcessorESIndexer;
 import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -23,13 +23,13 @@ public class MVCProcessorService implements ISamzaService {
 
 	private JobLogger LOGGER = new JobLogger(MVCProcessorService.class);
 
-	private MVCProcessorIndexer csIndexer = null;
+	private MVCProcessorESIndexer mvcIndexer = null;
 	private SystemStream systemStream = null;
-    private CassandraManager cassandraManager;
+	MVCProcessorCassandraIndexer cassandraManager = new MVCProcessorCassandraIndexer();
 	public MVCProcessorService() {}
 
-	public MVCProcessorService(MVCProcessorIndexer csIndexer) throws Exception {
-		this.csIndexer = csIndexer;
+	public MVCProcessorService(MVCProcessorESIndexer mvcIndexer) throws Exception {
+		this.mvcIndexer = mvcIndexer;
 	}
 
 	@Override
@@ -39,8 +39,8 @@ public class MVCProcessorService implements ISamzaService {
 		LearningRequestRouterPool.init();
 		LOGGER.info("Learning actors initialized");
 		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
-		csIndexer = csIndexer == null ? new MVCProcessorIndexer(): csIndexer;
-		csIndexer.createMVCSearchIndex();
+		mvcIndexer = mvcIndexer == null ? new MVCProcessorESIndexer(): mvcIndexer;
+		mvcIndexer.createMVCSearchIndex();
 		LOGGER.info(CompositeSearchConstants.MVC_SEARCH_INDEX + " created");
 	}
 
@@ -52,7 +52,7 @@ public class MVCProcessorService implements ISamzaService {
 		if (!BooleanUtils.isFalse(shouldindex)) {
 			LOGGER.debug("Indexing event into ES");
 			try {
-				processMessage(message, metrics);
+				processMessage(message);
 				LOGGER.debug("Composite record added/updated");
 				metrics.incSuccessCounter();
 			} catch (PlatformException ex) {
@@ -75,7 +75,7 @@ public class MVCProcessorService implements ISamzaService {
 		}
 	}
 
-	public void processMessage(Map<String, Object> message, JobMetrics metrics) throws Exception {
+	public void processMessage(Map<String, Object> message) throws Exception {
 		if (message != null && message.get("eventData") != null) {
 			Map<String, Object> eventData = (Map<String, Object>) message.get("eventData");
 			String nodeType =  eventData.get("nodeType") != null ? (String) eventData.get("nodeType") : CompositeSearchConstants.NODE_TYPE_DATA;
@@ -83,9 +83,10 @@ public class MVCProcessorService implements ISamzaService {
 			switch (nodeType) {
 				case CompositeSearchConstants.NODE_TYPE_SET:
 				case CompositeSearchConstants.NODE_TYPE_DATA: {
-					// csIndexer.processESMessage(graphId, objectType, uniqueId, messageId, message, metrics);
+					// mvcIndexer.processESMessage(graphId, objectType, uniqueId, messageId, message, metrics);
+
 					eventData = cassandraManager.insertintoCassandra(eventData,uniqueId);
-					csIndexer.upsertDocument(uniqueId,eventData);
+					mvcIndexer.upsertDocument(uniqueId,eventData);
 					break;
 				}
 				default: break;

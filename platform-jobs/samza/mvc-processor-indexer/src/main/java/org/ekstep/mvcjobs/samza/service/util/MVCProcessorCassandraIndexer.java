@@ -5,18 +5,19 @@ import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.cassandra.connector.util.CassandraConnector;
+import org.ekstep.cassandra.store.CassandraStore;
+import org.ekstep.learning.contentstore.ContentStore;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.mvcjobs.samza.task.Postman;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-public class CassandraManager {
-    String arr[],serverIP= "127.0.0.1",keyspace = "sunbirddev_content_store";
+public class MVCProcessorCassandraIndexer  {
+    String arr[],serverIP= "127.0.0.1",keyspace = "sunbirddev_content_store",table = "content_data";
     Session session;
     List<String> ml_level1 = null, ml_level2  = null, ml_level3 = null , textbook_name , level1_name , level2_name , level3_name , source;
     String contentreadapi = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlkeywordapi = "" , mlvectorapi = "" , source_url = null ;
@@ -24,7 +25,9 @@ public class CassandraManager {
     List<String> ml_Keywords;
     List<List<Double>> ml_contentTextVectorList;
     Set<Double> ml_contentTextVector = null;
-    CassandraManager() {
+    Map<String,Object> mapStage1 = new HashMap<>();
+    ContentStore contentStore = new ContentStore();
+  public MVCProcessorCassandraIndexer() {
         arr = CompositeSearchConstants.propertyArray;
         contentreadapi = CompositeSearchConstants.api;
         mlworkbenchapirequest = CompositeSearchConstants.mlworkbenchapirequest;
@@ -33,11 +36,12 @@ public class CassandraManager {
         mlkeywordapi = CompositeSearchConstants.mlkeywordapi;
         mlvectorapi = CompositeSearchConstants.mlvectorapi;
         // Connect to cassandra
-        Cluster cluster = Cluster.builder()
+    /*    Cluster cluster = Cluster.builder()
                 .addContactPoints(serverIP)
                 .build();
 
         session = cluster.connect(keyspace);
+    */
     }
     // Insert to cassandra
     public Map<String,Object> insertintoCassandra(Map<String,Object> obj, String identifier) {
@@ -49,38 +53,51 @@ public class CassandraManager {
         if(StringUtils.isNotBlank(action)) {
             if(action.equalsIgnoreCase("update-es-index")) {
                 obj = getContentDefinition(obj ,identifier);
-                cqlquery = "UPDATE content_data SET textbook_name = ? ,level1_concept = ? , level2_concept = ? , level3_concept = ?  , level1_name = ? , level2_name = ? , level3_name = ? , source = ? , source_url = ? WHERE content_id = ?";
+                contentStore.updateContentProperties(identifier,mapStage1);
+              /*  cqlquery = "UPDATE content_data SET textbook_name = ? ,level1_concept = ? , level2_concept = ? , level3_concept = ?  , level1_name = ? , level2_name = ? , level3_name = ? , source = ? , source_url = ? WHERE content_id = ?";
                 PreparedStatement prepared = preparestaement(session,cqlquery);
-                bound = prepared.bind(textbook_name,ml_level1,ml_level2,ml_level3,level1_name ,level2_name,level3_name,source,source_url,identifier);
+                bound = prepared.bind(textbook_name,ml_level1,ml_level2,ml_level3,level1_name ,level2_name,level3_name,source,source_url,identifier);*/
             } else if(action.equalsIgnoreCase("update-ml-keywords")) {
-                cqlquery = "UPDATE content_data SET ml_keywords = ? , ml_content_text = ? WHERE content_id = ?";
+     /*           cqlquery = "UPDATE content_data SET ml_keywords = ? , ml_content_text = ? WHERE content_id = ?";*/
                  ml_contentText = obj.get("ml_contentText") != null ? obj.get("ml_contentText").toString() : null;
                  ml_Keywords = obj.get("ml_Keywords") != null ? (List<String>) obj.get("ml_Keywords") : null;
 
                 makepostreqForVectorApi(ml_contentText,identifier);
-                PreparedStatement prepared = preparestaement(session,cqlquery);
-                bound = prepared.bind(ml_Keywords,ml_contentText,identifier);
+                Map<String,Object> mapForStage2 = new HashMap<>();
+                mapForStage2.put("ml_keywords",ml_contentText);
+                mapForStage2.put("ml_content_text",ml_Keywords);
+
+                contentStore.updateContentProperties(identifier,mapForStage2);
+
+/*                PreparedStatement prepared = preparestaement(session,cqlquery);
+                bound = prepared.bind(ml_Keywords,ml_contentText,identifier);*/
             }
             else  if(action.equalsIgnoreCase("update-ml-contenttextvector")) {
-                cqlquery = "UPDATE content_data SET ml_content_text_vector = ? WHERE content_id = ?";
+   /*             cqlquery = "UPDATE content_data SET ml_content_text_vector = ? WHERE content_id = ?";*/
                  ml_contentTextVectorList = obj.get("ml_contentTextVector") != null ? (List<List<Double>>) obj.get("ml_contentTextVector") : null;
                 if(ml_contentTextVectorList != null)
                 {
                     ml_contentTextVector = new HashSet<Double>(ml_contentTextVectorList.get(0));
 
                 }
-                PreparedStatement prepared = preparestaement(session,cqlquery);
-                bound = prepared.bind(ml_contentTextVector,identifier);
+                Map<String,Object> mapForStage3 = new HashMap<>();
+                mapForStage3.put("ml_content_text_vector",ml_contentTextVector);
+                ControllerUtil controllerUtil = new ControllerUtil();
+                controllerUtil.updateContentProperties(identifier,mapForStage3);
+              //  contentStore.updateContentProperties(identifier,mapForStage3);
+
+/*                PreparedStatement prepared = preparestaement(session,cqlquery);
+                bound = prepared.bind(ml_contentTextVector,identifier);*/
             }
         }
-        if(cqlquery != "" && bound != null) {
+        /*if(cqlquery != "" && bound != null) {
             session.execute(bound);
-        }
+        }*/
         return obj;
     }
-    PreparedStatement  preparestaement(Session session, String query) {
+    /*PreparedStatement  preparestaement(Session session, String query) {
         return session.prepare(query);
-    }
+    }*/
     Map<String,Object> getContentDefinition(Map<String,Object> newmap , String identifer) {
         try {
             String content = Postman.getContent(contentreadapi,identifer);
@@ -97,17 +114,33 @@ public class CassandraManager {
     }
     //Getting Fields to be inserted into cassandra
     private void extractFieldstobeinserted(JSONObject contentobj) {
-        if(contentobj.has("level1Concept")) {
-            ml_level1 =  (List<String>)contentobj.get("level1Concept") ;
+        if(contentobj.has("level1Concept")){
+            mapStage1.put("level1Concept",(List<String>)contentobj.get("level1Concept"));
         }
-        ml_level2 = contentobj.has("level2Concept")  ? (List<String>)contentobj.get("level2Concept") : null;
-        ml_level3 = contentobj.has("level3Concept")  ? (List<String>)contentobj.get("level3Concept") : null;
-        textbook_name = contentobj.has("textbook_name")  ? (List<String>)contentobj.get("textbook_name") : null;
-        level1_name = contentobj.has("level1Name")  ? (List<String>)contentobj.get("level1Name") : null;
-        level2_name = contentobj.has("level2Name")  ? (List<String>)contentobj.get("level2Name") : null;
-        level3_name = contentobj.has("level3Name")  ? (List<String>)contentobj.get("level3Name") : null;
-        source = contentobj.has("source")  ? (List<String>)contentobj.get("source") : null;
-        source_url = contentobj.has("sourceURL")  ? contentobj.get("sourceURL").toString() : null;
+        if(contentobj.has("level2Concept")){
+            mapStage1.put("level2Concept",(List<String>)contentobj.get("level2Concept"));
+        }
+        if(contentobj.has("level3Concept")){
+            mapStage1.put("level3Concept",(List<String>)contentobj.get("level3Concept"));
+        }
+        if(contentobj.has("textbook_name")){
+            mapStage1.put("textbook_name",(List<String>)contentobj.get("textbook_name"));
+        }
+        if(contentobj.has("level1Name")){
+            mapStage1.put("level1Name",(List<String>)contentobj.get("level1Name"));
+        }
+        if(contentobj.has("level2Name")){
+            mapStage1.put("level2Name",(List<String>)contentobj.get("level2Name"));
+        }
+        if(contentobj.has("level3Name")){
+            mapStage1.put("level3Name",(List<String>)contentobj.get("level3Name"));
+        }
+        if(contentobj.has("source")){
+            mapStage1.put("source",(List<String>)contentobj.get("source"));
+        }
+        if(contentobj.has("sourceURL")){
+            mapStage1.put("sourceURL",contentobj.get("sourceURL").toString());
+        }
     }
 
     // POST reqeuest for ml keywords api

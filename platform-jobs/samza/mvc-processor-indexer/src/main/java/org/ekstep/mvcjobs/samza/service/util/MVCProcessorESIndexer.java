@@ -3,12 +3,9 @@
  */
 package org.ekstep.mvcjobs.samza.service.util;
 
-import com.datastax.driver.core.*;
-import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.service.util.AbstractESIndexer;
-import org.ekstep.mvcjobs.samza.task.Postman;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.mvcsearchindex.elasticsearch.ElasticSearchUtil;
@@ -17,25 +14,16 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 import java.io.IOException;
 import java.util.*;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
  * @author pradyumna
  *
  */
-public class MVCProcessorIndexer extends AbstractESIndexer {
+public class MVCProcessorESIndexer extends AbstractESIndexer {
 
-	private JobLogger LOGGER = new JobLogger(MVCProcessorIndexer.class);
+	private JobLogger LOGGER = new JobLogger(MVCProcessorESIndexer.class);
 	private ObjectMapper mapper = new ObjectMapper();
-	private List<String> nestedFields = new ArrayList<String>();
 	private ControllerUtil util = new ControllerUtil();
-	public MVCProcessorIndexer() {
-		setNestedFields();
-
-
-
-	}
 
 	@Override
 	public void init() {
@@ -46,14 +34,7 @@ public class MVCProcessorIndexer extends AbstractESIndexer {
 	/**
 	 * @return
 	 */
-	private void setNestedFields() {
-		if (Platform.config.hasPath("nested.fields")) {
-			String fieldsList = Platform.config.getString("nested.fields");
-			for (String field : fieldsList.split(",")) {
-				nestedFields.add(field);
-			}
-		}
-	}
+
 
 	public void createMVCSearchIndex() throws IOException {
 		String alias = "mvc-content";
@@ -69,9 +50,9 @@ public class MVCProcessorIndexer extends AbstractESIndexer {
 	public void upsertDocument(String uniqueId, Map<String,Object> jsonIndexDocument) throws Exception {
 
 
-		String stage = jsonIndexDocument.get("stage").toString();
+		String action = jsonIndexDocument.get("action").toString();
 		jsonIndexDocument = removeExtraParams(jsonIndexDocument);
-		if(stage.equalsIgnoreCase("1")) {
+		if(action.equalsIgnoreCase("update-es-index")) {
 
 			// Insert a new doc
 			ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.MVC_SEARCH_INDEX,
@@ -89,7 +70,7 @@ public class MVCProcessorIndexer extends AbstractESIndexer {
 	// Remove params which should not be inserted into ES
 	public  Map<String,Object> removeExtraParams(Map<String,Object> obj) {
 		obj.remove("action");
-		obj.remove("stage");
+		obj.remove("action");
 		 return obj;
 	}
 
