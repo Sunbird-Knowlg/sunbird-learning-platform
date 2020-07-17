@@ -69,7 +69,7 @@ public abstract class AbstractTask extends BaseTask {
 		if(StringUtils.equalsIgnoreCase(this.eventId, eid)) {
 			String requestedJobType = (String) edata.get(SamzaCommonParams.action.name());
 			if(StringUtils.equalsIgnoreCase(this.jobType, requestedJobType)) {
-				int currentIteration = (int) edata.get(SamzaCommonParams.iteration.name());
+				int currentIteration = ((Number) edata.get(SamzaCommonParams.iteration.name())).intValue();
 				preProcess(message, collector, execution, maxIterations, currentIteration);
 				process(message, collector, coordinator);
 				postProcess(message, collector, execution, maxIterations, currentIteration);

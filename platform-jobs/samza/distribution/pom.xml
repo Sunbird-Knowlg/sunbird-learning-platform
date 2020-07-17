@@ -74,7 +74,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>post-publish-processor</artifactId>
-			<version>0.0.29</version>
+			<version>0.0.30</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
