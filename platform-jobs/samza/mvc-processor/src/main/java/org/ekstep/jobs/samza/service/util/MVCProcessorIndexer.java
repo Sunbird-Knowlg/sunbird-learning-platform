@@ -225,5 +225,4 @@ public class MVCProcessorIndexer extends AbstractESIndexer {
 		}
 	}
 
-
 }

@@ -1089,3 +1089,4 @@ public class SearchProcessorTest extends BaseSearchTest {
 		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 }
+
