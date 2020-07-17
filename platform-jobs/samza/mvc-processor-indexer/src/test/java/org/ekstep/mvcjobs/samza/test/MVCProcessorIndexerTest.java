@@ -13,18 +13,23 @@ import org.ekstep.mvcsearchindex.elasticsearch.ElasticSearchUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.api.support.membermodification.MemberModifier;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.apache.samza.config.Config;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.stub;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ElasticSearchUtil.class, Config.class, MVCProcessorESIndexer.class,Postman.class, MVCProcessorService.class,MVCProcessorCassandraIndexer.class})
@@ -44,10 +49,15 @@ public class MVCProcessorIndexerTest {
     private Config configMock;
     private Session session = null;
     private Cluster cluster;
+
+    private  MVCProcessorESIndexer mvcIndexer ;
+    private MVCProcessorCassandraIndexer mvcProcessorCassandraIndexer = null;
     @Before
     public void setup(){
         MockitoAnnotations.initMocks(this);
-        configMock = Mockito.mock(Config.class);
+        this.mvcIndexer = new MVCProcessorESIndexer();
+        mvcProcessorCassandraIndexer = new MVCProcessorCassandraIndexer();
+        configMock = mock(Config.class);
         stub(configMock.get("nested.fields")).toReturn("badgeAssertions,targets,badgeAssociations,plugins,me_totalTimeSpent,me_totalPlaySessionCount,me_totalTimeSpentInSec,batches");
     }
 
@@ -67,6 +77,21 @@ public class MVCProcessorIndexerTest {
         MVCProcessorESIndexer mvcProcessorESIndexer = new MVCProcessorESIndexer();
         mvcProcessorESIndexer.upsertDocument(uniqueId,getEvent(eventData2));
     }
+    @Test
+    public void testProcessMessage() throws Exception {
+        PowerMockito.mockStatic(MVCProcessorCassandraIndexer.class);
+        PowerMockito.when(MVCProcessorCassandraIndexer.insertintoCassandra(getEvent(case3data),uniqueId)).thenReturn(getEvent(eventData3));
+        PowerMockito.mockStatic(ElasticSearchUtil.class);
+        PowerMockito.doNothing().when(ElasticSearchUtil.class);
+        ElasticSearchUtil.updateDocument(Mockito.anyString(),Mockito.anyString(),Mockito.anyString());
+        MVCProcessorService mvcProcessorService = new MVCProcessorService();
+        MemberModifier
+                .field(MVCProcessorService.class, "mvcIndexer").set(
+                mvcProcessorService , new MVCProcessorESIndexer());
+        mvcProcessorService.processMessage(getEvent(case3data));
+    }
+
+
 
     @Test
     public void testInsertToCassandraForStage1() throws Exception  {

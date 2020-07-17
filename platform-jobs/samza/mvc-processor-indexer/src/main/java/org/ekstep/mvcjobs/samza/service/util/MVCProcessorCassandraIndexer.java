@@ -5,10 +5,7 @@ import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.cassandra.connector.util.CassandraConnector;
-import org.ekstep.cassandra.store.CassandraStore;
 import org.ekstep.learning.contentstore.ContentStore;
-import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.mvcjobs.samza.task.Postman;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.json.JSONArray;
@@ -18,7 +15,7 @@ import java.util.*;
 
 public class MVCProcessorCassandraIndexer  {
     String arr[],serverIP= "127.0.0.1",keyspace = "sunbirddev_content_store",table = "content_data";
-    Session session;
+    static Session session;
     List<String> ml_level1 = null, ml_level2  = null, ml_level3 = null , textbook_name , level1_name , level2_name , level3_name , source;
     String contentreadapi = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlkeywordapi = "" , mlvectorapi = "" , source_url = null ;
     String ml_contentText;
@@ -36,15 +33,15 @@ public class MVCProcessorCassandraIndexer  {
         mlkeywordapi = CompositeSearchConstants.mlkeywordapi;
         mlvectorapi = CompositeSearchConstants.mlvectorapi;
         // Connect to cassandra
-    /*    Cluster cluster = Cluster.builder()
+        Cluster cluster = Cluster.builder()
                 .addContactPoints(serverIP)
                 .build();
 
         session = cluster.connect(keyspace);
-    */
+
     }
     // Insert to cassandra
-    public Map<String,Object> insertintoCassandra(Map<String,Object> obj, String identifier) {
+    public static Map<String,Object> insertintoCassandra(Map<String,Object> obj, String identifier) {
         String action = obj.get("action").toString();
         String cqlquery = "";
         BoundStatement bound = null;
@@ -52,27 +49,32 @@ public class MVCProcessorCassandraIndexer  {
 
         if(StringUtils.isNotBlank(action)) {
             if(action.equalsIgnoreCase("update-es-index")) {
-                obj = getContentDefinition(obj ,identifier);
-                contentStore.updateContentProperties(identifier,mapStage1);
+             //   obj = getContentDefinition(obj ,identifier);
+            //    contentStore.updateContentProperties(identifier,mapStage1);
               /*  cqlquery = "UPDATE content_data SET textbook_name = ? ,level1_concept = ? , level2_concept = ? , level3_concept = ?  , level1_name = ? , level2_name = ? , level3_name = ? , source = ? , source_url = ? WHERE content_id = ?";
                 PreparedStatement prepared = preparestaement(session,cqlquery);
                 bound = prepared.bind(textbook_name,ml_level1,ml_level2,ml_level3,level1_name ,level2_name,level3_name,source,source_url,identifier);*/
             } else if(action.equalsIgnoreCase("update-ml-keywords")) {
+                 String ml_contentText;
+                 List<String> ml_Keywords;
      /*           cqlquery = "UPDATE content_data SET ml_keywords = ? , ml_content_text = ? WHERE content_id = ?";*/
                  ml_contentText = obj.get("ml_contentText") != null ? obj.get("ml_contentText").toString() : null;
                  ml_Keywords = obj.get("ml_Keywords") != null ? (List<String>) obj.get("ml_Keywords") : null;
 
-                makepostreqForVectorApi(ml_contentText,identifier);
-                Map<String,Object> mapForStage2 = new HashMap<>();
+             //   makepostreqForVectorApi(ml_contentText,identifier);
+/*                Map<String,Object> mapForStage2 = new HashMap<>();
                 mapForStage2.put("ml_keywords",ml_contentText);
                 mapForStage2.put("ml_content_text",ml_Keywords);
 
-                contentStore.updateContentProperties(identifier,mapForStage2);
+                contentStore.updateContentProperties(identifier,mapForStage2);*/
 
-/*                PreparedStatement prepared = preparestaement(session,cqlquery);
-                bound = prepared.bind(ml_Keywords,ml_contentText,identifier);*/
+            //   PreparedStatement prepared = preparestaement(session,cqlquery);
+              //  bound = prepared.bind(ml_Keywords,ml_contentText,identifier);
             }
             else  if(action.equalsIgnoreCase("update-ml-contenttextvector")) {
+
+                 List<List<Double>> ml_contentTextVectorList;
+                 Set<Double> ml_contentTextVector = null;
    /*             cqlquery = "UPDATE content_data SET ml_content_text_vector = ? WHERE content_id = ?";*/
                  ml_contentTextVectorList = obj.get("ml_contentTextVector") != null ? (List<List<Double>>) obj.get("ml_contentTextVector") : null;
                 if(ml_contentTextVectorList != null)
@@ -80,24 +82,22 @@ public class MVCProcessorCassandraIndexer  {
                     ml_contentTextVector = new HashSet<Double>(ml_contentTextVectorList.get(0));
 
                 }
-                Map<String,Object> mapForStage3 = new HashMap<>();
+/*                Map<String,Object> mapForStage3 = new HashMap<>();
                 mapForStage3.put("ml_content_text_vector",ml_contentTextVector);
-                ControllerUtil controllerUtil = new ControllerUtil();
-                controllerUtil.updateContentProperties(identifier,mapForStage3);
-              //  contentStore.updateContentProperties(identifier,mapForStage3);
+                contentStore.updateContentProperties(identifier,mapForStage3);*/
 
-/*                PreparedStatement prepared = preparestaement(session,cqlquery);
-                bound = prepared.bind(ml_contentTextVector,identifier);*/
+                PreparedStatement prepared = preparestaement(session,cqlquery);
+                bound = prepared.bind(ml_contentTextVector,identifier);
             }
         }
-        /*if(cqlquery != "" && bound != null) {
+        if(cqlquery != "" && bound != null) {
             session.execute(bound);
-        }*/
+        }
         return obj;
     }
-    /*PreparedStatement  preparestaement(Session session, String query) {
+    static PreparedStatement  preparestaement(Session session, String query) {
         return session.prepare(query);
-    }*/
+    }
     Map<String,Object> getContentDefinition(Map<String,Object> newmap , String identifer) {
         try {
             String content = Postman.getContent(contentreadapi,identifer);
