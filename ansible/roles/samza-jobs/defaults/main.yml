@@ -46,6 +46,6 @@ content_streaming_enabled: true
 
 
 ### if cloud storage type is AWS
-aws_access_key: {{aws_access_key | d('')}}
-aws_secret_key: {{aws_secret_key | d('')}}
-aws_storage_container: {{aws_s3_bucket | d('')}}
+aws_access_key: ""
+aws_secret_key: ""
+aws_s3_bucket: ""
