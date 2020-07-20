@@ -32,7 +32,6 @@ import org.junit.Test;
 public class ElasticSearchUtilTest extends BaseSearchTest {
 
 	private static String[] contentTypes = new String[] { "Story", "Worksheet", "Game", "Collection", "Asset" };
-	private static String[] tags = new String[] { "hindi story", "NCERT", "Pratham", "एकस्टेप", "हिन्दी", "हाथी और भालू", "worksheet", "test" };
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static Random random = new Random();
@@ -178,9 +177,6 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 			if (index % 3 == 0)
 				map.put("size", 564738);
 		}
-		Set<String> tagList = getTags();
-		if (null != tagList && !tagList.isEmpty() && index % 7 != 0)
-			map.put("tags", tagList);
 		map.put("downloads", index);
 		return map;
 	}
@@ -198,14 +194,6 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 	}
 
 
-	private static Set<String> getTags() {
-		Set<String> list = new HashSet<String>();
-		int count = RandomUtils.nextInt(9);
-		for (int i = 0; i < count; i++) {
-			list.add(tags[RandomUtils.nextInt(8)]);
-		}
-		return list;
-	}
 
 	private static String getContentType() {
 		return contentTypes[RandomUtils.nextInt(5)];
