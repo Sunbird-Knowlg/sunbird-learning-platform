@@ -153,7 +153,6 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		map.put("identifier", "do_" + suffix);
 		map.put("objectType", objectType);
 		map.put("name", "Content_" + System.currentTimeMillis() + "_name");
-		map.put("code", "code_" + System.currentTimeMillis());
 		map.put("contentType", "Content");
 		map.put("createdOn", new Date().toString());
 		map.put("lastUpdatedOn", new Date().toString());
@@ -167,7 +166,6 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		Date d = new Date();
 		Map<String, Object> map = getTestRecord(id, index, "do", objectType);
 		map.put("name", "Content_" + System.currentTimeMillis() + "_name");
-		map.put("code", "code_" + System.currentTimeMillis());
 		map.put("contentType", getContentType());
 		map.put("createdOn", new Date().toString());
 		map.put("lastUpdatedOn", new Date().toString());

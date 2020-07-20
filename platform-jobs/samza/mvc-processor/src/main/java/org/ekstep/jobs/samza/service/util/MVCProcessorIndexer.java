@@ -7,12 +7,11 @@ import com.datastax.driver.core.*;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
-import org.ekstep.jobs.samza.task.Postman;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.mvcsearchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-
+import org.ekstep.searchindex.util.HTTPUtil;
 import java.io.IOException;
 import java.util.*;
 
@@ -151,7 +150,7 @@ public class MVCProcessorIndexer extends AbstractESIndexer {
 	// Read content definition
 	Map<String,Object> getContentDefinition(Map<String,Object> newmap , String identifer) {
 		try {
-			String content = Postman.getContent(contentreadapi,identifer);
+			String content = HTTPUtil.makeGetRequest(contentreadapi+identifer);
 			JSONObject obj = new JSONObject(content);
 			JSONObject contentobj = (JSONObject) (((JSONObject)obj.get("result")).get("content"));
 			extractFieldstobeinserted(contentobj);
@@ -160,6 +159,7 @@ public class MVCProcessorIndexer extends AbstractESIndexer {
 
 		}catch (Exception e) {
             System.out.println(e);
+			System.out.println("Exception while fetching content metadata");
 		}
 		return newmap;
 }
@@ -187,7 +187,13 @@ public class MVCProcessorIndexer extends AbstractESIndexer {
 		JSONArray content = (JSONArray)input.get("content");
 		content.put(contentdef);
 	req.put("job",jobname);
-	String resp = Postman.POST(obj.toString(),mlkeywordapi);
+	try {
+		String resp = HTTPUtil.makePostRequest(mlkeywordapi,obj.toString());
+	}
+	catch (Exception e) {
+		System.out.println("Exception while making ml keyword post request");
+	}
+
 }
 
    // Filter the params of content defintion to add in ES
@@ -215,13 +221,13 @@ public class MVCProcessorIndexer extends AbstractESIndexer {
 			JSONArray text = (JSONArray) req.get("text");
 			req.put("cid",identifier);
 			text.put(contentText);
-			String resp = Postman.POST(obj.toString(),mlvectorapi);
+			String resp = HTTPUtil.makePostRequest(mlvectorapi,obj.toString());
 			JSONObject respobj = new JSONObject(resp);
 			String status = (((JSONObject)respobj.get("result")).get("status")).toString();
 			System.out.println("Vector list api status is " + status);
 		}
 		catch (Exception e) {
-
+          System.out.println("Exception while making ML vector api request");
 		}
 	}
 

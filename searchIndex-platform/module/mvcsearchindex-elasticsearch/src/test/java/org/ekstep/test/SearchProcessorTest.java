@@ -63,7 +63,6 @@ public class SearchProcessorTest extends BaseSearchTest {
 		Date d = new Date();
 		Map<String, Object> map = getTestRecord(id, index, "do", objectType);
 		map.put("name", "Content_" + System.currentTimeMillis() + "_name");
-		map.put("code", "code_" + System.currentTimeMillis());
 		map.put("contentType", getContentType());
 		map.put("createdOn", new Date().toString());
 		map.put("lastUpdatedOn", new Date().toString());
