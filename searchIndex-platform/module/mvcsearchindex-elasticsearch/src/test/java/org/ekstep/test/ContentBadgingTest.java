@@ -28,7 +28,8 @@ import scala.concurrent.Future;
  * @author pradyumna
  *
  */
-public class ContentBadgingTest extends BaseSearchTest {
+public class
+ContentBadgingTest extends BaseSearchTest {
 
 	private static SearchProcessor searchprocessor = new SearchProcessor();
 

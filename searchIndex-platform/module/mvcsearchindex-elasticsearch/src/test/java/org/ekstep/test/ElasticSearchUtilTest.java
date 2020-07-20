@@ -43,8 +43,8 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		Map<String, Object> content = getContentTestRecord();
 		String id = (String) content.get("identifier");
 		addToIndex(id, content);
-		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
+		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX,
+				CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, id);
 		assertTrue(StringUtils.contains(doc, id));
 	}
 
@@ -52,8 +52,8 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 	public void testAddDocumentWithOutId() throws Exception {
 		Map<String, Object> content = getContentTestRecord();
 		content.remove("identifier");
-		ElasticSearchUtil.addDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, mapper.writeValueAsString(content));
+		ElasticSearchUtil.addDocument(CompositeSearchConstants.MVC_SEARCH_INDEX,
+				CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, mapper.writeValueAsString(content));
 	}
 
 	@Test
@@ -66,10 +66,10 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 			ids.add(id);
 			jsonObjects.put(id, content);
 		}
-		ElasticSearchUtil.bulkIndexWithIndexId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, jsonObjects);
+		ElasticSearchUtil.bulkIndexWithIndexId(CompositeSearchConstants.MVC_SEARCH_INDEX,
+				CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, jsonObjects);
 		List<String> resultDocs = ElasticSearchUtil.getMultiDocumentAsStringByIdList(
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE,
+				CompositeSearchConstants.MVC_SEARCH_INDEX, CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE,
 				ids);
 
 		assertNotNull(resultDocs);
@@ -85,8 +85,8 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 			id = (String) content.get("name");
 			jsonObjects.add(content);
 		}
-		ElasticSearchUtil.bulkIndexWithAutoGenerateIndexId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, jsonObjects);
+		ElasticSearchUtil.bulkIndexWithAutoGenerateIndexId(CompositeSearchConstants.MVC_SEARCH_INDEX,
+				CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, jsonObjects);
 	}
 
 	@Test
@@ -95,10 +95,10 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		String id = (String) content.get("identifier");
 		addToIndex(id, content);
 		content.put("name", "Content_" + System.currentTimeMillis() + "_name");
-		ElasticSearchUtil.updateDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, mapper.writeValueAsString(content), id);
-		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
+		ElasticSearchUtil.updateDocument(CompositeSearchConstants.MVC_SEARCH_INDEX,
+				CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, mapper.writeValueAsString(content), id);
+		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX,
+				CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, id);
 		assertTrue(StringUtils.contains(doc, id));
 	}
 
@@ -107,10 +107,10 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		Map<String, Object> content = getContentTestRecord();
 		String id = (String) content.get("identifier");
 		addToIndex(id, content);
-		ElasticSearchUtil.deleteDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
-		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
+		ElasticSearchUtil.deleteDocument(CompositeSearchConstants.MVC_SEARCH_INDEX,
+				CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, id);
+		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX,
+				CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, id);
 		assertFalse(StringUtils.contains(doc, id));
 	}
 
@@ -124,7 +124,7 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		criteria.put("identifier", new ArrayList<>(Arrays.asList(id)));
 
 		List<Map> result = ElasticSearchUtil.textSearchReturningId(criteria,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+				CompositeSearchConstants.MVC_SEARCH_INDEX, CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE);
 
 		assertNotNull(result);
 		System.out.println("Search with ID: Size : " + result.size());
@@ -137,10 +137,10 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		List<String> identifiers = createBulkTestRecord(100);
 		//For Negative Scenario, bulkDeleteDocumentById() should log failed identifiers.
 		//identifiers.add("TDOC_1");
-		ElasticSearchUtil.bulkDeleteDocumentById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE,identifiers);
+		ElasticSearchUtil.bulkDeleteDocumentById(CompositeSearchConstants.MVC_SEARCH_INDEX,CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE,identifiers);
 		for(String id : identifiers){
-			String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
+			String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX,
+					CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, id);
 			assertFalse(StringUtils.contains(doc, id));
 		}
 	}
@@ -225,8 +225,8 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 			Map<String, Object> content = getContentTestRecord();
 			String id = (String) content.get("identifier");
 			addToIndex(id, content);
-			String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
+			String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX,
+					CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, id);
 			if (StringUtils.contains(doc, id)) {
 				identifiers.add(id);
 			}
