@@ -6,7 +6,6 @@ package org.ekstep.test;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
 import org.ekstep.mvcsearchindex.elasticsearch.ElasticSearchUtil;
-import org.ekstep.mvcsearchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -20,7 +19,6 @@ import java.util.Map;
 public class BaseSearchTest {
 
 	protected static ObjectMapper mapper = new ObjectMapper();
-	protected static SearchProcessor searchprocessor = new SearchProcessor();
 
 	@BeforeClass
 	public static void beforeTest() throws Exception {
