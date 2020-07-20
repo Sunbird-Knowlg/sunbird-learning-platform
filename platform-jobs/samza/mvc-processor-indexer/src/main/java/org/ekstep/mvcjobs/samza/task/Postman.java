@@ -28,13 +28,9 @@ public class Postman {
         return client;
     }
 
-    public static String getContent(String api , String identifier)throws Exception {
-        HttpGet get = new HttpGet(api+identifier);
 
-        return GET(get);
-    }
-
-    public static String GET(HttpGet get)throws Exception {
+    public static String GET(String api)throws Exception {
+        HttpGet get = new HttpGet(api);
         String strResponse = null;
         get.setHeader("Content-Type", "application/json; charset=utf-8");
         HttpResponse response = getHttpClient().execute(get);
