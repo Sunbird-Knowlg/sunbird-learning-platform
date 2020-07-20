@@ -2935,7 +2935,22 @@
                     "defaultValue": "",
                     "renderingHints": "{ 'inputType': 'text', 'order': 8 }",
                     "indexed": true
-                }
+                },
+				{
+					"required": false,
+					"dataType": "List",
+					"propertyName": "category",
+					"title": "Category",
+					"description": "Category",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+					],
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				}
 			],
 			"inRelations": [
 				{
@@ -3244,7 +3259,8 @@
 					"leafNodes",
 					"origin",
 					"originData",
-					"plugins"
+					"plugins",
+					"category"
 				]
 			}
 		}
