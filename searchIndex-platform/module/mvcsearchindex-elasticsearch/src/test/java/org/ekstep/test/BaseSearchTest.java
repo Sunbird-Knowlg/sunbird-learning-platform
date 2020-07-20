@@ -33,7 +33,7 @@ public class BaseSearchTest {
 	}
 
 	protected static void createCompositeSearchIndex() throws Exception {
-		CompositeSearchConstants.MVC_SEARCH_INDEX = "testbadge";
+		CompositeSearchConstants.MVC_SEARCH_INDEX = "testmvcindex";
 		ElasticSearchUtil.initialiseESClient(CompositeSearchConstants.MVC_SEARCH_INDEX,
 				Platform.config.getString("search.es_conn_info"));
 		System.out.println("creating index: " + CompositeSearchConstants.MVC_SEARCH_INDEX);
