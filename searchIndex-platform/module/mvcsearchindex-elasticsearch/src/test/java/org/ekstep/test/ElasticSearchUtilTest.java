@@ -45,7 +45,7 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		addToIndex(id, content);
 		content.put("name", "Content_" + System.currentTimeMillis() + "_name");
 		ElasticSearchUtil.updateDocument(CompositeSearchConstants.MVC_SEARCH_INDEX,
-				CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, mapper.writeValueAsString(content), id);
+				 mapper.writeValueAsString(content), id);
 		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX,
 				CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, id);
 		assertTrue(StringUtils.contains(doc, id));

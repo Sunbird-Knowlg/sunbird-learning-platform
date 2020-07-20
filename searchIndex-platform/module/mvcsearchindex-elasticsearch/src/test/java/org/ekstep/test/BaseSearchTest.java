@@ -46,7 +46,7 @@ public class BaseSearchTest {
 	protected static void addToIndex(String uniqueId, Map<String, Object> doc) throws Exception {
 		String jsonIndexDocument = mapper.writeValueAsString(doc);
 		ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.MVC_SEARCH_INDEX,
-				CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
+				 uniqueId, jsonIndexDocument);
 	}
 
 }
