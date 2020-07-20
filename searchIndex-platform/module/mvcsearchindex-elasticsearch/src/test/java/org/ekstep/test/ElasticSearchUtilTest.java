@@ -26,7 +26,7 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 	private static Random random = new Random();
 
 
-	@Test
+	/*@Test
 	public void testAddDocumentWithId() throws Exception {
 		Map<String, Object> content = getContentTestRecord();
 		String id = (String) content.get("identifier");
@@ -49,7 +49,7 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX,
 				CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, id);
 		assertTrue(StringUtils.contains(doc, id));
-	}
+	}*/
 
 
 
