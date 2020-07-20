@@ -29,6 +29,7 @@ jobs:
           name: Setup VM, Test and Update Sonar
           command: bash vmsetup.sh
      
+     
 workflows:
   version: 2.1
   workflow:
