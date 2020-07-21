@@ -34,8 +34,8 @@ public class MVCProcessorService implements ISamzaService {
 	public void initialize(Config config) throws Exception {
 		JSONUtils.loadProperties(config);
 		LOGGER.info("Service config initialized");
-		LearningRequestRouterPool.init();
-		LOGGER.info("Learning actors initialized");
+		// LearningRequestRouterPool.init();
+		// LOGGER.info("Learning actors initialized");
 		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
 		csIndexer = csIndexer == null ? new MVCProcessorIndexer(): csIndexer;
 		csIndexer.createMVCSearchIndex();
