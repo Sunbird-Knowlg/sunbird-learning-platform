@@ -70,7 +70,4 @@ public class CompositeSearchConstants {
 	public static final String SEARCH_OPERATION_CONTAINS_OPERATOR = "contains";
 	public static final String SEARCH_OPERATION_AND_TEXT_LOWERCASE = "and";
 	public static final String SEARCH_OPERATION_AND_OPERATOR = "&";
-	public static final String propertyArray[] = {"organisation","channel","framework","board","medium","subject","gradeLevel","name","description","language","appId","appIcon","appIconLabel","contentEncoding","identifier","node_id","nodeType","mimeType","resourceType","contentType","allowedContentTypes","objectType","posterImage","artifactUrl","launchUrl","previewUrl","streamingUrl","downloadUrl","status","pkgVersion","source","lastUpdatedOn","ml_contentText","ml_contentTextVector","ml_Keywords","level1Name","level1Concept","level2Name","level2Concept","level3Name","level3Concept","textbook_name","sourceURL","label","all_fields"};
-	public static final String api = "https://dock.sunbirded.org/";
-	public static final String contentreadurl = "api/content/v1/read/";
 }
