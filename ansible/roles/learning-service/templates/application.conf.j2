@@ -230,7 +230,7 @@ learning.content.type.not.copied.list=["Asset"]
 youtube.license.regex.pattern=["\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)","^([A-Za-z0-9\\-\\_]*)"]
 
 cloud_storage_type="{{ cloud_store }}"
-{% if cloud_store == 'aws' %}
+{% if cloud_store|lower == 'aws' %}
 aws_storage_key="{{ aws_access_key }}"
 aws_storage_secret="{{ aws_secret_key }}"
 aws_storage_container="{{ aws_s3_bucket }}"
