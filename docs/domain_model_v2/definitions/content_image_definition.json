@@ -2938,14 +2938,12 @@
                 },
 				{
 					"required": false,
-					"dataType": "List",
+					"dataType": "Text",
 					"propertyName": "category",
 					"title": "Category",
 					"description": "Category",
 					"category": "General",
 					"displayProperty": "Editable",
-					"range": [
-					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
