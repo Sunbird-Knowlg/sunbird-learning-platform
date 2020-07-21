@@ -28,18 +28,17 @@ public class MVCProcessorIndexer extends AbstractESIndexer {
 	private ObjectMapper mapper = new ObjectMapper();
 	private List<String> nestedFields = new ArrayList<String>();
 	private ControllerUtil util = new ControllerUtil();
-	String arr[];
+	String arr[] = {"organisation","channel","framework","board","medium","subject","gradeLevel","name","description","language","appId","appIcon","appIconLabel","contentEncoding","identifier","node_id","nodeType","mimeType","resourceType","contentType","allowedContentTypes","objectType","posterImage","artifactUrl","launchUrl","previewUrl","streamingUrl","downloadUrl","status","pkgVersion","source","lastUpdatedOn","ml_contentText","ml_contentTextVector","ml_Keywords","level1Name","level1Concept","level2Name","level2Concept","level3Name","level3Concept","textbook_name","sourceURL","label","all_fields"};
     String contentreadapi = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlkeywordapi = "" , mlvectorapi = "" , source_url = null ;
 	List<String> ml_level1 = null, ml_level2  = null, ml_level3 = null , textbook_name , level1_name , level2_name , level3_name , source;
 	public MVCProcessorIndexer() {
 		setNestedFields();
-			arr = CompositeSearchConstants.propertyArray;
-			contentreadapi = CompositeSearchConstants.api;
-			mlworkbenchapirequest = CompositeSearchConstants.mlworkbenchapirequest;
-			mlvectorListRequest = CompositeSearchConstants.mlvectorListRequest;
-			jobname = CompositeSearchConstants.jobname;
-			mlkeywordapi = CompositeSearchConstants.mlkeywordapi;
-			mlvectorapi = CompositeSearchConstants.mlvectorapi;
+			contentreadapi = Platform.config.getString("kp.content_service.base_url") + "/content/v3/read/";
+			mlworkbenchapirequest = "{\"request\":{ \"input\" :{ \"content\" : [] } } }";
+			mlvectorListRequest = "{\"request\":{\"text\":[],\"cid\": \"\",\"language\":\"en\",\"method\":\"BERT\",\"params\":{\"dim\":768,\"seq_len\":25}}}";
+			jobname = "vidyadaan_content_keyword_tagging";
+			mlkeywordapi = "http://127.0.0.1:3579/daggit/submit";
+			mlvectorapi = "http://127.0.0.1:1729/ml/vector/search";
 	}
 
 	@Override
