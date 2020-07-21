@@ -1,41 +1,30 @@
 package org.ekstep.mvcjobs.samza.service.util;
 
-import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.learning.contentstore.ContentStore;
-import org.ekstep.mvcjobs.samza.task.Postman;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.ekstep.searchindex.util.HTTPUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.*;
 
 public class MVCProcessorCassandraIndexer  {
-    String arr[],serverIP= "127.0.0.1",keyspace = "sunbirddev_content_store",table = "content_data";
-    static Session session;
-    List<String> ml_level1 = null, ml_level2  = null, ml_level3 = null , textbook_name , level1_name , level2_name , level3_name , source;
-    String contentreadapi = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlkeywordapi = "" , mlvectorapi = "" , source_url = null ;
-    String ml_contentText;
-    List<String> ml_Keywords;
-    List<List<Double>> ml_contentTextVectorList;
-    Set<Double> ml_contentTextVector = null;
+    String arr[] = {"organisation","channel","framework","board","medium","subject","gradeLevel","name","description","language","appId","appIcon","appIconLabel","contentEncoding","identifier","node_id","nodeType","mimeType","resourceType","contentType","allowedContentTypes","objectType","posterImage","artifactUrl","launchUrl","previewUrl","streamingUrl","downloadUrl","status","pkgVersion","source","lastUpdatedOn","ml_contentText","ml_contentTextVector","ml_Keywords","level1Name","level1Concept","level2Name","level2Concept","level3Name","level3Concept","textbook_name","sourceURL","label","all_fields"};;
+    String contentreadapi = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlkeywordapi = "" , mlvectorapi = ""  ;
     Map<String,Object> mapStage1 = new HashMap<>();
-    ContentStore contentStore = new ContentStore();
   public MVCProcessorCassandraIndexer() {
-        arr = CompositeSearchConstants.propertyArray;
         contentreadapi = CompositeSearchConstants.api;
-        mlworkbenchapirequest = CompositeSearchConstants.mlworkbenchapirequest;
-        mlvectorListRequest = CompositeSearchConstants.mlvectorListRequest;
-        jobname = CompositeSearchConstants.jobname;
-        mlkeywordapi = CompositeSearchConstants.mlkeywordapi;
-        mlvectorapi = CompositeSearchConstants.mlvectorapi;
+        mlworkbenchapirequest = "{\"request\":{ \"input\" :{ \"content\" : [] } } }";
+        mlvectorListRequest = "{\"request\":{\"text\":[],\"cid\": \"\",\"language\":\"en\",\"method\":\"BERT\",\"params\":{\"dim\":768,\"seq_len\":25}}}";
+        jobname = "vidyadaan_content_keyword_tagging";
+        mlkeywordapi = "http://127.0.0.1:3579/daggit/submit";
+        mlvectorapi = "http://127.0.0.1:1729/ml/vector/search";
 
     }
     // Insert to cassandra
-    public  Map<String,Object> insertintoCassandra(Map<String,Object> obj, String identifier) {
+    public  Map<String,Object> insertintoCassandra(Map<String,Object> obj, String identifier) throws Exception {
         String action = obj.get("action").toString();
 
         if(StringUtils.isNotBlank(action)) {
@@ -50,8 +39,8 @@ public class MVCProcessorCassandraIndexer  {
 
                 makepostreqForVectorApi(ml_contentText,identifier);
                 Map<String,Object> mapForStage2 = new HashMap<>();
-                mapForStage2.put("ml_keywords",ml_contentText);
-                mapForStage2.put("ml_content_text",ml_Keywords);
+                mapForStage2.put("ml_keywords",ml_Keywords);
+                mapForStage2.put("ml_content_text",ml_contentText);
 
                 CassandraConnector.updateContentProperties(identifier,mapForStage2);
             }
@@ -74,9 +63,9 @@ public class MVCProcessorCassandraIndexer  {
         return obj;
     }
 
-    Map<String,Object> getContentDefinition(Map<String,Object> newmap , String identifer) {
+    Map<String,Object> getContentDefinition(Map<String,Object> newmap , String identifer) throws Exception {
         try {
-            String content = Postman.GET(contentreadapi+identifer);
+            String content = HTTPUtil.makeGetRequest(contentreadapi+identifer);
             JSONObject obj = new JSONObject(content);
             JSONObject contentobj = (JSONObject) (((JSONObject)obj.get("result")).get("content"));
             extractFieldstobeinserted(contentobj);
@@ -85,52 +74,60 @@ public class MVCProcessorCassandraIndexer  {
 
         }catch (Exception e) {
             System.out.println(e);
+            throw new Exception("Get content metdata failed");
         }
         return newmap;
     }
     //Getting Fields to be inserted into cassandra
     private void extractFieldstobeinserted(JSONObject contentobj) {
         if(contentobj.has("level1Concept")){
-            mapStage1.put("level1Concept",(List<String>)contentobj.get("level1Concept"));
+            mapStage1.put("level1Concept",contentobj.get("level1Concept"));
         }
         if(contentobj.has("level2Concept")){
-            mapStage1.put("level2Concept",(List<String>)contentobj.get("level2Concept"));
+            mapStage1.put("level2Concept",contentobj.get("level2Concept"));
         }
         if(contentobj.has("level3Concept")){
-            mapStage1.put("level3Concept",(List<String>)contentobj.get("level3Concept"));
+            mapStage1.put("level3Concept",contentobj.get("level3Concept"));
         }
         if(contentobj.has("textbook_name")){
-            mapStage1.put("textbook_name",(List<String>)contentobj.get("textbook_name"));
+            mapStage1.put("textbook_name",contentobj.get("textbook_name"));
         }
         if(contentobj.has("level1Name")){
-            mapStage1.put("level1Name",(List<String>)contentobj.get("level1Name"));
+            mapStage1.put("level1Name",contentobj.get("level1Name"));
         }
         if(contentobj.has("level2Name")){
-            mapStage1.put("level2Name",(List<String>)contentobj.get("level2Name"));
+            mapStage1.put("level2Name",contentobj.get("level2Name"));
         }
         if(contentobj.has("level3Name")){
-            mapStage1.put("level3Name",(List<String>)contentobj.get("level3Name"));
+            mapStage1.put("level3Name",contentobj.get("level3Name"));
         }
         if(contentobj.has("source")){
-            mapStage1.put("source",(List<String>)contentobj.get("source"));
+            mapStage1.put("source",contentobj.get("source"));
         }
         if(contentobj.has("sourceURL")){
-            mapStage1.put("sourceURL",contentobj.get("sourceURL").toString());
+            mapStage1.put("sourceURL",contentobj.get("sourceURL"));
         }
     }
 
     // POST reqeuest for ml keywords api
-    void makepostreqForMlAPI(JSONObject contentdef) {
-        JSONObject obj = new JSONObject(mlworkbenchapirequest);
-        JSONObject req = ((JSONObject)(obj.get("request")));
-        JSONObject input = (JSONObject)req.get("input");
-        JSONArray content = (JSONArray)input.get("content");
-        content.put(contentdef);
-        req.put("job",jobname);
-        String resp = Postman.POST(obj.toString(),mlkeywordapi);
+    void makepostreqForMlAPI(JSONObject contentdef) throws Exception {
+        try {
+
+            JSONObject obj = new JSONObject(mlworkbenchapirequest);
+            JSONObject req = ((JSONObject)(obj.get("request")));
+            JSONObject input = (JSONObject)req.get("input");
+            JSONArray content = (JSONArray)input.get("content");
+            content.put(contentdef);
+            req.put("job",jobname);
+            String resp = HTTPUtil.makePostRequest(mlkeywordapi,obj.toString());
+        }
+        catch (Exception e) {
+            System.out.println(e);
+            throw new Exception("Ml keyword api failed");
+        }
     }
 
-    // Filter the params of content defintion to add in ES
+    // Filter the params of content  to add in ES
     public  Map<String,Object> filterData(Map<String,Object> obj ,JSONObject content) {
 
         String key = null;
@@ -148,20 +145,17 @@ public class MVCProcessorCassandraIndexer  {
     }
 
     // Post reqeuest for vector api
-    public  void makepostreqForVectorApi(String contentText,String identifier) {
+    public  void makepostreqForVectorApi(String contentText,String identifier) throws Exception {
         try {
             JSONObject obj = new JSONObject(mlworkbenchapirequest);
             JSONObject req = ((JSONObject) (obj.get("request")));
-            JSONArray text = (JSONArray) req.get("text");
             req.put("cid",identifier);
-            text.put(contentText);
-            String resp = Postman.POST(obj.toString(),mlvectorapi);
-            JSONObject respobj = new JSONObject(resp);
-            String status = (((JSONObject)respobj.get("result")).get("status")).toString();
-            System.out.println("Vector list api status is " + status);
+            req.put("text",contentText);
+            String resp = HTTPUtil.makePostRequest(mlvectorapi,obj.toString());
         }
         catch (Exception e) {
            System.out.println(e);
+           throw new Exception("ML vector api failed");
         }
     }
 

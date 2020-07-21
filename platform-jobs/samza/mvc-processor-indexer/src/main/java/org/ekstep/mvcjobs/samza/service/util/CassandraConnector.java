@@ -4,7 +4,6 @@ import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
@@ -13,7 +12,6 @@ import java.util.Set;
 public class CassandraConnector {
   static  String arr[],serverIP= "127.0.0.1",keyspace = "sunbirddev_content_store",table = "content_data";
    static Session session;
-    static ObjectMapper mapper = new ObjectMapper();
     static Session getSession() {
         Cluster cluster = Cluster.builder()
                 .addContactPoints(serverIP)

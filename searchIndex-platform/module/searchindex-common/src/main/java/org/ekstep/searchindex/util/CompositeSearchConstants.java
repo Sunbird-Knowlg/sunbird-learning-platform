@@ -4,7 +4,7 @@ import org.ekstep.common.Platform;
 
 public class CompositeSearchConstants {
 	public static String COMPOSITE_SEARCH_INDEX = Platform.config.hasPath("compositesearch.index.name") ? Platform.config.getString("compositesearch.index.name"): "compositesearch";
-	public static String MVC_SEARCH_INDEX = "mvc-content-v1";
+	public static String MVC_SEARCH_INDEX = "mvc-content-v2";
 	public static final String OPERATION_CREATE = "CREATE";
 	public static final String OPERATION_UPDATE = "UPDATE";
 	public static final String OPERATION_DELETE = "DELETE";
@@ -70,11 +70,5 @@ public class CompositeSearchConstants {
 	public static final String SEARCH_OPERATION_CONTAINS_OPERATOR = "contains";
 	public static final String SEARCH_OPERATION_AND_TEXT_LOWERCASE = "and";
 	public static final String SEARCH_OPERATION_AND_OPERATOR = "&";
-	public static final String propertyArray[] = {"organisation","channel","framework","board","medium","subject","gradeLevel","name","description","language","appId","appIcon","appIconLabel","contentEncoding","identifier","node_id","nodeType","mimeType","resourceType","contentType","allowedContentTypes","objectType","posterImage","artifactUrl","launchUrl","previewUrl","streamingUrl","downloadUrl","status","pkgVersion","source","lastUpdatedOn","ml_contentText","ml_contentTextVector","ml_Keywords","level1Name","level1Concept","level2Name","level2Concept","level3Name","level3Concept","textbook_name","sourceURL","label","all_fields"};
 	public static final String api = "https://dock.sunbirded.org/api/content/v1/read/";
-	public static final String mlworkbenchapirequest  = "{\"request\":{ \"input\" :{ \"content\" : [] } } }";
-	public static final String	mlvectorListRequest = "{\"request\":{\"text\":[],\"cid\": \"\",\"language\":\"en\",\"method\":\"BERT\",\"params\":{\"dim\":768,\"seq_len\":25}}}";
-	public static final String	jobname = "vidyadaan_content_keyword_tagging";
-	public static final String	mlkeywordapi = "http://127.0.0.1:3579/daggit/submit";
-	public static final String	mlvectorapi = "http://127.0.0.1:1729/ml/vector/search";
 }
