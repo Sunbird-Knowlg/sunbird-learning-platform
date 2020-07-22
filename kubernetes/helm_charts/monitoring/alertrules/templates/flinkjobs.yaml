@@ -1,0 +1,131 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    role: alert-rules
+    app: {{ .Values.prometheus_rule_selector_app }}
+    release: {{ .Values.prometheus_rule_selector_release }}
+  name: {{ .Values.fullnameOverride }}-flinkjobs-rules
+  namespace: {{ .Values.namespace }}
+spec:
+  groups:
+  - name: alertrules.flinkjobs
+    rules:
+    - alert: telemetry-extractor lag critical
+      expr: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "telemetry-extractor-taskmanager-metrics" }) >  {{ .Values.telemetry_extractor_threshold_critical }}
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        message: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "telemetry-extractor-taskmanager-metrics" }) > {{ .Values.telemetry_extractor_threshold_critical }} 
+        summary: telemetry-extractor lag is critical
+
+    - alert: telemetry-extractor lag fatal
+      expr: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "telemetry-extractor-taskmanager-metrics" }) >  {{ .Values.telemetry_extractor_threshold_fatal }}
+      for: 5m
+      labels:
+        severity: fatal
+      annotations:
+        message: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "telemetry-extractor-taskmanager-metrics" }) > {{ .Values.telemetry_extractor_threshold_fatal }}
+        summary: telemetry-extractor lag is fatal 
+
+    - alert: pipeline-preprocessor lag critical
+      expr: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "pipeline-preprocessor-taskmanager-metrics" }) > {{ .Values.pipeline_preprocessor_threshold_critical }}
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        message: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "pipeline-preprocessor-taskmanager-metrics" }) > {{ .Values.pipeline_preprocessor_threshold_critical }} 
+        summary: pipeline-preprocessor lag is critical
+
+    - alert: pipeline-preprocessor lag fatal
+      expr: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "pipeline-preprocessor-taskmanager-metrics" }) > {{ .Values.pipeline_preprocessor_threshold_fatal }}
+      for: 5m
+      labels:
+        severity: fatal
+      annotations:
+        message: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "pipeline-preprocessor-taskmanager-metrics" }) > {{ .Values.pipeline_preprocessor_threshold_fatal }}
+        summary:  pipeline-preprocessor lag is fatal 
+   
+    - alert:  de-normalization lag critical
+      expr: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "de-normalization-taskmanager-metrics" }) > {{ .Values.de_normalization_threshold_critical }}
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        message: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "de-normalization-taskmanager-metrics" }) > {{ .Values.de_normalization_threshold_critical }}
+        summary: de-normalization lag is critical
+
+    - alert:  de-normalization lag fatal
+      expr: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "de-normalization-taskmanager-metrics" }) > {{ .Values.de_normalization_threshold_fatal }}
+      for: 5m
+      labels:
+        severity: fatal
+      annotations:
+        message: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "de-normalization-taskmanager-metrics" }) > {{ .Values.de_normalization_threshold_fatal }}
+        summary: de-normalization lag is fatal
+
+    - alert:  druid-validator lag critical
+      expr: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "druid-validator-taskmanager-metrics" }) > {{ .Values.druid_validator_threshold_critical }}
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        message: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "de-normalization-taskmanager-metrics" }) > {{ .Values.druid_validator_threshold_critical }}
+        summary: druid-validator lag is critical
+
+    - alert:  druid-validator lag fatal
+      expr: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "druid-validator-taskmanager-metrics" }) > {{ .Values.druid_validator_threshold_fatal }}
+      for: 5m
+      labels:
+        severity: fatal
+      annotations:
+        message: sum(flink_taskmanager_job_task_operator_KafkaConsumer_records_lag_max { job = "de-normalization-taskmanager-metrics" }) > {{ .Values.druid_validator_threshold_fatal }}
+        summary: druid-validator lag is fatal
+#### Checkpoint failure alert rules
+    
+    - alert: telemetry-extractor checkpoint failure critical
+      expr: sum(flink_jobmanager_job_numberOfFailedCheckpoints { job = "telemetry-extractor-jobmanager-metrics" }) > {{ .Values.telemetry_extractor_checkpointfailure_threshold_critical }}
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        message: sum(flink_jobmanager_job_numberOfFailedCheckpoints { job = "telemetry-extractor-jobmanager-metrics" }) > {{ .Values.telemetry_extractor_checkpointfailure_threshold_critical }} 
+        summary: telemetry-extractor checkpoint failure critical
+
+    - alert: pipeline-preprocessor checkpoint failure critical
+      expr: sum(flink_jobmanager_job_numberOfFailedCheckpoints { job = "pipeline-preprocessor-jobmanager-metrics" }) > {{ .Values.pipeline_preprocessor_checkpointfailure_threshold_critical }}
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        message: sum(flink_jobmanager_job_numberOfFailedCheckpoints { job = "pipeline-preprocessor-jobmanager-metrics" }) > {{ .Values.pipeline_preprocessor_checkpointfailure_threshold_critical }} 
+        summary: pipeline-preprocessor checkpoint failure critical
+
+    - alert: de-normalization checkpoint failure critical
+      expr: sum(flink_jobmanager_job_numberOfFailedCheckpoints { job = "de-normalization-jobmanager-metrics" }) > {{ .Values.de_normalization_checkpointfailure_threshold_critical }}
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        message: sum(flink_jobmanager_job_numberOfFailedCheckpoints { job = "de-normalization-jobmanager-metrics" }) > {{ .Values.de_normalization_checkpointfailure_threshold_critical }} 
+        summary: de-normalization checkpoint failure critical
+
+    - alert: druid-validator checkpoint failure critical
+      expr: sum(flink_jobmanager_job_numberOfFailedCheckpoints { job = "druid-validator-jobmanager-metrics" }) > {{ .Values.druid_validator_checkpointfailure_threshold_critical }}
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        message: sum(flink_jobmanager_job_numberOfFailedCheckpoints { job = "druid-validator-jobmanager-metrics" }) > {{ .Values.druid_validator_checkpointfailure_threshold_critical }} 
+        summary: druid-validator checkpoint failure critical
+
+    - alert: TelemetryExtractor failed events percentage fatal
+      expr: sum(sum_over_time(flink_taskmanager_job_task_operator_TelemetryExtractorJob_failed_batch_count[5m])) / (sum(sum_over_time(flink_taskmanager_job_task_operator_TelemetryExtractorJob_failed_batch_count[5m]))  + sum(sum_over_time(flink_taskmanager_job_task_operator_TelemetryExtractorJob_success_batch_count[5m]))  + sum(sum_over_time(flink_taskmanager_job_task_operator_TelemetryExtractorJob_duplicate_event_count[5m]))) * 100 > {{ .Values.telemetry_extractor_failed_events_percentage_threshold_fatal }}
+      for: 5m
+      labels:
+        severity: fatal
+      annotations:
+        message: sum(sum_over_time(flink_taskmanager_job_task_operator_TelemetryExtractorJob_failed_batch_count[5m])) / (sum(sum_over_time(flink_taskmanager_job_task_operator_TelemetryExtractorJob_failed_batch_count[5m]))  + sum(sum_over_time(flink_taskmanager_job_task_operator_TelemetryExtractorJob_success_batch_count[5m]))  + sum(sum_over_time(flink_taskmanager_job_task_operator_TelemetryExtractorJob_duplicate_event_count[5m]))) * 100 > {{ .Values.telemetry_extractor_failed_events_percentage_threshold_fatal }} 
+        summary: TelemetryExtractor failed events percentage fatal
