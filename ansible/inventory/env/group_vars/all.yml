@@ -24,7 +24,7 @@ dialcode_keyspace_name: "{{instance}}_dialcode_store"
 dp_cassandra_connection: "{{ groups['dp-cassandra'][0] }}:9042"
 core_cassandra_connection: "{{groups['core-cassandra']|join(':9042,')}}:9042"
 core_cassandra_connection_singel_node: "{{ groups['core-cassandra'][0] }}"
-core_cassandra_connection_multi_node: "{{ groups['core-cassandra'] }}:9042"
+core_cassandra_connection_multi_node: "{{ groups['core-cassandra']|join(':9042,') }}"
 
 
 dial_service_generate_url: "{{ekstep_domain_name}}/api/dialcode/v3/generate"
