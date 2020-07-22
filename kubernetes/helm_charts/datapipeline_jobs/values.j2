@@ -71,7 +71,7 @@ base_config: |
       port = "9042"
     }
 
-activity-aggregator-extractor: |
+activity-aggregate-updater: |
   include file("/data/flink/conf/base-config.conf")
   kafka {
     input.topic = {{ env_name }}.coursebatch.job.request
