@@ -26,13 +26,12 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 	private static Random random = new Random();
 
 
-	/*@Test
+	@Test
 	public void testAddDocumentWithId() throws Exception {
 		Map<String, Object> content = getContentTestRecord();
 		String id = (String) content.get("identifier");
 		addToIndex(id, content);
-		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX,
-				CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, id);
+		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX, id);
 		assertTrue(StringUtils.contains(doc, id));
 	}
 	@Test
@@ -43,10 +42,9 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		content.put("name", "Content_" + System.currentTimeMillis() + "_name");
 		ElasticSearchUtil.updateDocument(CompositeSearchConstants.MVC_SEARCH_INDEX,
 				 mapper.writeValueAsString(content), id);
-		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX,
-				CompositeSearchConstants.MVC_SEARCH_INDEX_TYPE, id);
+		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX, id);
 		assertTrue(StringUtils.contains(doc, id));
-	}*/
+	}
 
 
 
@@ -60,9 +58,6 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		map.put("objectType", objectType);
 		map.put("name", "Content_" + System.currentTimeMillis() + "_name");
 		map.put("contentType", "Content");
-		map.put("createdOn", new Date().toString());
-		map.put("lastUpdatedOn", new Date().toString());
-		map.put("lastPublishedOn", d.toString());
 		map.put("status", "Draft");
 		return map;
 	}

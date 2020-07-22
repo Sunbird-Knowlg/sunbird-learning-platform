@@ -63,7 +63,7 @@ public class ElasticSearchUtil {
 
 	public static void initialiseESClient(String indexName, String connectionInfo) {
 		if (StringUtils.isBlank(indexName))
-			indexName = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
+			indexName = CompositeSearchConstants.MVC_SEARCH_INDEX;
 		createClient(indexName, connectionInfo);
 	}
 
@@ -95,7 +95,7 @@ public class ElasticSearchUtil {
 
 	private static RestHighLevelClient getClient(String indexName) {
 		if (StringUtils.isBlank(indexName))
-			indexName = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
+			indexName = CompositeSearchConstants.MVC_SEARCH_INDEX;
 		if (StringUtils.startsWith(indexName,"kp_audit_log"))
 			return esClient.get("kp_audit_log");
 		return esClient.get(indexName);
@@ -120,18 +120,23 @@ public class ElasticSearchUtil {
 	}
 
 
-	public static boolean addIndex(String indexName, String documentType, String settings, String mappings,String alias)
+	public static boolean addIndex(String indexName, String documentType, String settings, String mappings,String alias , String esvalues)
 			throws IOException {
 		boolean response = false;
 		RestHighLevelClient client = getClient(indexName);
 		if (!isIndexExists(indexName)) {
 			CreateIndexRequest createRequest = new CreateIndexRequest(indexName);
-			if(StringUtils.isNotBlank(alias))
-				createRequest.alias(new Alias(alias));
-			if (StringUtils.isNotBlank(settings))
-				createRequest.settings(Settings.builder().loadFromSource(settings, XContentType.JSON));
-			if (StringUtils.isNotBlank(documentType) && StringUtils.isNotBlank(mappings))
-				createRequest.mapping( mappings , XContentType.JSON);
+			if(esvalues != null) {
+				createRequest.source(esvalues,XContentType.JSON);
+			}
+			else {
+				if (StringUtils.isNotBlank(alias))
+					createRequest.alias(new Alias(alias));
+				if (StringUtils.isNotBlank(settings))
+					createRequest.settings(Settings.builder().loadFromSource(settings, XContentType.JSON));
+				if (StringUtils.isNotBlank(documentType) && StringUtils.isNotBlank(mappings))
+					createRequest.mapping(mappings, XContentType.JSON);
+			}
 			CreateIndexResponse createIndexResponse = client.indices().create(createRequest,RequestOptions.DEFAULT);
 
 			response = createIndexResponse.isAcknowledged();
@@ -184,9 +189,9 @@ public class ElasticSearchUtil {
 		TelemetryManager.log("Deleted Index" + indexName + " : " + response.isAcknowledged());
 	}
 
-	public static String getDocumentAsStringById(String indexName, String documentType, String documentId)
+	public static String getDocumentAsStringById(String indexName, String documentId)
 			throws IOException {
-		GetResponse response = getClient(indexName).get(new GetRequest(indexName, documentType, documentId),RequestOptions.DEFAULT);
+		GetResponse response = getClient(indexName).get(new GetRequest(indexName, documentId),RequestOptions.DEFAULT);
 		return response.getSourceAsString();
 	}
 
