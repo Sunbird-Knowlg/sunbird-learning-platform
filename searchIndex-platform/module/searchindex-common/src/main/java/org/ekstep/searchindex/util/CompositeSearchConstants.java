@@ -4,6 +4,7 @@ import org.ekstep.common.Platform;
 
 public class CompositeSearchConstants {
 	public static String COMPOSITE_SEARCH_INDEX = Platform.config.hasPath("compositesearch.index.name") ? Platform.config.getString("compositesearch.index.name"): "compositesearch";
+	public static String MVC_SEARCH_INDEX = "mvc-content-v1";
 	public static final String OPERATION_CREATE = "CREATE";
 	public static final String OPERATION_UPDATE = "UPDATE";
 	public static final String OPERATION_DELETE = "DELETE";
@@ -20,6 +21,7 @@ public class CompositeSearchConstants {
 	public static final String NODE_TYPE_SET = "SET";
 	public static final String NODE_TYPE_ROOT = "ROOT_NODE";
 	public static final String COMPOSITE_SEARCH_INDEX_TYPE = "cs";
+	public static final String MVC_SEARCH_INDEX_TYPE = "_doc";
 	public static final String INDEX_FIELD_TAGS = "tags";
 	public static final String NODE_TYPE_DEFINITION = "DEFINITION_NODE";
 	public static final String SEARCH_OPERATION_LESS_THAN = "<";
