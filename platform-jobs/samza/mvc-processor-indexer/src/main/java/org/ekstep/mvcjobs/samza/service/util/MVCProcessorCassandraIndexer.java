@@ -2,6 +2,7 @@ package org.ekstep.mvcjobs.samza.service.util;
 
 import com.datastax.driver.core.Session;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.learning.contentstore.ContentStore;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.HTTPUtil;
@@ -15,7 +16,7 @@ public class MVCProcessorCassandraIndexer  {
     String contentreadapi = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlkeywordapi = "" , mlvectorapi = ""  ;
     Map<String,Object> mapStage1 = new HashMap<>();
   public MVCProcessorCassandraIndexer() {
-        contentreadapi = CompositeSearchConstants.api;
+        contentreadapi = Platform.config.getString("kp.content_service.base_url") + "/content/v3/read/";
         mlworkbenchapirequest = "{\"request\":{ \"input\" :{ \"content\" : [] } } }";
         mlvectorListRequest = "{\"request\":{\"text\":[],\"cid\": \"\",\"language\":\"en\",\"method\":\"BERT\",\"params\":{\"dim\":768,\"seq_len\":25}}}";
         jobname = "vidyadaan_content_keyword_tagging";

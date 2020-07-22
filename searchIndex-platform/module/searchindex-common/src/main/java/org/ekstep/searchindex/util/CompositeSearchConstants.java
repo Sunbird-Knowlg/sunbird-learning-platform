@@ -70,5 +70,4 @@ public class CompositeSearchConstants {
 	public static final String SEARCH_OPERATION_CONTAINS_OPERATOR = "contains";
 	public static final String SEARCH_OPERATION_AND_TEXT_LOWERCASE = "and";
 	public static final String SEARCH_OPERATION_AND_OPERATOR = "&";
-	public static final String api = "https://dock.sunbirded.org/api/content/v1/read/";
 }
