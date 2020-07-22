@@ -30,9 +30,9 @@ taskmanager_heap_memory: 1024
 
 ### base-config related vars
 postgres_max_connections: 2
-azure_account: "{{ sunbird_private_storage_account_name }}"
-azure_secret: "{{ sunbird_private_storage_account_key }}"
-flink_container_name: dev-data-store
+azure_account: "{{ sunbird_public_storage_account_name }}"
+azure_secret: "{{ sunbird_public_storage_account_key }}"
+flink_container_name: flink-check-points-store
 checkpoint_interval: 60000
 restart_attempts: 3
 restart_delay: 30000 # in milli-seconds
