@@ -92,6 +92,9 @@ activity-aggregate-updater: |
         relationCache.id = 10
       }
     }
+  threshold.batch.read.interval = 60 
+  threshold.batch.read.size = 1000
+  threshold.batch.write.size = 10  
 
 relation-cache-updater: |
   include file("/data/flink/conf/base-config.conf")
