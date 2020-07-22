@@ -4,7 +4,7 @@ import org.ekstep.common.Platform;
 
 public class CompositeSearchConstants {
 	public static String COMPOSITE_SEARCH_INDEX = Platform.config.hasPath("compositesearch.index.name") ? Platform.config.getString("compositesearch.index.name"): "compositesearch";
-	public static String MVC_SEARCH_INDEX = "mvc-content-v2";
+	public static String MVC_SEARCH_INDEX = "mvc-content-v1";
 	public static final String OPERATION_CREATE = "CREATE";
 	public static final String OPERATION_UPDATE = "UPDATE";
 	public static final String OPERATION_DELETE = "DELETE";

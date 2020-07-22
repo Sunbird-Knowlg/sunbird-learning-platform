@@ -1,10 +1,7 @@
 package org.ekstep.mvcjobs.samza.service.util;
 
-import com.datastax.driver.core.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
-import org.ekstep.learning.contentstore.ContentStore;
-import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
