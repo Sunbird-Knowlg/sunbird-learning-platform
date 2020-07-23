@@ -1,4 +1,4 @@
-flink_namespace: flink-kp-dev
+flink_namespace: "flink-kp-{{ instance }}"
 imagepullsecrets: sunbird-registry-secret
 
 ### Job manager related vars
