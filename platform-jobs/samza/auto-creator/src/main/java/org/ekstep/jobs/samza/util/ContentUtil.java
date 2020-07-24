@@ -250,8 +250,8 @@ public class ContentUtil {
 				LOGGER.info("ContentUtil :: upload :: Starting File Upload at: " + uploadStartTime);
 				String[] urls = uploadArtifact(file, identifier);
 				Long uploadEndTime = System.currentTimeMillis();
-				LOGGER.info("ContentUtil :: upload :: Finished File Upload at: " + downloadEndTime);
-				LOGGER.info("ContentUtil :: upload :: Total time taken for upload: " + (downloadEndTime - downloadStartTime));
+				LOGGER.info("ContentUtil :: upload :: Finished File Upload at: " + uploadEndTime);
+				LOGGER.info("ContentUtil :: upload :: Total time taken for upload: " + (uploadEndTime - uploadStartTime));
 				if (null != urls && StringUtils.isNotBlank(urls[1])) {
 					String uploadUrl = urls[IDX_CLOUD_URL];
 					LOGGER.info("ContentUtil :: upload :: Artifact Uploaded Successfully to cloud for : " + identifier + " | uploadUrl : " + uploadUrl);
