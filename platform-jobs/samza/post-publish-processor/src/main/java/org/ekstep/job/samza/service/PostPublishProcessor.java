@@ -104,17 +104,17 @@ public class PostPublishProcessor implements ISamzaService {
                 break;
             }
 
-//            case "coursebatch-sync" : {
-//                if(!validateContentType(edata)){
-//                    LOGGER.info("Event Ignored. Event Validation Failed for coursebatch-sync operation.");
-//                    return;
-//                }
-//                String nodeId = (String) object.get("id");
-//                LOGGER.info("Started Syncing the courseBatch enrollment for : " + nodeId);
-//                courseBatchUtil.syncCourseBatch(nodeId, collector);
-//                LOGGER.info("Synced the courseBatch enrollment for : " + nodeId);
-//                break;
-//            }
+            case "coursebatch-sync" : {
+                if(!validateContentType(edata)){
+                    LOGGER.info("Event Ignored. Event Validation Failed for coursebatch-sync operation.");
+                    return;
+                }
+                String nodeId = (String) object.get("id");
+                LOGGER.info("Started Syncing the courseBatch enrollment for : " + nodeId);
+                courseBatchUtil.syncCourseBatch(nodeId, collector);
+                LOGGER.info("Synced the courseBatch enrollment for : " + nodeId);
+                break;
+            }
 
             case "publish-shallow-content": {
                 String nodeId = (String) object.get("id");
