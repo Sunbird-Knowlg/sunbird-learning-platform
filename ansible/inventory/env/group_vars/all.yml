@@ -84,3 +84,4 @@ kp_print_service_base_url: "http://{{swarm_manager_lb_ip}}:5001"
 cert_reg_service_base_url: "http://{{swarm_manager_lb_ip}}:9013"
 lms_service_base_url: "http://{{swarm_manager_lb_ip}}:9005"
 
+search_es7_host: "{{ groups['es7']|join(':9200,')}}:9200"
