@@ -226,10 +226,8 @@ public class ContentUtil {
 	private void upload(String channelId, String identifier, Map<String, Object> metadata) throws Exception {
 		Response resp = null;
 		Long downloadStartTime = System.currentTimeMillis();
-		LOGGER.info("ContentUtil :: upload :: Starting File Download at: " + downloadStartTime);
 		File file = getFile(identifier, (String) metadata.get(AutoCreatorParams.artifactUrl.name()));
 		Long downloadEndTime = System.currentTimeMillis();
-		LOGGER.info("ContentUtil :: upload :: Finished File Download at: " + downloadEndTime);
 		LOGGER.info("ContentUtil :: upload :: Total time taken for download: " + (downloadEndTime - downloadStartTime));
 		String mimeType = (String) metadata.getOrDefault("mimeType", "");
 		if (null != file && !file.exists())
@@ -247,10 +245,8 @@ public class ContentUtil {
 		if (size > CONTENT_UPLOAD_ARTIFACT_MAX_SIZE) {
 			if (BULK_UPLOAD_MIMETYPES.contains(mimeType)) {
 				Long uploadStartTime = System.currentTimeMillis();
-				LOGGER.info("ContentUtil :: upload :: Starting File Upload at: " + uploadStartTime);
 				String[] urls = uploadArtifact(file, identifier);
 				Long uploadEndTime = System.currentTimeMillis();
-				LOGGER.info("ContentUtil :: upload :: Finished File Upload at: " + uploadEndTime);
 				LOGGER.info("ContentUtil :: upload :: Total time taken for upload: " + (uploadEndTime - uploadStartTime));
 				if (null != urls && StringUtils.isNotBlank(urls[1])) {
 					String uploadUrl = urls[IDX_CLOUD_URL];
