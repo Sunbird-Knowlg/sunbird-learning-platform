@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 
 public class CourseBatchUpdater extends BaseCourseBatchUpdater {
@@ -206,12 +207,20 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     dataToUpdate.putAll((Map<String, Object>) event.getValue());
                     dataToSelect.put("courseid", dataToUpdate.remove("courseId"));
                     if(((Number) dataToUpdate.get("status")).intValue() == 2) {
-                        //adding userCourseBatch for auto certificate generation
-                        userCertificateEvents.add((Map<String, Object>) dataToUpdate.get("userCourseBatch"));
+                        //read status and completedOn from cassandra
+                        Map<String, Object> result = readQuery(cassandraSession, dataToSelect);
+                        LOGGER.info("CourseBatchUpdater:updateBatchProgress: result:: " + result);
+                        if (MapUtils.isEmpty(result) || (((Number) result.get("status")).intValue() != 2 || (((Number) result.get("status")).intValue() == 2 && result.get("completedOn") == null))) {
+                            //Update cassandra
+                            updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
+                            //adding userCourseBatch for auto certificate generation
+                            userCertificateEvents.add((Map<String, Object>) dataToUpdate.get("userCourseBatch"));
+                        }
                         dataToUpdate.remove("userCourseBatch");
+                    } else {
+                        //Update cassandra
+                        updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
                     }
-                    //Update cassandra
-                    updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -301,5 +310,21 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 });
         String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
         return mapper.readValue(beJobRequestEvent, new TypeReference<Map<String, Object>>() {});
+    }
+
+    public Map<String, Object> readQuery(Session cassandraSession, Map<String, Object> dataToSelect) {
+        String query = "SELECT status, completedOn FROM " + keyspace +"." + table +
+                " where courseid='" + dataToSelect.get("courseid") + "' AND batchid='" + dataToSelect.get("batchid") + "' AND userid='" + dataToSelect.get("userid") + ";";
+        ResultSet resultSet = SunbirdCassandraUtil.execute(cassandraSession, query);
+        Iterator<Row> rows = resultSet.iterator();
+        LOGGER.info("CourseBatchUpdater:readQuery: rows.hasNext():: " + rows.hasNext() + " rows : " + rows);
+        Map<String, Object> result = new HashMap<>();
+        while(((Iterator) rows).hasNext()) {
+            Row row = rows.next();
+            LOGGER.info("CourseBatchUpdater:readQuery: row " + row);
+            result.put("status", row.getInt("status"));
+            result.put("completedOn", row.getDate("completedOn"));
+        }
+        return result;
     }
 }
