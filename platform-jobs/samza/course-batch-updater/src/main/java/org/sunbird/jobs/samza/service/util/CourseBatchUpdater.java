@@ -206,21 +206,25 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     Map<String, Object> dataToUpdate = new HashMap<>();
                     dataToUpdate.putAll((Map<String, Object>) event.getValue());
                     dataToSelect.put("courseid", dataToUpdate.remove("courseId"));
+                    LOGGER.info("CourseBatchUpdater:updateBatchProgress: before cond : dataToUpdate.get(\"status\"):: " + dataToUpdate.get("status"));
                     if(((Number) dataToUpdate.get("status")).intValue() == 2) {
                         //read status and completedOn from cassandra
                         Map<String, Object> result = readQuery(cassandraSession, dataToSelect);
                         LOGGER.info("CourseBatchUpdater:updateBatchProgress: result:: " + result);
                         if (MapUtils.isEmpty(result) || (((Number) result.get("status")).intValue() != 2 || (((Number) result.get("status")).intValue() == 2 && result.get("completedOn") == null))) {
                             //Update cassandra
+                            LOGGER.info("CourseBatchUpdater:updateBatchProgress: if called:: ");
                             updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
                             //adding userCourseBatch for auto certificate generation
                             userCertificateEvents.add((Map<String, Object>) dataToUpdate.get("userCourseBatch"));
                         }
                         dataToUpdate.remove("userCourseBatch");
                     } else {
+                        LOGGER.info("CourseBatchUpdater:updateBatchProgress: else called:: ");
                         //Update cassandra
                         updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
                     }
+                    LOGGER.info("CourseBatchUpdater:updateBatchProgress: after cond : dataToUpdate.get(\"status\"):: " + dataToUpdate.get("status"));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -313,8 +317,9 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
     }
 
     public Map<String, Object> readQuery(Session cassandraSession, Map<String, Object> dataToSelect) {
+        LOGGER.info("CourseBatchUpdater:readQuery: started ");
         String query = "SELECT status, completedOn FROM " + keyspace +"." + table +
-                " where courseid='" + dataToSelect.get("courseid") + "' AND batchid='" + dataToSelect.get("batchid") + "' AND userid='" + dataToSelect.get("userid") + ";";
+                " where courseid='" + dataToSelect.get("courseid") + "' AND batchid='" + dataToSelect.get("batchid") + "' AND userid='" + dataToSelect.get("userid") + "';";
         ResultSet resultSet = SunbirdCassandraUtil.execute(cassandraSession, query);
         Iterator<Row> rows = resultSet.iterator();
         LOGGER.info("CourseBatchUpdater:readQuery: rows.hasNext():: " + rows.hasNext() + " rows : " + rows);
@@ -325,6 +330,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             result.put("status", row.getInt("status"));
             result.put("completedOn", row.getDate("completedOn"));
         }
+        LOGGER.info("CourseBatchUpdater:readQuery: completed : result :- " + result);
         return result;
     }
 }
