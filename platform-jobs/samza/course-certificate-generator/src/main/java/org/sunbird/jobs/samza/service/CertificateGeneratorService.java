@@ -38,7 +38,6 @@ public class CertificateGeneratorService implements ISamzaService {
     private IssueCertificate issueCertificate = null;
     private Jedis redisConnect = null;
     private Session cassandraSession = null;
-    private static final String certificateFailedTopic = Platform.config.hasPath("output.certificate.failed.events.topic.name") ? Platform.config.getString("output.certificate.failed.events.topic.name") : "";
     /**
      * @param config
      * @throws Exception
@@ -48,8 +47,6 @@ public class CertificateGeneratorService implements ISamzaService {
         this.config = config;
         JSONUtils.loadProperties(config);
         LOGGER.info("Service config initialized");
-        LOGGER.info("CertificateGeneratorService: Certificate Failed Topic : " + certificateFailedTopic);
-        LOGGER.info("CertificateGeneratorService: Config.get for failed event : " + config.get("output.certificate.failed.events.topic.name"));
         redisConnect = new RedisConnect(config).getConnection();
         cassandraSession = new CassandraConnector(config).getSession();
         systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
