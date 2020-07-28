@@ -316,15 +316,15 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         return mapper.readValue(beJobRequestEvent, new TypeReference<Map<String, Object>>() {});
     }
 
-    public Map<String, Object> readQuery(Session cassandraSession, Map<String, Object> dataToSelect) {
-        LOGGER.info("CourseBatchUpdater:readQuery: started ");
+    private Map<String, Object> readQuery(Session cassandraSession, Map<String, Object> dataToSelect) {
         String query = "SELECT status, completedOn FROM " + keyspace +"." + table +
                 " where courseid='" + dataToSelect.get("courseid") + "' AND batchid='" + dataToSelect.get("batchid") + "' AND userid='" + dataToSelect.get("userid") + "';";
+        LOGGER.info("CourseBatchUpdater:readQuery: started + query " + query);
         ResultSet resultSet = SunbirdCassandraUtil.execute(cassandraSession, query);
         Iterator<Row> rows = resultSet.iterator();
         LOGGER.info("CourseBatchUpdater:readQuery: rows.hasNext():: " + rows.hasNext() + " rows : " + rows);
         Map<String, Object> result = new HashMap<>();
-        while(((Iterator) rows).hasNext()) {
+        while(rows.hasNext()) {
             Row row = rows.next();
             LOGGER.info("CourseBatchUpdater:readQuery: row " + row);
             result.put("status", row.getInt("status"));
