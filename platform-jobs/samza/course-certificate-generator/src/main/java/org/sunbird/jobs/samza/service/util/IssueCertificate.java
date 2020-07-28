@@ -70,6 +70,9 @@ public class IssueCertificate {
                 LOGGER.info("Certificate is not generated as the template is not available for  : "+ batchId + " and courseId : " + courseId);
                 throw new ServerException("ERR_GENERATE_CERTIFICATE", "Certificate is not generated as the template is not available for batchId : "+ batchId + " and courseId : " + courseId);
             }
+        } else {
+            LOGGER.info("IssueCertificate:issue: Certificate is not generated as the batchId and courseId is empty");
+            throw new ServerException("ERR_GENERATE_CERTIFICATE", "Certificate is not generated as the batchId and courseId is empty");
         }
     }
 
@@ -114,12 +117,16 @@ public class IssueCertificate {
                         generateCertificatesForEnrollment(usersToIssue, batchId, courseId, reIssue, template, collector);
                     } else {
                         LOGGER.info("Certificate template has empty/invalid criteria: " + criteriaString);
+                        throw new ServerException("ERR_INVALID_CERTIFICATE_TEMPLATE", "Certificate template has empty/invalid criteria: " + criteriaString);
                     }
+                } else {
+                    LOGGER.info("IssueCertificate:fetchUsersAndIssueCertificates: Certificate template has empty criteria: " + criteriaString);
+                    throw new ServerException("ERR_INVALID_CERTIFICATE_TEMPLATE", "Certificate template has empty criteria: " + criteriaString);
                 }
             }
         } catch (Exception e) {
             LOGGER.error("Error while fetching user and generate certificates", e);
-            throw new ServerException("ERR_CERTIFICATE_GENERATE", e.getMessage());
+            throw new ServerException("ERR_GENERATE_CERTIFICATE", "Error while fetching user and generate certificates : " + e.getMessage());
         }
     }
 
@@ -276,7 +283,7 @@ public class IssueCertificate {
         return enrolledUsers;
     }
 
-    private void generateCertificatesForEnrollment(List<String> usersToIssue, String batchId, String courseId, Boolean reIssue, Map<String, String> template, MessageCollector collector) throws IOException {
+    private void generateCertificatesForEnrollment(List<String> usersToIssue, String batchId, String courseId, Boolean reIssue, Map<String, String> template, MessageCollector collector) throws Exception {
         Map<String, Object> certTemplate = new HashMap<>();
         certTemplate.putAll(template);
         Map<String, Object> issuer = StringUtils.isNotBlank((String)certTemplate.get("issuer"))
@@ -296,6 +303,7 @@ public class IssueCertificate {
             }
         } else {
             LOGGER.info("NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);
+            throw new ServerException("ERR_GENERATE_CERTIFICATE", "NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);
         }
     }
 
