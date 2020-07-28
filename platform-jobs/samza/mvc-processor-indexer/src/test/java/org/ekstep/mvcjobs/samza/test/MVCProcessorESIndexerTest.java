@@ -3,6 +3,7 @@ package org.ekstep.mvcjobs.samza.test;
 import com.google.gson.Gson;
 import org.ekstep.mvcjobs.samza.service.util.MVCProcessorESIndexer;
 import org.ekstep.mvcsearchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.searchindex.util.HTTPUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,6 +51,15 @@ public class MVCProcessorESIndexerTest {
         ElasticSearchUtil.updateDocument(Mockito.anyString(),Mockito.anyString(),Mockito.anyString());
         MVCProcessorESIndexer mvcProcessorESIndexer = new MVCProcessorESIndexer();
         mvcProcessorESIndexer.upsertDocument(uniqueId,getEvent(eventData2));
+    }
+
+    @Test
+    public void testcreateMVCSearchIndex() throws IOException {
+        PowerMockito.mockStatic(ElasticSearchUtil.class);
+        when(ElasticSearchUtil.addIndex(Mockito.anyString(),Mockito.anyString(),Mockito.anyString(),
+                Mockito.anyString(),Mockito.anyString(),Mockito.anyString())).thenReturn(true);
+        MVCProcessorESIndexer mvcProcessorESIndexer = new MVCProcessorESIndexer();
+        mvcProcessorESIndexer.createMVCSearchIndex();
     }
 
     public  Map<String, Object> getEvent(String message) throws IOException {

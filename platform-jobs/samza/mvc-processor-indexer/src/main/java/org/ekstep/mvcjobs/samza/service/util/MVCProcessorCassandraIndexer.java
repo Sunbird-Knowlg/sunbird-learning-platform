@@ -13,7 +13,8 @@ public class MVCProcessorCassandraIndexer  {
     String contentreadapi = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlkeywordapi = "" , mlvectorapi = ""  ;
     Map<String,Object> mapStage1 = new HashMap<>();
   public MVCProcessorCassandraIndexer() {
-        contentreadapi = Platform.config.getString("kp.content_service.base_url") + "/content/v3/read/";
+      String kp_content_url = Platform.config.hasPath("kp.content_service.base_url")  ? Platform.config.getString("kp.content_service.base_url") : "";
+        contentreadapi = kp_content_url + "/content/v3/read/";
         mlworkbenchapirequest = "{\"request\":{ \"input\" :{ \"content\" : [] } } }";
         mlvectorListRequest = "{\"request\":{\"text\":[],\"cid\": \"\",\"language\":\"en\",\"method\":\"BERT\",\"params\":{\"dim\":768,\"seq_len\":25}}}";
         jobname = "vidyadaan_content_keyword_tagging";
