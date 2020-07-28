@@ -5,14 +5,23 @@ import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
+import org.ekstep.jobs.samza.util.JobLogger;
+import org.ekstep.mvcjobs.samza.service.MVCProcessorService;
 
 import java.util.Map;
 import java.util.Set;
 
 public class CassandraConnector {
-  static  String arr[],serverIP= "127.0.0.1",keyspace = "sunbirddev_content_store",table = "content_data";
+    private  static  JobLogger LOGGER = new JobLogger(CassandraConnector.class);
+
+  static  String arr[],keyspace = "sunbirddev_content_store",table = "content_data";
+  static String serverIP= Platform.config.hasPath("cassandra.lp.connection") ? Platform.config.getString("cassandra.lp.connection") : null;
    static Session session;
     static Session getSession() {
+        if(serverIP == null) {
+            LOGGER.info("Server ip of cassandra is null");
+        }
         Cluster cluster = Cluster.builder()
                 .addContactPoints(serverIP)
                 .build();
@@ -47,6 +56,7 @@ public class CassandraConnector {
             session.execute(bound);
         } catch (Exception e) {
           System.out.println("Exception " + e);
+          LOGGER.info("Exception while inserting data into cassandra " + e);
         }
     }
     private static String getUpdateQuery(Set<String> properties) {

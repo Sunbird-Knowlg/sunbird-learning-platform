@@ -287,7 +287,7 @@ public class PublishPipelineService implements ISamzaService {
 				throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
 			}
 			collector.send(new OutgoingMessageEnvelope(postPublishMVCStream, linkDialcodeEvent));
-			LOGGER.info("All Events sent to post publish event topic");
+			LOGGER.info("All Events sent to post publish mvc event topic");
 		}
 		else if (StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
 			Map<String, Object> linkDialcodeEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
