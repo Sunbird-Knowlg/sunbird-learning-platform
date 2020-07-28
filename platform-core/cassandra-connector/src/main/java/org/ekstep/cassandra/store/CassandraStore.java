@@ -406,4 +406,5 @@ public abstract class CassandraStore {
 		else
 			return channel;
 	}
+
 }
