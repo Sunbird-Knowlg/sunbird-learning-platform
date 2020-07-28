@@ -112,7 +112,6 @@ public class CertificateGenerator {
             }
         } else {
             LOGGER.info("Certificate is not generated as the template is not available for batchId : "+ batchId + " and courseId : " + courseId);
-            throw new ServerException("ERR_GENERATE_CERTIFICATE", "Certificate is not generated as the template is not available for batchId : "+ batchId + " and courseId : " + courseId);
         }
     }
 
@@ -129,15 +128,12 @@ public class CertificateGenerator {
                     generateCertificate(certificates, courseId, courseName, batchId, userId, userResponse, certTemplate, issuedOn, reIssue);
                 } else {
                     LOGGER.info("No User details fetched for userid: " + userId + " : " + userResponse);
-                    throw new ServerException("ERR_GENERATE_CERTIFICATE", "No User details fetched for userid: " + userId + " : " + userResponse);
                 }
             } else {
                 LOGGER.info("No certificate template to generate certificates for: " + courseId);
-                throw new ServerException("ERR_GENERATE_CERTIFICATE", "No certificate template to generate certificates for: " + courseId);
             }
         } else {
             LOGGER.info( courseId+ " not found");
-            throw new ServerException("ERR_GENERATE_CERTIFICATE", courseId+ " not found");
         }
     }
 
@@ -174,7 +170,6 @@ public class CertificateGenerator {
                 }
             } else {
                 LOGGER.info("Error while generation certificate for batchId : " + batchId + " for user : " + userId + " with error response : "  +  + httpResponse.getStatus()  + " :: " + httpResponse.getBody());
-                throw new ServerException("ERR_GENERATE_CERTIFICATE", "Error while generating the certificate for batchId : " + batchId + " for user : " + userId + " with error response : "  +  + httpResponse.getStatus()  + " :: " + httpResponse.getBody());
             }
         } catch (Exception e) {
             LOGGER.error("Error while generating the certificate for user " + userId +" with batch: " + batchId, e);

@@ -66,6 +66,9 @@ public class IssueCertificate {
             Map<String, Map<String, String>> templates = fetchTemplates(batchId, courseId);
             if (MapUtils.isNotEmpty(templates)) {
                 fetchUsersAndIssueCertificates(batchId, courseId, reissue, templates, collector, userIds);
+            } else {
+                LOGGER.info("Certificate is not generated as the template is not available for  : "+ batchId + " and courseId : " + courseId);
+                throw new ServerException("ERR_GENERATE_CERTIFICATE", "Certificate is not generated as the template is not available for batchId : "+ batchId + " and courseId : " + courseId);
             }
         }
     }
@@ -111,7 +114,6 @@ public class IssueCertificate {
                         generateCertificatesForEnrollment(usersToIssue, batchId, courseId, reIssue, template, collector);
                     } else {
                         LOGGER.info("Certificate template has empty/invalid criteria: " + criteriaString);
-                        throw new ServerException("ERR_INVALID_CERTIFICATE_TEMPLATE", "Certificate template has empty/invalid criteria: " + criteriaString);
                     }
                 }
             }
@@ -274,7 +276,7 @@ public class IssueCertificate {
         return enrolledUsers;
     }
 
-    private void generateCertificatesForEnrollment(List<String> usersToIssue, String batchId, String courseId, Boolean reIssue, Map<String, String> template, MessageCollector collector) throws Exception {
+    private void generateCertificatesForEnrollment(List<String> usersToIssue, String batchId, String courseId, Boolean reIssue, Map<String, String> template, MessageCollector collector) throws IOException {
         Map<String, Object> certTemplate = new HashMap<>();
         certTemplate.putAll(template);
         Map<String, Object> issuer = StringUtils.isNotBlank((String)certTemplate.get("issuer"))
@@ -294,7 +296,6 @@ public class IssueCertificate {
             }
         } else {
             LOGGER.info("NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);
-            throw new ServerException("ERR_GENERATE_CERTIFICATE", "NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);
         }
     }
 
