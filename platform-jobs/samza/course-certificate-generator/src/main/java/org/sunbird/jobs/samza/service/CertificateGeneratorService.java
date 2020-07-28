@@ -31,13 +31,14 @@ public class CertificateGeneratorService implements ISamzaService {
 
     private static JobLogger LOGGER = new JobLogger(CertificateGeneratorService.class);
     private SystemStream systemStream;
+    private SystemStream certificateFailedSystemStream;
     private Config config = null;
     private static int MAXITERTIONCOUNT = 2;
     private CertificateGenerator certificateGenerator =null;
     private IssueCertificate issueCertificate = null;
     private Jedis redisConnect = null;
     private Session cassandraSession = null;
-    private static final String certificateFailedTopic = Platform.config.hasPath("output.failed.events.topic.name") ? Platform.config.getString("output.failed.events.topic.name") : "";
+    private static final String certificateFailedTopic = Platform.config.hasPath("output.certificate.failed.events.topic.name") ? Platform.config.getString("output.certificate.failed.events.topic.name") : "";
     /**
      * @param config
      * @throws Exception
@@ -47,9 +48,12 @@ public class CertificateGeneratorService implements ISamzaService {
         this.config = config;
         JSONUtils.loadProperties(config);
         LOGGER.info("Service config initialized");
+        LOGGER.info("CertificateGeneratorService: Certificate Failed Topic : " + certificateFailedTopic);
+        LOGGER.info("CertificateGeneratorService: Config.get for failed event : " + config.get("output.certificate.failed.events.topic.name"));
         redisConnect = new RedisConnect(config).getConnection();
         cassandraSession = new CassandraConnector(config).getSession();
         systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
+        certificateFailedSystemStream = new SystemStream("kafka", config.get("output.certificate.failed.events.topic.name"));
         certificateGenerator = new CertificateGenerator(redisConnect, cassandraSession);
         issueCertificate = new IssueCertificate(cassandraSession);
     }
@@ -94,7 +98,7 @@ public class CertificateGeneratorService implements ISamzaService {
             }
         } catch(Exception e) {
             LOGGER.error("Error while serving the event : "  + message, e);
-            FailedEventsUtil.pushEventForRetry(new SystemStream("kafka", certificateFailedTopic), message, metrics, collector,
+            FailedEventsUtil.pushEventForRetry(certificateFailedSystemStream, message, metrics, collector,
                     PlatformErrorCodes.SYSTEM_ERROR.name(), new ServerException("ERR_GENERATE_CERTIFICATE_NOT_EXECUTED", e.getMessage()));
         }
 
