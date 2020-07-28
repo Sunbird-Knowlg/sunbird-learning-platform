@@ -68,7 +68,8 @@ public abstract class BaseTask implements StreamTask, InitableTask, WindowableTa
         if(StringUtils.equalsIgnoreCase(this.eventId, eid)) {
             String action = (String) edata.get(SamzaCommonParams.action.name());
             if(this.action.contains(action)) {
-                int currentIteration = (int) edata.get(SamzaCommonParams.iteration.name());
+                int currentIteration = ((Number) edata.get(SamzaCommonParams.iteration.name())).intValue();
+
                 preProcess(message, collector, execution, maxIterations, currentIteration);
                 process(message, collector, coordinator);
                 postProcess(message, collector, execution, maxIterations, currentIteration);

@@ -67,14 +67,14 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-batch-updater</artifactId>
-			<version>0.0.44</version>
+			<version>0.0.45</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>post-publish-processor</artifactId>
-			<version>0.0.30</version>
+			<version>0.0.31</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

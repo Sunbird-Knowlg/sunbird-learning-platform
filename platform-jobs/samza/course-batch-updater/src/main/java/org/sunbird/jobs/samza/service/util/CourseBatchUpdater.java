@@ -296,7 +296,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                         put(CourseBatchParams.batchId.name(), certificateEvent.get("batchId"));
                         put(CourseBatchParams.courseId.name(), certificateEvent.get("courseId"));
                         put(CourseBatchParams.action.name(), "issue-certificate");
-                        put(CourseBatchParams.reIssue.name(), false);
+                        put(CourseBatchParams.reIssue.name(), true);
                     }
                 });
         String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
