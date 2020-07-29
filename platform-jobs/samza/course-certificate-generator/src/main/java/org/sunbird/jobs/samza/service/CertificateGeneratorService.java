@@ -11,6 +11,7 @@ import org.apache.samza.config.Config;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.service.ISamzaService;
@@ -93,12 +94,19 @@ public class CertificateGeneratorService implements ISamzaService {
                         break;
                 }
             }
-        } catch(Exception e) {
-            LOGGER.error("Error while serving the event : "  + message, e);
+        } catch(ClientException e) {
+            LOGGER.error("CertificateGeneratorService:processMessage: Error while serving the event : "  + message, e);
             FailedEventsUtil.pushEventForRetry(certificateFailedSystemStream, message, metrics, collector,
-                    PlatformErrorCodes.SYSTEM_ERROR.name(), new ServerException("ERR_GENERATE_CERTIFICATE_NOT_EXECUTED", e.getMessage()));
+                    PlatformErrorCodes.PROCESSING_ERROR.name(), e);
+        } catch(ServerException e) {
+            LOGGER.error("CertificateGeneratorService:processMessage: Error while serving the event : "  + message, e);
+            FailedEventsUtil.pushEventForRetry(certificateFailedSystemStream, message, metrics, collector,
+                    PlatformErrorCodes.SYSTEM_ERROR.name(), e);
+        } catch(Exception e) {
+            LOGGER.error("CertificateGeneratorService:processMessage: Error while serving the event : "  + message, e);
+            FailedEventsUtil.pushEventForRetry(certificateFailedSystemStream, message, metrics, collector,
+                    PlatformErrorCodes.SYSTEM_ERROR.name(), e);
         }
-
     }
 
     private boolean validEdata(Map<String, Object> edata) {

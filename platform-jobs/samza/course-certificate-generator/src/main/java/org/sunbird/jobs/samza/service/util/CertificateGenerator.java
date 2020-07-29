@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -106,8 +107,8 @@ public class CertificateGenerator {
                                 ? row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class)) : new ArrayList<>();
                         issueCertificate(certificates, courseId, certTemplate, batchId, userId, issuedOn, false);
                     } else {
-                        LOGGER.info("CertificateGenerator:generate:  Certificate is not generated : Certificate is available for batchId : "+ batchId + " and courseId : " + courseId + " and userId : " + userId + " but reIssue is false");
-                        throw new ServerException("ERR_GENERATE_CERTIFICATE", "Certificate is available for batchId : "+ batchId + " and courseId : " + courseId + " and userId : " + userId + " but reIssue is false");
+                        LOGGER.info("CertificateGenerator:generate: Certificate is available for batchId : "+ batchId + ", courseId : " + courseId + " and userId : " + userId + ". Not applied for reIssue.");
+                        throw new ClientException("ERR_GENERATE_CERTIFICATE", "Certificate is available for batchId : "+ batchId + ", courseId : " + courseId + " and userId : " + userId + ". Not applied for reIssue.");
                     }
                 }
             } catch (Exception e) {
@@ -115,8 +116,8 @@ public class CertificateGenerator {
                 throw new ServerException("ERR_GENERATE_CERTIFICATE", e.getMessage());
             }
         } else {
-            LOGGER.info("Certificate is not generated as the template is not available for batchId : "+ batchId + " and courseId : " + courseId);
-            throw new ServerException("ERR_GENERATE_CERTIFICATE", "Certificate is not generated as the template is not available for batchId : "+ batchId + " and courseId : " + courseId);
+            LOGGER.info("CertificateGenerator:generate: Certificate template is not available for batchId : "+ batchId + " and courseId : " + courseId);
+            throw new ClientException("ERR_GENERATE_CERTIFICATE", "Certificate template is not available for batchId : "+ batchId + " and courseId : " + courseId);
         }
     }
 
@@ -132,16 +133,16 @@ public class CertificateGenerator {
                 if(MapUtils.isNotEmpty(userResponse)){
                     generateCertificate(certificates, courseId, courseName, batchId, userId, userResponse, certTemplate, issuedOn, reIssue);
                 } else {
-                    LOGGER.info("No User details fetched for userid: " + userId + " : " + userResponse);
-                    throw new ServerException("ERR_GENERATE_CERTIFICATE", "No User details fetched for userid: " + userId + " : " + userResponse);
+                    LOGGER.info("CertificateGenerator:issueCertificate: User not found for userId: " + userId);
+                    throw new ClientException("ERR_GENERATE_CERTIFICATE", "User not found for userId: " + userId);
                 }
             } else {
-                LOGGER.info("No certificate template to generate certificates for: " + courseId);
-                throw new ServerException("ERR_GENERATE_CERTIFICATE", "No certificate template to generate certificates for: " + courseId);
+                LOGGER.info("CertificateGenerator:issueCertificate: Certificate template is not available for batchId : "+ batchId + " and courseId : " + courseId);
+                throw new ClientException("ERR_GENERATE_CERTIFICATE", "Certificate template is not available for batchId : "+ batchId + " and courseId : " + courseId);
             }
         } else {
-            LOGGER.info( courseId+ " not found");
-            throw new ServerException("ERR_GENERATE_CERTIFICATE", "Course does not exist with courseId : " + courseId);
+            LOGGER.info( "CertificateGenerator:issueCertificate: Course not found for courseId: " + courseId);
+            throw new ClientException("ERR_GENERATE_CERTIFICATE", "Course not found for courseId: " + courseId);
         }
     }
 
@@ -177,12 +178,12 @@ public class CertificateGenerator {
                     notifyUser(userId, certTemplate, courseName, userResponse, issuedOn);
                 }
             } else {
-                LOGGER.info("Error while generation certificate for batchId : " + batchId + " for user : " + userId + " with error response : "  +  + httpResponse.getStatus()  + " :: " + httpResponse.getBody());
-                throw new ServerException("ERR_GENERATE_CERTIFICATE", "Error while generating the certificate for batchId : " + batchId + " and for userId : " + userId + " with error response : "  +  + httpResponse.getStatus()  + " :: " + httpResponse.getBody());
+                LOGGER.info("CertificateGenerator:generateCertificate: Error while generation certificate for batchId : " + batchId +  ", courseId : " + courseId + " and userId : " + userId + " with error response : "  +  + httpResponse.getStatus()  + " :: " + httpResponse.getBody());
+                throw new ClientException("ERR_GENERATE_CERTIFICATE", "Error while generation certificate for batchId : " + batchId +  ", courseId : " + courseId + " and userId : " + userId + " with error response : "  +  + httpResponse.getStatus()  + " :: " + httpResponse.getBody());
             }
         } catch (Exception e) {
-            LOGGER.error("Error while generating the certificate for user " + userId +" with batch: " + batchId, e);
-            throw new ServerException("ERR_GENERATE_CERTIFICATE", "Error while generating the certificate for user " + userId +" with batch: " + batchId, e);
+            LOGGER.error("CertificateGenerator:generateCertificate: Error while generation certificate for batchId : " + batchId +  ", courseId : " + courseId + " and userId : " + userId, e);
+            throw new ServerException("ERR_GENERATE_CERTIFICATE", "Error while generation certificate for batchId : " + batchId +  ", courseId : " + courseId + " and userId : " + userId, e);
         }
     }
 
