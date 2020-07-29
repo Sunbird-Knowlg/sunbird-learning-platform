@@ -38,7 +38,7 @@
 			always points to the correct spot on any machine -->
 		<file>
 			<!--<source>${basedir}/src/main/config/mvc-processor-indexer.properties</source>-->
-			<source>${basedir}/src/main/config/local.mvc-processor-indexer.properties</source>
+			<source>${basedir}/src/main/config/mvc-processor-indexer.properties</source>
 			<outputDirectory>config</outputDirectory>
 			<filtered>true</filtered>
 		</file>
