@@ -82,8 +82,9 @@ public class MVCProcessorService implements ISamzaService {
 				case CompositeSearchConstants.NODE_TYPE_SET:
 				case CompositeSearchConstants.NODE_TYPE_DATA: {
 					// mvcIndexer.processESMessage(graphId, objectType, uniqueId, messageId, message, metrics);
-
+					LOGGER.info("MVCProcessorService :: processMessage  ::: CAlling cassandra insertion ");
 					 eventData = cassandraManager.insertintoCassandra(eventData,uniqueId);
+					LOGGER.info("MVCProcessorService :: processMessage  ::: CAlling elasticsearch insertion ");
 					mvcIndexer.upsertDocument(uniqueId,eventData);
 					break;
 				}

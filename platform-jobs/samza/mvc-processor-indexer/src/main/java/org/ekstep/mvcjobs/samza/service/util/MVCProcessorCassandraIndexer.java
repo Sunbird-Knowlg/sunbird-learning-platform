@@ -2,6 +2,7 @@ package org.ekstep.mvcjobs.samza.service.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,7 +13,8 @@ public class MVCProcessorCassandraIndexer  {
     String arr[] = {"organisation","channel","framework","board","medium","subject","gradeLevel","name","description","language","appId","appIcon","appIconLabel","contentEncoding","identifier","node_id","nodeType","mimeType","resourceType","contentType","allowedContentTypes","objectType","posterImage","artifactUrl","launchUrl","previewUrl","streamingUrl","downloadUrl","status","pkgVersion","source","lastUpdatedOn","ml_contentText","ml_contentTextVector","ml_Keywords","level1Name","level1Concept","level2Name","level2Concept","level3Name","level3Concept","textbook_name","sourceURL","label","all_fields"};;
     String contentreadapi = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlkeywordapi = "" , mlvectorapi = ""  ;
     Map<String,Object> mapStage1 = new HashMap<>();
-  public MVCProcessorCassandraIndexer() {
+    private JobLogger LOGGER = new JobLogger(MVCProcessorCassandraIndexer.class);
+    public MVCProcessorCassandraIndexer() {
       String kp_content_url = Platform.config.hasPath("kp.content_service.base_url")  ? Platform.config.getString("kp.content_service.base_url") : "";
         contentreadapi = kp_content_url + "/content/v3/read/";
         mlworkbenchapirequest = "{\"request\":{ \"input\" :{ \"content\" : [] } } }";
@@ -28,9 +30,12 @@ public class MVCProcessorCassandraIndexer  {
 
         if(StringUtils.isNotBlank(action)) {
             if(action.equalsIgnoreCase("update-es-index")) {
+                LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: update-es-index-1 event");
                 obj = getContentDefinition(obj ,identifier);
+                LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: Inserting into cassandra stage-1");
                 CassandraConnector.updateContentProperties(identifier,mapStage1);
             } else if(action.equalsIgnoreCase("update-ml-keywords")) {
+                LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: update-ml-keywords");
                  String ml_contentText;
                  List<String> ml_Keywords;
                  ml_contentText = obj.get("ml_contentText") != null ? obj.get("ml_contentText").toString() : null;
@@ -44,7 +49,7 @@ public class MVCProcessorCassandraIndexer  {
                 CassandraConnector.updateContentProperties(identifier,mapForStage2);
             }
             else  if(action.equalsIgnoreCase("update-ml-contenttextvector")) {
-
+                LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: update-ml-contenttextvector event");
                  List<List<Double>> ml_contentTextVectorList;
                  Set<Double> ml_contentTextVector = null;
               ml_contentTextVectorList = obj.get("ml_contentTextVector") != null ? (List<List<Double>>) obj.get("ml_contentTextVector") : null;
@@ -64,7 +69,9 @@ public class MVCProcessorCassandraIndexer  {
 
     Map<String,Object> getContentDefinition(Map<String,Object> newmap , String identifer) throws Exception {
         try {
+            LOGGER.info("MVCProcessorCassandraIndexer :: getContentDefinition :::  Making API call to read content " + contentreadapi);
             String content = HTTPUtil.makeGetRequest(contentreadapi+identifer);
+            LOGGER.info("MVCProcessorCassandraIndexer :: getContentDefinition ::: retrieved content meta " + content);
             JSONObject obj = new JSONObject(content);
             JSONObject contentobj = (JSONObject) (((JSONObject)obj.get("result")).get("content"));
             extractFieldstobeinserted(contentobj);
@@ -72,7 +79,7 @@ public class MVCProcessorCassandraIndexer  {
             newmap = filterData(newmap,contentobj);
 
         }catch (Exception e) {
-            System.out.println(e);
+            LOGGER.info("MVCProcessorCassandraIndexer :: getContentDefinition ::: Error in getContentDefinitionFunction " + e.getMessage());
             throw new Exception("Get content metdata failed");
         }
         return newmap;
@@ -121,7 +128,7 @@ public class MVCProcessorCassandraIndexer  {
             String resp = HTTPUtil.makePostRequest(mlkeywordapi,obj.toString());
         }
         catch (Exception e) {
-            System.out.println(e);
+            LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: ML workbench api request failed ");
             throw new Exception("Ml keyword api failed");
         }
     }
