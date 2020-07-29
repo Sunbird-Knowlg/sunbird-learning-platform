@@ -95,29 +95,33 @@ public class CertificateGenerator {
                 }};
                 ResultSet resulSet = SunbirdCassandraUtil.read(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToFetch);
                 List<Row> rows = resulSet.all();
-
-                for (Row row : rows) {
-                    List<Map<String, String>> certificates = row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class))
-                            .stream().filter(cert -> StringUtils.equalsIgnoreCase((String) certTemplate.get("name"), (String) cert.get(CourseCertificateParams.name.name()))).collect(Collectors.toList());
-                    Date issuedOn = row.getTimestamp("completedOn");
-                    if (CollectionUtils.isNotEmpty(certificates) && reIssue) {
-                        issueCertificate(certificates, courseId, certTemplate, batchId, userId, issuedOn, true);
-                    } else if (CollectionUtils.isEmpty(certificates)) {
-                        certificates = (null != row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class)))
-                                ? row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class)) : new ArrayList<>();
-                        issueCertificate(certificates, courseId, certTemplate, batchId, userId, issuedOn, false);
-                    } else {
-                        LOGGER.info("CertificateGenerator:generate: Certificate is available for batchId : "+ batchId + ", courseId : " + courseId + " and userId : " + userId + ". Not applied for reIssue.");
-                        throw new ClientException("ERR_GENERATE_CERTIFICATE", "Certificate is available for batchId : "+ batchId + ", courseId : " + courseId + " and userId : " + userId + ". Not applied for reIssue.");
+                if(CollectionUtils.isNotEmpty(rows)) {
+                    for (Row row : rows) {
+                        List<Map<String, String>> certificates = row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class))
+                                .stream().filter(cert -> StringUtils.equalsIgnoreCase((String) certTemplate.get("name"), (String) cert.get(CourseCertificateParams.name.name()))).collect(Collectors.toList());
+                        Date issuedOn = row.getTimestamp("completedOn");
+                        if (CollectionUtils.isNotEmpty(certificates) && reIssue) {
+                            issueCertificate(certificates, courseId, certTemplate, batchId, userId, issuedOn, true);
+                        } else if (CollectionUtils.isEmpty(certificates)) {
+                            certificates = (null != row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class)))
+                                    ? row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class)) : new ArrayList<>();
+                            issueCertificate(certificates, courseId, certTemplate, batchId, userId, issuedOn, false);
+                        } else {
+                            LOGGER.info("CertificateGenerator:generate: Certificate is available for batchId : " + batchId + ", courseId : " + courseId + " and userId : " + userId + ". Not applied for reIssue.");
+                            throw new ClientException("ERR_GENERATE_CERTIFICATE", "Certificate is available for batchId : " + batchId + ", courseId : " + courseId + " and userId : " + userId + ". Not applied for reIssue.");
+                        }
                     }
+                } else {
+                    LOGGER.info("CertificateGenerator:generate: This userId : " + userId + " is not enrolled for batchId : " + batchId + " and courseId : " + courseId);
+                    throw new ClientException("ERR_GENERATE_CERTIFICATE", "This userId : " + userId + " is not enrolled for batchId : " + batchId + " and courseId : " + courseId);
                 }
             } catch (Exception e) {
                 LOGGER.error("CertificateGenerator:generate: Certificate is not generated : " + e.getMessage(), e);
                 throw new ServerException("ERR_GENERATE_CERTIFICATE", e.getMessage());
             }
         } else {
-            LOGGER.info("CertificateGenerator:generate: Certificate template is not available for batchId : "+ batchId + " and courseId : " + courseId);
-            throw new ClientException("ERR_GENERATE_CERTIFICATE", "Certificate template is not available for batchId : "+ batchId + " and courseId : " + courseId);
+            LOGGER.info("CertificateGenerator:generate: Certificate template is not available for batchId : " + batchId + " and courseId : " + courseId);
+            throw new ClientException("ERR_GENERATE_CERTIFICATE", "Certificate template is not available for batchId : " + batchId + " and courseId : " + courseId);
         }
     }
 
@@ -137,8 +141,8 @@ public class CertificateGenerator {
                     throw new ClientException("ERR_GENERATE_CERTIFICATE", "User not found for userId: " + userId);
                 }
             } else {
-                LOGGER.info("CertificateGenerator:issueCertificate: Certificate template is not available for batchId : "+ batchId + " and courseId : " + courseId);
-                throw new ClientException("ERR_GENERATE_CERTIFICATE", "Certificate template is not available for batchId : "+ batchId + " and courseId : " + courseId);
+                LOGGER.info("CertificateGenerator:issueCertificate: Certificate template is not available for batchId : " + batchId + " and courseId : " + courseId);
+                throw new ClientException("ERR_GENERATE_CERTIFICATE", "Certificate template is not available for batchId : " + batchId + " and courseId : " + courseId);
             }
         } else {
             LOGGER.info( "CertificateGenerator:issueCertificate: Course not found for courseId: " + courseId);
