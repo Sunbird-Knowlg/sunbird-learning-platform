@@ -54,9 +54,12 @@ public class ContentUtil {
 		String contentStage = "";
 		String internalId = "";
 		Boolean isPublished = false;
+		// Added by tanmay as pkgVersion can also be an integer value
+		// start
 		if(metadata.get(AutoCreatorParams.pkgVersion.name()) != null &&  metadata.get(AutoCreatorParams.pkgVersion.name()) instanceof Integer) {
 			metadata.put(AutoCreatorParams.pkgVersion.name(),String.valueOf(metadata.get(AutoCreatorParams.pkgVersion.name())));
 		}
+		// end
 		Double pkgVersion = Double.parseDouble((String) metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), "0.0"));
 		Map<String, Object> createMetadata = new HashMap<String, Object>();
 		Map<String, Object> contentMetadata = searchContent(identifier);
@@ -223,6 +226,10 @@ public class ContentUtil {
 		Map<String, String> header = new HashMap<String, String>() {{
 			put("X-Channel-Id", channelId);
 		}};
+		// Added by tanmay to debug
+		// start
+		LOGGER.info("In upload function : Content Util :: File Size" + file.length());
+		// end
 		Response resp = UnirestUtil.post(url, "file", file, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String artifactUrl = (String) resp.getResult().get(AutoCreatorParams.artifactUrl.name());
@@ -387,6 +394,10 @@ public class ContentUtil {
 	private File getFile(String identifier, String fileUrl) {
 		try {
 			String fileName = getBasePath(identifier) + File.separator + getFileNameFromURL(fileUrl);
+			// Added by tanmay to debug
+			// start
+			LOGGER.info("File name to be uploaded " + fileName);
+			// end
 			File file = new File(fileName);
 			FileUtils.copyURLToFile(new URL(fileUrl), file);
 			return file;
