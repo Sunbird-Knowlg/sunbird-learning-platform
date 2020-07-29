@@ -328,7 +328,8 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             Row row = rows.next();
             LOGGER.info("CourseBatchUpdater:readQuery: row " + row);
             result.put("status", row.getInt("status"));
-            result.put("completedOn", row.getDate("completedOn"));
+            LOGGER.info("CourseBatchUpdater:readQuery: row.getTimestamp(\"completedOn\"):: " + row.getTimestamp("completedOn"));
+            result.put("completedOn", row.getTimestamp("completedOn"));
         }
         LOGGER.info("CourseBatchUpdater:readQuery: completed : result :- " + result);
         return result;

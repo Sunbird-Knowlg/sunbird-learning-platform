@@ -1,6 +1,5 @@
 package org.sunbird.jobs.service.util;
 
-import com.datastax.driver.core.LocalDate;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
@@ -28,6 +27,7 @@ import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 import redis.clients.jedis.Jedis;
 
 import java.lang.reflect.Method;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -133,8 +133,8 @@ public class CourseBatchUpdaterTest {
         }};
         mockForReadQuery();
         PowerMockito.when(row.getInt("status")).thenReturn(1);
-        LocalDate date = LocalDate.fromDaysSinceEpoch(2020-07-22);
-        PowerMockito.when(row.getDate("completedOn")).thenReturn(date);
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        PowerMockito.when(row.getTimestamp("completedOn")).thenReturn(timestamp);
         Session session = Mockito.mock(Session.class);
         Map<String, Object> result = (Map<String, Object>) generateInstructionEventMethod.invoke(courseBatchUpdater, session, dataToSelect);
         Assert.assertTrue(((Number) result.get("status")).intValue() != 0);
