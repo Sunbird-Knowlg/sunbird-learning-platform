@@ -43,3 +43,9 @@ course_progress_batch_size: 100
 itemset_generate_pdf: true
 auto_creator_container_count: 1
 content_streaming_enabled: true
+
+
+### if cloud storage type is AWS
+aws_access_key: ""
+aws_secret_key: ""
+aws_s3_bucket: ""
