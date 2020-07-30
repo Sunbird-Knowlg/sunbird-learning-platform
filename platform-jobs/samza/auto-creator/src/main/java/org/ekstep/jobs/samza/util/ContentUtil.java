@@ -193,7 +193,7 @@ public class ContentUtil {
 		return contentId;
 	}
 
-	/*private void upload(String channelId, String identifier, File file) throws Exception {
+	private void upload(String channelId, String identifier, File file) throws Exception {
 		if (null != file && !file.exists())
 			LOGGER.info("ContentUtil :: upload :: File Path for " + identifier + "is : " + file.getAbsolutePath() + " | File Size : " + file.length());
 		String preSignedUrl = getPreSignedUrl(identifier, file.getName());
@@ -217,9 +217,9 @@ public class ContentUtil {
 			LOGGER.info("ContentUtil :: upload :: Blob upload failed for: " + identifier);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Upload failed for: " + identifier);
 		}
-	}*/
+	}
 
-	private void upload(String channelId, String identifier, File file) throws Exception {
+	/* private void upload(String channelId, String identifier, File file) throws Exception {
 		if (null != file && !file.exists())
 			LOGGER.info("ContentUtil :: upload :: File Path for " + identifier + "is : " + file.getAbsolutePath() + " | File Size : " + file.length());
 		String url = KP_CS_BASE_URL + "/content/v3/upload/" + identifier;
@@ -240,7 +240,7 @@ public class ContentUtil {
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while uploading : " + identifier);
 		}
 	}
-
+*/
 	private Boolean publish(String channelId, String identifier, String lastPublishedBy) throws Exception {
 		String url = KP_LEARNING_BASE_URL + "/content/v3/publish/" + identifier;
 		Map<String, Object> request = new HashMap<String, Object>() {{
