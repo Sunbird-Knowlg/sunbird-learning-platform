@@ -4,6 +4,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
+import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.ISamzaService;
@@ -13,7 +14,6 @@ import org.ekstep.mvcjobs.samza.service.util.MVCProcessorESIndexer;
 import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
-import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 
@@ -22,7 +22,7 @@ import java.util.Map;
 public class MVCProcessorService implements ISamzaService {
 
 	private JobLogger LOGGER = new JobLogger(MVCProcessorService.class);
-
+	private Config config = null;
 	private MVCProcessorESIndexer mvcIndexer = null;
 	private SystemStream systemStream = null;
 	MVCProcessorCassandraIndexer cassandraManager = new MVCProcessorCassandraIndexer();
@@ -34,6 +34,7 @@ public class MVCProcessorService implements ISamzaService {
 
 	@Override
 	public void initialize(Config config) throws Exception {
+		this.config = config;
 		JSONUtils.loadProperties(config);
 		LOGGER.info("Service config initialized");
 		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
@@ -82,6 +83,9 @@ public class MVCProcessorService implements ISamzaService {
 				case CompositeSearchConstants.NODE_TYPE_SET:
 				case CompositeSearchConstants.NODE_TYPE_DATA: {
 					// mvcIndexer.processESMessage(graphId, objectType, uniqueId, messageId, message, metrics);
+
+					LOGGER.info("Cassandra keyspace is " + Platform.config.getString("cassandra.keyspace"));
+					LOGGER.info("KP URL " + Platform.config.getString("kp.content_service.base_url"));
 					LOGGER.info("MVCProcessorService :: processMessage  ::: CAlling cassandra insertion ");
 					 eventData = cassandraManager.insertintoCassandra(eventData,uniqueId);
 					LOGGER.info("MVCProcessorService :: processMessage  ::: CAlling elasticsearch insertion ");
