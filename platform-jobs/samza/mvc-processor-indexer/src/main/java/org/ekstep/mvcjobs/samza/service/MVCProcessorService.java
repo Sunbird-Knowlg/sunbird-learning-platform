@@ -83,7 +83,7 @@ public class MVCProcessorService implements ISamzaService {
 				case CompositeSearchConstants.NODE_TYPE_SET:
 				case CompositeSearchConstants.NODE_TYPE_DATA: {
 					// mvcIndexer.processESMessage(graphId, objectType, uniqueId, messageId, message, metrics);
-
+					LOGGER.info("Cassandra keyspace is using this " + this.config.get("cassandra.keyspace"));
 					LOGGER.info("Cassandra keyspace is " + Platform.config.getString("cassandra.keyspace"));
 					LOGGER.info("KP URL " + Platform.config.getString("kp.content_service.base_url"));
 					LOGGER.info("MVCProcessorService :: processMessage  ::: CAlling cassandra insertion ");
