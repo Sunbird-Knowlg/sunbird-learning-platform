@@ -9,8 +9,8 @@ import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.mvcjobs.samza.service.MVCProcessorService;
 
-import java.util.Map;
-import java.util.Set;
+import java.net.InetSocketAddress;
+import java.util.*;
 
 public class CassandraConnector {
     private  static  JobLogger LOGGER = new JobLogger(CassandraConnector.class);
@@ -23,8 +23,10 @@ public class CassandraConnector {
         if(serverIP == null) {
             LOGGER.info("Server ip of cassandra is null");
         }
+        List<String> connectionInfo = Arrays.asList(serverIP.split(","));
+        List<InetSocketAddress> addressList = getSocketAddress(connectionInfo);
         Cluster cluster = Cluster.builder()
-                .addContactPoints(serverIP)
+                .addContactPointsWithPorts(addressList)
                 .build();
 
         session = cluster.connect(keyspace);
@@ -75,5 +77,15 @@ public class CassandraConnector {
             sb.append(" where content_id = ?");
         }
         return sb.toString();
+    }
+    private static List<InetSocketAddress> getSocketAddress(List<String> hosts) {
+        List<InetSocketAddress> connectionList = new ArrayList<>();
+        for (String connection : hosts) {
+            String[] conn = connection.split(":");
+            String host = conn[0];
+            int port = Integer.valueOf(conn[1]);
+            connectionList.add(new InetSocketAddress(host, port));
+        }
+        return connectionList;
     }
 }
