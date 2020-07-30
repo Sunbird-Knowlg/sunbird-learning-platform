@@ -48,7 +48,7 @@ public class MVCProcessorCassandraTest {
         when(HTTPUtil.makePostRequest(Mockito.anyString(),Mockito.anyString())).thenReturn(postReqStage1Resp);
         PowerMockito.mockStatic(CassandraConnector.class);
         PowerMockito.doNothing().when(CassandraConnector.class);
-        CassandraConnector.updateContentProperties(Mockito.anyString(),Mockito.anyMap());
+        CassandraConnector.updateContentProperties(Mockito.anyString(),Mockito.anyMap(),Mockito.anyString(),Mockito.anyString());
         MVCProcessorCassandraIndexer cassandraManager = new MVCProcessorCassandraIndexer();
         cassandraManager.insertintoCassandra(getEvent(eventData),uniqueId);
     }
@@ -58,7 +58,7 @@ public class MVCProcessorCassandraTest {
         when(HTTPUtil.makePostRequest(Mockito.anyString(),Mockito.anyString())).thenReturn(postReqStage2Resp);
         PowerMockito.mockStatic(CassandraConnector.class);
         PowerMockito.doNothing().when(CassandraConnector.class);
-        CassandraConnector.updateContentProperties(Mockito.anyString(),Mockito.anyMap());
+        CassandraConnector.updateContentProperties(Mockito.anyString(),Mockito.anyMap(),Mockito.anyString(),Mockito.anyString());
         MVCProcessorCassandraIndexer cassandraManager = new MVCProcessorCassandraIndexer();
         cassandraManager.insertintoCassandra(getEvent(eventData2),uniqueId);
     }
@@ -66,7 +66,7 @@ public class MVCProcessorCassandraTest {
     public void testInsertToCassandraForStage3() throws Exception  {
         PowerMockito.mockStatic(CassandraConnector.class);
         PowerMockito.doNothing().when(CassandraConnector.class);
-        CassandraConnector.updateContentProperties(Mockito.anyString(),Mockito.anyMap());
+        CassandraConnector.updateContentProperties(Mockito.anyString(),Mockito.anyMap(),Mockito.anyString(),Mockito.anyString());
         MVCProcessorCassandraIndexer cassandraManager = new MVCProcessorCassandraIndexer();
         cassandraManager.insertintoCassandra(getEvent(eventData3),uniqueId);
     }
