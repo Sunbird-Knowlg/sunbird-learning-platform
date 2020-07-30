@@ -15,10 +15,12 @@ import java.util.Set;
 public class CassandraConnector {
     private  static  JobLogger LOGGER = new JobLogger(CassandraConnector.class);
 
-  static  String arr[],keyspace = "sunbirddev_content_store",table = "content_data";
+  static  String arr[],keyspace = Platform.config.getString("cassandra.keyspace"),table = "content_data";
   static String serverIP= Platform.config.hasPath("cassandra.lp.connection") ? Platform.config.getString("cassandra.lp.connection") : null;
    static Session session;
     static Session getSession() {
+
+        LOGGER.info("Cassandra keyspace is " + Platform.config.getString("cassandra.keyspace"));
         if(serverIP == null) {
             LOGGER.info("Server ip of cassandra is null");
         }
