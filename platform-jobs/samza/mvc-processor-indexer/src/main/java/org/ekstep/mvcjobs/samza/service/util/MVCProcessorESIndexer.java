@@ -71,7 +71,7 @@ public class MVCProcessorESIndexer extends AbstractESIndexer {
 	// Remove params which should not be inserted into ES
 	public  Map<String,Object> removeExtraParams(Map<String,Object> obj) {
 		obj.remove("action");
-		obj.remove("action");
+		obj.remove("stage");
 		 return obj;
 	}
 
