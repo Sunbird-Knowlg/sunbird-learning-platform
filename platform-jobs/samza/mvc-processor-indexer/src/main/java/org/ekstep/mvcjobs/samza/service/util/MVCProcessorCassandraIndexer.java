@@ -22,7 +22,6 @@ public class MVCProcessorCassandraIndexer  {
     Map<String,Object> mapStage1 = new HashMap<>();
     private JobLogger LOGGER = new JobLogger(MVCProcessorCassandraIndexer.class);
     public MVCProcessorCassandraIndexer() {
-        contentreadapi = getKp_content_url() + "/content/v3/read/";
         mlworkbenchapirequest = "{\"request\":{ \"input\" :{ \"content\" : [] } } }";
         mlvectorListRequest = "{\"request\":{\"text\":[],\"cid\": \"\",\"language\":\"en\",\"method\":\"BERT\",\"params\":{\"dim\":768,\"seq_len\":25}}}";
         jobname = "vidyadaan_content_keyword_tagging";
@@ -75,6 +74,7 @@ public class MVCProcessorCassandraIndexer  {
 
     Map<String,Object> getContentDefinition(Map<String,Object> newmap , String identifer) throws Exception {
         try {
+            contentreadapi = getKp_content_url() + "/content/v3/read/";
             LOGGER.info("MVCProcessorCassandraIndexer :: getContentDefinition :::  Making API call to read content " + contentreadapi);
             String content = HTTPUtil.makeGetRequest(contentreadapi+identifer);
             LOGGER.info("MVCProcessorCassandraIndexer :: getContentDefinition ::: retrieved content meta " + content);
