@@ -75,7 +75,7 @@ public class MVCProcessorCassandraIndexer  {
             JSONObject obj = new JSONObject(content);
             JSONObject contentobj = (JSONObject) (((JSONObject)obj.get("result")).get("content"));
             extractFieldstobeinserted(contentobj);
-            makepostreqForMlAPI(contentobj);
+           // makepostreqForMlAPI(contentobj);
             newmap = filterData(newmap,contentobj);
 
         }catch (Exception e) {
