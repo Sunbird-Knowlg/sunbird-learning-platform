@@ -27,6 +27,7 @@ public class CassandraConnector {
                 .build();
 
         session = cluster.connect(keyspace);
+        LOGGER.info("The server IP " + serverIP + "\n Session created " + session);
         return session;
     }
     public static void updateContentProperties(String contentId, Map<String, Object> map) {

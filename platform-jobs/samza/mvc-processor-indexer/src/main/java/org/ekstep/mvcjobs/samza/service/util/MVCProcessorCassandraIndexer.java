@@ -16,6 +16,7 @@ public class MVCProcessorCassandraIndexer  {
     Map<String,Object> mapStage1 = new HashMap<>();
     private JobLogger LOGGER = new JobLogger(MVCProcessorCassandraIndexer.class);
     public MVCProcessorCassandraIndexer() {
+        LOGGER.info("kp.content_service.base_url is " + Platform.config.getString("kp.content_service.base_url"));
         contentreadapi = kp_content_url + "/content/v3/read/";
         mlworkbenchapirequest = "{\"request\":{ \"input\" :{ \"content\" : [] } } }";
         mlvectorListRequest = "{\"request\":{\"text\":[],\"cid\": \"\",\"language\":\"en\",\"method\":\"BERT\",\"params\":{\"dim\":768,\"seq_len\":25}}}";
