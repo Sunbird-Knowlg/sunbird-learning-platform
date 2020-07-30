@@ -14,7 +14,8 @@ import java.util.*;
 
 public class CassandraConnector {
     private  static  JobLogger LOGGER = new JobLogger(CassandraConnector.class);
-
+    private  static  String serverIP= Platform.config.hasPath("cassandra.lp.connection") ? Platform.config.getString("cassandra.lp.connection") : null;
+    private  static String keyspace = Platform.config.getString("cassandra.keyspace");
   static  String arr[],table = "content_data";
    static Session session;
     static Session getSession(String serverIP,String keyspace) {
@@ -33,7 +34,7 @@ public class CassandraConnector {
         LOGGER.info("The server IP " + serverIP + "\n Session created " + session);
         return session;
     }
-    public static void updateContentProperties(String contentId, Map<String, Object> map,String serverIP,String keyspace) {
+    public static void updateContentProperties(String contentId, Map<String, Object> map) {
         Session session = getSession(serverIP,keyspace);
         if (null == map || map.isEmpty())
             return;

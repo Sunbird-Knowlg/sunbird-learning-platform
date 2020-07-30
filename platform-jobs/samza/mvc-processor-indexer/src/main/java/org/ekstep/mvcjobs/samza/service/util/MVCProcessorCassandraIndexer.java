@@ -10,12 +10,6 @@ import org.json.JSONObject;
 import java.util.*;
 
 public class MVCProcessorCassandraIndexer  {
-   // private static final String kp_content_url = Platform.config.hasPath("kp.content_service.base_url") ? Platform.config.getString("kp.content_service.base_url") : "";
-    // String serverIP= Platform.config.hasPath("cassandra.lp.connection") ? Platform.config.getString("cassandra.lp.connection") : null;
-    // String keyspace = Platform.config.getString("cassandra.keyspace");
-    private String kp_content_url;
-    private String serverIP;
-    private String keyspace;
 
     String arr[] = {"organisation","channel","framework","board","medium","subject","gradeLevel","name","description","language","appId","appIcon","appIconLabel","contentEncoding","identifier","node_id","nodeType","mimeType","resourceType","contentType","allowedContentTypes","objectType","posterImage","artifactUrl","launchUrl","previewUrl","streamingUrl","downloadUrl","status","pkgVersion","source","lastUpdatedOn","ml_contentText","ml_contentTextVector","ml_Keywords","level1Name","level1Concept","level2Name","level2Concept","level3Name","level3Concept","textbook_name","sourceURL","label","all_fields"};;
     String contentreadapi = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlkeywordapi = "" , mlvectorapi = ""  ;
@@ -38,7 +32,7 @@ public class MVCProcessorCassandraIndexer  {
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: update-es-index-1 event");
                 obj = getContentDefinition(obj ,identifier);
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: Inserting into cassandra stage-1");
-                CassandraConnector.updateContentProperties(identifier,mapStage1,getServerIP(),getKeyspace());
+                CassandraConnector.updateContentProperties(identifier,mapStage1);
             } else if(action.equalsIgnoreCase("update-ml-keywords")) {
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: update-ml-keywords");
                  String ml_contentText;
@@ -51,7 +45,7 @@ public class MVCProcessorCassandraIndexer  {
                 mapForStage2.put("ml_keywords",ml_Keywords);
                 mapForStage2.put("ml_content_text",ml_contentText);
 
-                CassandraConnector.updateContentProperties(identifier,mapForStage2,getServerIP(),getKeyspace());
+                CassandraConnector.updateContentProperties(identifier,mapForStage2);
             }
             else  if(action.equalsIgnoreCase("update-ml-contenttextvector")) {
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: update-ml-contenttextvector event");
@@ -65,16 +59,17 @@ public class MVCProcessorCassandraIndexer  {
                 }
                 Map<String,Object> mapForStage3 = new HashMap<>();
                 mapForStage3.put("ml_content_text_vector",ml_contentTextVector);
-                CassandraConnector.updateContentProperties(identifier,mapForStage3,getServerIP(),getKeyspace());
+                CassandraConnector.updateContentProperties(identifier,mapForStage3);
 
             }
         }
+        LOGGER.info("INSERTION SUCCESSFULL IN CASSANDRA");
         return obj;
     }
 
     Map<String,Object> getContentDefinition(Map<String,Object> newmap , String identifer) throws Exception {
         try {
-            contentreadapi = getKp_content_url() + "/content/v3/read/";
+            contentreadapi = Platform.config.getString("kp.content_service.base_url") + "/content/v3/read/";
             LOGGER.info("MVCProcessorCassandraIndexer :: getContentDefinition :::  Making API call to read content " + contentreadapi);
             String content = HTTPUtil.makeGetRequest(contentreadapi+identifer);
             LOGGER.info("MVCProcessorCassandraIndexer :: getContentDefinition ::: retrieved content meta " + content);
@@ -93,31 +88,31 @@ public class MVCProcessorCassandraIndexer  {
     //Getting Fields to be inserted into cassandra
     private void extractFieldstobeinserted(JSONObject contentobj) {
         if(contentobj.has("level1Concept")){
-            mapStage1.put("level1Concept",contentobj.get("level1Concept"));
+            mapStage1.put("level1_concept",contentobj.get("level1Concept"));
         }
         if(contentobj.has("level2Concept")){
-            mapStage1.put("level2Concept",contentobj.get("level2Concept"));
+            mapStage1.put("level2_concept",contentobj.get("level2Concept"));
         }
         if(contentobj.has("level3Concept")){
-            mapStage1.put("level3Concept",contentobj.get("level3Concept"));
+            mapStage1.put("level3_concept",contentobj.get("level3Concept"));
         }
         if(contentobj.has("textbook_name")){
             mapStage1.put("textbook_name",contentobj.get("textbook_name"));
         }
         if(contentobj.has("level1Name")){
-            mapStage1.put("level1Name",contentobj.get("level1Name"));
+            mapStage1.put("level1_name",contentobj.get("level1Name"));
         }
         if(contentobj.has("level2Name")){
-            mapStage1.put("level2Name",contentobj.get("level2Name"));
+            mapStage1.put("level2_name",contentobj.get("level2Name"));
         }
         if(contentobj.has("level3Name")){
-            mapStage1.put("level3Name",contentobj.get("level3Name"));
+            mapStage1.put("level3_name",contentobj.get("level3Name"));
         }
         if(contentobj.has("source")){
             mapStage1.put("source",contentobj.get("source"));
         }
         if(contentobj.has("sourceURL")){
-            mapStage1.put("sourceURL",contentobj.get("sourceURL"));
+            mapStage1.put("sourceurl",contentobj.get("sourceURL"));
         }
     }
 
@@ -171,22 +166,4 @@ public class MVCProcessorCassandraIndexer  {
         }
     }
 
-    public void setKp_content_url(String url) {
-        this.kp_content_url = url;
-    }
-    public String getKp_content_url() {
-        return kp_content_url;
-    }
-    public void setKeyspace(String keyspace) {
-        this.keyspace = keyspace;
-    }
-    public String getKeyspace() {
-        return keyspace;
-    }
-    public void setServerIP(String ip) {
-        this.serverIP = ip;
-    }
-    public String getServerIP() {
-        return serverIP;
-    }
 }

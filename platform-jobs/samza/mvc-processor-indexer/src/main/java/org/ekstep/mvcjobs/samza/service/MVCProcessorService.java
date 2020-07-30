@@ -83,11 +83,6 @@ public class MVCProcessorService implements ISamzaService {
 			switch (nodeType) {
 				case CompositeSearchConstants.NODE_TYPE_SET:
 				case CompositeSearchConstants.NODE_TYPE_DATA: {
-					LOGGER.info("Cassandra keyspace is " + Platform.config.getString("cassandra.keyspace"));
-					LOGGER.info("KP URL " + Platform.config.getString("kp.content_service.base_url"));
-					cassandraManager.setKeyspace(Platform.config.getString("cassandra.keyspace"));
-					cassandraManager.setKp_content_url(Platform.config.getString("kp.content_service.base_url"));
-					cassandraManager.setServerIP(Platform.config.getString("cassandra.lp.connection"));
 					LOGGER.info("MVCProcessorService :: processMessage  ::: CAlling cassandra insertion ");
 					eventData = cassandraManager.insertintoCassandra(eventData,uniqueId);
 					LOGGER.info("MVCProcessorService :: processMessage  ::: CAlling elasticsearch insertion ");
