@@ -45,7 +45,7 @@ public class CertificateGenerator {
 
     private static final String KEYSPACE = Platform.config.hasPath("courses.keyspace.name")
             ? Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
-    private static final String USER_COURSES_TABLE = "user_courses";
+    private static final String USER_COURSES_TABLE = "user_enrolments";
     private SimpleDateFormat formatter = null;
     private SimpleDateFormat dateFormatter = null;
     private static final String ES_INDEX_NAME = "user-courses";
@@ -61,7 +61,10 @@ public class CertificateGenerator {
     private static JobLogger LOGGER = new JobLogger(CertificateGenerator.class);
     private Session cassandraSession = null;
     private Jedis redisConnect =null;
-    
+    private static final String NOTIFICATION_URL = Platform.config.hasPath("notification.api.endpoint")
+            ? Platform.config.getString("notification.api.endpoint"): "/v2/notification";
+
+
     public CertificateGenerator(Jedis redisConnect, Session cassandraSession) {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
         formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -84,8 +87,9 @@ public class CertificateGenerator {
         if(MapUtils.isNotEmpty(certTemplate)) {
             certTemplate.putAll(template);
             Map<String, Object> dataToFetch = new HashMap<String, Object>() {{
-                put(CourseCertificateParams.batchId.name(), batchId);
                 put(CourseCertificateParams.userId.name(), userId);
+                put(CourseCertificateParams.courseId.name(), courseId);
+                put(CourseCertificateParams.batchId.name(), batchId);
             }};
             ResultSet resulSet = SunbirdCassandraUtil.read(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToFetch);
             List<Row> rows = resulSet.all();
@@ -134,7 +138,7 @@ public class CertificateGenerator {
         try{
             String oldId = null;
             if(reIssue) {
-                oldId = certificates.stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), cert.get("name"))).map(cert -> {return  cert.get("name");}).findFirst().orElse("");
+                oldId = certificates.stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), cert.get("name"))).map(cert -> {return  cert.get("id");}).findFirst().orElse("");
             }
             String recipientName = getRecipientName(userResponse);
             Map<String, Object> certServiceRequest = prepareCertServiceRequest(courseName, batchId, userId, userResponse, certTemplate, issuedOn);
@@ -150,8 +154,9 @@ public class CertificateGenerator {
                         put(CourseCertificateParams.certificates.name(), updatedCerts);
                     }};
                     Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
-                        put(CourseCertificateParams.batchId.name(), batchId);
                         put(CourseCertificateParams.userId.name(), userId);
+                        put(CourseCertificateParams.courseId.name(), courseId);
+                        put(CourseCertificateParams.batchId.name(), batchId);
                     }};
                     SunbirdCassandraUtil.update(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToUpdate, dataToSelect);
                     updatedES(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
@@ -184,8 +189,9 @@ public class CertificateGenerator {
             }});
             if(StringUtils.isNotBlank(oldId))
                 request.put(CourseCertificateParams.oldId.name(), oldId);
+            LOGGER.info("CertificateGenerator:addCertificateToUser: Add certificate to registry request : " + mapper.writeValueAsString(request));
             HttpResponse<String> response = Unirest.post(certRegistryAddURL).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
-            LOGGER.info("Add certificate to registry response for batchid: " + batchId  +" and courseid: " + courseId + " is : " + response.getStatus() + " :: "+ response.getBody());
+            LOGGER.info("CertificateGenerator:addCertificateToUser: Add certificate to registry response for batchid: " + batchId  +" and courseid: " + courseId + " is : " + response.getStatus() + " :: "+ response.getBody());
             return (200 == response.getStatus());
         } catch(Exception e) {
             LOGGER.error("Error while adding the certificate to user: " + certificate, e);
@@ -196,7 +202,7 @@ public class CertificateGenerator {
     private boolean notifyUser(String userId, Map<String, Object> certTemplate, String courseName, Map<String, Object> userResponse, Date issuedOn) {
         if(certTemplate.containsKey("notifyTemplate")) {
             Map<String, Object> notifyTemplate = getNotificationTemplate(certTemplate);
-            String url = LEARNER_SERVICE_PRIVATE_URL + "/v1/notification/email";
+            String url = LEARNER_SERVICE_PRIVATE_URL + NOTIFICATION_URL;
             Request request = new Request();
             notifyTemplate.entrySet().forEach(entry -> request.put(entry.getKey(), entry.getValue()));
             request.put("firstName", (String) userResponse.get("firstName"));

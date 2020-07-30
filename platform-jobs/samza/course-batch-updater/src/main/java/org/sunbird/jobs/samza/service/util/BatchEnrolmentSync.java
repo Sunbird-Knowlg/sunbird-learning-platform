@@ -28,8 +28,8 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
     private String keyspace = Platform.config.hasPath("courses.keyspace.name")
             ? Platform.config.getString("courses.keyspace.name")
             : "sunbird_courses";
-    private String table = "user_courses";
-    private String consumptionTable = "content_consumption";
+    private String table = "user_enrolments";
+    private String consumptionTable = "user_content_consumption";
     private static final String ES_INDEX_NAME = "user-courses";
     private static final String ES_DOC_TYPE = "_doc";
     private Session cassandraSession = null;
@@ -51,6 +51,7 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
                 Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
                     put("batchid", edata.get("batchId"));
                     put("userid", edata.get("userId"));
+                    put("courseid", courseId);
                 }};
                 if (CollectionUtils.isNotEmpty((List) edata.get("reset"))) {
                     List<String> dataToReset = (List) edata.get("reset");
@@ -71,9 +72,9 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
 
                     SunbirdCassandraUtil.update(cassandraSession, keyspace, table, dataToUpdate, dataToSelect);
                 }
-                if(dataToUpdate.keySet().contains("contentStatus"))
+                /*if(dataToUpdate.keySet().contains("contentStatus"))
                     dataToUpdate.put("contentStatus", mapper.writeValueAsString(dataToUpdate.get("contentStatus")));
-                ESUtil.updateCoureBatch(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
+                ESUtil.updateCoureBatch(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);*/
 
             }
         }
@@ -83,6 +84,7 @@ public class BatchEnrolmentSync extends BaseCourseBatchUpdater {
         Map<String, Object> contentStatus = new HashMap<>();
         Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
             put("userid", edata.get("userId"));
+            put("courseid", edata.get("courseId"));
             put("batchid", edata.get("batchId"));
             put("contentid", leafNodes);
         }};
