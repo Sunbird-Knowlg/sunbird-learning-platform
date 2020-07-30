@@ -37,6 +37,7 @@ checkpoint_interval: 60000
 restart_attempts: 3
 restart_delay: 30000 # in milli-seconds
 producer_max_request_size: 1572864
+dp_redis_host: "{{ groups['dp-redis'][0] }}"
 
 ### Activity Aggregate job related vars
 activity_agg_consumer_parallelism: 1
