@@ -79,6 +79,9 @@ activity-aggregate-updater: |
     groupId = {{ env_name }}-activity-aggregate-group
   }
   task {
+    checkpointing.interval = 300000
+    restart-strategy.attempts = {{ restart_attempts }}
+    restart-strategy.delay = 240000 # in milli-seconds
     consumer.parallelism = {{ activity_agg_consumer_parallelism }}
     activity.agg.parallelism = {{ activity_agg_parallelism }}
   }
