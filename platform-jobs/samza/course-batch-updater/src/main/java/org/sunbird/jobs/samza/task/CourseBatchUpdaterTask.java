@@ -43,6 +43,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
     private DateTimeFormatter dateTimeFormatter;
     private static String executionHour = "00";
     private SystemStream certificateInstructionStream = null;
+    private Boolean certificateAutoGenerateEnable = Platform.config.hasPath("certificate.auto.generate.enable") ? Platform.config.getBoolean("certificate.auto.generate.enable") : true;
 
     public ISamzaService initialize() throws Exception {
         LOGGER.info("Task initialized");
@@ -99,7 +100,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
         LOGGER.info("CourseBatchUpdaterTask:executeCourseProgressBatch: Starting CourseBatch updater process :: " + System.currentTimeMillis());
         List<Map<String, Object>> userCertificateEvents = new ArrayList<>();
         courseBatchUpdater.updateBatchProgress(cassandraSession, courseProgressHandler, userCertificateEvents);
-        if(CollectionUtils.isNotEmpty(userCertificateEvents)) {
+        if(certificateAutoGenerateEnable && CollectionUtils.isNotEmpty(userCertificateEvents)) {
             LOGGER.info("CourseBatchUpdaterTask:executeCourseProgressBatch: Pushing user certificate event : starts :: " + System.currentTimeMillis());
             courseBatchUpdater.pushCertificateEvents(userCertificateEvents, collector);
             LOGGER.info("CourseBatchUpdaterTask:executeCourseProgressBatch: Pushing user certificate event : ends :: " + System.currentTimeMillis());
