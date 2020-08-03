@@ -56,7 +56,7 @@ public class IssueCertificate {
         this.cassandraSession = cassandraSession;
     }
 
-    public void issue(Map<String, Object> edata, MessageCollector collector) {
+    public void issue(Map<String, Object> edata, MessageCollector collector) throws Exception {
         String batchId = (String) edata.get(CourseCertificateParams.batchId.name());
         String courseId = (String) edata.get(CourseCertificateParams.courseId.name());
         List<String> userIds = (null != edata.get(CourseCertificateParams.userIds.name()))? (List<String>)edata.get(CourseCertificateParams.userIds.name()): new ArrayList<>();
