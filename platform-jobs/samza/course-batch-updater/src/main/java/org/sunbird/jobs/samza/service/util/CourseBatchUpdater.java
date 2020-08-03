@@ -138,7 +138,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 if(status == 2) {
                     put("completedOn", new Timestamp(new Date().getTime()));
                     put("userCourseBatch", new HashMap<String, Object>() {{
-                        put("userIds", Arrays.asList(userId));
+                        put("userId", userId);
                         put("batchId", batchId);
                         put("courseId", courseId);
                     }});
