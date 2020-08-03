@@ -126,7 +126,7 @@ public class MVCProcessorCassandraIndexer  {
             JSONArray content = (JSONArray)input.get("content");
             content.put(contentdef);
             req.put("job",jobname);
-            String resp = HTTPUtil.makePostRequest(mlkeywordapi,obj.toString());
+            String resp = HTTPUtil.makePostRequest(Platform.config.getString("mlkeywordapi") + "/daggit/submit",obj.toString());
         }
         catch (Exception e) {
             LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: ML workbench api request failed ");
