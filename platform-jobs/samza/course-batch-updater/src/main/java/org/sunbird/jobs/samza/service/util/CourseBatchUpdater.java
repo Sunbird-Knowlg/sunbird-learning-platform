@@ -138,7 +138,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 if(status == 2) {
                     put("completedOn", new Timestamp(new Date().getTime()));
                     put("userCourseBatch", new HashMap<String, Object>() {{
-                        put("userId", userId);
+                        put("userIds", Arrays.asList(userId));
                         put("batchId", batchId);
                         put("courseId", courseId);
                     }});
@@ -311,6 +311,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     }
                 });
         String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+        LOGGER.info("CourseBatchUpdater:generateInstructionEvent: beJobRequestEvent " + beJobRequestEvent);
         return mapper.readValue(beJobRequestEvent, new TypeReference<Map<String, Object>>() {});
     }
 
