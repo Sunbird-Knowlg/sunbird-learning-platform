@@ -21,7 +21,7 @@ public class IssueCertificateTest {
 
 
     @Test
-    public void testIssueCert() {
+    public void testIssueCert() throws Exception {
         Config config = Mockito.mock(Config.class);
         Session session = Mockito.mock(Session.class);
         IssueCertificate spy = PowerMockito.spy(new IssueCertificate(session));
