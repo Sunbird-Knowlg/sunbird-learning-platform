@@ -60,6 +60,8 @@ public class IssueCertificate {
         String batchId = (String) edata.get(CourseCertificateParams.batchId.name());
         String courseId = (String) edata.get(CourseCertificateParams.courseId.name());
         List<String> userIds = (null != edata.get(CourseCertificateParams.userIds.name()))? (List<String>)edata.get(CourseCertificateParams.userIds.name()): new ArrayList<>();
+        LOGGER.info("IssueCertificate:issue: userIds : " + userIds);
+        LOGGER.info("IssueCertificate:issue: eData : " + mapper.writeValueAsString(edata));
         Boolean reissue = (null != edata.get(CourseCertificateParams.reIssue.name()))
                 ? (Boolean) edata.get(CourseCertificateParams.reIssue.name()) : false;
 
@@ -89,6 +91,7 @@ public class IssueCertificate {
 
     private void fetchUsersAndIssueCertificates(String batchId, String courseId, Boolean reIssue, Map<String, Map<String, String>> templates, MessageCollector collector, List<String> userIds) {
         try {
+            LOGGER.info("IssueCertificate:fetchUsersAndIssueCertificates: userIds " + userIds);
             for (String key : templates.keySet()) {
                 Map<String, String> template = templates.get(key);
                 String certName = template.getOrDefault("name", "");
@@ -230,6 +233,7 @@ public class IssueCertificate {
         String query = "SELECT user_id, max(total_score) as score, total_max_score FROM " + KEYSPACE +"." + ASSESSMENT_AGGREGATOR_TABLE +
                 " where course_id='" +courseId + "' AND batch_id='" + batchId + "' " +
                 "GROUP BY course_id,batch_id,user_id,content_id ORDER BY batch_id,user_id,content_id;";
+        LOGGER.info("IssueCertificate : fetchAssessedUsersFromDB :: query " + query);
         ResultSet resultSet = SunbirdCassandraUtil.execute(cassandraSession, query);
         Iterator<Row> rows = resultSet.iterator();
         Map<String, Map<String, Double>> userScore = new HashMap<>();
@@ -262,6 +266,7 @@ public class IssueCertificate {
                     put(CourseCertificateParams.courseId.name(), courseId);
                     putAll(enrollment);
                 }};
+                LOGGER.info("IssueCertificate:getUserFromEnrolmentCriteria: userIds " + userIds);
                 if(CollectionUtils.isNotEmpty(userIds)) {
                     dataToFetch.put(CourseCertificateParams.userId.name(), userIds);
                 }
