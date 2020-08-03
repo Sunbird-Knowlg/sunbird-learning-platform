@@ -125,6 +125,9 @@ public class IssueCertificate {
                     throw new ClientException("ERR_INVALID_CERTIFICATE_TEMPLATE", "Certificate template has empty criteria: " + criteriaString);
                 }
             }
+        } catch (ClientException e) {
+            LOGGER.error("IssueCertificate:fetchUsersAndIssueCertificates: Certificate is not generated : " + e.getMessage(), e);
+            throw new ClientException("ERR_GENERATE_CERTIFICATE", e.getMessage());
         } catch (Exception e) {
             LOGGER.error("IssueCertificate:fetchUsersAndIssueCertificates: Error while fetching user and generate certificates", e);
             throw new ServerException("ERR_GENERATE_CERTIFICATE", "Error while fetching user and generate certificates : " + e);

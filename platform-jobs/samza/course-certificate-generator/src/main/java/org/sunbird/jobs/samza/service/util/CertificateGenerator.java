@@ -115,6 +115,9 @@ public class CertificateGenerator {
                     LOGGER.info("CertificateGenerator:generate: This userId : " + userId + " is not enrolled for batchId : " + batchId + " and courseId : " + courseId);
                     throw new ClientException("ERR_GENERATE_CERTIFICATE", "This userId : " + userId + " is not enrolled for batchId : " + batchId + " and courseId : " + courseId);
                 }
+            } catch (ClientException e) {
+                LOGGER.error("CertificateGenerator:generate: Certificate is not generated : " + e.getMessage(), e);
+                throw new ClientException("ERR_GENERATE_CERTIFICATE", e.getMessage());
             } catch (Exception e) {
                 LOGGER.error("CertificateGenerator:generate: Certificate is not generated : " + e.getMessage(), e);
                 throw new ServerException("ERR_GENERATE_CERTIFICATE", e.getMessage());
@@ -185,6 +188,9 @@ public class CertificateGenerator {
                 LOGGER.info("CertificateGenerator:generateCertificate: Error while generation certificate for batchId : " + batchId +  ", courseId : " + courseId + " and userId : " + userId + " with error response : "  +  + httpResponse.getStatus()  + " :: " + httpResponse.getBody());
                 throw new ClientException("ERR_GENERATE_CERTIFICATE", "Error while generation certificate for batchId : " + batchId +  ", courseId : " + courseId + " and userId : " + userId + " with error response : "  +  + httpResponse.getStatus()  + " :: " + httpResponse.getBody());
             }
+        } catch (ClientException e) {
+            LOGGER.error("CertificateGenerator:generateCertificate: Certificate is not generated : " + e.getMessage(), e);
+            throw new ClientException("ERR_GENERATE_CERTIFICATE", e.getMessage());
         } catch (Exception e) {
             LOGGER.error("CertificateGenerator:generateCertificate: Error while generation certificate for batchId : " + batchId +  ", courseId : " + courseId + " and userId : " + userId, e);
             throw new ServerException("ERR_GENERATE_CERTIFICATE", "Error while generation certificate for batchId : " + batchId +  ", courseId : " + courseId + " and userId : " + userId, e);
