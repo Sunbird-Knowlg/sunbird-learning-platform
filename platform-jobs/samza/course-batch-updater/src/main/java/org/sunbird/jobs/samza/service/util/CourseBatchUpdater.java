@@ -209,11 +209,9 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     if(((Number) dataToUpdate.get("status")).intValue() == 2) {
                         //read status and completedOn from cassandra
                         Map<String, Object> result = readQuery(cassandraSession, dataToSelect);
-                        LOGGER.info("CourseBatchUpdater:updateBatchProgress: result:: " + result);
                         if (MapUtils.isEmpty(result) || (((Number) result.get("status")).intValue() != 2 || (((Number) result.get("status")).intValue() == 2 && result.get("completedOn") == null))) {
                             //adding userCourseBatch for auto certificate generation
                             userCertificateEvents.add((Map<String, Object>) dataToUpdate.get("userCourseBatch"));
-                            LOGGER.info("CourseBatchUpdater:updateBatchProgress: after auto cert:: ");
                             dataToUpdate.remove("userCourseBatch");
                             //Update cassandra
                             updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
@@ -317,19 +315,14 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
     private Map<String, Object> readQuery(Session cassandraSession, Map<String, Object> dataToSelect) {
         String query = "SELECT status, completedOn FROM " + keyspace +"." + table +
                 " where courseid='" + dataToSelect.get("courseid") + "' AND batchid='" + dataToSelect.get("batchid") + "' AND userid='" + dataToSelect.get("userid") + "';";
-        LOGGER.info("CourseBatchUpdater:readQuery: started + query " + query);
         ResultSet resultSet = SunbirdCassandraUtil.execute(cassandraSession, query);
         Iterator<Row> rows = resultSet.iterator();
-        LOGGER.info("CourseBatchUpdater:readQuery: rows.hasNext():: " + rows.hasNext() + " rows : " + rows);
         Map<String, Object> result = new HashMap<>();
         while(rows.hasNext()) {
             Row row = rows.next();
-            LOGGER.info("CourseBatchUpdater:readQuery: row " + row);
             result.put("status", row.getInt("status"));
-            LOGGER.info("CourseBatchUpdater:readQuery: row.getTimestamp(\"completedOn\"):: " + row.getTimestamp("completedOn"));
             result.put("completedOn", row.getTimestamp("completedOn"));
         }
-        LOGGER.info("CourseBatchUpdater:readQuery: completed : result :- " + result);
         return result;
     }
 }

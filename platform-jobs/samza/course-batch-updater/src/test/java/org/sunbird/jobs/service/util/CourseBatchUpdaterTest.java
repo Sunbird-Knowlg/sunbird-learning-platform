@@ -49,6 +49,8 @@ public class CourseBatchUpdaterTest {
     @Mock
     private Row row;
     private CourseBatchUpdater courseBatchUpdater;
+    @Mock
+    private Session session;
 
     private MessageCollector collectorMock;
     @Mock(name = "certificateInstructionStream")
@@ -135,7 +137,6 @@ public class CourseBatchUpdaterTest {
         PowerMockito.when(row.getInt("status")).thenReturn(1);
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         PowerMockito.when(row.getTimestamp("completedOn")).thenReturn(timestamp);
-        Session session = Mockito.mock(Session.class);
         Map<String, Object> result = (Map<String, Object>) generateInstructionEventMethod.invoke(courseBatchUpdater, session, dataToSelect);
         Assert.assertTrue(((Number) result.get("status")).intValue() != 0);
         Assert.assertTrue((result.get("completedOn") != null));
@@ -144,8 +145,7 @@ public class CourseBatchUpdaterTest {
     public void mockForReadQuery(){
         PowerMockito.stub(PowerMockito.method(SunbirdCassandraUtil.class, "execute")).toReturn(resultSet);
         PowerMockito.when(resultSet.iterator()).thenReturn(iterator);
-        // check in method it is calling two time or not
-        PowerMockito.when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(false);
+        PowerMockito.when(iterator.hasNext()).thenReturn(true).thenReturn(false);
         PowerMockito.when(iterator.next()).thenReturn(row);
     }
 
@@ -154,7 +154,7 @@ public class CourseBatchUpdaterTest {
         Mockito.when(config.get("redis.host")).thenReturn("localhost");
         Mockito.when(config.getInt("redis.port")).thenReturn(6379);
         Jedis redisConnect = new RedisConnect(config).getConnection();
-        Session session = Mockito.mock(Session.class);
+        session = Mockito.mock(Session.class);
         SystemStream certificateInstructionStream = new SystemStream("kafka", "coursebatch.certificate.request");
         courseBatchUpdater = PowerMockito.spy(new CourseBatchUpdater(redisConnect, session, certificateInstructionStream));
     }
