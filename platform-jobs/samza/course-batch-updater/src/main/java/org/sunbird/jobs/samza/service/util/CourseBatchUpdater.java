@@ -199,30 +199,37 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             List<Update.Where> updateQueryList = new ArrayList<>();
             courseProgressHandler.getMap().entrySet().forEach(event -> {
                 try {
+                    String batchId = event.getKey().split("_")[0];
+                    String userId = event.getKey().split("_")[1];
                     Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
-                        put("batchid", event.getKey().split("_")[0]);
-                        put("userid", event.getKey().split("_")[1]);
+                        put("batchid", batchId);
+                        put("userid", userId);
                     }};
                     Map<String, Object> dataToUpdate = new HashMap<>();
                     dataToUpdate.putAll((Map<String, Object>) event.getValue());
                     dataToSelect.put("courseid", dataToUpdate.remove("courseId"));
                     if(((Number) dataToUpdate.get("status")).intValue() == 2) {
+                        int latestProgress = (int) dataToUpdate.getOrDefault("progress", 0);
                         //read status and completedOn from cassandra
                         Map<String, Object> result = readQuery(cassandraSession, dataToSelect);
                         LOGGER.info("CourseBatchUpdater:updateBatchProgress: result:: " + result);
-                        if (MapUtils.isEmpty(result) || (((Number) result.get("status")).intValue() != 2 || (((Number) result.get("status")).intValue() == 2 && result.get("completedOn") == null))) {
-                            //adding userCourseBatch for auto certificate generation
-                            userCertificateEvents.add((Map<String, Object>) dataToUpdate.get("userCourseBatch"));
-                            LOGGER.info("CourseBatchUpdater:updateBatchProgress: after auto cert:: ");
-                            dataToUpdate.remove("userCourseBatch");
-                            //Update cassandra
-                            updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
+                        if (MapUtils.isNotEmpty(result)) {
+                            int dbProgress = (int) result.getOrDefault("progress", 0);
+                            if (dbProgress > 0 && latestProgress > 0 && latestProgress > dbProgress) {
+                                userCertificateEvents.add((Map<String, Object>) dataToUpdate.get("userCourseBatch"));
+                                LOGGER.info("CourseBatchUpdater:updateBatchProgress: auto certificate generation triggered for userId " + userId + " and batchId " + batchId);
+                            } else {
+                                LOGGER.info("CourseBatchUpdater:updateBatchProgress [2]: status is complete but, auto certificate generation not triggered for userId " + userId + " and batchId " + batchId);
+                            }
+                        } else {
+                            LOGGER.info("CourseBatchUpdater:updateBatchProgress [1]: status is complete but, auto certificate generation not triggered for userId " + userId + " and batchId " + batchId);
                         }
-                    } else {
-                        dataToUpdate.remove("userCourseBatch");
-                        //Update cassandra
-                        updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
                     }
+
+                    dataToUpdate.remove("userCourseBatch");
+                    //Update cassandra
+                    updateQueryList.add(updateQuery(keyspace, table, dataToUpdate, dataToSelect));
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -316,19 +323,18 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
     }
 
     private Map<String, Object> readQuery(Session cassandraSession, Map<String, Object> dataToSelect) {
-        String query = "SELECT status, completedOn FROM " + keyspace +"." + table +
+        String query = "SELECT status, completedOn, progress FROM " + keyspace +"." + table +
                 " where courseid='" + dataToSelect.get("courseid") + "' AND batchid='" + dataToSelect.get("batchid") + "' AND userid='" + dataToSelect.get("userid") + "';";
         LOGGER.info("CourseBatchUpdater:readQuery: started + query " + query);
         ResultSet resultSet = SunbirdCassandraUtil.execute(cassandraSession, query);
         Iterator<Row> rows = resultSet.iterator();
-        LOGGER.info("CourseBatchUpdater:readQuery: rows.hasNext():: " + rows.hasNext() + " rows : " + rows);
         Map<String, Object> result = new HashMap<>();
         while(rows.hasNext()) {
             Row row = rows.next();
             LOGGER.info("CourseBatchUpdater:readQuery: row " + row);
             result.put("status", row.getInt("status"));
-            LOGGER.info("CourseBatchUpdater:readQuery: row.getTimestamp(\"completedOn\"):: " + row.getTimestamp("completedOn"));
             result.put("completedOn", row.getTimestamp("completedOn"));
+            result.put("progress", row.getInt("progress"));
         }
         LOGGER.info("CourseBatchUpdater:readQuery: completed : result :- " + result);
         return result;
