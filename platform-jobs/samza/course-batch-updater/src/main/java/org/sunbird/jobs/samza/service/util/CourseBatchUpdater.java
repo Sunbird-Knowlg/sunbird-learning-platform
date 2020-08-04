@@ -311,6 +311,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     }
                 });
         String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+        LOGGER.info("CourseBatchUpdater:generateInstructionEvent: beJobRequestEvent " + beJobRequestEvent);
         return mapper.readValue(beJobRequestEvent, new TypeReference<Map<String, Object>>() {});
     }
 
