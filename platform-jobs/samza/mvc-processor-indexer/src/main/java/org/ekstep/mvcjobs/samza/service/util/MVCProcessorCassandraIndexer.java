@@ -11,8 +11,8 @@ import java.util.*;
 
 public class MVCProcessorCassandraIndexer  {
 
-    String arr[] = {"organisation","channel","framework","board","medium","subject","gradeLevel","name","description","language","appId","appIcon","appIconLabel","contentEncoding","identifier","node_id","nodeType","mimeType","resourceType","contentType","allowedContentTypes","objectType","posterImage","artifactUrl","launchUrl","previewUrl","streamingUrl","downloadUrl","status","pkgVersion","source","lastUpdatedOn","ml_contentText","ml_contentTextVector","ml_Keywords","level1Name","level1Concept","level2Name","level2Concept","level3Name","level3Concept","textbook_name","sourceURL","label","all_fields"};;
-    String contentreadapi = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlkeywordapi = "" , mlvectorapi = ""  ;
+    String elasticSearchParamArr[] = {"organisation","channel","framework","board","medium","subject","gradeLevel","name","description","language","appId","appIcon","appIconLabel","contentEncoding","identifier","node_id","nodeType","mimeType","resourceType","contentType","allowedContentTypes","objectType","posterImage","artifactUrl","launchUrl","previewUrl","streamingUrl","downloadUrl","status","pkgVersion","source","lastUpdatedOn","ml_contentText","ml_contentTextVector","ml_Keywords","level1Name","level1Concept","level2Name","level2Concept","level3Name","level3Concept","textbook_name","sourceURL","label","all_fields"};;
+    String contentreadapiurl = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlkeywordapi = "" , mlvectorapi = ""  ;
     Map<String,Object> mapStage1 = new HashMap<>();
     private JobLogger LOGGER = new JobLogger(MVCProcessorCassandraIndexer.class);
     public MVCProcessorCassandraIndexer() {
@@ -30,7 +30,7 @@ public class MVCProcessorCassandraIndexer  {
         if(StringUtils.isNotBlank(action)) {
             if(action.equalsIgnoreCase("update-es-index")) {
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: update-es-index-1 event");
-                obj = getContentDefinition(obj ,identifier);
+                obj = getContentMetaData(obj ,identifier);
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: Inserting into cassandra stage-1");
                 CassandraConnector.updateContentProperties(identifier,mapStage1);
             } else if(action.equalsIgnoreCase("update-ml-keywords")) {
@@ -67,15 +67,15 @@ public class MVCProcessorCassandraIndexer  {
         return obj;
     }
 
-    Map<String,Object> getContentDefinition(Map<String,Object> newmap , String identifer) throws Exception {
+    Map<String,Object> getContentMetaData(Map<String,Object> newmap , String identifer) throws Exception {
         try {
-            contentreadapi = Platform.config.getString("kp.content_service.base_url") + "/content/v3/read/";
-            LOGGER.info("MVCProcessorCassandraIndexer :: getContentDefinition :::  Making API call to read content " + contentreadapi);
-            String content = HTTPUtil.makeGetRequest(contentreadapi+identifer);
-            LOGGER.info("MVCProcessorCassandraIndexer :: getContentDefinition ::: retrieved content meta " + content);
+            contentreadapiurl = Platform.config.getString("kp.content_service.base_url") + "/content/v3/read/";
+            LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData :::  Making API call to read content " + contentreadapiurl);
+            String content = HTTPUtil.makeGetRequest(contentreadapiurl+identifer);
+            LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData ::: retrieved content meta " + content);
             JSONObject obj = new JSONObject(content);
             JSONObject contentobj = (JSONObject) (((JSONObject)obj.get("result")).get("content"));
-            extractFieldstobeinserted(contentobj);
+            extractFieldsToBeInserted(contentobj);
            // makepostreqForMlAPI(contentobj);
             newmap = filterData(newmap,contentobj);
 
@@ -86,7 +86,7 @@ public class MVCProcessorCassandraIndexer  {
         return newmap;
     }
     //Getting Fields to be inserted into cassandra
-    private void extractFieldstobeinserted(JSONObject contentobj) {
+    private void extractFieldsToBeInserted(JSONObject contentobj) {
         if(contentobj.has("level1Concept")){
             mapStage1.put("level1_concept",contentobj.get("level1Concept"));
         }
@@ -139,8 +139,8 @@ public class MVCProcessorCassandraIndexer  {
 
         String key = null;
         Object value = null;
-        for(int i = 0 ; i < arr.length ; i++ ) {
-            key = (arr[i]);
+        for(int i = 0 ; i < elasticSearchParamArr.length ; i++ ) {
+            key = (elasticSearchParamArr[i]);
             value = content.has(key)  ? content.get(key) : null;
             if(value != null) {
                 obj.put(key,value);

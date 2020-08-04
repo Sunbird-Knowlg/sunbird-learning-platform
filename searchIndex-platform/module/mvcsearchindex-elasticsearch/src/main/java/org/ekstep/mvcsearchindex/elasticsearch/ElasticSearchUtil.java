@@ -147,14 +147,10 @@ public class ElasticSearchUtil {
 
 	public static void addDocumentWithId(String indexName, String documentId, String document) {
 		try {
-			/*Map<String, Object> doc = mapper.readValue(document, new TypeReference<Map<String, Object>>() {
-			});*/
 			IndexRequest indexRequest = new IndexRequest(indexName);
 			indexRequest.id(documentId);
 			indexRequest.source(document,XContentType.JSON);
 			IndexResponse indexResponse = getClient(indexName).index(indexRequest,RequestOptions.DEFAULT);
-/*			IndexResponse response = getClient(indexName)
-					.index(new IndexRequest(indexName, "_doc", documentId).source(doc),RequestOptions.DEFAULT); */
 			TelemetryManager.log("Added " + indexResponse.getId() + " to index " + indexResponse.getIndex());
 		} catch (IOException e) {
 			TelemetryManager.error("Error while adding document to index :" + indexName, e);

@@ -15,10 +15,12 @@ import java.util.*;
 public class CassandraConnector {
     private  static  JobLogger LOGGER = new JobLogger(CassandraConnector.class);
     private  static  String serverIP= Platform.config.hasPath("cassandra.lp.connection") ? Platform.config.getString("cassandra.lp.connection") : null;
-    private  static String keyspace = Platform.config.getString("cassandra.keyspace");
+    private  static String keyspace = Platform.config.hasPath("content.keyspace.name")
+            ? Platform.config.getString("content.keyspace.name")
+            : "content_store";
   static  String arr[],table = "content_data";
    static Session session;
-    static Session getSession(String serverIP,String keyspace) {
+    static public Session getSession() {
 
         LOGGER.info("Cassandra keyspace is " + Platform.config.getString("cassandra.keyspace"));
         if(serverIP == null) {
@@ -35,7 +37,7 @@ public class CassandraConnector {
         return session;
     }
     public static void updateContentProperties(String contentId, Map<String, Object> map) {
-        Session session = getSession(serverIP,keyspace);
+        Session session = getSession();
         if (null == map || map.isEmpty())
             return;
         String query = getUpdateQuery(map.keySet());
