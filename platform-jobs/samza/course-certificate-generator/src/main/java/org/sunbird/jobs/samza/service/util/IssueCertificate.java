@@ -19,6 +19,8 @@ import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
@@ -54,10 +56,12 @@ public class IssueCertificate {
         this.cassandraSession = cassandraSession;
     }
 
-    public void issue(Map<String, Object> edata, MessageCollector collector) {
+    public void issue(Map<String, Object> edata, MessageCollector collector) throws Exception {
         String batchId = (String) edata.get(CourseCertificateParams.batchId.name());
         String courseId = (String) edata.get(CourseCertificateParams.courseId.name());
         List<String> userIds = (null != edata.get(CourseCertificateParams.userIds.name()))? (List<String>)edata.get(CourseCertificateParams.userIds.name()): new ArrayList<>();
+        LOGGER.info("IssueCertificate:issue: userIds : " + userIds);
+        LOGGER.info("IssueCertificate:issue: eData : " + mapper.writeValueAsString(edata));
         Boolean reissue = (null != edata.get(CourseCertificateParams.reIssue.name()))
                 ? (Boolean) edata.get(CourseCertificateParams.reIssue.name()) : false;
 
@@ -65,7 +69,13 @@ public class IssueCertificate {
             Map<String, Map<String, String>> templates = fetchTemplates(batchId, courseId);
             if (MapUtils.isNotEmpty(templates)) {
                 fetchUsersAndIssueCertificates(batchId, courseId, reissue, templates, collector, userIds);
+            } else {
+                LOGGER.info("IssueCertificate:issue: Certificate template is not available for batchId : "+ batchId + " and courseId : " + courseId);
+                throw new ClientException("ERR_GENERATE_CERTIFICATE", "Certificate template is not available for batchId : "+ batchId + " and courseId : " + courseId);
             }
+        } else {
+            LOGGER.info("IssueCertificate:issue: batchId and/or courseId is empty");
+            throw new ClientException("ERR_GENERATE_CERTIFICATE", "batchId and/or courseId is empty");
         }
     }
 
@@ -81,6 +91,7 @@ public class IssueCertificate {
 
     private void fetchUsersAndIssueCertificates(String batchId, String courseId, Boolean reIssue, Map<String, Map<String, String>> templates, MessageCollector collector, List<String> userIds) {
         try {
+            LOGGER.info("IssueCertificate:fetchUsersAndIssueCertificates: userIds " + userIds);
             for (String key : templates.keySet()) {
                 Map<String, String> template = templates.get(key);
                 String certName = template.getOrDefault("name", "");
@@ -109,12 +120,17 @@ public class IssueCertificate {
 
                         generateCertificatesForEnrollment(usersToIssue, batchId, courseId, reIssue, template, collector);
                     } else {
-                        LOGGER.info("Certificate template has empty/invalid criteria: " + criteriaString);
+                        LOGGER.info("IssueCertificate:fetchUsersAndIssueCertificates: Certificate template has empty/invalid criteria: " + criteria);
+                        throw new ClientException("ERR_INVALID_CERTIFICATE_TEMPLATE", "Certificate template has empty/invalid criteria: " + criteria);
                     }
+                } else {
+                    LOGGER.info("IssueCertificate:fetchUsersAndIssueCertificates: Certificate template has empty criteria: " + criteriaString);
+                    throw new ClientException("ERR_INVALID_CERTIFICATE_TEMPLATE", "Certificate template has empty criteria: " + criteriaString);
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("Error while fetching user and generate certificates", e);
+            LOGGER.error("IssueCertificate:fetchUsersAndIssueCertificates: Error while fetching user and generate certificates", e);
+            throw new ServerException("ERR_GENERATE_CERTIFICATE", "Error while fetching user and generate certificates : " + e);
         }
     }
 
@@ -217,6 +233,7 @@ public class IssueCertificate {
         String query = "SELECT user_id, max(total_score) as score, total_max_score FROM " + KEYSPACE +"." + ASSESSMENT_AGGREGATOR_TABLE +
                 " where course_id='" +courseId + "' AND batch_id='" + batchId + "' " +
                 "GROUP BY course_id,batch_id,user_id,content_id ORDER BY batch_id,user_id,content_id;";
+        LOGGER.info("IssueCertificate : fetchAssessedUsersFromDB :: query " + query);
         ResultSet resultSet = SunbirdCassandraUtil.execute(cassandraSession, query);
         Iterator<Row> rows = resultSet.iterator();
         Map<String, Map<String, Double>> userScore = new HashMap<>();
@@ -249,6 +266,7 @@ public class IssueCertificate {
                     put(CourseCertificateParams.courseId.name(), courseId);
                     putAll(enrollment);
                 }};
+                LOGGER.info("IssueCertificate:getUserFromEnrolmentCriteria: userIds " + userIds);
                 if(CollectionUtils.isNotEmpty(userIds)) {
                     dataToFetch.put(CourseCertificateParams.userId.name(), userIds);
                 }
@@ -271,7 +289,7 @@ public class IssueCertificate {
         return enrolledUsers;
     }
 
-    private void generateCertificatesForEnrollment(List<String> usersToIssue, String batchId, String courseId, Boolean reIssue, Map<String, String> template, MessageCollector collector) throws IOException {
+    private void generateCertificatesForEnrollment(List<String> usersToIssue, String batchId, String courseId, Boolean reIssue, Map<String, String> template, MessageCollector collector) throws Exception {
         Map<String, Object> certTemplate = new HashMap<>();
         certTemplate.putAll(template);
         Map<String, Object> issuer = StringUtils.isNotBlank((String)certTemplate.get("issuer"))
@@ -290,7 +308,8 @@ public class IssueCertificate {
                 collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", topic), event));
             }
         } else {
-            LOGGER.info("NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);
+            LOGGER.info("IssueCertificate:generateCertificatesForEnrollment: NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);
+            throw new ClientException("ERR_GENERATE_CERTIFICATE", "NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);
         }
     }
 

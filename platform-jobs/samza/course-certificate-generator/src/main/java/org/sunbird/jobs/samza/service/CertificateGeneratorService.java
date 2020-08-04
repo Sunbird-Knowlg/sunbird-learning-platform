@@ -11,8 +11,12 @@ import org.apache.samza.config.Config;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.service.util.CertificateGenerator;
@@ -28,6 +32,7 @@ public class CertificateGeneratorService implements ISamzaService {
 
     private static JobLogger LOGGER = new JobLogger(CertificateGeneratorService.class);
     private SystemStream systemStream;
+    private SystemStream certificateFailedSystemStream;
     private Config config = null;
     private static int MAXITERTIONCOUNT = 2;
     private CertificateGenerator certificateGenerator =null;
@@ -46,6 +51,7 @@ public class CertificateGeneratorService implements ISamzaService {
         redisConnect = new RedisConnect(config).getConnection();
         cassandraSession = new CassandraConnector(config).getSession();
         systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
+        certificateFailedSystemStream = new SystemStream("kafka", config.get("output.certificate.failed.events.topic.name"));
         certificateGenerator = new CertificateGenerator(redisConnect, cassandraSession);
         issueCertificate = new IssueCertificate(cassandraSession);
     }
@@ -88,10 +94,19 @@ public class CertificateGeneratorService implements ISamzaService {
                         break;
                 }
             }
+        } catch(ClientException e) {
+            LOGGER.error("CertificateGeneratorService:processMessage: Error while serving the event : "  + message, e);
+            FailedEventsUtil.pushEventForRetry(certificateFailedSystemStream, message, metrics, collector,
+                    PlatformErrorCodes.PROCESSING_ERROR.name(), e);
+        } catch(ServerException e) {
+            LOGGER.error("CertificateGeneratorService:processMessage: Error while serving the event : "  + message, e);
+            FailedEventsUtil.pushEventForRetry(certificateFailedSystemStream, message, metrics, collector,
+                    PlatformErrorCodes.SYSTEM_ERROR.name(), e);
         } catch(Exception e) {
-            LOGGER.error("Error while serving the event : "  + message, e);
+            LOGGER.error("CertificateGeneratorService:processMessage: Error while serving the event : "  + message, e);
+            FailedEventsUtil.pushEventForRetry(certificateFailedSystemStream, message, metrics, collector,
+                    PlatformErrorCodes.SYSTEM_ERROR.name(), e);
         }
-
     }
 
     private boolean validEdata(Map<String, Object> edata) {
