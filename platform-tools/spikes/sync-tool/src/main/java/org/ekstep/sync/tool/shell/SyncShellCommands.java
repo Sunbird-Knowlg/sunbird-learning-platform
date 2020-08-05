@@ -136,6 +136,24 @@ public class SyncShellCommands implements CommandMarker {
 		LocalDateTime end = LocalDateTime.now();
 		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
 	}
+	
+	@CliCommand(value = "syncdialcodes", help = "Refresh leafNodes by Id(s) for Collection MimeTypes")
+	public void syncDialcodes(
+			@CliOption(key = {"id","ids"}, mandatory = false, help = "Unique Id of node object") final String[] ids) throws Exception {
+		long startTime = System.currentTimeMillis();
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		LocalDateTime start = LocalDateTime.now();
+
+		syncManager.syncDialcodesByIds(new ArrayList<String>(Arrays.asList(ids)));
+
+		long endTime = System.currentTimeMillis();
+		long exeTime = endTime - startTime;
+		System.out.println("Total time of execution: " + exeTime + "ms");
+		LocalDateTime end = LocalDateTime.now();
+		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
+		
+	}
+	
 	@CliCommand(value = "migratequestionextproperties", help = "Migrate AssessmentItems external properties")
 	public void migrateQuestionExternalProperties(
 			@CliOption(key = {"objectType"}, mandatory = true, help = "Object Type of assessmentItem") final String objectType,

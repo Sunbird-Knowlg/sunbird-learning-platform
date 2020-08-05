@@ -13,8 +13,10 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertToGraphNode;
+import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.common.util.RequestValidatorUtil;
 import org.ekstep.content.entity.Manifest;
 import org.ekstep.content.entity.Media;
@@ -24,10 +26,12 @@ import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.contentstore.ContentStore;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.sync.tool.util.DialcodeStore;
 import org.ekstep.sync.tool.util.ElasticSearchConnector;
 import org.ekstep.sync.tool.util.GraphUtil;
 import org.ekstep.sync.tool.util.SyncMessageGenerator;
@@ -60,15 +64,17 @@ public class CassandraESSyncManager {
 
     private HierarchyStore hierarchyStore = new HierarchyStore();
     private ContentStore contentStore = new ContentStore();
+    private DialcodeStore dialcodeStore = new DialcodeStore();
     private ElasticSearchConnector searchConnector = new ElasticSearchConnector();
     private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
     private static String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
     private static List<String> nestedFields = Platform.config.getStringList("nested.fields");
     private List<String> relationshipProperties = Platform.config.hasPath("content.relationship.properties") ?
             Arrays.asList(Platform.config.getString("content.relationship.properties").split(",")) : Collections.emptyList();
+    protected static final String DIALCODE_SYNC_URI = Platform.config.hasPath("dialcode.api.sync.url")
+        			? Platform.config.getString("dialcode.api.sync.url") : "http://localhost:9001/v3/dialcode/sync";
 
     private static final String CACHE_PREFIX = "hierarchy_";
-
 
     @PostConstruct
     private void init() throws Exception {
@@ -521,4 +527,41 @@ public class CassandraESSyncManager {
 			isExternal = true; 
 		return isExternal;
 	}
+	
+	public void syncDialcodesByIds(List<String> dialcodes) throws Exception {
+		if(CollectionUtils.isNotEmpty(dialcodes)) {
+			Map<String, List<String>> dialcodesMap = dialcodeStore.getDialcodes(dialcodes);
+			if(MapUtils.isNotEmpty(dialcodesMap)) {
+				for(String channel: dialcodesMap.keySet()) {
+					syncDialcode(channel, dialcodesMap.get(channel));
+				}
+			}else {
+				System.out.println("Dialcodes map is empty:: dialcodesMap:: " + dialcodesMap);
+			}
+		}else {
+        	// call full sync from cassandra to es
+			// generate map (channel, List of dialcodes id)
+			// call dialcode sync api by iterating over the keys of map
+
+        }
+    }
+	
+	private void syncDialcode(String channel,List<String> dialcodes) throws Exception{
+        Map<String, Object> request = new HashMap<>();
+        request.put("sync", new HashMap<>());
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put(ContentAPIParams.request.name(), request);
+        Map<String, String> headerParam = new HashMap<String, String>();
+        headerParam.put("X-Channel-ID", channel);
+        headerParam.put("Content-Type", "application/json");
+        System.out.println("Dialcodes pushed for sync:: " + dialcodes.size());
+        String syncUrl = DIALCODE_SYNC_URI+"?identifier="+dialcodes;
+        Response generateResponse = HttpRestUtil.makePostRequest(syncUrl, requestMap, headerParam);
+        if (generateResponse.getResponseCode() == ResponseCode.OK) {
+            Map<String, Object> result = generateResponse.getResult();
+            Integer syncedDialcodesCount = (Integer)result.get("count");
+            System.out.println("Synced Dialcode:: " + syncedDialcodesCount);
+        }
+    }
+
 }
