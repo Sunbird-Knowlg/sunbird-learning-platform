@@ -52,12 +52,11 @@ public class DialcodeStore extends CassandraStore {
                     System.out.println("DialcodeStore:getDialcodes:row:: " + row);
                     String identifier = row.getString("identifier");
                     String channel = row.getString("channel");
-                    if(StringUtils.isNotBlank(channel)) 
-                        if(dialcodes.containsKey(channel)) 
-                        	dialcodes.get(channel).add(identifier);
-                        else 
+                    if(StringUtils.isNotBlank(channel)) {
+                        if(!dialcodes.containsKey(channel)) 
                         	dialcodes.put(channel, new ArrayList<String>());
-                    else 
+                        dialcodes.get(channel).add(identifier);
+            		}else 
                     	dialcodesWithNoChannel.add(identifier);
                 }
             	System.out.println("DialcodeStore:getDialcodes:dialcodes:: " + dialcodes);
