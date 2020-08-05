@@ -529,8 +529,10 @@ public class CassandraESSyncManager {
 	}
 	
 	public void syncDialcodesByIds(List<String> dialcodes) throws Exception {
+		System.out.println("CassandraESSyncManager:syncDialcodesByIds:dialcodes:: " + dialcodes);
 		if(CollectionUtils.isNotEmpty(dialcodes)) {
 			Map<String, List<String>> dialcodesMap = dialcodeStore.getDialcodes(dialcodes);
+			System.out.println("CassandraESSyncManager:syncDialcodesByIds:dialcodesMap:: " + dialcodesMap);
 			if(MapUtils.isNotEmpty(dialcodesMap)) {
 				for(String channel: dialcodesMap.keySet()) {
 					syncDialcode(channel, dialcodesMap.get(channel));
@@ -554,8 +556,9 @@ public class CassandraESSyncManager {
         Map<String, String> headerParam = new HashMap<String, String>();
         headerParam.put("X-Channel-ID", channel);
         headerParam.put("Content-Type", "application/json");
-        System.out.println("Dialcodes pushed for sync:: " + dialcodes.size());
+        System.out.println("CassandraESSyncManager:syncDialcode:dialcodes.size:: " + dialcodes.size());
         String syncUrl = DIALCODE_SYNC_URI+"?identifier="+dialcodes;
+        System.out.println("CassandraESSyncManager:syncDialcode:syncUrl:: " + syncUrl);
         Response generateResponse = HttpRestUtil.makePostRequest(syncUrl, requestMap, headerParam);
         if (generateResponse.getResponseCode() == ResponseCode.OK) {
             Map<String, Object> result = generateResponse.getResult();

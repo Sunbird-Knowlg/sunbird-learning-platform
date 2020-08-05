@@ -37,6 +37,7 @@ public class DialcodeStore extends CassandraStore {
 	public Map<String, List<String>> getDialcodes(List<String> dialcodeIds) {
         String query = "SELECT identifier, channel FROM " + getKeyspace() + "." + getTable() + " WHERE identifier IN :dialcodeIds";
 
+        System.out.println("DialcodeStore:getDialcodes:query:: " + query);
         Session session = CassandraConnector.getSession();
         PreparedStatement ps = session.prepare(query);
         BoundStatement bs = ps.bind();
@@ -45,8 +46,10 @@ public class DialcodeStore extends CassandraStore {
             if (null != rs) {
             	Map<String, List<String>> dialcodes = new HashMap<String, List<String>>();
             	List<String> dialcodesWithNoChannel = new ArrayList<String>();
+            	System.out.println("DialcodeStore:getDialcodes:rs:: " + rs);
             	while(rs.iterator().hasNext()) {
                     Row row = rs.iterator().next();
+                    System.out.println("DialcodeStore:getDialcodes:row:: " + row);
                     String identifier = row.getString("identifier");
                     String channel = row.getString("channel");
                     if(StringUtils.isNotBlank(channel)) 
@@ -57,6 +60,8 @@ public class DialcodeStore extends CassandraStore {
                     else 
                     	dialcodesWithNoChannel.add(identifier);
                 }
+            	System.out.println("DialcodeStore:getDialcodes:dialcodes:: " + dialcodes);
+            	System.out.println("DialcodeStore:getDialcodes:dialcodesWithNoChannel:: " + dialcodesWithNoChannel);
             	if(CollectionUtils.isNotEmpty(dialcodesWithNoChannel))
             		System.out.println("Dialcodes with no Channel:: " + dialcodesWithNoChannel);
             	return dialcodes;

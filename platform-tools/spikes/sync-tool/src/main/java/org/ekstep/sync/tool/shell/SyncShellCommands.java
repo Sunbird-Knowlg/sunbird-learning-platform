@@ -144,6 +144,7 @@ public class SyncShellCommands implements CommandMarker {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
 
+		System.out.println("SyncShellCommand:syncDialcodes:ids:: " + new ArrayList<String>(Arrays.asList(ids)));
 		syncManager.syncDialcodesByIds(new ArrayList<String>(Arrays.asList(ids)));
 
 		long endTime = System.currentTimeMillis();
