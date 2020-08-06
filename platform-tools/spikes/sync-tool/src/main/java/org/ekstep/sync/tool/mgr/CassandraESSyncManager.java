@@ -548,8 +548,14 @@ public class CassandraESSyncManager {
 		List<String> dialcodes = null;
 		long startTime = System.currentTimeMillis();
 		
-		if(StringUtils.equalsIgnoreCase(fileType, "csv")) 
-			dialcodes = CSVFileParserUtil.getIdentifiers(filePath, null);
+		if(StringUtils.equalsIgnoreCase(fileType, "csv")) {
+			try {
+				dialcodes = CSVFileParserUtil.getIdentifiers(filePath, null);
+			}catch(Exception e) {
+				e.printStackTrace();
+				throw new ClientException("ERR_READING_FILE", "Exception while reading csv file: " + e);
+			}
+		}
 		else {
 			System.out.println("CassandraESSyncManager:syncDialcodesByFile:fileType : " + fileType + " not supported.");
 			throw new ClientException("FILE_NOT_SUPPORTED", "Specified file type : " + fileType + " is not supported.");
@@ -574,22 +580,27 @@ public class CassandraESSyncManager {
 	}
 	
 	private void syncDialcode(String dialcode, List<String> notSyncedDialcodes) throws Exception{
-        Map<String, Object> requestMap = new HashMap<String, Object>(){{
-        	put("request", new HashMap<String, Object>(){{
-        		put("sync", new HashMap<String, Object>());
-        	}});
-        }};
-        Map<String, String> headerParam = new HashMap<String, String>(){{
-        	put("Content-Type", "application/json");
-        }};
+        Map<String, Object> request = new HashMap<>();
+        request.put("sync", new HashMap<>());
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("request", request);
+        Map<String, String> headerParam = new HashMap<String, String>();
+        headerParam.put("Content-Type", "application/json");
+        System.out.println("requestMap:: " + requestMap.toString());
+
         String syncUrl = DIALCODE_SYNC_URI+"?identifier=" + dialcode;
-        Response generateResponse = HttpRestUtil.makePostRequest(syncUrl, requestMap, headerParam);
-        if (generateResponse.getResponseCode() == ResponseCode.OK) {
-            Map<String, Object> result = generateResponse.getResult();
-            Integer syncedDialcodesCount = (Integer)result.get("count");
-            if(syncedDialcodesCount==0)
-            	notSyncedDialcodes.add(dialcode);
+        try {
+            Response generateResponse = HttpRestUtil.makePostRequest(syncUrl, requestMap, headerParam);
+            if (generateResponse.getResponseCode() == ResponseCode.OK) {
+                Map<String, Object> result = generateResponse.getResult();
+                Integer syncedDialcodesCount = (Integer)result.get("count");
+                if(syncedDialcodesCount==0)
+                	notSyncedDialcodes.add(dialcode);
+            }
+        }catch(Exception e) {
+        	e.printStackTrace();
         }
+        
     }
 	
 	
