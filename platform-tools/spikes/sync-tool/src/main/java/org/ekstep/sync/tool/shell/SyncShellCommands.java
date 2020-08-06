@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.sync.tool.mgr.AssessmentItemSyncManager;
 import org.ekstep.sync.tool.mgr.CassandraESSyncManager;
 import org.ekstep.sync.tool.mgr.ISyncManager;
@@ -145,8 +146,15 @@ public class SyncShellCommands implements CommandMarker {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
 
-		System.out.println("SyncShellCommand:syncDialcodes:ids:: " + new ArrayList<String>(Arrays.asList(ids)));
-		syncManager.syncDialcodesByFile(filePath, "csv");//syncDialcodesByIds(new ArrayList<String>(Arrays.asList(ids)));
+		if(StringUtils.isNoneBlank(filePath)) {
+			System.out.println("SyncShellCommands:syncDialcodes:filePath:: " + filePath);
+			syncManager.syncDialcodesByFile(filePath, "csv");
+		}
+			
+		if(null != ids && ids.length > 0) {
+			System.out.println("SyncShellCommands:syncDialcodes:ids:: " + ids);
+			syncManager.syncDialcodesByIds(new ArrayList<String>(Arrays.asList(ids)));
+		}
 
 		long endTime = System.currentTimeMillis();
 		long exeTime = endTime - startTime;
