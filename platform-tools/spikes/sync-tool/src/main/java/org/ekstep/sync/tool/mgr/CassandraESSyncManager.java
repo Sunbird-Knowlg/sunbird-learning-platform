@@ -4,6 +4,20 @@
  */
 package org.ekstep.sync.tool.mgr;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,23 +45,14 @@ import org.ekstep.learning.contentstore.ContentStore;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.sync.tool.util.CSVFileParserUtil;
 import org.ekstep.sync.tool.util.DialcodeStore;
 import org.ekstep.sync.tool.util.ElasticSearchConnector;
 import org.ekstep.sync.tool.util.GraphUtil;
+import org.ekstep.sync.tool.util.JsonFileParserUtil;
 import org.ekstep.sync.tool.util.SyncMessageGenerator;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
-import javax.annotation.PostConstruct;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class CassandraESSyncManager {
@@ -528,7 +533,7 @@ public class CassandraESSyncManager {
 		return isExternal;
 	}
 	
-	public void syncDialcodesByIds(List<String> dialcodes) throws Exception {
+	/*public void syncDialcodesByIds(List<String> dialcodes) throws Exception {
 		System.out.println("CassandraESSyncManager:syncDialcodesByIds:dialcodes:: " + dialcodes);
 		if(CollectionUtils.isNotEmpty(dialcodes)) {
 			Map<String, List<String>> dialcodesMap = dialcodeStore.getDialcodes(dialcodes);
@@ -546,18 +551,16 @@ public class CassandraESSyncManager {
 			// call dialcode sync api by iterating over the keys of map
 
         }
-    }
+    }*/
 	
-	private void syncDialcode(String channel,List<String> dialcodes) throws Exception{
+	private void syncDialcode(String dialcode) throws Exception{
         Map<String, Object> request = new HashMap<>();
         request.put("sync", new HashMap<>());
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put(ContentAPIParams.request.name(), request);
         Map<String, String> headerParam = new HashMap<String, String>();
-        headerParam.put("X-Channel-ID", channel);
         headerParam.put("Content-Type", "application/json");
-        System.out.println("CassandraESSyncManager:syncDialcode:dialcodes.size:: " + dialcodes.size());
-        String syncUrl = DIALCODE_SYNC_URI+"?identifier="+dialcodes;
+        String syncUrl = DIALCODE_SYNC_URI+"?identifier=" + dialcode;
         System.out.println("CassandraESSyncManager:syncDialcode:syncUrl:: " + syncUrl);
         Response generateResponse = HttpRestUtil.makePostRequest(syncUrl, requestMap, headerParam);
         if (generateResponse.getResponseCode() == ResponseCode.OK) {
@@ -566,5 +569,38 @@ public class CassandraESSyncManager {
             System.out.println("Synced Dialcode:: " + syncedDialcodesCount);
         }
     }
+	
+	public void syncDialcodesByFile(String filePath, String fileType) throws Exception {
+		List<String> dialcodes;
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		long startTime = System.currentTimeMillis();
+		LocalDateTime start = LocalDateTime.now();
+		
+		if(StringUtils.equalsIgnoreCase(fileType, "csv")) 
+			dialcodes = CSVFileParserUtil.getIdentifiers(filePath, null);
+		else {
+			System.out.println("Specified file type : " + fileType + " is not supported.");
+			throw new ClientException("FILE_NOT_SUPPORTED", "Specified file type : " + fileType + " is not supported.");
+		}
+		long fileReadTime = System.currentTimeMillis();
+		LocalDateTime end = LocalDateTime.now();
+		System.out.println("Total time of execution for reading file: " + (fileReadTime - startTime) + "ms");
+		System.out.println("FILE_READ_START_TIME: " + dtf.format(start) + ", FILE_READ_END_TIME: " + dtf.format(end));
+		
+		List<String> syncedDialcode= new ArrayList<String>();
+		if(CollectionUtils.isNotEmpty(dialcodes)) {
+			for(String dialcode:dialcodes) {
+				syncDialcode(dialcode);
+				syncedDialcode.add(dialcode);
+			}
+		}
+		System.out.println("syncedDialcode:: " + syncedDialcode);
+		
+		long endTime = System.currentTimeMillis();
+		end = LocalDateTime.now();
+		System.out.println("Total time of execution: " + (endTime - startTime) + "ms");
+		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
+		
+	}
 
 }
