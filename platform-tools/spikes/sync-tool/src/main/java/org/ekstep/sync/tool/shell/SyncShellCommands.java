@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ekstep.sync.tool.mgr.AssessmentItemSyncManager;
 import org.ekstep.sync.tool.mgr.CassandraESSyncManager;
 import org.ekstep.sync.tool.mgr.ISyncManager;
@@ -140,7 +139,7 @@ public class SyncShellCommands implements CommandMarker {
 	
 	@CliCommand(value = "syncdialcodes", help = "Refresh leafNodes by Id(s) for Collection MimeTypes")
 	public void syncDialcodes(
-			@CliOption(key = {"id","ids"}, mandatory = false, help = "Unique Id of node object") final String[] ids
+			@CliOption(key = {"id","ids"}, mandatory = false, help = "Unique Id of node object") final String[] ids)
 			//@CliOption(key = {"filepath"}, mandatory = false, help = "File path") final String filePath) 
 			throws Exception {
 		long startTime = System.currentTimeMillis();
