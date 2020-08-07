@@ -531,7 +531,7 @@ public class CassandraESSyncManager {
 		if(CollectionUtils.isNotEmpty(dialcodes)) {
 			Map<String, Object> properties = new HashMap<>();
 			properties.put("identifier", dialcodes);
-			dialcodeStore.sync(properties);
+			dialcodeStore.sync(dialcodes);
 		}else {
 			System.out.println("Dialcodes map is empty:: dialcodes:: " + dialcodes);
 		}
