@@ -25,10 +25,8 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertToGraphNode;
-import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.common.util.RequestValidatorUtil;
 import org.ekstep.content.entity.Manifest;
 import org.ekstep.content.entity.Media;
@@ -42,7 +40,7 @@ import org.ekstep.learning.contentstore.ContentStore;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
-import org.ekstep.sync.tool.util.CSVFileParserUtil;
+import org.ekstep.sync.tool.util.DialcodeStore;
 import org.ekstep.sync.tool.util.ElasticSearchConnector;
 import org.ekstep.sync.tool.util.GraphUtil;
 import org.ekstep.sync.tool.util.SyncMessageGenerator;
@@ -64,6 +62,7 @@ public class CassandraESSyncManager {
 
     private HierarchyStore hierarchyStore = new HierarchyStore();
     private ContentStore contentStore = new ContentStore();
+    private DialcodeStore dialcodeStore = new DialcodeStore();
     private ElasticSearchConnector searchConnector = new ElasticSearchConnector();
     private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
     private static String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
@@ -528,23 +527,17 @@ public class CassandraESSyncManager {
 	}
 	
 	public void syncDialcodesByIds(List<String> dialcodes) throws Exception {
-		System.out.println("CassandraESSyncManager:syncDialcodesByIds:dialcodes.size:: " + dialcodes);
+		System.out.println("CassandraESSyncManager:syncDialcodesByIds:Total dialcodes:: " + dialcodes);
 		if(CollectionUtils.isNotEmpty(dialcodes)) {
-			List<String> syncedDialcode= new ArrayList<String>();
-			List<String> notSyncedDialcodes = new ArrayList<String>();
-			for(String dialcode: dialcodes) {
-				syncDialcode(dialcode, notSyncedDialcodes);
-				syncedDialcode.add(dialcode);
-			}
-			if(CollectionUtils.isNotEmpty(notSyncedDialcodes))
-				System.out.println("CassandraESSyncManager:syncDialcodesByFile:notSyncedDialcodes:: " + notSyncedDialcodes);
-			System.out.println("CassandraESSyncManager:syncDialcodesByIds:syncedDialcode.size:: " + syncedDialcode);
+			Map<String, Object> properties = new HashMap<>();
+			properties.put("identifier", dialcodes);
+			dialcodeStore.sync(properties);
 		}else {
 			System.out.println("Dialcodes map is empty:: dialcodes:: " + dialcodes);
 		}
 	}
 	
-	public void syncDialcodesByFile(String filePath, String fileType) throws Exception {
+	/*public void syncDialcodesByFile(String filePath, String fileType) throws Exception {
 		List<String> dialcodes = null;
 		long startTime = System.currentTimeMillis();
 		
@@ -562,7 +555,7 @@ public class CassandraESSyncManager {
 		}
 		System.out.println("Total time of execution for reading file: " + (System.currentTimeMillis() - startTime) + "ms");
 		
-		System.out.println("CassandraESSyncManager:syncDialcodesByFile:dialcodes.size:: " + dialcodes.size());
+		System.out.println("CassandraESSyncManager:syncDialcodesByFile:Total dialcodes:: " + dialcodes.size());
 		List<String> syncedDialcode= new ArrayList<String>();
 		if(CollectionUtils.isNotEmpty(dialcodes)) {
 			List<String> notSyncedDialcodes = new ArrayList<String>();
@@ -570,16 +563,15 @@ public class CassandraESSyncManager {
 				syncDialcode(dialcode, notSyncedDialcodes);
 				syncedDialcode.add(dialcode);
 			}
+			System.out.println("CassandraESSyncManager:syncDialcodesByFile:Number of Dialcode tried for syncing:: " + syncedDialcode.size());
 			if(CollectionUtils.isNotEmpty(notSyncedDialcodes))
 				System.out.println("CassandraESSyncManager:syncDialcodesByFile:notSyncedDialcodes:: " + notSyncedDialcodes);
 		}
-		System.out.println("CassandraESSyncManager:syncDialcodesByFile:syncedDialcode.size:: " + syncedDialcode.size());
-		
 		long endTime = System.currentTimeMillis();
 		System.out.println("Total time of execution: " + (endTime - startTime) + "ms");
-	}
+	}*/
 	
-	private void syncDialcode(String dialcode, List<String> notSyncedDialcodes) throws Exception{
+	/*private void syncDialcode(List<String> dialcode, List<String> notSyncedDialcodes) throws Exception{
         Map<String, Object> request = new HashMap<>();
         request.put("sync", new HashMap<>());
         Map<String, Object> requestMap = new HashMap<>();
@@ -601,7 +593,7 @@ public class CassandraESSyncManager {
         	e.printStackTrace();
         }
         
-    }
+    }*/
 	
 	
 
