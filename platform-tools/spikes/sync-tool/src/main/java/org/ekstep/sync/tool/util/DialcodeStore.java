@@ -29,7 +29,7 @@ public class DialcodeStore extends CassandraStore {
         initialise(keyspace, table, objectType, false);
         
         indexName = Platform.config.hasPath("dialcode.index.name") ? Platform.config.getString("dialcode.index.name")
-				: "dialcodes";
+				: "dialcode";
 		documentType = Platform.config.hasPath("dialcode.document.type") ? Platform.config.getString("dialcode.document.type")
 				: "dc";
 		ElasticSearchUtil.initialiseESClient(indexName, Platform.config.getString("search.es_conn_info"));
