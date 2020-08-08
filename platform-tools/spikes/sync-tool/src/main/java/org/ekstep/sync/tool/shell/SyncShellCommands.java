@@ -152,7 +152,7 @@ public class SyncShellCommands implements CommandMarker {
 		}
 		*/	
 		if(null != ids && ids.length > 0) {
-			System.out.println("SyncShellCommands:syncDialcodes:ids:: " + ids);
+			System.out.println("SyncShellCommands:syncDialcodes:Total dialcodes for syncing:: " + ids);
 			syncManager.syncDialcodesByIds(new ArrayList<String>(Arrays.asList(ids)));
 		}
 
