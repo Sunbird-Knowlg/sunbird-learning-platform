@@ -13,7 +13,6 @@ import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.framework.mgr.IFrameworkManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -72,7 +71,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	@Override
 	public Response readFramework(String frameworkId, List<String> returnCategories) throws Exception {
 		Map<String, Object> framework = FrameworkCache.get(frameworkId, returnCategories);
-		TelemetryManager.info("FrameworkManager:readFramework:framework:1:: " + framework);
 		if(MapUtils.isNotEmpty(framework)){
 			Response response = OK();
 			response.put(FrameworkEnum.framework.name(), framework);
@@ -80,12 +78,9 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		}
 
 		Response getHierarchyResp = getFrameworkHierarchy(frameworkId);
-		TelemetryManager.info("FrameworkManager:readFramework:getHierarchyResp:: " + getHierarchyResp.getResponseCode());
-		TelemetryManager.info("FrameworkManager:readFramework:checkError:: " + checkError(getHierarchyResp));
 		if (!checkError(getHierarchyResp)) {
 			framework = (Map<String, Object>) getHierarchyResp.get("framework");
 		}
-		TelemetryManager.info("FrameworkManager:readFramework:framework:2:: " + framework);
 
 		if (MapUtils.isNotEmpty(framework)) {
 			filterFrameworkCategories(framework, returnCategories);
@@ -95,7 +90,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 			return response;
 		} else {
 			Response readResponse = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
-			TelemetryManager.info("FrameworkManager:readFramework:readResponse:: " + readResponse.getResult());
 			return readResponse;
 		}
 	}

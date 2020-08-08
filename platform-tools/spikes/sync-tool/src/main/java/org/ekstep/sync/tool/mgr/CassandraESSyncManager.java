@@ -40,7 +40,7 @@ import org.ekstep.learning.contentstore.ContentStore;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
-import org.ekstep.sync.tool.util.DialcodeStore;
+import org.ekstep.sync.tool.util.DialcodeSync;
 import org.ekstep.sync.tool.util.ElasticSearchConnector;
 import org.ekstep.sync.tool.util.GraphUtil;
 import org.ekstep.sync.tool.util.SyncMessageGenerator;
@@ -62,16 +62,13 @@ public class CassandraESSyncManager {
 
     private HierarchyStore hierarchyStore = new HierarchyStore();
     private ContentStore contentStore = new ContentStore();
-    private DialcodeStore dialcodeStore = new DialcodeStore();
+    private DialcodeSync dialcodeSync = new DialcodeSync();
     private ElasticSearchConnector searchConnector = new ElasticSearchConnector();
     private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
     private static String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
     private static List<String> nestedFields = Platform.config.getStringList("nested.fields");
     private List<String> relationshipProperties = Platform.config.hasPath("content.relationship.properties") ?
             Arrays.asList(Platform.config.getString("content.relationship.properties").split(",")) : Collections.emptyList();
-    protected static final String DIALCODE_SYNC_URI = Platform.config.hasPath("dialcode.api.sync.url")
-        			? Platform.config.getString("dialcode.api.sync.url") : "http://localhost:9001/v3/dialcode/sync";
-
     private static final String CACHE_PREFIX = "hierarchy_";
 
     @PostConstruct
@@ -527,14 +524,14 @@ public class CassandraESSyncManager {
 	}
 	
 	public void syncDialcodesByIds(List<String> dialcodes) throws Exception {
-		System.out.println("CassandraESSyncManager:syncDialcodesByIds:Total dialcodes:: " + dialcodes);
-		if(CollectionUtils.isNotEmpty(dialcodes)) {
-			Map<String, Object> properties = new HashMap<>();
-			properties.put("identifier", dialcodes);
-			dialcodeStore.sync(dialcodes);
-		}else {
-			System.out.println("Dialcodes map is empty:: dialcodes:: " + dialcodes);
+		if(CollectionUtils.isEmpty(dialcodes)) {
+			System.out.println("CassandraESSyncManager:syncDialcodesByIds:No dialcodes for syncing.");
+			return;
 		}
+		System.out.println("CassandraESSyncManager:syncDialcodesByIds:No dialcodes for syncing: " + dialcodes.size());
+		int dialcodeSyncedCount = dialcodeSync.sync(dialcodes);
+		System.out.println("CassandraESSyncManager:syncDialcodesByIds::dialcodeSyncedCount: " + dialcodeSyncedCount);
+		
 	}
 	
 	/*public void syncDialcodesByFile(String filePath, String fileType) throws Exception {
