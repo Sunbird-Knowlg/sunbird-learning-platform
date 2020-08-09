@@ -89,8 +89,8 @@ public class RelationCacheSyncManager {
     }
 
 
-    private String generateKafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
-        rowMap.put("action", "publish-shallow-content");
+    public String generateKafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
+        rowMap.put("action", "link-dialcode");
         rowMap.put("iteration", 1);
         Map<String, Object> event = new HashMap<String, Object>() {{
             put("eid", "BE_JOB_REQUEST");
