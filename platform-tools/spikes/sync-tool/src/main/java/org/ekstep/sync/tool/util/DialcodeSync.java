@@ -59,18 +59,13 @@ public class DialcodeSync {
 	}
 	
 	public Map<String, Object> getDialcodesFromIds(List<String> identifiers) {
-        String query = "SELECT * FROM " + keyspace + "." + table + " WHERE identifier IN :ids";
-        Map<String, Object> messages = new HashMap<String, Object>();
-        Session session = CassandraConnector.getSession();
-        PreparedStatement ps = session.prepare(query);
-        BoundStatement bs = ps.bind();
-        session.execute(bs.setList("ids", identifiers));
         try {
-            ResultSet rs = session.execute(bs.setList("ids", identifiers));
+        	Map<String, Object> messages = new HashMap<String, Object>();
+            ResultSet rs = getDialcodesFromDB(identifiers);
             if (null != rs) {
-            	Iterator<Row> iterator = rs.iterator();
-            	while(iterator.hasNext()) {
-            		Row row = iterator.next();
+            	//Iterator<Row> iterator = rs.iterator();
+            	while(rs.iterator().hasNext()) {
+            		Row row = rs.iterator().next();
                     String dialcodeId = (String)row.getString("identifier");
                     System.out.println(dialcodeId + ": " + row);
                     
@@ -98,4 +93,16 @@ public class DialcodeSync {
                     "Error fetching dialcode from dialcodes table.", e);
         }
     }
+	
+	private ResultSet getDialcodesFromDB(List<String> identifiers) {
+		String dialcodes = String.join("', '", identifiers); 
+		String query = "SELECT * FROM " + keyspace + "." + table + " WHERE identifier IN ('" + dialcodes + "')";
+		Session session = CassandraConnector.getSession();
+		return session.execute(query);
+		/*String query = "SELECT * FROM " + keyspace + "." + table + " WHERE identifier IN :ids";
+        Session session = CassandraConnector.getSession();
+        PreparedStatement ps = session.prepare(query);
+        BoundStatement bs = ps.bind();
+        return session.execute(bs.setList("ids", identifiers));*/
+	}
 }

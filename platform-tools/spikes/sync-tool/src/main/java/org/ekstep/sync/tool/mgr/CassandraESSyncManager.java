@@ -70,6 +70,10 @@ public class CassandraESSyncManager {
             Arrays.asList(Platform.config.getString("content.relationship.properties").split(",")) : Collections.emptyList();
     private static final String CACHE_PREFIX = "hierarchy_";
 
+    public CassandraESSyncManager(DialcodeSync dialcodeSync) {
+		this.dialcodeSync = dialcodeSync;
+	}
+    
     @PostConstruct
     private void init() throws Exception {
         definitionDTO = util.getDefinition(graphId, objectType);
