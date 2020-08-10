@@ -199,8 +199,8 @@ public class CertificateGenerator {
             request.put(CourseCertificateParams.accessCode.name(), certificate.get(CourseCertificateParams.accessCode.name()));
             request.put(CourseCertificateParams.jsonData.name(), certificate.get(CourseCertificateParams.jsonData.name()));
             request.put(CourseCertificateParams.jsonUrl.name(), certificate.get(CourseCertificateParams.jsonUrl.name()));
-            request.put(CourseCertificateParams.identifier.name(), certificate.get(CourseCertificateParams.id.name()));
-            request.put(CourseCertificateParams.qrCodeUrl.name(), certificate.get(CourseCertificateParams.qrUrl.name()));
+            request.put(CourseCertificateParams.id.name(), certificate.get(CourseCertificateParams.id.name()));
+            request.put(CourseCertificateParams.qrCodeUrl.name(), certificate.get(CourseCertificateParams.qrCodeUrl.name()));
             request.put("related", new HashMap<String, Object>(){{
                 put("type", certName.toLowerCase());
                 put(CourseCertificateParams.courseId.name(), courseId);
@@ -453,7 +453,7 @@ public class CertificateGenerator {
         updatedCerts.add(new HashMap<String, String>(){{
             put(CourseCertificateParams.name.name(), certificateName);
             put(CourseCertificateParams.identifier.name(), (String) certificate.get(CourseCertificateParams.id.name()));
-            put(CourseCertificateParams.qrCodeUrl.name(), (String) certificate.get(CourseCertificateParams.qrUrl.name()));
+            put(CourseCertificateParams.qrCodeUrl.name(), (String) certificate.get(CourseCertificateParams.qrCodeUrl.name()));
             put(CourseCertificateParams.token.name(), (String) certificate.get(CourseCertificateParams.accessCode.name()));
             put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(new Date()));
             if(reIssue){
