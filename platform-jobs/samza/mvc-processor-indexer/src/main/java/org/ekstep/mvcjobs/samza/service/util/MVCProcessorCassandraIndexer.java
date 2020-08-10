@@ -12,14 +12,13 @@ import java.util.*;
 public class MVCProcessorCassandraIndexer  {
 
     String elasticSearchParamArr[] = {"organisation","channel","framework","board","medium","subject","gradeLevel","name","description","language","appId","appIcon","appIconLabel","contentEncoding","identifier","node_id","nodeType","mimeType","resourceType","contentType","allowedContentTypes","objectType","posterImage","artifactUrl","launchUrl","previewUrl","streamingUrl","downloadUrl","status","pkgVersion","source","lastUpdatedOn","ml_contentText","ml_contentTextVector","ml_Keywords","level1Name","level1Concept","level2Name","level2Concept","level3Name","level3Concept","textbook_name","sourceURL","label","all_fields"};;
-    String contentreadapiurl = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlkeywordapi = "" , mlvectorapi = ""  ;
+    String contentreadapiurl = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlvectorapi = ""  ;
     Map<String,Object> mapStage1 = new HashMap<>();
     private JobLogger LOGGER = new JobLogger(MVCProcessorCassandraIndexer.class);
     public MVCProcessorCassandraIndexer() {
         mlworkbenchapirequest = "{\"request\":{ \"input\" :{ \"content\" : [] } } }";
         mlvectorListRequest = "{\"request\":{\"text\":[],\"cid\": \"\",\"language\":\"en\",\"method\":\"BERT\",\"params\":{\"dim\":768,\"seq_len\":25}}}";
         jobname = "vidyadaan_content_keyword_tagging";
-        mlkeywordapi = "http://127.0.0.1:3579/daggit/submit";
         mlvectorapi = "http://127.0.0.1:1729/ml/vector/search";
 
     }
@@ -126,7 +125,8 @@ public class MVCProcessorCassandraIndexer  {
             JSONArray content = (JSONArray)input.get("content");
             content.put(contentdef);
             req.put("job",jobname);
-            String resp = HTTPUtil.makePostRequest(Platform.config.getString("mlkeywordapi") + "/daggit/submit",obj.toString());
+            LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: The ML workbench URL is " + "http://"+Platform.config.getString("mlkeywordapi") + "/daggit/submit" );
+            String resp = HTTPUtil.makePostRequest("http://"+Platform.config.getString("mlkeywordapi") + "/daggit/submit",obj.toString());
         }
         catch (Exception e) {
             LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: ML workbench api request failed ");

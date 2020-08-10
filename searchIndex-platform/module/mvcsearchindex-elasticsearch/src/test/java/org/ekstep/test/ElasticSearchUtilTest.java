@@ -4,6 +4,7 @@
 package org.ekstep.test;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -14,6 +15,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.mvcsearchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
 
 /**
  * @author pradyumna
@@ -31,6 +34,7 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		Map<String, Object> content = getContentTestRecord();
 		String id = (String) content.get("identifier");
 		addToIndex(id, content);
+		when(ElasticSearchUtil.getDocumentAsStringById(Mockito.anyString(),Mockito.anyString())).thenReturn(id);
 		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX, id);
 		assertTrue(StringUtils.contains(doc, id));
 	}
@@ -40,8 +44,11 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		String id = (String) content.get("identifier");
 		addToIndex(id, content);
 		content.put("name", "Content_" + System.currentTimeMillis() + "_name");
+		PowerMockito.mockStatic(ElasticSearchUtil.class);
+		PowerMockito.doNothing().when(ElasticSearchUtil.class);
 		ElasticSearchUtil.updateDocument(CompositeSearchConstants.MVC_SEARCH_INDEX,
 				 mapper.writeValueAsString(content), id);
+		when(ElasticSearchUtil.getDocumentAsStringById(Mockito.anyString(),Mockito.anyString())).thenReturn(id);
 		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX, id);
 		assertTrue(StringUtils.contains(doc, id));
 	}

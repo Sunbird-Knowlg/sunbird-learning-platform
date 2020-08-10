@@ -274,19 +274,16 @@ public class PublishPipelineService implements ISamzaService {
 		Map<String, Object> context = new HashMap<String, Object>();
 		Map<String, Object> object = new HashMap<String, Object>();
 		Map<String, Object> edata = new HashMap<String, Object>();
-	//	String ml_level1 = node.getMetadata().get("ml_level1Concept") != null ? (String)node.getMetadata().get("ml_level1Concept") : null;
-	//	String ml_level2 = node.getMetadata().get("ml_level2Concept") != null ? (String)node.getMetadata().get("ml_level2Concept") : null;
-	//	String ml_level3 = node.getMetadata().get("ml_level3Concept") != null ? (String)node.getMetadata().get("ml_level3Concept") : null;
 		String mimeType = (String) node.getMetadata().get("mimeType");
 		String sourceURL = node.getMetadata().get("sourceURL") != null ? (String)node.getMetadata().get("sourceURL") : null;
 		if(StringUtils.isNotBlank(sourceURL)){
-			Map<String, Object> linkDialcodeEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
-			linkDialcodeEvent=  updatevalues(linkDialcodeEvent);
-			if (MapUtils.isEmpty(linkDialcodeEvent)) {
-				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + linkDialcodeEvent);
+			Map<String, Object> mvcProcessorEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
+			mvcProcessorEvent=  updatevalues(mvcProcessorEvent);
+			if (MapUtils.isEmpty(mvcProcessorEvent)) {
+				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + mvcProcessorEvent);
 				throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
 			}
-			collector.send(new OutgoingMessageEnvelope(postPublishMVCStream, linkDialcodeEvent));
+			collector.send(new OutgoingMessageEnvelope(postPublishMVCStream, mvcProcessorEvent));
 			LOGGER.info("All Events sent to post publish mvc event topic");
 		}
 		else if (StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
@@ -327,11 +324,11 @@ public class PublishPipelineService implements ISamzaService {
 		}
 	}
 
-	Map<String,Object> updatevalues(Map<String,Object> linkDialcodeEvent) {
-		linkDialcodeEvent.put("eventData",linkDialcodeEvent.get("edata"));
-		linkDialcodeEvent.put("eid","MVC_JOB_PROCESSOR");
-		linkDialcodeEvent.remove("edata");
-		Map<String,Object> eventData = (Map<String,Object>) linkDialcodeEvent.get("eventData");
+	Map<String,Object> updatevalues(Map<String,Object> mvcProcessorEvent) {
+		mvcProcessorEvent.put("eventData",mvcProcessorEvent.get("edata"));
+		mvcProcessorEvent.put("eid","MVC_JOB_PROCESSOR");
+		mvcProcessorEvent.remove("edata");
+		Map<String,Object> eventData = (Map<String,Object>) mvcProcessorEvent.get("eventData");
 		eventData.put("identifier",eventData.get("id"));
 		eventData.remove("id");
 		eventData.remove("iteration");
@@ -341,10 +338,7 @@ public class PublishPipelineService implements ISamzaService {
         eventData.remove("status");
 		eventData.put("action","update-es-index");
 		eventData.put("stage",1);
-	//	eventData.put("ml_level1Concept",ml_level1);
-	//	eventData.put("ml_level2Concept",ml_level2);
-	//	eventData.put("ml_level3Concept",ml_level3);
-		return linkDialcodeEvent;
+		return mvcProcessorEvent;
 	}
 	private Map<String, Object> generateInstructionEventMetadata(Map<String, Object> actor, Map<String, Object> context,
 																 Map<String, Object> object, Map<String, Object> edata, Map<String, Object> metadata, String contentId, String action) {
