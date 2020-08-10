@@ -114,7 +114,7 @@ public class ContentBundle {
 			// TODO: END
 
 			//TODO: Added for backward compatibility in mobile - start
-			updateContentTaggedProperty(content);
+//			updateContentTaggedProperty(content);
 
 			if (StringUtils.isNotBlank(expiresOn))
 				content.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);

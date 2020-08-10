@@ -17,7 +17,7 @@
             <scala.version>2.11</scala.version>
             <hadoop.version>2.6.2</hadoop.version>
         </properties>
-        <version>0.0.42</version>
+        <version>0.0.50</version>
     <dependencies>
         <dependency>
             <groupId>org.ekstep</groupId>

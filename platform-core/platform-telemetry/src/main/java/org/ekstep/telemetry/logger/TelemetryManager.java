@@ -25,9 +25,6 @@ import org.ekstep.telemetry.handler.TelemetryLoggingHandler;
  */
 public class TelemetryManager {
 
-	/**
-	 * 
-	 */
 	private static TelemetryHandler telemetryHandler = new TelemetryLoggingHandler();
 
 	private static final String DEFAULT_CHANNEL_ID = Platform.config.hasPath("channel.default") ? Platform.config.getString("channel.default") : "in.ekstep";
