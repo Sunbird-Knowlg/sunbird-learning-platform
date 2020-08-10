@@ -1,5 +1,6 @@
 package org.ekstep.mvcjobs.samza.service.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -10,7 +11,7 @@ import org.json.JSONObject;
 import java.util.*;
 
 public class MVCProcessorCassandraIndexer  {
-
+    ObjectMapper mapper = new ObjectMapper();
     String elasticSearchParamArr[] = {"organisation","channel","framework","board","medium","subject","gradeLevel","name","description","language","appId","appIcon","appIconLabel","contentEncoding","identifier","node_id","nodeType","mimeType","resourceType","contentType","allowedContentTypes","objectType","posterImage","artifactUrl","launchUrl","previewUrl","streamingUrl","downloadUrl","status","pkgVersion","source","lastUpdatedOn","ml_contentText","ml_contentTextVector","ml_Keywords","level1Name","level1Concept","level2Name","level2Concept","level3Name","level3Concept","textbook_name","sourceURL","label","all_fields"};;
     String contentreadapiurl = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlvectorapi = ""  ;
     Map<String,Object> mapStage1 = new HashMap<>();
@@ -70,12 +71,13 @@ public class MVCProcessorCassandraIndexer  {
 
     Map<String,Object> getContentMetaData(Map<String,Object> newmap , String identifer) throws Exception {
         try {
-            contentreadapiurl = Platform.config.getString("kp.content_service.base_url") + "/content/v3/read/";
+            contentreadapiurl = "https://dock.sunbirded.org/api/content/v1/read/";
             LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData :::  Making API call to read content " + contentreadapiurl);
             String content = HTTPUtil.makeGetRequest(contentreadapiurl+identifer);
             LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData ::: retrieved content meta " + content);
-            JSONObject obj = new JSONObject(content);
-            JSONObject contentobj = (JSONObject) (((JSONObject)obj.get("result")).get("content"));
+            Map<String,Object> obj = mapper.readValue(content,Map.class);
+            Map<String,Object> contentobj = (HashMap<String,Object>) (((HashMap<String,Object>)obj.get("result")).get("content"));
+
             extractFieldsToBeInserted(contentobj);
             makepostreqForMlAPI(contentobj);
             newmap = filterData(newmap,contentobj);
@@ -87,39 +89,39 @@ public class MVCProcessorCassandraIndexer  {
         return newmap;
     }
     //Getting Fields to be inserted into cassandra
-    private void extractFieldsToBeInserted(JSONObject contentobj) {
-        if(contentobj.has("level1Concept")){
+    private void extractFieldsToBeInserted(Map<String,Object> contentobj) {
+        if(contentobj.containsKey("level1Concept")){
             level1concept = (List<String>)contentobj.get("level1Name");
             mapStage1.put("level1_concept", level1concept);
         }
-        if(contentobj.has("level2Concept")){
+        if(contentobj.containsKey("level2Concept")){
             level2concept = (List<String>)contentobj.get("level1Name");
             mapStage1.put("level2_concept", level2concept);
         }
-        if(contentobj.has("level3Concept")){
+        if(contentobj.containsKey("level3Concept")){
             level3concept = (List<String>)contentobj.get("level1Name");
             mapStage1.put("level3_concept",level3concept );
         }
-        if(contentobj.has("textbook_name")){
+        if(contentobj.containsKey("textbook_name")){
             textbook_name = (List<String>)contentobj.get("level1Name");
             mapStage1.put("textbook_name", textbook_name);
         }
-        if(contentobj.has("level1Name")){
+        if(contentobj.containsKey("level1Name")){
             level1_name = (List<String>)contentobj.get("level1Name");
             mapStage1.put("level1_name", level1_name);
         }
-        if(contentobj.has("level2Name")){
+        if(contentobj.containsKey("level2Name")){
             level2_name = (List<String>)contentobj.get("level1Name");
             mapStage1.put("level2_name", level2_name);
         }
-        if(contentobj.has("level3Name")){
+        if(contentobj.containsKey("level3Name")){
             level3_name = (List<String>)contentobj.get("level1Name");
             mapStage1.put("level3_name", level3_name);
         }
-        if(contentobj.has("source")){
+        if(contentobj.containsKey("source")){
             mapStage1.put("source",contentobj.get("source"));
         }
-        if(contentobj.has("sourceURL")){
+        if(contentobj.containsKey("sourceURL")){
             mapStage1.put("sourceurl",contentobj.get("sourceURL"));
         }
         LOGGER.info("MVCProcessorCassandraIndexer :: extractedmetadata");
@@ -127,7 +129,7 @@ public class MVCProcessorCassandraIndexer  {
     }
 
     // POST reqeuest for ml keywords api
-    void makepostreqForMlAPI(JSONObject contentdef) throws Exception {
+    void makepostreqForMlAPI(Map<String,Object> contentdef) throws Exception {
         try {
 
             JSONObject obj = new JSONObject(mlworkbenchapirequest);
@@ -138,6 +140,7 @@ public class MVCProcessorCassandraIndexer  {
             req.put("job",jobname);
             LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: The ML workbench URL is " + "http://"+Platform.config.getString("mlkeywordapi") + "/daggit/submit" );
             String resp = HTTPUtil.makePostRequest("http://"+Platform.config.getString("mlkeywordapi") + "/daggit/submit",obj.toString());
+            LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: The ML workbench response is " + resp );
         }
         catch (Exception e) {
             LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: ML workbench api request failed ");
@@ -146,13 +149,13 @@ public class MVCProcessorCassandraIndexer  {
     }
 
     // Filter the params of content  to add in ES
-    public  Map<String,Object> filterData(Map<String,Object> obj ,JSONObject content) {
+    public  Map<String,Object> filterData(Map<String,Object> obj ,Map<String,Object> content) {
 
         String key = null;
         Object value = null;
         for(int i = 0 ; i < elasticSearchParamArr.length ; i++ ) {
             key = (elasticSearchParamArr[i]);
-            value = content.has(key)  ? content.get(key) : null;
+            value = content.containsKey(key)  ? content.get(key) : null;
             if(value != null) {
                 obj.put(key,value);
                 value = null;
