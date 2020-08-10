@@ -14,6 +14,7 @@ public class MVCProcessorCassandraIndexer  {
     String elasticSearchParamArr[] = {"organisation","channel","framework","board","medium","subject","gradeLevel","name","description","language","appId","appIcon","appIconLabel","contentEncoding","identifier","node_id","nodeType","mimeType","resourceType","contentType","allowedContentTypes","objectType","posterImage","artifactUrl","launchUrl","previewUrl","streamingUrl","downloadUrl","status","pkgVersion","source","lastUpdatedOn","ml_contentText","ml_contentTextVector","ml_Keywords","level1Name","level1Concept","level2Name","level2Concept","level3Name","level3Concept","textbook_name","sourceURL","label","all_fields"};;
     String contentreadapiurl = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlvectorapi = ""  ;
     Map<String,Object> mapStage1 = new HashMap<>();
+    List<String> level1concept = null,level2concept  = null, level3concept = null , textbook_name , level1_name , level2_name , level3_name ;
     private JobLogger LOGGER = new JobLogger(MVCProcessorCassandraIndexer.class);
     public MVCProcessorCassandraIndexer() {
         mlworkbenchapirequest = "{\"request\":{ \"input\" :{ \"content\" : [] } } }";
@@ -32,6 +33,7 @@ public class MVCProcessorCassandraIndexer  {
                 obj = getContentMetaData(obj ,identifier);
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: Inserting into cassandra stage-1");
                 CassandraConnector.updateContentProperties(identifier,mapStage1);
+                mapStage1 = null;
             } else if(action.equalsIgnoreCase("update-ml-keywords")) {
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: update-ml-keywords");
                  String ml_contentText;
@@ -87,25 +89,32 @@ public class MVCProcessorCassandraIndexer  {
     //Getting Fields to be inserted into cassandra
     private void extractFieldsToBeInserted(JSONObject contentobj) {
         if(contentobj.has("level1Concept")){
-            mapStage1.put("level1_concept",contentobj.get("level1Concept"));
+            level1concept = (List<String>)contentobj.get("level1Name");
+            mapStage1.put("level1_concept", level1concept);
         }
         if(contentobj.has("level2Concept")){
-            mapStage1.put("level2_concept",contentobj.get("level2Concept"));
+            level2concept = (List<String>)contentobj.get("level1Name");
+            mapStage1.put("level2_concept", level2concept);
         }
         if(contentobj.has("level3Concept")){
-            mapStage1.put("level3_concept",contentobj.get("level3Concept"));
+            level3concept = (List<String>)contentobj.get("level1Name");
+            mapStage1.put("level3_concept",level3concept );
         }
         if(contentobj.has("textbook_name")){
-            mapStage1.put("textbook_name",contentobj.get("textbook_name"));
+            textbook_name = (List<String>)contentobj.get("level1Name");
+            mapStage1.put("textbook_name", textbook_name);
         }
         if(contentobj.has("level1Name")){
-            mapStage1.put("level1_name",contentobj.get("level1Name"));
+            level1_name = (List<String>)contentobj.get("level1Name");
+            mapStage1.put("level1_name", level1_name);
         }
         if(contentobj.has("level2Name")){
-            mapStage1.put("level2_name",contentobj.get("level2Name"));
+            level2_name = (List<String>)contentobj.get("level1Name");
+            mapStage1.put("level2_name", level2_name);
         }
         if(contentobj.has("level3Name")){
-            mapStage1.put("level3_name",contentobj.get("level3Name"));
+            level3_name = (List<String>)contentobj.get("level1Name");
+            mapStage1.put("level3_name", level3_name);
         }
         if(contentobj.has("source")){
             mapStage1.put("source",contentobj.get("source"));
@@ -113,6 +122,8 @@ public class MVCProcessorCassandraIndexer  {
         if(contentobj.has("sourceURL")){
             mapStage1.put("sourceurl",contentobj.get("sourceURL"));
         }
+        LOGGER.info("MVCProcessorCassandraIndexer :: extractedmetadata");
+
     }
 
     // POST reqeuest for ml keywords api
