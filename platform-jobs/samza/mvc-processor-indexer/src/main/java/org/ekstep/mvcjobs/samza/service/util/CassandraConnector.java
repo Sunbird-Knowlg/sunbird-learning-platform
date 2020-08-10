@@ -7,32 +7,29 @@ import com.datastax.driver.core.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.util.JobLogger;
-import org.ekstep.mvcjobs.samza.service.MVCProcessorService;
 
 import java.net.InetSocketAddress;
 import java.util.*;
 
 public class CassandraConnector {
     private  static  JobLogger LOGGER = new JobLogger(CassandraConnector.class);
-    private  static  String serverIP= Platform.config.hasPath("cassandra.lp.connection") ? Platform.config.getString("cassandra.lp.connection") : null;
-    private  static String keyspace = Platform.config.hasPath("content.keyspace.name")
-            ? Platform.config.getString("content.keyspace.name")
-            : "content_store";
+
   static  String arr[],table = "content_data";
    static Session session;
     static public Session getSession() {
-
+        String serverIP = Platform.config.getString("cassandra.lp.connection");
         LOGGER.info("Cassandra keyspace is " + Platform.config.getString("cassandra.keyspace"));
         if(serverIP == null) {
             LOGGER.info("Server ip of cassandra is null");
         }
+        LOGGER.info("Server ip of cassandra is " + serverIP);
         List<String> connectionInfo = Arrays.asList(serverIP.split(","));
         List<InetSocketAddress> addressList = getSocketAddress(connectionInfo);
         Cluster cluster = Cluster.builder()
                 .addContactPointsWithPorts(addressList)
                 .build();
 
-        session = cluster.connect(keyspace);
+        session = cluster.connect(Platform.config.getString("cassandra.keyspace"));
         LOGGER.info("The server IP " + serverIP + "\n Session created " + session);
         return session;
     }
