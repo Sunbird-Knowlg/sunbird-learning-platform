@@ -1,7 +1,6 @@
 package org.ekstep.sync.tool.util;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -13,8 +12,6 @@ import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
@@ -63,11 +60,11 @@ public class DialcodeSync {
         	Map<String, Object> messages = new HashMap<String, Object>();
             ResultSet rs = getDialcodesFromDB(identifiers);
             if (null != rs) {
-            	//Iterator<Row> iterator = rs.iterator();
+            	Map<String, Object> dialCodesFromDB = new HashMap<String, Object>();
             	while(rs.iterator().hasNext()) {
             		Row row = rs.iterator().next();
                     String dialcodeId = (String)row.getString("identifier");
-                    System.out.println(dialcodeId + ": " + row);
+                    dialCodesFromDB.put(dialcodeId, row);
                     
                     Map<String, Object> syncRequest = new HashMap<String, Object>(){{
                     	put("identifier", row.getString("identifier"));
@@ -82,6 +79,7 @@ public class DialcodeSync {
                     }};
         			messages.put(dialcodeId, syncRequest);
             	}
+            	System.out.println("total dialcodes fetched from cassandra: " + dialCodesFromDB);
             	return messages;
                 
             } else {
@@ -99,10 +97,5 @@ public class DialcodeSync {
 		String query = "SELECT * FROM " + keyspace + "." + table + " WHERE identifier IN ('" + dialcodes + "')";
 		Session session = CassandraConnector.getSession();
 		return session.execute(query);
-		/*String query = "SELECT * FROM " + keyspace + "." + table + " WHERE identifier IN :ids";
-        Session session = CassandraConnector.getSession();
-        PreparedStatement ps = session.prepare(query);
-        BoundStatement bs = ps.bind();
-        return session.execute(bs.setList("ids", identifiers));*/
 	}
 }

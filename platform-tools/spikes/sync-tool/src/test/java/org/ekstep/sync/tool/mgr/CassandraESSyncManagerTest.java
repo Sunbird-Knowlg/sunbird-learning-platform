@@ -18,7 +18,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 public class CassandraESSyncManagerTest {
 
 	@Test
-    public void testsyncDialcodesByIds() throws Exception {
+    public void testsyncDialcodesByIdsWithDialcodes() throws Exception {
         DialcodeSync dialcodeSync = PowerMockito.mock(DialcodeSync.class);
         PowerMockito.when(dialcodeSync.sync(Mockito.anyList())).thenReturn(1);
         List<String> dialcodes = Arrays.asList("A1B2C3");
@@ -27,5 +27,14 @@ public class CassandraESSyncManagerTest {
         cassandraESSyncManager.syncDialcodesByIds(dialcodes);
     }
 
+	@Test
+    public void testsyncDialcodesByIdsWithoutDialcodes() throws Exception {
+        DialcodeSync dialcodeSync = PowerMockito.mock(DialcodeSync.class);
+        PowerMockito.when(dialcodeSync.sync(Mockito.anyList())).thenReturn(1);
+        List<String> dialcodes = null;
+        
+        CassandraESSyncManager cassandraESSyncManager = new CassandraESSyncManager(dialcodeSync);
+        cassandraESSyncManager.syncDialcodesByIds(dialcodes);
+    }
 
 }
