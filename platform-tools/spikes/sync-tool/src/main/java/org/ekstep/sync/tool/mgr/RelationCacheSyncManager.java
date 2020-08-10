@@ -48,7 +48,7 @@ public class RelationCacheSyncManager {
 
         Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
         try (Session session = driver.session()) {
-            StatementResult result = session.run("MATCH (n:domain{IL_FUNC_OBJECT_TYPE:\"Content\", mimeType: \"application/vnd.ekstep.content-collection\", visibility: \"Default\"}) WHERE n.status in [\"Live\", \"Unlisted\"] RETURN count(n.IL_UNIQUE_ID) as totalContents;");
+            StatementResult result = session.run("MATCH (n:domain{IL_FUNC_OBJECT_TYPE:\"Content\", mimeType: \"application/vnd.ekstep.content-collection\", visibility: \"Default\"}) WHERE n.status in [\"Live\", \"Unlisted\", \"Retired\", \"Flagged\"] RETURN count(n.IL_UNIQUE_ID) as totalContents;");
             int totalCount = 0;
             if (null != result && CollectionUtils.isNotEmpty(result.keys())) {
                 totalCount = result.single().get("totalContents", 0);
@@ -59,7 +59,7 @@ public class RelationCacheSyncManager {
 
     public List<Map<String, Object>> getCollectionProps(int offset, int limit)  {
         List<Map<String, Object>> list = new ArrayList<>();
-        String query = "MATCH (n:domain{IL_FUNC_OBJECT_TYPE:\"Content\", mimeType: \"application/vnd.ekstep.content-collection\", visibility: \"Default\"}) WHERE n.status in [\"Live\", \"Unlisted\"] RETURN n.IL_UNIQUE_ID AS identifier, n.contentType as contentType, n.pkgVersion as pkgVersion, n.status as status, n.name as name, n.createdBy as createdBy SKIP " + offset + " LIMIT " + limit + ";";
+        String query = "MATCH (n:domain{IL_FUNC_OBJECT_TYPE:\"Content\", mimeType: \"application/vnd.ekstep.content-collection\", visibility: \"Default\"}) WHERE n.status in [\"Live\", \"Unlisted\", \"Retired\", \"Flagged\"] RETURN n.IL_UNIQUE_ID AS identifier, n.contentType as contentType, n.pkgVersion as pkgVersion, n.status as status, n.name as name, n.createdBy as createdBy SKIP " + offset + " LIMIT " + limit + ";";
         Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
         try (Session session = driver.session()) {
             StatementResult result = session.run(query);
@@ -89,8 +89,8 @@ public class RelationCacheSyncManager {
     }
 
 
-    private String generateKafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
-        rowMap.put("action", "publish-shallow-content");
+    public String generateKafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
+        rowMap.put("action", "link-dialcode");
         rowMap.put("iteration", 1);
         Map<String, Object> event = new HashMap<String, Object>() {{
             put("eid", "BE_JOB_REQUEST");
