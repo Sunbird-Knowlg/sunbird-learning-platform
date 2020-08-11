@@ -17,6 +17,10 @@ public class CassandraConnector {
   static  String arr[],table = "content_data";
    static Session session;
     static public Session getSession() {
+        if(session != null) {
+            LOGGER.info("CassandraSession Exists");
+            return session;
+        }
         String serverIP = Platform.config.getString("cassandra.lp.connection");
         LOGGER.info("Cassandra keyspace is " + Platform.config.getString("cassandra.keyspace"));
         if(serverIP == null) {
