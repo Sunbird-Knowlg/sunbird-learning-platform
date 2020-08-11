@@ -57,9 +57,9 @@ public class CertificateGenerator {
             ? Platform.config.getString("kp.content_service.base_url"): "http://localhost:9000";
 
     private static final String CERT_GENERATE_URL = Platform.config.hasPath("certificate.generate.url")
-            ? Platform.config.getString("certificate.generate.url"): "";
+            ? Platform.config.getString("certificate.generate.url"): "/v2/certs/generate";
     private static final String CERT_REGISTRY_ADD_URL = Platform.config.hasPath("certificate.registry.add.url")
-            ? Platform.config.getString("certificate.registry.add.url"): "";
+            ? Platform.config.getString("certificate.registry.add.url"): "/certs/v2/registry/add";
     private static final String certGenerateURL = CERT_SERVICE_URL + CERT_GENERATE_URL;
     private static final String certRegistryAddURL = CERT_REG_SERVICE_BASE_URL + CERT_REGISTRY_ADD_URL;
 
