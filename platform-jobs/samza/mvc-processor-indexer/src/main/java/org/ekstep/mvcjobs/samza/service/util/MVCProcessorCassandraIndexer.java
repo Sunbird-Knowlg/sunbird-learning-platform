@@ -11,7 +11,6 @@ import org.json.JSONObject;
 import java.util.*;
 
 public class MVCProcessorCassandraIndexer  {
-    ObjectMapper mapper = new ObjectMapper();
     String elasticSearchParamArr[] = {"organisation","channel","framework","board","medium","subject","gradeLevel","name","description","language","appId","appIcon","appIconLabel","contentEncoding","identifier","node_id","nodeType","mimeType","resourceType","contentType","allowedContentTypes","objectType","posterImage","artifactUrl","launchUrl","previewUrl","streamingUrl","downloadUrl","status","pkgVersion","source","lastUpdatedOn","ml_contentText","ml_contentTextVector","ml_Keywords","level1Name","level1Concept","level2Name","level2Concept","level3Name","level3Concept","textbook_name","sourceURL","label","all_fields"};;
     String contentreadapiurl = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlvectorapi = ""  ;
     Map<String,Object> mapStage1 = new HashMap<>();
@@ -34,7 +33,6 @@ public class MVCProcessorCassandraIndexer  {
                 obj = getContentMetaData(obj ,identifier);
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: Inserting into cassandra stage-1");
                 CassandraConnector.updateContentProperties(identifier,mapStage1);
-                mapStage1 = null;
             } else if(action.equalsIgnoreCase("update-ml-keywords")) {
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: update-ml-keywords");
                  String ml_contentText;
@@ -70,20 +68,22 @@ public class MVCProcessorCassandraIndexer  {
     }
 
     Map<String,Object> getContentMetaData(Map<String,Object> newmap , String identifer) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
         try {
-            contentreadapiurl = "https://dock.sunbirded.org/api/content/v1/read/";
+            contentreadapiurl = Platform.config.getString("kp.content_service.base_url") + "/content/v3/read/";
             LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData :::  Making API call to read content " + contentreadapiurl);
             String content = HTTPUtil.makeGetRequest(contentreadapiurl+identifer);
             LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData ::: retrieved content meta " + content);
             Map<String,Object> obj = mapper.readValue(content,Map.class);
             Map<String,Object> contentobj = (HashMap<String,Object>) (((HashMap<String,Object>)obj.get("result")).get("content"));
-
+            LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData ::: extracting required fields" + contentobj);
             extractFieldsToBeInserted(contentobj);
+            LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData ::: making ml workbench api request");
             makepostreqForMlAPI(contentobj);
             newmap = filterData(newmap,contentobj);
 
         }catch (Exception e) {
-            LOGGER.info("MVCProcessorCassandraIndexer :: getContentDefinition ::: Error in getContentDefinitionFunction " + e.getMessage());
+            LOGGER.info("MVCProcessorCassandraIndexer :: getContentDefinition ::: Error in getContentDefinitionFunction " + e);
             throw new Exception("Get content metdata failed");
         }
         return newmap;
@@ -91,14 +91,17 @@ public class MVCProcessorCassandraIndexer  {
     //Getting Fields to be inserted into cassandra
     private void extractFieldsToBeInserted(Map<String,Object> contentobj) {
         if(contentobj.containsKey("level1Concept")){
+            LOGGER.info("Extracting Fields ::: level 1 concept");
             level1concept = (List<String>)contentobj.get("level1Name");
             mapStage1.put("level1_concept", level1concept);
         }
         if(contentobj.containsKey("level2Concept")){
+            LOGGER.info("Extracting Fields ::: level 2 concept");
             level2concept = (List<String>)contentobj.get("level1Name");
             mapStage1.put("level2_concept", level2concept);
         }
         if(contentobj.containsKey("level3Concept")){
+            LOGGER.info("Extracting Fields ::: level 3 concept");
             level3concept = (List<String>)contentobj.get("level1Name");
             mapStage1.put("level3_concept",level3concept );
         }
