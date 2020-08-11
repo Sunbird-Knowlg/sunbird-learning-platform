@@ -56,8 +56,12 @@ public class CertificateGenerator {
     protected static final String KP_CONTENT_SERVICE_BASE_URL = Platform.config.hasPath("kp.content_service.base_url")
             ? Platform.config.getString("kp.content_service.base_url"): "http://localhost:9000";
 
-    private static final String certGenerateURL = CERT_SERVICE_URL + "/v1/certs/generate";
-    private static final String certRegistryAddURL = CERT_REG_SERVICE_BASE_URL + "/certs/v1/registry/add";
+    private static final String CERT_GENERATE_URL = Platform.config.hasPath("certificate.generate.url")
+            ? Platform.config.getString("certificate.generate.url"): "";
+    private static final String CERT_REGISTRY_ADD_URL = Platform.config.hasPath("certificate.registry.add.url")
+            ? Platform.config.getString("certificate.registry.add.url"): "";
+    private static final String certGenerateURL = CERT_SERVICE_URL + CERT_GENERATE_URL;
+    private static final String certRegistryAddURL = CERT_REG_SERVICE_BASE_URL + CERT_REGISTRY_ADD_URL;
 
     private static JobLogger LOGGER = new JobLogger(CertificateGenerator.class);
     private Session cassandraSession = null;
@@ -178,7 +182,7 @@ public class CertificateGenerator {
                     SunbirdCassandraUtil.update(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToUpdate, dataToSelect);
                     updatedES(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
                 }
-                if(addCertificateToUser(certificate, courseId, batchId, oldId, recipientName, (String)certTemplate.get("name"))) {
+                if(addCertificateToUser(certificate, courseId, batchId, oldId, recipientName, certTemplate)) {
                     notifyUser(userId, certTemplate, courseName, userResponse, issuedOn);
                 }
             } else {
@@ -191,7 +195,7 @@ public class CertificateGenerator {
         }
     }
 
-    private boolean addCertificateToUser(Map<String, Object> certificate, String courseId, String batchId, String oldId, String recipientName, String certName) {
+    private boolean addCertificateToUser(Map<String, Object> certificate, String courseId, String batchId, String oldId, String recipientName, Map<String, Object> certTemplate) {
         try {
             Request request = new Request();
             request.put(CourseCertificateParams.recipientId.name(), certificate.get(CourseCertificateParams.recipientId.name()));
@@ -202,7 +206,9 @@ public class CertificateGenerator {
             request.put(CourseCertificateParams.id.name(), certificate.get(CourseCertificateParams.id.name()));
             request.put(CourseCertificateParams.qrCodeUrl.name(), certificate.get(CourseCertificateParams.qrCodeUrl.name()));
             request.put("related", new HashMap<String, Object>(){{
-                put("type", certName.toLowerCase());
+                put("type", ((String) certTemplate.get("name")).toLowerCase());
+                put("templateId", certTemplate.get("identifier"));
+                put("templateUrl", certTemplate.get("template"));
                 put(CourseCertificateParams.courseId.name(), courseId);
                 put(CourseCertificateParams.batchId.name(), batchId);
             }});
