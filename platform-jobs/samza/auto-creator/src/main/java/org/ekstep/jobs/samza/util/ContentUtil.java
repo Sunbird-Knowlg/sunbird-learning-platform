@@ -274,7 +274,7 @@ public class ContentUtil {
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while uploading : " + identifier);
 		}
 	}
-*/
+
 	private Boolean publish(String channelId, String identifier, String lastPublishedBy) throws Exception {
 		String url = KP_LEARNING_BASE_URL + "/content/v3/publish/" + identifier;
 		Map<String, Object> request = new HashMap<String, Object>() {{
