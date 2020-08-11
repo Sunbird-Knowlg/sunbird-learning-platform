@@ -56,6 +56,9 @@ content.keyspace.name="{{ content_keyspace_name }}"
 cassandra.lp.connection="{{ lp_cassandra_connection }}"
 assessment.keyspace.name="{{ content_keyspace_name }}"
 assessment.keyspace.table="question_data"
+# Dialcodes service specific configuration
+dialcode.keyspace.name="{{ sunbirddev_dialcode_store }}
+dialcode.table="dial_code"
 
 #Filter metadata based on definition while indexing into ES
 #restrict.metadata.objectTypes="Content,ContentImage"
@@ -78,8 +81,3 @@ cloud_storage_type="{{ cloud_store }}"
 azure_storage_key="{{sunbird_public_storage_account_name}}"
 azure_storage_secret="{{sunbird_public_storage_account_key}}"
 azure_storage_container="{{ azure_public_container }}"
-
-# Dialcodes service specific configuration
-dialcode.api.sync.url="http://11.2.4.16:9001/v3/dialcode/sync"
-dialcode.keyspace.name="sunbirddev_dialcode_store"
-dialcode.table="dial_code"
