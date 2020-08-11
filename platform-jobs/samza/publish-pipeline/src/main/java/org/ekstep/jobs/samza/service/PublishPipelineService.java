@@ -278,10 +278,10 @@ public class PublishPipelineService implements ISamzaService {
 		String sourceURL = node.getMetadata().get("sourceURL") != null ? (String)node.getMetadata().get("sourceURL") : null;
 		if(StringUtils.isNotBlank(sourceURL)){
 			Map<String, Object> mvcProcessorEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
-			mvcProcessorEvent=  updatevalues(mvcProcessorEvent);
+			mvcProcessorEvent=  updatevaluesForMVCEvent(mvcProcessorEvent);
 			if (MapUtils.isEmpty(mvcProcessorEvent)) {
 				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + mvcProcessorEvent);
-				throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+				throw new ClientException("MVC_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
 			}
 			collector.send(new OutgoingMessageEnvelope(postPublishMVCStream, mvcProcessorEvent));
 			LOGGER.info("All Events sent to post publish mvc event topic");
@@ -324,7 +324,7 @@ public class PublishPipelineService implements ISamzaService {
 		}
 	}
 
-	Map<String,Object> updatevalues(Map<String,Object> mvcProcessorEvent) {
+	Map<String,Object> updatevaluesForMVCEvent(Map<String,Object> mvcProcessorEvent) {
 		mvcProcessorEvent.put("eventData",mvcProcessorEvent.get("edata"));
 		mvcProcessorEvent.put("eid","MVC_JOB_PROCESSOR");
 		mvcProcessorEvent.remove("edata");
