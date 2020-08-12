@@ -286,7 +286,7 @@ public class PublishPipelineService implements ISamzaService {
 			collector.send(new OutgoingMessageEnvelope(postPublishMVCStream, mvcProcessorEvent));
 			LOGGER.info("All Events sent to post publish mvc event topic");
 		}
-		else if (StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
+		 if (StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
 			Map<String, Object> linkDialcodeEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
 
 			if (MapUtils.isEmpty(linkDialcodeEvent)) {
