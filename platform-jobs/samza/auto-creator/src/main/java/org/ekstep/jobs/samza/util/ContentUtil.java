@@ -263,7 +263,7 @@ public class ContentUtil {
 			put("X-Channel-Id", channelId);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		Response resp = UnirestUtil.post(url, request, header);
+		Response resp = UnirestUtil.patch(url, request, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String contentId = (String) resp.getResult().get("identifier");
 			LOGGER.info("ContentUtil :: update :: Content Update Successfully having identifier : " + contentId);
