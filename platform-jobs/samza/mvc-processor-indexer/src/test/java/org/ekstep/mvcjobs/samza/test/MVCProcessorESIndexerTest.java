@@ -1,4 +1,4 @@
-/*
+
 package org.ekstep.mvcjobs.samza.test;
 
 import com.google.gson.Gson;
@@ -69,4 +69,3 @@ public class MVCProcessorESIndexerTest {
 
 }
 
- */
