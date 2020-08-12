@@ -1,6 +1,7 @@
 /**
  *
  */
+/*
 package org.ekstep.test;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -40,3 +41,4 @@ public class BaseSearchTest {
 	}
 
 }
+*/

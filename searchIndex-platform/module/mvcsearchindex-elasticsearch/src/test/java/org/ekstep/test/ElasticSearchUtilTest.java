@@ -1,6 +1,7 @@
 /**
  *
  */
+/*
 package org.ekstep.test;
 
 import static org.junit.Assert.assertTrue;
@@ -22,13 +23,14 @@ import org.powermock.api.mockito.PowerMockito;
  * @author pradyumna
  *
  */
+	/*
 public class ElasticSearchUtilTest extends BaseSearchTest {
 
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static Random random = new Random();
-
-
+*/
+/*
 	@Test
 	public void testAddDocumentWithId() throws Exception {
 		Map<String, Object> content = getContentTestRecord();
@@ -38,6 +40,8 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX, id);
 		assertTrue(StringUtils.contains(doc, id));
 	}
+	*/
+	/*
 	@Test
 	public void testUpdateDocument() throws Exception {
 		Map<String, Object> content = getContentTestRecord();
@@ -53,9 +57,9 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		assertTrue(StringUtils.contains(doc, id));
 	}
 
+*/
 
-
-
+/*
 	private static Map<String, Object> getContentTestRecord() {
 		String objectType = "Content";
 		Date d = new Date();
@@ -70,3 +74,4 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 	}
 
 }
+*/
