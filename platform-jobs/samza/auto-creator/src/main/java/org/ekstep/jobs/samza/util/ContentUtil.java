@@ -64,16 +64,7 @@ public class ContentUtil {
 		String contentStage = "";
 		String internalId = "";
 		Boolean isPublished = false;
-		Double pkgVersion = 0.0;
-		// Added by tanmay as pkgVersion can also be an integer value
-		// start
-		if(metadata.get(AutoCreatorParams.pkgVersion.name()) != null) {
-				Integer a = new Integer(metadata.get(AutoCreatorParams.pkgVersion.name()));
-				pkgVersion = a.doubleValue();
-
-		}
-		// end
-	//	Double pkgVersion = Double.parseDouble((String) metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), "0.0"));
+		Double pkgVersion = Double.parseDouble((String) metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), "0.0"));
 		Map<String, Object> createMetadata = new HashMap<String, Object>();
 		Map<String, Object> contentMetadata = searchContent(identifier);
 		if (MapUtils.isEmpty(contentMetadata)) {
@@ -206,7 +197,7 @@ public class ContentUtil {
 		return contentId;
 	}
 
-	private void upload(String channelId, String identifier, File file) throws Exception {
+	/*private void upload(String channelId, String identifier, File file) throws Exception {
 		if (null != file && !file.exists())
 			LOGGER.info("ContentUtil :: upload :: File Path for " + identifier + "is : " + file.getAbsolutePath() + " | File Size : " + file.length());
 		String preSignedUrl = getPreSignedUrl(identifier, file.getName());
@@ -230,7 +221,7 @@ public class ContentUtil {
 			LOGGER.info("ContentUtil :: upload :: Blob upload failed for: " + identifier);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Upload failed for: " + identifier);
 		}
-	}
+	}*/
 
 	private void upload(String channelId, String identifier, Map<String, Object> metadata) throws Exception {
 		Response resp = null;
@@ -431,10 +422,6 @@ public class ContentUtil {
 	private File getFile(String identifier, String fileUrl) {
 		try {
 			String fileName = getBasePath(identifier) + File.separator + getFileNameFromURL(fileUrl);
-			// Added by tanmay to debug
-			// start
-			LOGGER.info("File name to be uploaded " + fileName);
-			// end
 			File file = new File(fileName);
 			FileUtils.copyURLToFile(new URL(fileUrl), file);
 			return file;
