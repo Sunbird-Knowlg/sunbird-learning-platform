@@ -15,6 +15,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.CloudStore;
@@ -492,7 +493,7 @@ public class ContentUtil {
 	}
 
 	private String getBasePath(String objectId) {
-		return StringUtils.isNotBlank(objectId) ? TEMP_FILE_LOCATION + File.separator + objectId + "_temp_" + System.currentTimeMillis(): "";
+		return StringUtils.isNotBlank(objectId) ? TEMP_FILE_LOCATION + File.separator + objectId + File.separator + "_temp_" + System.currentTimeMillis(): TEMP_FILE_LOCATION + File.separator + "_temp_" + System.currentTimeMillis();
 	}
 
 	private String getFileNameFromURL(String fileUrl) {
@@ -504,11 +505,12 @@ public class ContentUtil {
 
 	private File getFile(String identifier, String fileUrl) {
 		try {
-			String fileName = getBasePath(identifier) + File.separator + getFileNameFromURL(fileUrl);
-			File file = new File(fileName);
-			FileUtils.copyURLToFile(new URL(fileUrl), file);
+			//String fileName = getBasePath(identifier) + File.separator + getFileNameFromURL(fileUrl);
+			//File file = new File(fileName);
+			//FileUtils.copyURLToFile(new URL(fileUrl), file);
+			File file = HttpDownloadUtility.downloadFile(fileUrl, getBasePath(identifier));
 			return file;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			LOGGER.info("Invalid fileUrl received for : " + identifier + " | fileUrl : " + fileUrl + "Exception is : " + e.getMessage());
 			throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "Invalid fileUrl received for : " + identifier + " | fileUrl : " + fileUrl);
 		}
