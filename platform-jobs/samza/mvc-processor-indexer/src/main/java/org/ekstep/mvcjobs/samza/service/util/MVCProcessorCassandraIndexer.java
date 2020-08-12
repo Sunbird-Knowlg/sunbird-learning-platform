@@ -147,7 +147,6 @@ public class MVCProcessorCassandraIndexer  {
         }
         catch (Exception e) {
             LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: ML workbench api request failed ");
-            throw new Exception("Ml keyword api failed");
         }
     }
 
@@ -178,8 +177,8 @@ public class MVCProcessorCassandraIndexer  {
             String resp = HTTPUtil.makePostRequest(mlvectorapi,obj.toString());
         }
         catch (Exception e) {
-           System.out.println(e);
-           throw new Exception("ML vector api failed");
+            LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForVectorApi  ::: ML vector api request failed ");
+
         }
     }
 
