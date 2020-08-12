@@ -45,13 +45,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import akka.dispatch.Futures;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pradyumna
  *
  */
 public class ElasticSearchUtil {
-
+	private static final Logger logger = LoggerFactory.getLogger(ElasticSearchUtil.class);
 	static {
 		System.setProperty("es.set.netty.runtime.available.processors", "false");
 		registerShutdownHook();
@@ -147,12 +149,15 @@ public class ElasticSearchUtil {
 
 	public static void addDocumentWithId(String indexName, String documentId, String document) {
 		try {
+			logger.info("Inside addDocuemntwithId");
 			IndexRequest indexRequest = new IndexRequest(indexName);
 			indexRequest.id(documentId);
 			indexRequest.source(document,XContentType.JSON);
 			IndexResponse indexResponse = getClient(indexName).index(indexRequest,RequestOptions.DEFAULT);
+			logger.info("Response after inserting inside ES :: " + indexResponse.toString());
 			TelemetryManager.log("Added " + indexResponse.getId() + " to index " + indexResponse.getIndex());
 		} catch (IOException e) {
+			logger.info("Error after inserting inside ES :: " + indexName + " " + e);
 			TelemetryManager.error("Error while adding document to index :" + indexName, e);
 		}
 	}
@@ -162,14 +167,16 @@ public class ElasticSearchUtil {
 			throws InterruptedException, ExecutionException {
 		try {Map<String, Object> doc = mapper.readValue(document, new TypeReference<Map<String, Object>>() {
 		});
-
+             logger.info("Inside updateDocument");
 			UpdateRequest updateRequest = new UpdateRequest();
 			updateRequest.index(indexName);
 			updateRequest.id(documentId);
 			updateRequest.doc(doc);
 			UpdateResponse response = getClient(indexName).update(updateRequest,RequestOptions.DEFAULT);
 			TelemetryManager.log("Updated " + response.getId() + " to index " + response.getIndex());
+			logger.info("Response after updating inside ES :: " + response.toString());
 		} catch (IOException e) {
+			logger.info("Error after updating inside ES :: " + indexName + " " + e);
 			TelemetryManager.error("Error while updating document to index :" + indexName, e);
 		}
 
