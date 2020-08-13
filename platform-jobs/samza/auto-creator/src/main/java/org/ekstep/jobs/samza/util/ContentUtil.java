@@ -304,7 +304,7 @@ public class ContentUtil {
 		Response resp = null;
 		Long downloadStartTime = System.currentTimeMillis();
 		String sourceUrl = (String) metadata.get(AutoCreatorParams.artifactUrl.name());
-		if (CollectionUtils.isEmpty(ALLOWED_ARTIFACT_SOURCE.stream().filter(x -> sourceUrl.contains(x)).collect(Collectors.toList()))) {
+		if (CollectionUtils.isNotEmpty(ALLOWED_ARTIFACT_SOURCE) && CollectionUtils.isEmpty(ALLOWED_ARTIFACT_SOURCE.stream().filter(x -> sourceUrl.contains(x)).collect(Collectors.toList()))) {
 			LOGGER.info("Artifact Source is not from allowed one for : " + identifier + " | artifactUrl: " + sourceUrl + " | Allowed Sources : " + ALLOWED_ARTIFACT_SOURCE);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Artifact Source is not from allowed one for : " + identifier + " | artifactUrl: " + sourceUrl + " | Allowed Sources : " + ALLOWED_ARTIFACT_SOURCE);
 		}
