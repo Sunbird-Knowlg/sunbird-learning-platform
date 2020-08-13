@@ -15,6 +15,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.CloudStore;
@@ -49,6 +50,8 @@ public class ContentUtil {
 	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
 	private static final Long CONTENT_UPLOAD_ARTIFACT_MAX_SIZE = Platform.config.hasPath("auto_creator.artifact_upload.max_size") ? Platform.config.getLong("auto_creator.artifact_upload.max_size") : 62914560;
 	private static final List<String> BULK_UPLOAD_MIMETYPES = Platform.config.hasPath("auto_creator.bulk_upload.mime_types") ? Arrays.asList(Platform.config.getString("auto_creator.bulk_upload.mime_types").split(",")) : new ArrayList<String>();
+	private static final List<String> CONTENT_CREATE_PROPS = Platform.config.hasPath("auto_creator.content_create_props") ? Arrays.asList(Platform.config.getString("auto_creator.content_create_props").split(",")) : new ArrayList<String>();
+	private static final List<String> ALLOWED_ARTIFACT_SOURCE = Platform.config.hasPath("auto_creator.artifact_upload.allowed_source") ? Arrays.asList(Platform.config.getString("auto_creator.artifact_upload.allowed_source").split(",")) : new ArrayList<String>();
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static Tika tika = new Tika();
 	private static JobLogger LOGGER = new JobLogger(ContentUtil.class);
@@ -59,43 +62,91 @@ public class ContentUtil {
 		return CollectionUtils.isEmpty(reqFields) ? true : false;
 	}
 
-	public void process(String channelId, String identifier, String repository, Map<String, Object> metadata, Map<String, Object> textbookInfo) throws Exception {
-		LOGGER.info("ContentUtil :: process :: started processing for: " + identifier + " | Channel : " + channelId + " | Metadata : " + metadata+ " | textbookInfo :"+textbookInfo);
+	public void process(String channelId, String identifier, Map<String, Object> edata) throws Exception {
+		String repository = (String) edata.getOrDefault(AutoCreatorParams.repository.name(), "");
+		Map<String, Object> metadata = (Map<String, Object>) edata.getOrDefault(AutoCreatorParams.metadata.name(), new HashMap<String, Object>());
+		List<Map<String, Object>> collection = (List<Map<String, Object>>) edata.getOrDefault(AutoCreatorParams.collection.name(), new ArrayList<HashMap<String, Object>>());
+		String newIdentifier = (String) edata.get(AutoCreatorParams.identifier.name());
+		LOGGER.info("ContentUtil :: process :: started processing for: " + identifier + " | Channel : " + channelId + " | Metadata : " + metadata+ " | collection :"+collection);
 		String contentStage = "";
 		String internalId = "";
 		Boolean isPublished = false;
-		Double pkgVersion = Double.parseDouble((String) metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), "0.0"));
+		Double pkgVersion = Double.parseDouble(String.valueOf(metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), "0.0")));
 		Map<String, Object> createMetadata = new HashMap<String, Object>();
+		Map<String, Object> updateMetadata = new HashMap<String, Object>();
 		Map<String, Object> contentMetadata = searchContent(identifier);
 		if (MapUtils.isEmpty(contentMetadata)) {
 			contentStage = "create";
 			createMetadata = metadata.entrySet().stream().filter(x -> !METADATA_FIELDS_TO_BE_REMOVED.contains(x.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+			updateMetadata = createMetadata.entrySet().stream().filter(x->!CONTENT_CREATE_PROPS.contains(x.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+			createMetadata.entrySet().removeIf(x-> !CONTENT_CREATE_PROPS.contains(x.getKey()));
 		} else {
 			contentStage = getContentStage(identifier, pkgVersion, contentMetadata);
 			internalId = (String) contentMetadata.get("contentId");
 		}
 
-		switch (contentStage) {
-			case "create": {
-				internalId = create(channelId, identifier, repository, createMetadata);
+		//TODO: Add the control to stop at particular stage
+		//TODO: Add Code for Review Stage
+		try {
+			switch (contentStage) {
+				case "create": {
+					Map<String, Object> result = create(channelId, identifier, newIdentifier, repository, createMetadata);
+					internalId = (String) result.get(AutoCreatorParams.identifier.name());
+					updateMetadata.put(AutoCreatorParams.versionKey.name(), (String) result.get(AutoCreatorParams.versionKey.name()));
+					update(channelId, internalId, updateMetadata);
+				}
+				case "upload": {
+					upload(channelId, internalId, metadata);
+				}
+				case "review": {
+					//TODO: Complete the implementation
+				}
+				case "publish": {
+					isPublished = publish(channelId, internalId, (String) metadata.get(AutoCreatorParams.lastPublishedBy.name()));
+					break;
+				}
+				default: {
+					LOGGER.info("ContentUtil :: process :: Event Skipped for operations (create, upload, publish) for: " + identifier + " | Content Stage : " + contentStage);
+				}
 			}
-			case "upload": {
-				upload(channelId, internalId, metadata);
-			}
-			case "publish": {
-				isPublished = publish(channelId, internalId, (String) metadata.get(AutoCreatorParams.lastPublishedBy.name()));
-				break;
-			}
-			default: {
-				LOGGER.info("ContentUtil :: process :: Event Skipped for operations (create, upload, publish) for: " + identifier + " | Content Stage : " + contentStage);
-			}
+		}catch (Exception e) {
+			updateStatus(channelId, internalId, e.getMessage());
+			throw e;
 		}
-		if(MapUtils.isNotEmpty(textbookInfo) && (isPublished || StringUtils.equalsIgnoreCase("na", contentStage))) {
-			linkTextbook(channelId, identifier, textbookInfo, internalId);
+		if(CollectionUtils.isNotEmpty(collection) && (isPublished || StringUtils.equalsIgnoreCase("na", contentStage))) {
+			linkTextbook(channelId, identifier, collection, internalId);
 		} else {
-			LOGGER.info("ContentUtil :: process :: Textbook Linking Skipped because received empty textbookInfo for : " + identifier);
+			LOGGER.info("ContentUtil :: process :: Textbook Linking Skipped because received empty collection for : " + identifier);
 		}
 		LOGGER.info("ContentUtil :: process :: finished processing for: " + identifier);
+	}
+
+	private void updateStatus(String channelId, String identifier, String message) throws Exception {
+		String url = KP_LEARNING_BASE_URL + "/system/v3/content/update/" + identifier;
+		Map<String, Object> request = new HashMap<String, Object>() {{
+			put("request", new HashMap<String, Object>() {{
+				put("content", new HashMap<String, Object>() {{
+					put(AutoCreatorParams.importError.name(), message);
+					put(AutoCreatorParams.status.name(), "Failed");
+				}});
+			}});
+		}};
+		Map<String, String> header = new HashMap<String, String>() {{
+			put("X-Channel-Id", channelId);
+			put("Content-Type", DEFAULT_CONTENT_TYPE);
+		}};
+		Response resp = UnirestUtil.patch(url, request, header);
+		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
+			String node_id = (String) resp.getResult().get("node_id");
+			if (StringUtils.isNotBlank(node_id)) {
+				LOGGER.info("ContentUtil :: updateStatus :: Content failed status successfully updated for : " + identifier);
+			}
+			else
+				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Content update status Call Failed For : " + identifier);
+		} else {
+			LOGGER.info("ContentUtil :: updateStatus :: Invalid Response received while updating failed status for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while updating content status for : " + identifier);
+		}
 	}
 
 	private Map<String, Object> searchContent(String identifier) throws Exception {
@@ -166,16 +217,20 @@ public class ContentUtil {
 	}
 
 
-	private String create(String channelId, String identifier, String repository, Map<String, Object> metadata) throws Exception {
+	private Map<String, Object> create(String channelId, String identifier, String newIdentifier, String repository, Map<String, Object> metadata) throws Exception {
 		String contentId = "";
 		String url = KP_CS_BASE_URL + "/content/v3/create";
 		Map<String, Object> metaFields = new HashMap<String, Object>();
 		metaFields.putAll(metadata);
-		metaFields.put(AutoCreatorParams.origin.name(), identifier);
-		metaFields.put(AutoCreatorParams.originData.name(), new HashMap<String, Object>(){{
-			put(AutoCreatorParams.identifier.name(), identifier);
-			put(AutoCreatorParams.repository.name(), repository);
-		}});
+		if(StringUtils.isNotBlank(newIdentifier))
+			metaFields.put(AutoCreatorParams.identifier.name(), newIdentifier);
+		else {
+			metaFields.put(AutoCreatorParams.origin.name(), identifier);
+			metaFields.put(AutoCreatorParams.originData.name(), new HashMap<String, Object>(){{
+				put(AutoCreatorParams.identifier.name(), identifier);
+				put(AutoCreatorParams.repository.name(), repository);
+			}});
+		}
 		Map<String, Object> request = new HashMap<String, Object>() {{
 			put("request", new HashMap<String, Object>() {{
 				put("content", metaFields);
@@ -194,7 +249,29 @@ public class ContentUtil {
 			LOGGER.info("ContentUtil :: create :: Invalid Response received while creating content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while creating content for : " + identifier);
 		}
-		return contentId;
+		return resp.getResult();
+	}
+
+	private void update(String channelId, String internalId, Map<String, Object> updateMetadata) throws Exception {
+		String url = KP_CS_BASE_URL + "/content/v3/update/" + internalId;
+		Map<String, Object> request = new HashMap<String, Object>() {{
+			put("request", new HashMap<String, Object>() {{
+				put("content", updateMetadata);
+			}});
+		}};
+		LOGGER.info("ContentUtil :: update :: update request : "+request);
+		Map<String, String> header = new HashMap<String, String>() {{
+			put("X-Channel-Id", channelId);
+			put("Content-Type", DEFAULT_CONTENT_TYPE);
+		}};
+		Response resp = UnirestUtil.patch(url, request, header);
+		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
+			String contentId = (String) resp.getResult().get("identifier");
+			LOGGER.info("ContentUtil :: update :: Content Update Successfully having identifier : " + contentId);
+		} else {
+			LOGGER.info("ContentUtil :: update :: Invalid Response received while updating content for : " + internalId + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while updating content for : " + internalId + "| Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+		}
 	}
 
 	/*private void upload(String channelId, String identifier, File file) throws Exception {
@@ -226,11 +303,16 @@ public class ContentUtil {
 	private void upload(String channelId, String identifier, Map<String, Object> metadata) throws Exception {
 		Response resp = null;
 		Long downloadStartTime = System.currentTimeMillis();
-		File file = getFile(identifier, (String) metadata.get(AutoCreatorParams.artifactUrl.name()));
+		String sourceUrl = (String) metadata.get(AutoCreatorParams.artifactUrl.name());
+		if (CollectionUtils.isNotEmpty(ALLOWED_ARTIFACT_SOURCE) && CollectionUtils.isEmpty(ALLOWED_ARTIFACT_SOURCE.stream().filter(x -> sourceUrl.contains(x)).collect(Collectors.toList()))) {
+			LOGGER.info("Artifact Source is not from allowed one for : " + identifier + " | artifactUrl: " + sourceUrl + " | Allowed Sources : " + ALLOWED_ARTIFACT_SOURCE);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Artifact Source is not from allowed one for : " + identifier + " | artifactUrl: " + sourceUrl + " | Allowed Sources : " + ALLOWED_ARTIFACT_SOURCE);
+		}
+		File file = getFile(identifier, sourceUrl);
 		Long downloadEndTime = System.currentTimeMillis();
 		LOGGER.info("ContentUtil :: upload :: Total time taken for download: " + (downloadEndTime - downloadStartTime));
 		String mimeType = (String) metadata.getOrDefault("mimeType", "");
-		if (null != file && !file.exists())
+		if (null != file && file.exists())
 			LOGGER.info("ContentUtil :: upload :: File Path for " + identifier + "is : " + file.getAbsolutePath() + " | File Size : " + file.length());
 		Long size = FileUtils.sizeOf(file);
 		LOGGER.info("ContentUtil :: upload :: file size (MB): " + (size / 1048576));
@@ -240,7 +322,6 @@ public class ContentUtil {
 		Map<String, String> header = new HashMap<String, String>() {{
 			put("X-Channel-Id", channelId);
 		}};
-		//TODO: Add Validate for Url Host. Allow fileUrls only from specific host
 		if (size > CONTENT_UPLOAD_ARTIFACT_MAX_SIZE) {
 			if (BULK_UPLOAD_MIMETYPES.contains(mimeType)) {
 				Long uploadStartTime = System.currentTimeMillis();
@@ -265,7 +346,7 @@ public class ContentUtil {
 				LOGGER.info("ContentUtil :: upload :: Content Uploaded Successfully for : " + identifier + " | artifactUrl : " + artifactUrl);
 		} else {
 			LOGGER.info("ContentUtil :: upload :: Invalid Response received while uploading for: " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while uploading : " + identifier);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while uploading : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
 	}
 
@@ -293,7 +374,7 @@ public class ContentUtil {
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Content Publish Call Failed For : " + identifier);
 		} else {
 			LOGGER.info("ContentUtil :: publish :: Invalid Response received while publishing content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while publishing content for : " + identifier);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while publishing content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
 
 	}
@@ -339,31 +420,34 @@ public class ContentUtil {
 		return result;
 	}
 
-	private void linkTextbook(String channel, String eventObjectId, Map<String, Object> textbookInfo, String resourceId) throws Exception {
-		String textbookId = (String) textbookInfo.getOrDefault(AutoCreatorParams.identifier.name(), "");
-		List<String> unitIdentifiers = (List<String>) textbookInfo.getOrDefault(AutoCreatorParams.unitIdentifiers.name(), new ArrayList<String>());
-		if (StringUtils.isNotBlank(textbookId) && CollectionUtils.isNotEmpty(unitIdentifiers)) {
-			Map<String, Object> rootHierarchy = getHierarchy(textbookId);
-			if (validateHierarchy(textbookId, rootHierarchy, unitIdentifiers)) {
-				Map<String, Object> hierarchyReq = new HashMap<String, Object>() {{
-					put(AutoCreatorParams.request.name(), new HashMap<String, Object>() {{
-						put(AutoCreatorParams.rootId.name(), textbookId);
-						put(AutoCreatorParams.unitId.name(), unitIdentifiers.get(0));
-						put(AutoCreatorParams.children.name(), Arrays.asList(resourceId));
-					}});
-				}};
-				addToHierarchy(channel, textbookId, hierarchyReq);
+	private void linkTextbook(String channel, String eventObjectId, List<Map<String, Object>> collection, String resourceId) throws Exception {
+		for (Map<String, Object> textbookInfo : collection) {
+			String textbookId = (String) textbookInfo.getOrDefault(AutoCreatorParams.identifier.name(), "");
+			String unitId = (String) textbookInfo.getOrDefault(AutoCreatorParams.unitId.name(), "");
+			if (StringUtils.isNotBlank(textbookId) && StringUtils.isNotEmpty(unitId)) {
+				Map<String, Object> rootHierarchy = null;
+				rootHierarchy = getHierarchy(textbookId);
+				if (validateHierarchy(textbookId, rootHierarchy, unitId)) {
+					Map<String, Object> hierarchyReq = new HashMap<String, Object>() {{
+						put(AutoCreatorParams.request.name(), new HashMap<String, Object>() {{
+							put(AutoCreatorParams.rootId.name(), textbookId);
+							put(AutoCreatorParams.unitId.name(), unitId);
+							put(AutoCreatorParams.children.name(), Arrays.asList(resourceId));
+						}});
+					}};
+					addToHierarchy(channel, textbookId, hierarchyReq);
+				} else {
+					LOGGER.info("ContentUtil :: linkTextbook :: Hierarchy Validation Failed For : " + textbookId);
+				}
 			} else {
-				LOGGER.info("ContentUtil :: linkTextbook :: Hierarchy Validation Failed For : " + textbookId);
+				LOGGER.info("ContentUtil :: linkTextbook :: Textbook Linking Skipped because required data is not available for : " + eventObjectId);
 			}
-		} else {
-			LOGGER.info("ContentUtil :: linkTextbook :: Textbook Linking Skipped because required data is not available for : " + eventObjectId);
 		}
 	}
 
-	private boolean validateHierarchy(String textbookId, Map<String, Object> rootHierarchy, List<String> units) {
+	private boolean validateHierarchy(String textbookId, Map<String, Object> rootHierarchy, String unitId) {
 		List<String> childNodes = (List<String>) rootHierarchy.getOrDefault(AutoCreatorParams.childNodes.name(), new ArrayList<String>());
-		if (CollectionUtils.isNotEmpty(childNodes) && childNodes.containsAll(units)) {
+		if (CollectionUtils.isNotEmpty(childNodes) && childNodes.contains(unitId)) {
 			return true;
 		} else {
 			LOGGER.info("ContentUtil :: validateHierarchy :: Unit Identifier is not found under : " + textbookId);
@@ -409,7 +493,7 @@ public class ContentUtil {
 	}
 
 	private String getBasePath(String objectId) {
-		return StringUtils.isNotBlank(objectId) ? TEMP_FILE_LOCATION + File.separator + objectId + "_temp_" + System.currentTimeMillis(): "";
+		return StringUtils.isNotBlank(objectId) ? TEMP_FILE_LOCATION + File.separator + objectId + File.separator + "_temp_" + System.currentTimeMillis(): TEMP_FILE_LOCATION + File.separator + "_temp_" + System.currentTimeMillis();
 	}
 
 	private String getFileNameFromURL(String fileUrl) {
@@ -421,11 +505,12 @@ public class ContentUtil {
 
 	private File getFile(String identifier, String fileUrl) {
 		try {
-			String fileName = getBasePath(identifier) + File.separator + getFileNameFromURL(fileUrl);
-			File file = new File(fileName);
-			FileUtils.copyURLToFile(new URL(fileUrl), file);
+			//String fileName = getBasePath(identifier) + File.separator + getFileNameFromURL(fileUrl);
+			//File file = new File(fileName);
+			//FileUtils.copyURLToFile(new URL(fileUrl), file);
+			File file = HttpDownloadUtility.downloadFile(fileUrl, getBasePath(identifier));
 			return file;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			LOGGER.info("Invalid fileUrl received for : " + identifier + " | fileUrl : " + fileUrl + "Exception is : " + e.getMessage());
 			throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "Invalid fileUrl received for : " + identifier + " | fileUrl : " + fileUrl);
 		}

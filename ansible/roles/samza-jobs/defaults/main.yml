@@ -43,3 +43,4 @@ course_progress_batch_size: 100
 itemset_generate_pdf: true
 auto_creator_container_count: 1
 content_streaming_enabled: true
+auto_creator_artifact_allowed_sources: ""
