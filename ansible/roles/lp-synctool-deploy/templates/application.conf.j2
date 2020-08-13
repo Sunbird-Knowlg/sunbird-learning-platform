@@ -56,6 +56,9 @@ content.keyspace.name="{{ content_keyspace_name }}"
 cassandra.lp.connection="{{ lp_cassandra_connection }}"
 assessment.keyspace.name="{{ content_keyspace_name }}"
 assessment.keyspace.table="question_data"
+# Dialcodes service specific configuration
+dialcode.keyspace.name="{{ sunbirddev_dialcode_store }}"
+dialcode.table="dial_code"
 
 #Filter metadata based on definition while indexing into ES
 #restrict.metadata.objectTypes="Content,ContentImage"

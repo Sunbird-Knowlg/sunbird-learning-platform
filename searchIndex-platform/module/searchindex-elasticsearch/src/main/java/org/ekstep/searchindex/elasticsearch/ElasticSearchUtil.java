@@ -283,7 +283,7 @@ public class ElasticSearchUtil {
 				}
 			}
 		} else {
-			throw new Exception("Index does not exist");
+			throw new Exception("Index does not exist: "+ indexName);
 		}
 	}
 
