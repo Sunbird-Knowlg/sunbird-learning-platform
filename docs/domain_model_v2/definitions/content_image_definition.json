@@ -1122,7 +1122,8 @@
 						"ExplanationReadingMaterial",
 						"LearningActivity",
 						"PreviousBoardExamPapers",
-						"LessonPlanResource"
+						"LessonPlanResource",
+						"TVLesson"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
