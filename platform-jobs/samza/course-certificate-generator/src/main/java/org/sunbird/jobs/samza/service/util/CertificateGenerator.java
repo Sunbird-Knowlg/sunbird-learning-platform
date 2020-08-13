@@ -455,7 +455,7 @@ public class CertificateGenerator {
     private void populateCreatedCertificate(List<Map<String, String>> updatedCerts, Map<String, Object> certificate, String certificateName, Date issuedOn, boolean reIssue) {
         updatedCerts.add(new HashMap<String, String>(){{
             put(CourseCertificateParams.name.name(), certificateName);
-            put(CourseCertificateParams.id.name(), (String) certificate.get(CourseCertificateParams.id.name()));
+            put(CourseCertificateParams.identifier.name(), (String) certificate.get(CourseCertificateParams.id.name()));
             put(CourseCertificateParams.url.name(), (String) certificate.get(CourseCertificateParams.pdfUrl.name()));
             put(CourseCertificateParams.token.name(), (String) certificate.get(CourseCertificateParams.accessCode.name()));
             put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(new Date()));
