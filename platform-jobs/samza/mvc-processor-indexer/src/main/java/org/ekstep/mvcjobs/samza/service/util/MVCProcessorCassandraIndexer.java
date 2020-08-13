@@ -91,22 +91,19 @@ public class MVCProcessorCassandraIndexer  {
     //Getting Fields to be inserted into cassandra
     private void extractFieldsToBeInserted(Map<String,Object> contentobj) {
         if(contentobj.containsKey("level1Concept")){
-            LOGGER.info("Extracting Fields ::: level 1 concept");
-            level1concept = (List<String>)contentobj.get("level1Name");
+            level1concept = (List<String>)contentobj.get("level1Concept");
             mapStage1.put("level1_concept", level1concept);
         }
         if(contentobj.containsKey("level2Concept")){
-            LOGGER.info("Extracting Fields ::: level 2 concept");
-            level2concept = (List<String>)contentobj.get("level1Name");
+            level2concept = (List<String>)contentobj.get("level2Concept");
             mapStage1.put("level2_concept", level2concept);
         }
         if(contentobj.containsKey("level3Concept")){
-            LOGGER.info("Extracting Fields ::: level 3 concept");
-            level3concept = (List<String>)contentobj.get("level1Name");
+            level3concept = (List<String>)contentobj.get("level3Concept");
             mapStage1.put("level3_concept",level3concept );
         }
         if(contentobj.containsKey("textbook_name")){
-            textbook_name = (List<String>)contentobj.get("level1Name");
+            textbook_name = (List<String>)contentobj.get("textbook_name");
             mapStage1.put("textbook_name", textbook_name);
         }
         if(contentobj.containsKey("level1Name")){
@@ -114,11 +111,11 @@ public class MVCProcessorCassandraIndexer  {
             mapStage1.put("level1_name", level1_name);
         }
         if(contentobj.containsKey("level2Name")){
-            level2_name = (List<String>)contentobj.get("level1Name");
+            level2_name = (List<String>)contentobj.get("level2Name");
             mapStage1.put("level2_name", level2_name);
         }
         if(contentobj.containsKey("level3Name")){
-            level3_name = (List<String>)contentobj.get("level1Name");
+            level3_name = (List<String>)contentobj.get("level3Name");
             mapStage1.put("level3_name", level3_name);
         }
         if(contentobj.containsKey("source")){
