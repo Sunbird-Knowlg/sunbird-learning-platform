@@ -291,7 +291,7 @@ public class CertificateGenerator {
                    put(CourseCertificateParams.name.name(), certTemplate.get(CourseCertificateParams.name.name()));
                    put(CourseCertificateParams.issuer.name(), getIssuerDetails(certTemplate));
                    put(CourseCertificateParams.signatoryList.name(), getSignatoryList(certTemplate));
-                   put(CourseCertificateParams.svgTemplate.name(), certTemplate.get("svgTemplate"));
+                   put(CourseCertificateParams.svgTemplate.name(), certTemplate.get("template"));
                    put(CourseCertificateParams.tag.name(),  rootOrgId + "_" + batchId);
                    put(CourseCertificateParams.issuedDate.name(), dateFormatter.format(issuedOn));
                    if(MapUtils.isNotEmpty(keys))
