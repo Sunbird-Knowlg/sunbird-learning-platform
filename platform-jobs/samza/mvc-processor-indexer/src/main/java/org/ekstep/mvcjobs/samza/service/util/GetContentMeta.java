@@ -15,9 +15,9 @@ public class GetContentMeta {
         ObjectMapper mapper = new ObjectMapper();
         String contentreadapiurl = "";
         try {
-            contentreadapiurl = Platform.config.getString("kp.content_service.base_url") + "/content/v3/read/";
-            LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData :::  Making API call to read content " + contentreadapiurl);
-            String content = HTTPUtil.makeGetRequest(contentreadapiurl+identifer);
+            contentreadapiurl = Platform.config.hasPath("kp.content_service.base_url") ? Platform.config.getString("kp.content_service.base_url") : "" ;
+            LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData :::  Making API call to read content " + contentreadapiurl + "/content/v3/read/");
+            String content = HTTPUtil.makeGetRequest(contentreadapiurl + "/content/v3/read/" +identifer);
             LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData ::: retrieved content meta " + content);
             Map<String,Object> obj = mapper.readValue(content,Map.class);
             Map<String,Object> contentobj = (HashMap<String,Object>) (((HashMap<String,Object>)obj.get("result")).get("content"));
