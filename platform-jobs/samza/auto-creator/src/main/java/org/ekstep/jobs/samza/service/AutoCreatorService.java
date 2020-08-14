@@ -16,10 +16,7 @@ import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.SamzaCommonParams;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AutoCreatorService implements ISamzaService {
 	private static JobLogger LOGGER = new JobLogger(AutoCreatorService.class);
@@ -59,7 +56,7 @@ public class AutoCreatorService implements ISamzaService {
 			String objectType = (String) edata.getOrDefault(AutoCreatorParams.objectType.name(), "");
 			String repository = (String) edata.getOrDefault(AutoCreatorParams.repository.name(), "");
 			Map<String, Object> metadata = (Map<String, Object>) edata.getOrDefault(AutoCreatorParams.metadata.name(), new HashMap<String, Object>());
-			Map<String, Object> textbookInfo = (Map<String, Object>) edata.getOrDefault(AutoCreatorParams.textbookInfo.name(), new HashMap<String, Object>());
+			List<Map<String, Object>> collection = (List<Map<String, Object>>) edata.getOrDefault(AutoCreatorParams.collection.name(), new ArrayList<HashMap<String, Object>>());
 
 			if (!validateEvent(currentIteration, channel, identifier, objectType, metadata)) {
 				LOGGER.info("Event Ignored. Event Validation Failed for auto-creator operation : " + edata.get("action") + " | Event : " + message);
@@ -72,7 +69,7 @@ public class AutoCreatorService implements ISamzaService {
 						LOGGER.info("Event Ignored. Event Metadata Validation Failed for :" + identifier + " | Metadata : " + metadata + " Required fields are : " + contentUtil.REQUIRED_METADATA_FIELDS);
 						return;
 					}
-					contentUtil.process(channel, identifier, repository, metadata, textbookInfo);
+					contentUtil.process(channel, identifier, edata);
 					break;
 				}
 				default: {
