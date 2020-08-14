@@ -13,6 +13,7 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 
 /**
@@ -53,15 +54,22 @@ public class MVCProcessorESIndexer extends AbstractESIndexer {
 
 		String action = jsonIndexDocument.get("action").toString();
 		jsonIndexDocument = removeExtraParams(jsonIndexDocument);
+		String jsonindexasString = mapper.writeValueAsString(jsonIndexDocument);
 		if(action.equalsIgnoreCase("update-es-index")) {
 
 			// Insert a new doc
-			ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.MVC_SEARCH_INDEX,
-					uniqueId, mapper.writeValueAsString(jsonIndexDocument));
+			CompletableFuture.runAsync( () -> {
+				ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.MVC_SEARCH_INDEX,
+						uniqueId, jsonindexasString);
+			});
+
 		} else {
 			// Update a doc
-			ElasticSearchUtil.updateDocument(CompositeSearchConstants.MVC_SEARCH_INDEX,
-					uniqueId, mapper.writeValueAsString(jsonIndexDocument));
+			CompletableFuture.runAsync( () -> {
+				ElasticSearchUtil.updateDocument(CompositeSearchConstants.MVC_SEARCH_INDEX,
+						uniqueId, jsonindexasString);
+			});
+
 		}
 
 	}

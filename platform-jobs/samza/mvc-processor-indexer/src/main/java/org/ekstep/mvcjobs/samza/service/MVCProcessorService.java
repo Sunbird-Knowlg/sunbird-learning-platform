@@ -9,6 +9,7 @@ import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.mvcjobs.samza.service.util.GetContentMeta;
 import org.ekstep.mvcjobs.samza.service.util.MVCProcessorCassandraIndexer;
 import org.ekstep.mvcjobs.samza.service.util.MVCProcessorESIndexer;
 import org.ekstep.jobs.samza.util.FailedEventsUtil;
@@ -83,8 +84,12 @@ public class MVCProcessorService implements ISamzaService {
 			switch (nodeType) {
 				case CompositeSearchConstants.NODE_TYPE_SET:
 				case CompositeSearchConstants.NODE_TYPE_DATA: {
+					String action = eventData.get("action").toString();
+					if(action.equalsIgnoreCase("update-es-index")) {
+						eventData = GetContentMeta.getContentMetaData(eventData,uniqueId);
+					}
 					LOGGER.info("MVCProcessorService :: processMessage  ::: CAlling cassandra insertion ");
-					eventData = cassandraManager.insertintoCassandra(eventData,uniqueId);
+					cassandraManager.insertintoCassandra(eventData,uniqueId);
 					LOGGER.info("MVCProcessorService :: processMessage  ::: CAlling elasticsearch insertion ");
 					mvcIndexer.upsertDocument(uniqueId,eventData);
 					break;

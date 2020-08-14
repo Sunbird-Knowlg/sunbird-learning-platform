@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class MVCProcessorCassandraIndexer  {
     String elasticSearchParamArr[] = {"organisation","channel","framework","board","medium","subject","gradeLevel","name","description","language","appId","appIcon","appIconLabel","contentEncoding","identifier","node_id","nodeType","mimeType","resourceType","contentType","allowedContentTypes","objectType","posterImage","artifactUrl","launchUrl","previewUrl","streamingUrl","downloadUrl","status","pkgVersion","source","lastUpdatedOn","ml_contentText","ml_contentTextVector","ml_Keywords","level1Name","level1Concept","level2Name","level2Concept","level3Name","level3Concept","textbook_name","sourceURL","label","all_fields"};;
@@ -24,15 +25,20 @@ public class MVCProcessorCassandraIndexer  {
 
     }
     // Insert to cassandra
-    public  Map<String,Object> insertintoCassandra(Map<String,Object> obj, String identifier) throws Exception {
+    public  void insertintoCassandra(Map<String,Object> obj, String identifier) throws Exception {
         String action = obj.get("action").toString();
 
         if(StringUtils.isNotBlank(action)) {
             if(action.equalsIgnoreCase("update-es-index")) {
+                LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData ::: extracting required fields" + obj);
+                extractFieldsToBeInserted(obj);
+                LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData ::: making ml workbench api request");
+                makepostreqForMlAPI(obj);
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: update-es-index-1 event");
-                obj = getContentMetaData(obj ,identifier);
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: Inserting into cassandra stage-1");
-                CassandraConnector.updateContentProperties(identifier,mapStage1);
+                CompletableFuture.runAsync( () -> {
+                    CassandraConnector.updateContentProperties(identifier,mapStage1);
+                });
             } else if(action.equalsIgnoreCase("update-ml-keywords")) {
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: update-ml-keywords");
                  String ml_contentText;
@@ -44,8 +50,9 @@ public class MVCProcessorCassandraIndexer  {
                 Map<String,Object> mapForStage2 = new HashMap<>();
                 mapForStage2.put("ml_keywords",ml_Keywords);
                 mapForStage2.put("ml_content_text",ml_contentText);
-
-                CassandraConnector.updateContentProperties(identifier,mapForStage2);
+                CompletableFuture.runAsync( () -> {
+                    CassandraConnector.updateContentProperties(identifier,mapForStage2);
+                });
             }
             else  if(action.equalsIgnoreCase("update-ml-contenttextvector")) {
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertintoCassandra ::: update-ml-contenttextvector event");
@@ -59,35 +66,14 @@ public class MVCProcessorCassandraIndexer  {
                 }
                 Map<String,Object> mapForStage3 = new HashMap<>();
                 mapForStage3.put("ml_content_text_vector",ml_contentTextVector);
-                CassandraConnector.updateContentProperties(identifier,mapForStage3);
+                CompletableFuture.runAsync( () -> {
+                    CassandraConnector.updateContentProperties(identifier,mapForStage3);
+                });
 
             }
         }
-        LOGGER.info("INSERTION SUCCESSFULL IN CASSANDRA");
-        return obj;
     }
 
-    Map<String,Object> getContentMetaData(Map<String,Object> newmap , String identifer) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            contentreadapiurl = Platform.config.getString("kp.content_service.base_url") + "/content/v3/read/";
-            LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData :::  Making API call to read content " + contentreadapiurl);
-            String content = HTTPUtil.makeGetRequest(contentreadapiurl+identifer);
-            LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData ::: retrieved content meta " + content);
-            Map<String,Object> obj = mapper.readValue(content,Map.class);
-            Map<String,Object> contentobj = (HashMap<String,Object>) (((HashMap<String,Object>)obj.get("result")).get("content"));
-            LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData ::: extracting required fields" + contentobj);
-            extractFieldsToBeInserted(contentobj);
-            LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData ::: making ml workbench api request");
-            makepostreqForMlAPI(contentobj);
-            newmap = filterData(newmap,contentobj);
-
-        }catch (Exception e) {
-            LOGGER.info("MVCProcessorCassandraIndexer :: getContentDefinition ::: Error in getContentDefinitionFunction " + e);
-            throw new Exception("Get content metdata failed");
-        }
-        return newmap;
-    }
     //Getting Fields to be inserted into cassandra
     private void extractFieldsToBeInserted(Map<String,Object> contentobj) {
         if(contentobj.containsKey("level1Concept")){
@@ -147,22 +133,6 @@ public class MVCProcessorCassandraIndexer  {
         }
     }
 
-    // Filter the params of content  to add in ES
-    public  Map<String,Object> filterData(Map<String,Object> obj ,Map<String,Object> content) {
-
-        String key = null;
-        Object value = null;
-        for(int i = 0 ; i < elasticSearchParamArr.length ; i++ ) {
-            key = (elasticSearchParamArr[i]);
-            value = content.containsKey(key)  ? content.get(key) : null;
-            if(value != null) {
-                obj.put(key,value);
-                value = null;
-            }
-        }
-        return obj;
-
-    }
 
     // Post reqeuest for vector api
     public  void makepostreqForVectorApi(String contentText,String identifier) throws Exception {
