@@ -456,7 +456,6 @@ public class CertificateGenerator {
         updatedCerts.add(new HashMap<String, String>(){{
             put(CourseCertificateParams.name.name(), certificateName);
             put(CourseCertificateParams.identifier.name(), (String) certificate.get(CourseCertificateParams.id.name()));
-            put(CourseCertificateParams.url.name(), (String) certificate.get(CourseCertificateParams.pdfUrl.name()));
             put(CourseCertificateParams.token.name(), (String) certificate.get(CourseCertificateParams.accessCode.name()));
             put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(new Date()));
             if(reIssue){
