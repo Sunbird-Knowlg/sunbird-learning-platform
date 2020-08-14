@@ -22,7 +22,6 @@ import org.ekstep.learning.util.CloudStore;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -66,8 +65,9 @@ public class ContentUtil {
 		String repository = (String) edata.getOrDefault(AutoCreatorParams.repository.name(), "");
 		Map<String, Object> metadata = (Map<String, Object>) edata.getOrDefault(AutoCreatorParams.metadata.name(), new HashMap<String, Object>());
 		List<Map<String, Object>> collection = (List<Map<String, Object>>) edata.getOrDefault(AutoCreatorParams.collection.name(), new ArrayList<HashMap<String, Object>>());
+		Map<String, Object> textbookInfo = (Map<String, Object>) edata.getOrDefault(AutoCreatorParams.textbookInfo.name(), new HashMap<String, Object>());
 		String newIdentifier = (String) edata.get(AutoCreatorParams.identifier.name());
-		LOGGER.info("ContentUtil :: process :: started processing for: " + identifier + " | Channel : " + channelId + " | Metadata : " + metadata+ " | collection :"+collection);
+		LOGGER.info("ContentUtil :: process :: started processing for: " + identifier + " | Channel : " + channelId + " | Metadata : " + metadata+ " | collection :"+collection +" | textbookInfo : "+textbookInfo);
 		String contentStage = "";
 		String internalId = "";
 		Boolean isPublished = false;
@@ -114,9 +114,11 @@ public class ContentUtil {
 			throw e;
 		}
 		if(CollectionUtils.isNotEmpty(collection) && (isPublished || StringUtils.equalsIgnoreCase("na", contentStage))) {
-			linkTextbook(channelId, identifier, collection, internalId);
-		} else {
-			LOGGER.info("ContentUtil :: process :: Textbook Linking Skipped because received empty collection for : " + identifier);
+			linkCollection(channelId, identifier, collection, internalId);
+		} else if(MapUtils.isNotEmpty(textbookInfo) && (isPublished || StringUtils.equalsIgnoreCase("na", contentStage))) {
+			linkTextbook(channelId, identifier, textbookInfo, internalId);
+		}else {
+			LOGGER.info("ContentUtil :: process :: Textbook Linking Skipped because received empty collection/textbookInfo for : " + identifier);
 		}
 		LOGGER.info("ContentUtil :: process :: finished processing for: " + identifier);
 	}
@@ -420,7 +422,7 @@ public class ContentUtil {
 		return result;
 	}
 
-	private void linkTextbook(String channel, String eventObjectId, List<Map<String, Object>> collection, String resourceId) throws Exception {
+	private void linkCollection(String channel, String eventObjectId, List<Map<String, Object>> collection, String resourceId) throws Exception {
 		for (Map<String, Object> textbookInfo : collection) {
 			String textbookId = (String) textbookInfo.getOrDefault(AutoCreatorParams.identifier.name(), "");
 			String unitId = (String) textbookInfo.getOrDefault(AutoCreatorParams.unitId.name(), "");
@@ -437,11 +439,35 @@ public class ContentUtil {
 					}};
 					addToHierarchy(channel, textbookId, hierarchyReq);
 				} else {
-					LOGGER.info("ContentUtil :: linkTextbook :: Hierarchy Validation Failed For : " + textbookId);
+					LOGGER.info("ContentUtil :: linkCollection :: Hierarchy Validation Failed For : " + textbookId);
 				}
 			} else {
-				LOGGER.info("ContentUtil :: linkTextbook :: Textbook Linking Skipped because required data is not available for : " + eventObjectId);
+				LOGGER.info("ContentUtil :: linkCollection :: Collection Linking Skipped because required data is not available for : " + eventObjectId);
 			}
+		}
+	}
+
+	//TODO: Remove this method in release-3.3.0, Added only for backward compatibility
+	private void linkTextbook(String channel, String eventObjectId, Map<String, Object> textbookInfo, String resourceId) throws Exception {
+		String textbookId = (String) textbookInfo.getOrDefault(AutoCreatorParams.identifier.name(), "");
+		List<String> unitIdentifiers = (List<String>) textbookInfo.getOrDefault(AutoCreatorParams.unitIdentifiers.name(), new ArrayList<String>());
+		if (StringUtils.isNotBlank(textbookId) && CollectionUtils.isNotEmpty(unitIdentifiers)) {
+			Map<String, Object> rootHierarchy = getHierarchy(textbookId);
+			List<String> childNodes = (List<String>) rootHierarchy.getOrDefault(AutoCreatorParams.childNodes.name(), new ArrayList<String>());
+			if (CollectionUtils.isNotEmpty(childNodes) && childNodes.containsAll(unitIdentifiers)) {
+				Map<String, Object> hierarchyReq = new HashMap<String, Object>() {{
+					put(AutoCreatorParams.request.name(), new HashMap<String, Object>() {{
+						put(AutoCreatorParams.rootId.name(), textbookId);
+						put(AutoCreatorParams.unitId.name(), unitIdentifiers.get(0));
+						put(AutoCreatorParams.children.name(), Arrays.asList(resourceId));
+					}});
+				}};
+				addToHierarchy(channel, textbookId, hierarchyReq);
+			} else {
+				LOGGER.info("ContentUtil :: linkTextbook :: Hierarchy Validation Failed For : " + textbookId);
+			}
+		} else {
+			LOGGER.info("ContentUtil :: linkTextbook :: Textbook Linking Skipped because required data is not available for : " + eventObjectId);
 		}
 	}
 
