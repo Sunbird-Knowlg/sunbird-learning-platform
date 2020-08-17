@@ -33,6 +33,8 @@ import org.ekstep.telemetry.dto.TelemetryBJREvent;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.rits.cloning.Cloner;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -53,7 +55,7 @@ public class PublishPipelineService implements ISamzaService {
 
 	private SystemStream systemStream = null;
 	private SystemStream postPublishStream = null;
-	
+	private SystemStream postPublishMVCStream = null;
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -76,6 +78,9 @@ public class PublishPipelineService implements ISamzaService {
 		LOGGER.info("Stream initialized for Failed Events");
 		postPublishStream = new SystemStream("kafka", config.get("post.publish.event.topic"));
 		LOGGER.info("Stream initialized for Post Publish Events");
+		postPublishMVCStream = new SystemStream("kafka",config.get("post.publish.mvc.topic"));
+		LOGGER.info("Stream initialized for Post Publish MVC Content Events");
+
 	}
 
 	@Override
@@ -270,7 +275,18 @@ public class PublishPipelineService implements ISamzaService {
 		Map<String, Object> object = new HashMap<String, Object>();
 		Map<String, Object> edata = new HashMap<String, Object>();
 		String mimeType = (String) node.getMetadata().get("mimeType");
-		if (StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
+		String sourceURL = node.getMetadata().get("sourceURL") != null ? (String)node.getMetadata().get("sourceURL") : null;
+		if(StringUtils.isNotBlank(sourceURL)){
+			Map<String, Object> mvcProcessorEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
+			mvcProcessorEvent=  updatevaluesForMVCEvent(mvcProcessorEvent);
+			if (MapUtils.isEmpty(mvcProcessorEvent)) {
+				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + mvcProcessorEvent);
+				throw new ClientException("MVC_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+			}
+			collector.send(new OutgoingMessageEnvelope(postPublishMVCStream, mvcProcessorEvent));
+			LOGGER.info("All Events sent to post publish mvc event topic");
+		}
+		 if (StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
 			Map<String, Object> linkDialcodeEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
 
 			if (MapUtils.isEmpty(linkDialcodeEvent)) {
@@ -308,6 +324,22 @@ public class PublishPipelineService implements ISamzaService {
 		}
 	}
 
+	Map<String,Object> updatevaluesForMVCEvent(Map<String,Object> mvcProcessorEvent) {
+		mvcProcessorEvent.put("eventData",mvcProcessorEvent.get("edata"));
+		mvcProcessorEvent.put("eid","MVC_JOB_PROCESSOR");
+		mvcProcessorEvent.remove("edata");
+		Map<String,Object> eventData = (Map<String,Object>) mvcProcessorEvent.get("eventData");
+		eventData.put("identifier",eventData.get("id"));
+		eventData.remove("id");
+		eventData.remove("iteration");
+		eventData.remove("mimeType");
+		eventData.remove("contentType");
+        eventData.remove("pkgVersion");
+        eventData.remove("status");
+		eventData.put("action","update-es-index");
+		eventData.put("stage",1);
+		return mvcProcessorEvent;
+	}
 	private Map<String, Object> generateInstructionEventMetadata(Map<String, Object> actor, Map<String, Object> context,
 																 Map<String, Object> object, Map<String, Object> edata, Map<String, Object> metadata, String contentId, String action) {
 		TelemetryBJREvent te = new TelemetryBJREvent();
