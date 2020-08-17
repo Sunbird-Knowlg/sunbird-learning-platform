@@ -513,12 +513,14 @@ public class CertificateGenerator {
     private void pushAuditEvent(String userId, String courseId, String batchId, Map<String, Object> certificate, MessageCollector collector) {
         try {
             Map<String, Object> certificateAuditEvent = generateAuditEvent(userId, courseId, batchId, certificate);
-            LOGGER.info("CertificateGenerator:pushAuditEvent: certificateAuditEvent mid : " + certificateAuditEvent.getOrDefault("mid", ""));
+            LOGGER.info("CertificateGenerator:pushAuditEvent: audit event generated for certificate : "
+                    + ((Map<String, Object>) certificateAuditEvent.getOrDefault("object", "")).getOrDefault("id", "")
+                    + " with mid : " + certificateAuditEvent.getOrDefault("mid", ""));
             collector.send(new OutgoingMessageEnvelope(certificateAuditEventStream, certificateAuditEvent));
-            LOGGER.info("CertificateGenerator:pushAuditEvent: certificateAuditEvent : certificate audit event success");
+            LOGGER.info("CertificateGenerator:pushAuditEvent: certificate audit event success");
         } catch (Exception e) {
             e.printStackTrace();
-            LOGGER.error("CertificateGenerator:pushAuditEvent: push certificate audit event failed: ", e);
+            LOGGER.error("CertificateGenerator:pushAuditEvent: certificate audit event failed : ", e);
         }
     }
 
@@ -559,9 +561,7 @@ public class CertificateGenerator {
 
         edata.putAll(new HashMap<String, Object>() {{
             put(CourseCertificateParams.props.name(), new ArrayList<String>() {{
-                add((String) certificate.get("id"));
-                add(courseId);
-                add("active");
+                add("certificates");
             }});
             put(CourseCertificateParams.type.name(), "certificate-issued");
         }});
@@ -570,7 +570,6 @@ public class CertificateGenerator {
         certificateAuditEvent.put(CourseCertificateParams.eid.name(), "AUDIT");
         certificateAuditEvent.put(CourseCertificateParams.mid.name(), "LP.AUDIT."+System.currentTimeMillis()+"."+ UUID.randomUUID());
         certificateAuditEvent.put(CourseCertificateParams.ver.name(), "3.0");
-        LOGGER.info("CertificateGenerator:generateAuditEvent: certificateAuditEvent " + certificateAuditEvent);
         return certificateAuditEvent;
     }
 
