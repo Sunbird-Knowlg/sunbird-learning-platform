@@ -39,6 +39,7 @@ public class CertificateGeneratorService implements ISamzaService {
     private IssueCertificate issueCertificate = null;
     private Jedis redisConnect = null;
     private Session cassandraSession = null;
+    private SystemStream certificateAuditEventStream = null;
     /**
      * @param config
      * @throws Exception
@@ -52,7 +53,8 @@ public class CertificateGeneratorService implements ISamzaService {
         cassandraSession = new CassandraConnector(config).getSession();
         systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
         certificateFailedSystemStream = new SystemStream("kafka", config.get("output.certificate.failed.events.topic.name"));
-        certificateGenerator = new CertificateGenerator(redisConnect, cassandraSession);
+        certificateAuditEventStream = new SystemStream("kafka", config.get("telemetry_raw_topic"));
+        certificateGenerator = new CertificateGenerator(redisConnect, cassandraSession, certificateAuditEventStream);
         issueCertificate = new IssueCertificate(cassandraSession);
     }
 
@@ -84,7 +86,7 @@ public class CertificateGeneratorService implements ISamzaService {
                 switch (action) {
                     case "generate-course-certificate" :
                         LOGGER.info("Certificate generation process started ");
-                        certificateGenerator.generate(edata);
+                        certificateGenerator.generate(edata, collector);
                         LOGGER.info("Certificate is generated");
                         break;
                     case "issue-certificate":
