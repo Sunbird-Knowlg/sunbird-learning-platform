@@ -53,7 +53,7 @@ public class CertificateGeneratorService implements ISamzaService {
         cassandraSession = new CassandraConnector(config).getSession();
         systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
         certificateFailedSystemStream = new SystemStream("kafka", config.get("output.certificate.failed.events.topic.name"));
-        certificateAuditEventStream = new SystemStream("kafka", config.get("certificate.audit.event.topic.name"));
+        certificateAuditEventStream = new SystemStream("kafka", config.get("telemetry_raw_topic"));
         certificateGenerator = new CertificateGenerator(redisConnect, cassandraSession, certificateAuditEventStream);
         issueCertificate = new IssueCertificate(cassandraSession);
     }

@@ -34,7 +34,7 @@ public class CertificateGeneratorTest {
 
     private MessageCollector collectorMock;
     @Mock(name = "certificateAuditEventStream")
-    SystemStream certificateAuditEventStream = new SystemStream("kafka", Platform.config.getString("certificate.audit.event.topic.name"));
+    SystemStream certificateAuditEventStream = new SystemStream("kafka", Platform.config.getString("telemetry_raw_topic"));
 
     @Before
     public void setup(){
