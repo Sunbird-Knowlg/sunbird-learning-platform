@@ -1,0 +1,4 @@
+- hosts: dial
+  roles:
+    - dial-service-deploy
+  serial: 1

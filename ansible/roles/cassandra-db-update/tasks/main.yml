@@ -7,10 +7,17 @@
 - name: Copy DB script
   become: yes
   template:
-    src: "data.cql.j2"
-    dest: "/tmp/lp-data.cql"
+    src: "{{item}}.j2"
+    dest: "/tmp/lp-{{item}}"
     mode: 0755
+  with_items:
+    - "data.cql"
+    - "dialcode.cql"
+
   
 - name: run cql 
   become: yes
-  shell: 'cqlsh -f /tmp/lp-data.cql'
+  shell: 'cqlsh -f /tmp/lp-{{item}}'
+  with_items:
+    - "data.cql"
+    - "dialcode.cql"
