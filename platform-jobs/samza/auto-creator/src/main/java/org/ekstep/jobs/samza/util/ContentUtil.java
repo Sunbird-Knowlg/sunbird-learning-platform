@@ -68,7 +68,7 @@ public class ContentUtil {
 	}
 
 	public void process(String channelId, String identifier, Map<String, Object> edata) throws Exception {
-		String stage = ((String) edata.getOrDefault(AutoCreatorParams.stage.name(), "")).toLowerCase();
+		String stage = (String) edata.getOrDefault(AutoCreatorParams.stage.name(), "")
 		String repository = (String) edata.getOrDefault(AutoCreatorParams.repository.name(), "");
 		Map<String, Object> metadata = (Map<String, Object>) edata.getOrDefault(AutoCreatorParams.metadata.name(), new HashMap<String, Object>());
 		String mimeType = (String) metadata.getOrDefault(AutoCreatorParams.mimeType.name(), "");
@@ -107,20 +107,18 @@ public class ContentUtil {
 				}
 				case "upload": {
 					isUploaded = upload(channelId, internalId, metadata);
-					if(StringUtils.equals("upload", stage))
+					if(StringUtils.equalsIgnoreCase("Draft", stage))
 						break;
 					delay(delayUpload);
 				}
 				case "review": {
 					isReviewed = review(channelId, internalId);
-					if(StringUtils.equals("review", stage))
+					if(StringUtils.equalsIgnoreCase("Review", stage))
 						break;
 					delay(API_CALL_DELAY);
 				}
 				case "publish": {
 					isPublished = publish(channelId, internalId, (String) metadata.get(AutoCreatorParams.lastPublishedBy.name()));
-					if(isPublished)
-						LOGGER.info("Content Sent For Published Successfully");
 					break;
 				}
 				default: {
