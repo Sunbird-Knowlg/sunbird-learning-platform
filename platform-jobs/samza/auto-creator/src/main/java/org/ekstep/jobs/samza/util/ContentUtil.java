@@ -52,7 +52,7 @@ public class ContentUtil {
 	private static final List<String> CONTENT_CREATE_PROPS = Platform.config.hasPath("auto_creator.content_create_props") ? Arrays.asList(Platform.config.getString("auto_creator.content_create_props").split(",")) : new ArrayList<String>();
 	private static final List<String> ALLOWED_ARTIFACT_SOURCE = Platform.config.hasPath("auto_creator.artifact_upload.allowed_source") ? Arrays.asList(Platform.config.getString("auto_creator.artifact_upload.allowed_source").split(",")) : new ArrayList<String>();
 	private static final Integer API_CALL_DELAY = Platform.config.hasPath("auto_creator.api_call_delay") ? Platform.config.getInt("auto_creator.api_call_delay") : 5;
-	public static final List<String> ALLOWED_CONTENT_STAGE = Platform.config.hasPath("auto_creator.allowed_content_stages") ? Arrays.asList(Platform.config.getString("auto_creator.allowed_content_stages").split(",")) : Arrays.asList("Draft", "Review", "Live");
+	public static final List<String> ALLOWED_CONTENT_STAGE = Platform.config.hasPath("auto_creator.allowed_content_stages") ? Arrays.asList(Platform.config.getString("auto_creator.allowed_content_stages").split(",")) : Arrays.asList("create", "upload", "review", "publish");
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static Tika tika = new Tika();
 	private static JobLogger LOGGER = new JobLogger(ContentUtil.class);
@@ -103,17 +103,19 @@ public class ContentUtil {
 					internalId = (String) result.get(AutoCreatorParams.identifier.name());
 					updateMetadata.put(AutoCreatorParams.versionKey.name(), (String) result.get(AutoCreatorParams.versionKey.name()));
 					update(channelId, internalId, updateMetadata);
+					if(StringUtils.equalsIgnoreCase("create", stage))
+						break;
 					delay(API_CALL_DELAY);
 				}
 				case "upload": {
 					isUploaded = upload(channelId, internalId, metadata);
-					if(StringUtils.equalsIgnoreCase("Draft", stage))
+					if(StringUtils.equalsIgnoreCase("upload", stage))
 						break;
 					delay(delayUpload);
 				}
 				case "review": {
 					isReviewed = review(channelId, internalId);
-					if(StringUtils.equalsIgnoreCase("Review", stage))
+					if(StringUtils.equalsIgnoreCase("review", stage))
 						break;
 					delay(API_CALL_DELAY);
 				}
