@@ -17,6 +17,7 @@ import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.SamzaCommonParams;
+import org.ekstep.jobs.samza.util.TrackableENUM;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
@@ -128,7 +129,8 @@ public class PostPublishProcessor implements ISamzaService {
             }
 
             case "coursebatch-create" : {
-                if(!(validateContentType(edata) && validateBatchCreateEvent(message, (String) object.get("id")))) {
+                //TODO: remove validateContentType(edata) (because it's only for course) or add other content types
+                if(!(validateBatchCreateEvent(message, (String) object.get("id")))) {
                     LOGGER.info("Event Ignored. Event Validation Failed for coursebatch-create operation. | edata : " + edata);
                     return;
                 }
@@ -209,19 +211,26 @@ public class PostPublishProcessor implements ISamzaService {
 
     private Boolean validateBatchCreateEvent(Map<String, Object> event, String courseId) {
         try {
+
             Map<String, Object> context = (Map<String, Object>) event.get(SamzaCommonParams.context.name());
             String channel = (String) context.getOrDefault(PostPublishParams.channel.name(), "");
             if (StringUtils.isBlank(channel)) {
                 LOGGER.info("Event Ignored. Event Validation Failed for coursebatch-create operation. Received Blank Channel Id for : "+courseId);
                 return false;
             } else {
-                return courseBatchUtil.validateChannel(channel, courseId);
+                return (courseBatchUtil.validateChannel(channel, courseId) && validateTrackable(event));
             }
         } catch (Exception e) {
             LOGGER.error("Exception Occurred While Validating Channel for coursebatch-create operation. | Exception is : ", e);
             e.printStackTrace();
         }
         return false;
+    }
+
+    private Boolean validateTrackable(Map<String, Object> event) {
+        String trackable = (String)((Map<String,Object>)event.get(SamzaCommonParams.edata.name())).get("trackable");
+        String autoBatchCreate = (String)((Map<String,Object>)event.get(SamzaCommonParams.edata.name())).get("autoBatchCreate");
+        return (StringUtils.equals(trackable, TrackableENUM.yes.name()) && StringUtils.equals(autoBatchCreate, TrackableENUM.yes.name()));
     }
 
 }

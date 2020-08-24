@@ -336,6 +336,8 @@ public class PublishPipelineService implements ISamzaService {
 			edata.put("name", metadata.get("name"));
 			edata.put("createdBy", metadata.get("createdBy"));
 			edata.put("createdFor", metadata.get("createdFor"));
+			edata.put("trackable", metadata.getOrDefault("trackable", ""));
+			edata.put("autoBatchCreate", metadata.getOrDefault("autoBatchCreate", ""));
 		}
 		// generate event structure
 		long unixTime = System.currentTimeMillis();
