@@ -68,7 +68,7 @@ public class ContentUtil {
 	}
 
 	public void process(String channelId, String identifier, Map<String, Object> edata) throws Exception {
-		String stage = (String) edata.getOrDefault(AutoCreatorParams.stage.name(), "")
+		String stage = (String) edata.getOrDefault(AutoCreatorParams.stage.name(), "");
 		String repository = (String) edata.getOrDefault(AutoCreatorParams.repository.name(), "");
 		Map<String, Object> metadata = (Map<String, Object>) edata.getOrDefault(AutoCreatorParams.metadata.name(), new HashMap<String, Object>());
 		String mimeType = (String) metadata.getOrDefault(AutoCreatorParams.mimeType.name(), "");
