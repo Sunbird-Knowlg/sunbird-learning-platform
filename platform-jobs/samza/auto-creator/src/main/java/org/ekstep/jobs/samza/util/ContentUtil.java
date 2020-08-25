@@ -51,6 +51,8 @@ public class ContentUtil {
 	private static final List<String> BULK_UPLOAD_MIMETYPES = Platform.config.hasPath("auto_creator.bulk_upload.mime_types") ? Arrays.asList(Platform.config.getString("auto_creator.bulk_upload.mime_types").split(",")) : new ArrayList<String>();
 	private static final List<String> CONTENT_CREATE_PROPS = Platform.config.hasPath("auto_creator.content_create_props") ? Arrays.asList(Platform.config.getString("auto_creator.content_create_props").split(",")) : new ArrayList<String>();
 	private static final List<String> ALLOWED_ARTIFACT_SOURCE = Platform.config.hasPath("auto_creator.artifact_upload.allowed_source") ? Arrays.asList(Platform.config.getString("auto_creator.artifact_upload.allowed_source").split(",")) : new ArrayList<String>();
+	private static final Integer API_CALL_DELAY = Platform.config.hasPath("auto_creator.api_call_delay") ? Platform.config.getInt("auto_creator.api_call_delay") : 5;
+	public static final List<String> ALLOWED_CONTENT_STAGE = Platform.config.hasPath("auto_creator.allowed_content_stages") ? Arrays.asList(Platform.config.getString("auto_creator.allowed_content_stages").split(",")) : Arrays.asList("create", "upload", "review", "publish");
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static Tika tika = new Tika();
 	private static JobLogger LOGGER = new JobLogger(ContentUtil.class);
@@ -61,15 +63,24 @@ public class ContentUtil {
 		return CollectionUtils.isEmpty(reqFields) ? true : false;
 	}
 
+	public Boolean validateStage(String stage) {
+		return StringUtils.isNotBlank(stage) ? ALLOWED_CONTENT_STAGE.contains(stage) : true;
+	}
+
 	public void process(String channelId, String identifier, Map<String, Object> edata) throws Exception {
+		String stage = (String) edata.getOrDefault(AutoCreatorParams.stage.name(), "");
 		String repository = (String) edata.getOrDefault(AutoCreatorParams.repository.name(), "");
 		Map<String, Object> metadata = (Map<String, Object>) edata.getOrDefault(AutoCreatorParams.metadata.name(), new HashMap<String, Object>());
+		String mimeType = (String) metadata.getOrDefault(AutoCreatorParams.mimeType.name(), "");
+		Integer delayUpload = StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.h5p-archive") ? 6 * API_CALL_DELAY : API_CALL_DELAY;
 		List<Map<String, Object>> collection = (List<Map<String, Object>>) edata.getOrDefault(AutoCreatorParams.collection.name(), new ArrayList<HashMap<String, Object>>());
 		Map<String, Object> textbookInfo = (Map<String, Object>) edata.getOrDefault(AutoCreatorParams.textbookInfo.name(), new HashMap<String, Object>());
 		String newIdentifier = (String) edata.get(AutoCreatorParams.identifier.name());
 		LOGGER.info("ContentUtil :: process :: started processing for: " + identifier + " | Channel : " + channelId + " | Metadata : " + metadata+ " | collection :"+collection +" | textbookInfo : "+textbookInfo);
 		String contentStage = "";
 		String internalId = "";
+		Boolean isUploaded = false;
+		Boolean isReviewed = false;
 		Boolean isPublished = false;
 		Double pkgVersion = Double.parseDouble(String.valueOf(metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), "0.0")));
 		Map<String, Object> createMetadata = new HashMap<String, Object>();
@@ -85,8 +96,6 @@ public class ContentUtil {
 			internalId = (String) contentMetadata.get("contentId");
 		}
 
-		//TODO: Add the control to stop at particular stage
-		//TODO: Add Code for Review Stage
 		try {
 			switch (contentStage) {
 				case "create": {
@@ -94,12 +103,21 @@ public class ContentUtil {
 					internalId = (String) result.get(AutoCreatorParams.identifier.name());
 					updateMetadata.put(AutoCreatorParams.versionKey.name(), (String) result.get(AutoCreatorParams.versionKey.name()));
 					update(channelId, internalId, updateMetadata);
+					if(StringUtils.equalsIgnoreCase("create", stage))
+						break;
+					delay(API_CALL_DELAY);
 				}
 				case "upload": {
-					upload(channelId, internalId, metadata);
+					isUploaded = upload(channelId, internalId, metadata);
+					if(StringUtils.equalsIgnoreCase("upload", stage))
+						break;
+					delay(delayUpload);
 				}
 				case "review": {
-					//TODO: Complete the implementation
+					isReviewed = review(channelId, internalId);
+					if(StringUtils.equalsIgnoreCase("review", stage))
+						break;
+					delay(API_CALL_DELAY);
 				}
 				case "publish": {
 					isPublished = publish(channelId, internalId, (String) metadata.get(AutoCreatorParams.lastPublishedBy.name()));
@@ -113,9 +131,10 @@ public class ContentUtil {
 			updateStatus(channelId, internalId, e.getMessage());
 			throw e;
 		}
-		if(CollectionUtils.isNotEmpty(collection) && (isPublished || StringUtils.equalsIgnoreCase("na", contentStage))) {
+
+		if(CollectionUtils.isNotEmpty(collection) && (isUploaded || isReviewed || isPublished || StringUtils.equalsIgnoreCase("na", contentStage))) {
 			linkCollection(channelId, identifier, collection, internalId);
-		} else if(MapUtils.isNotEmpty(textbookInfo) && (isPublished || StringUtils.equalsIgnoreCase("na", contentStage))) {
+		} else if(MapUtils.isNotEmpty(textbookInfo) && (isUploaded || isReviewed || isPublished || StringUtils.equalsIgnoreCase("na", contentStage))) {
 			linkTextbook(channelId, identifier, textbookInfo, internalId);
 		}else {
 			LOGGER.info("ContentUtil :: process :: Textbook Linking Skipped because received empty collection/textbookInfo for : " + identifier);
@@ -302,7 +321,7 @@ public class ContentUtil {
 		}
 	}*/
 
-	private void upload(String channelId, String identifier, Map<String, Object> metadata) throws Exception {
+	private Boolean upload(String channelId, String identifier, Map<String, Object> metadata) throws Exception {
 		Response resp = null;
 		Long downloadStartTime = System.currentTimeMillis();
 		String sourceUrl = (String) metadata.get(AutoCreatorParams.artifactUrl.name());
@@ -344,12 +363,41 @@ public class ContentUtil {
 		}
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String artifactUrl = (String) resp.getResult().get(AutoCreatorParams.artifactUrl.name());
-			if (StringUtils.isNotBlank(artifactUrl))
+			if (StringUtils.isNotBlank(artifactUrl)) {
 				LOGGER.info("ContentUtil :: upload :: Content Uploaded Successfully for : " + identifier + " | artifactUrl : " + artifactUrl);
+				return true;
+			}
 		} else {
 			LOGGER.info("ContentUtil :: upload :: Invalid Response received while uploading for: " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while uploading : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
+		return false;
+	}
+
+	private Boolean review(String channelId, String identifier) throws Exception {
+		String url = KP_LEARNING_BASE_URL + "/content/v3/review/" + identifier;
+		Map<String, Object> request = new HashMap<String, Object>() {{
+			put("request", new HashMap<String, Object>() {{
+				put("content", new HashMap<String, Object>());
+			}});
+		}};
+
+		Map<String, String> header = new HashMap<String, String>() {{
+			put("X-Channel-Id", channelId);
+			put("Content-Type", DEFAULT_CONTENT_TYPE);
+		}};
+		Response resp = UnirestUtil.post(url, request, header);
+		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
+			String contentId = (String) resp.getResult().get("node_id");
+			if(StringUtils.isNotBlank(contentId)) {
+				LOGGER.info("ContentUtil :: review :: Content Sent For Review Successfully having identifier : " + contentId);
+				return true;
+			}
+		} else {
+			LOGGER.info("ContentUtil :: review :: Invalid Response received while sending content to review for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while sending content to review for  : " + identifier + "| Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+		}
+		return false;
 	}
 
 	private Boolean publish(String channelId, String identifier, String lastPublishedBy) throws Exception {
@@ -555,6 +603,14 @@ public class ContentUtil {
 					"Error while uploading the File.", e);
 		}
 		return urlArray;
+	}
+
+	private void delay(long time) {
+		try {
+			Thread.sleep(time * 1000);
+		} catch (Exception e) {
+
+		}
 	}
 
 }

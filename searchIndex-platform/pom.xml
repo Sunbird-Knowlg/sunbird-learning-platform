@@ -26,6 +26,7 @@
 		<module>module/searchindex-common</module>
 		<module>module/search-actors</module>
 		<module>module/search-api</module>
+		<module>module/mvcsearchindex-elasticsearch</module>
 	</modules>
 
 	<dependencies>
