@@ -95,7 +95,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>auto-creator</artifactId>
-			<version>0.0.10</version>
+			<version>0.0.13</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
