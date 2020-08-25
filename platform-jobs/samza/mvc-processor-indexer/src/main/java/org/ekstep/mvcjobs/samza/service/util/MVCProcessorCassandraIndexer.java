@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class MVCProcessorCassandraIndexer  {
     String elasticSearchParamArr[] = {"organisation","channel","framework","board","medium","subject","gradeLevel","name","description","language","appId","appIcon","appIconLabel","contentEncoding","identifier","node_id","nodeType","mimeType","resourceType","contentType","allowedContentTypes","objectType","posterImage","artifactUrl","launchUrl","previewUrl","streamingUrl","downloadUrl","status","pkgVersion","source","lastUpdatedOn","ml_contentText","ml_contentTextVector","ml_Keywords","level1Name","level1Concept","level2Name","level2Concept","level3Name","level3Concept","textbook_name","sourceURL","label","all_fields"};;
-    String contentreadapiurl = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = "" , mlvectorapi = ""  ;
+    String contentreadapiurl = "", mlworkbenchapirequest = "", mlvectorListRequest = "" , jobname = ""   ;
     Map<String,Object> mapStage1 = new HashMap<>();
     List<String> level1concept = null,level2concept  = null, level3concept = null , textbook_name , level1_name , level2_name , level3_name ;
     private JobLogger LOGGER = new JobLogger(MVCProcessorCassandraIndexer.class);
@@ -21,7 +21,6 @@ public class MVCProcessorCassandraIndexer  {
         mlworkbenchapirequest = "{\"request\":{ \"input\" :{ \"content\" : [] } } }";
         mlvectorListRequest = "{\"request\":{\"text\":[],\"cid\": \"\",\"language\":\"en\",\"method\":\"BERT\",\"params\":{\"dim\":768,\"seq_len\":25}}}";
         jobname = "vidyadaan_content_keyword_tagging";
-        mlvectorapi = "http://127.0.0.1:1729/ml/vector/search";
 
     }
     // Insert to cassandra
@@ -136,12 +135,15 @@ public class MVCProcessorCassandraIndexer  {
 
     // Post reqeuest for vector api
     public  void makepostreqForVectorApi(String contentText,String identifier) throws Exception {
+        String mlvectorapi = Platform.config.hasPath("mlvectorapi") ? Platform.config.getString("mlvectorapi") : "";
         try {
             JSONObject obj = new JSONObject(mlworkbenchapirequest);
             JSONObject req = ((JSONObject) (obj.get("request")));
             req.put("cid",identifier);
             req.put("text",contentText);
-            String resp = HTTPUtil.makePostRequest(mlvectorapi,obj.toString());
+            String resp = HTTPUtil.makePostRequest("http://"+ mlvectorapi+ "/ml/vector/search",obj.toString());
+            LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForVectorApi  ::: ML vector api request response is " + resp);
+
         }
         catch (Exception e) {
             LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForVectorApi  ::: ML vector api request failed ");
