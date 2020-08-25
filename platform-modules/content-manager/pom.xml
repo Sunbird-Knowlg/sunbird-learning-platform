@@ -99,7 +99,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-	</dependencies>
+       <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts</artifactId>
+            <version>1.13</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<pluginManagement>

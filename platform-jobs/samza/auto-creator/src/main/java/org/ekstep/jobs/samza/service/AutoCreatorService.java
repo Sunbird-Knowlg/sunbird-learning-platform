@@ -57,6 +57,7 @@ public class AutoCreatorService implements ISamzaService {
 			String repository = (String) edata.getOrDefault(AutoCreatorParams.repository.name(), "");
 			Map<String, Object> metadata = (Map<String, Object>) edata.getOrDefault(AutoCreatorParams.metadata.name(), new HashMap<String, Object>());
 			List<Map<String, Object>> collection = (List<Map<String, Object>>) edata.getOrDefault(AutoCreatorParams.collection.name(), new ArrayList<HashMap<String, Object>>());
+			String stage = (String) edata.getOrDefault(AutoCreatorParams.stage.name(), "");
 
 			if (!validateEvent(currentIteration, channel, identifier, objectType, metadata)) {
 				LOGGER.info("Event Ignored. Event Validation Failed for auto-creator operation : " + edata.get("action") + " | Event : " + message);
@@ -65,6 +66,10 @@ public class AutoCreatorService implements ISamzaService {
 
 			switch (objectType.toLowerCase()) {
 				case "content": {
+					if(!contentUtil.validateStage(stage)) {
+						LOGGER.info("Event Ignored. Content Stage Validation Failed for :" + identifier + " | Stage : " + stage + " Allowed Stages are : " + contentUtil.ALLOWED_CONTENT_STAGE);
+						return;
+					}
 					if (!(contentUtil.validateMetadata(metadata))) {
 						LOGGER.info("Event Ignored. Event Metadata Validation Failed for :" + identifier + " | Metadata : " + metadata + " Required fields are : " + contentUtil.REQUIRED_METADATA_FIELDS);
 						return;
