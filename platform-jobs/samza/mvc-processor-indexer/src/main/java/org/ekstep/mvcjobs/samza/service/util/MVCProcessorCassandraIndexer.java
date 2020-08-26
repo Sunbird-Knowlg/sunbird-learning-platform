@@ -124,7 +124,7 @@ public class MVCProcessorCassandraIndexer  {
             content.put(contentdef);
             req.put("job",jobname);
             LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: The ML workbench URL is " + "http://"+Platform.config.getString("mlkeywordapi") + "/daggit/submit" );
-            String resp = HTTPUtil.makePostRequest("http://"+Platform.config.getString("mlkeywordapi") + "/daggit/submit",obj.toString());
+            String resp = HTTPUtil.makePostRequest("http://"+Platform.config.getString("mlkeywordapi") + ":3579/daggit/submit",obj.toString());
             LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: The ML workbench response is " + resp );
         }
         catch (Exception e) {
@@ -141,7 +141,7 @@ public class MVCProcessorCassandraIndexer  {
             JSONObject req = ((JSONObject) (obj.get("request")));
             req.put("cid",identifier);
             req.put("text",contentText);
-            String resp = HTTPUtil.makePostRequest("http://"+ mlvectorapi+ "/ml/vector/search",obj.toString());
+            String resp = HTTPUtil.makePostRequest("http://"+ mlvectorapi+ ":1729/ml/vector/search",obj.toString());
             LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForVectorApi  ::: ML vector api request response is " + resp);
 
         }
