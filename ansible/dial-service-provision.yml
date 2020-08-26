@@ -26,5 +26,6 @@
       file: path={{ item }} state=directory mode=0755 owner={{learner_user}} group={{learner_group}}
       with_items: "{{ dialservice.paths }}"
   roles:
+    - jdk-1.8.0_121
     - logstash
   serial: 1
