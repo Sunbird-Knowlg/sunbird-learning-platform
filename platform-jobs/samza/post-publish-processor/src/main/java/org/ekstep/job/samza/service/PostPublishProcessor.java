@@ -228,9 +228,11 @@ public class PostPublishProcessor implements ISamzaService {
     }
 
     private Boolean validateTrackable(Map<String, Object> event) {
-        String trackable = (String)((Map<String,Object>)event.get(SamzaCommonParams.edata.name())).get("trackable");
-        String autoBatchCreate = (String)((Map<String,Object>)event.get(SamzaCommonParams.edata.name())).get("autoBatchCreate");
-        return (StringUtils.equals(trackable, TrackableENUM.yes.name()) && StringUtils.equals(autoBatchCreate, TrackableENUM.yes.name()));
+        Map<String, Object> trackable = (Map<String, Object>)((Map<String,Object>)event.get(SamzaCommonParams.edata.name())).get("trackable");
+        String autoBatch = (String) trackable.getOrDefault("autoBatch", TrackableENUM.no.name());
+        String enabled = (String) trackable.getOrDefault("enabled", TrackableENUM.no.name());
+        return (StringUtils.equals(enabled, TrackableENUM.yes.name()) && StringUtils.equals(autoBatch, TrackableENUM.yes.name()));
     }
 
 }
+
