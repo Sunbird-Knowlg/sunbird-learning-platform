@@ -162,10 +162,10 @@
 					"category": "General",
 					"displayProperty": "Editable",
 					"range": [
-						"Learner",
-						"Instructor"
+						"Student",
+						"Teacher"
 					],
-					"defaultValue": "Learner",
+					"defaultValue": "Student",
 					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
 					"indexed": true,
 					"draft": false
@@ -2936,7 +2936,67 @@
                     "defaultValue": "",
                     "renderingHints": "{ 'inputType': 'text', 'order': 8 }",
                     "indexed": true
-                }
+                },
+				{
+					"required": false,
+					"dataType": "Multi-Select",
+					"propertyName": "monitorable",
+					"title": "Monitorable",
+					"description": "Monitorable",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"progress-report",
+						"score-report"
+					],
+					"defaultValue": "",
+					"renderingHints": "{ 'order': 20 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Multi-Select",
+					"propertyName": "userConsent",
+					"title": "User Consent",
+					"description": "User Consent",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"email",
+						"phone"
+					],
+					"defaultValue": "",
+					"renderingHints": "{ 'order': 20 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "trackable",
+					"title": "Trackable",
+					"description": "Trackable",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 9 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "credentials",
+					"title": "Credentials",
+					"description": "Credentials",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 10 }",
+					"indexed": true,
+					"draft": false
+				}
 			],
 			"inRelations": [
 				{
