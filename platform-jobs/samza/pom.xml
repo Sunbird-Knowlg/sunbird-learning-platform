@@ -28,7 +28,6 @@
 		<module>publish-pipeline</module>
 		<module>asset-enrichment</module>
 		<module>qrcode-image-generator</module>
-		<module>collection-migration</module>
 		<module>distribution</module>
         <module>course-batch-updater</module>
         <module>post-publish-processor</module>
