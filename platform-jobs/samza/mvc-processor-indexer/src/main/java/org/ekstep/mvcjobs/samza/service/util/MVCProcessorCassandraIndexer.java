@@ -137,7 +137,7 @@ public class MVCProcessorCassandraIndexer  {
     public  void makepostreqForVectorApi(String contentText,String identifier) throws Exception {
         String mlvectorapi = Platform.config.hasPath("mlvectorapi") ? Platform.config.getString("mlvectorapi") : "";
         try {
-            JSONObject obj = new JSONObject(mlworkbenchapirequest);
+            JSONObject obj = new JSONObject(mlvectorListRequest);
             JSONObject req = ((JSONObject) (obj.get("request")));
             req.put("cid",identifier);
             req.put("text",contentText);
