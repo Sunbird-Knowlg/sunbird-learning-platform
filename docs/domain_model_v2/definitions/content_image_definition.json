@@ -2936,7 +2936,69 @@
                     "defaultValue": "",
                     "renderingHints": "{ 'inputType': 'text', 'order': 8 }",
                     "indexed": true
-                }
+                },
+				{
+					"required": true,
+					"dataType": "Select",
+					"propertyName": "primaryCategory",
+					"title": "Primary Category",
+					"description": "Primary Category",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"ExplanationContent",
+						"LearningResource",
+						"OnlineCourse",
+						"QuestionSet",
+						"eTextBook",
+						"TeacherResource",
+						"CourseAssessment",
+						"ETB",
+						"ContentPlayList",
+						"GenericCollection"
+					],
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Multi-Select",
+					"propertyName": "additionalCategories",
+					"title": "Additional Categories",
+					"description": "Additional Categories",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"ClassroomTeachingVideo",
+						"ConceptMap",
+						"CuriosityQuestionSet",
+						"Textbook",
+						"ExperientialResource",
+						"Explanation Video",
+						"FocusSpot",
+						"LearningOutcomeDefinition",
+						"MarkingSchemeRubric",
+						"PedagogyFlow",
+						"PracticeQuestionSet",
+						"LessonPlan",
+						"Previous Board Exam Papers",
+						"ExplanationContent",
+						"LearningResource",
+						"OnlineCourse",
+						"QuestionSet",
+						"eTextBook",
+						"TeacherResource",
+						"CourseAssessment",
+						"ETB",
+						"ContentPlayList",
+						"GenericCollection"
+					],
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'multiselect',  'order': 14 }",
+					"indexed": true
+				}
 			],
 			"inRelations": [
 				{
