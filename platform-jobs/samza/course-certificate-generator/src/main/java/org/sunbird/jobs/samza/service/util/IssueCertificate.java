@@ -4,6 +4,7 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.TypeTokens;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.reflect.TypeToken;
@@ -137,6 +138,7 @@ public class IssueCertificate {
     private static List<String> getUsersFromUserCriteria(Map<String, Object> criteria, List<String> userIds) throws Exception {
         if(MapUtils.isEmpty(criteria))
             return new ArrayList<>();
+        Map<String, Object> validCriteria = validateCriteria(criteria);
         Integer batchSize = 50;
         String url = LEARNER_SERVICE_PRIVATE_URL + "/private/user/v1/search";
         List<List<String>> batchList = ListUtils.partition(userIds, batchSize);
@@ -145,7 +147,7 @@ public class IssueCertificate {
             try {
                 Request request = new Request();
                 Map<String, Object> filters = new HashMap<String, Object>();
-                filters.putAll(criteria);
+                filters.putAll(validCriteria);
                 filters.put("identifier", batch);
                 request.put("filters", filters);
                 request.put("limit", batchSize);
@@ -341,5 +343,11 @@ public class IssueCertificate {
                 put("type", "CourseCertificateGeneration");
             }});
         }};
+    }
+
+    private static Map<String, Object> validateCriteria(Map<String, Object> criteria) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        return objectMapper.readValue(objectMapper.writeValueAsString(criteria), new TypeReference<Map<String, Object>>() {});
     }
 }
