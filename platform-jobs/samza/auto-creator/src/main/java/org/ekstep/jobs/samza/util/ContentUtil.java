@@ -367,7 +367,7 @@ public class ContentUtil {
 		Long size = FileUtils.sizeOf(file);
 		LOGGER.info("ContentUtil :: upload :: file size (MB): " + (size / 1048576));
 		String url = KP_CS_BASE_URL + "/content/v3/upload/" + identifier + "?validation=false";
-		if (StringUtils.isNotBlank(mimeType) && (StringUtils.equalsIgnoreCase("application/vnd.ekstep.h5p-archive", mimeType) && !StringUtils.equalsIgnoreCase("h5p", FilenameUtils.getExtension(url))))
+		if (StringUtils.isNotBlank(mimeType) && (StringUtils.equalsIgnoreCase("application/vnd.ekstep.h5p-archive", mimeType) && !StringUtils.equalsIgnoreCase("h5p", FilenameUtils.getExtension(file.getAbsolutePath()))))
 			url = url + "&fileFormat=composed-h5p-zip";
 		LOGGER.info("Upload API URL : " + url);
 		Map<String, String> header = new HashMap<String, String>() {{
