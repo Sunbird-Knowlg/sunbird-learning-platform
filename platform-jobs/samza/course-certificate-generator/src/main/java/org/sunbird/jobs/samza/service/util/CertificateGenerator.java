@@ -63,7 +63,7 @@ public class CertificateGenerator {
     private Session cassandraSession = null;
     private Jedis redisConnect =null;
     private static final String NOTIFICATION_URL = Platform.config.hasPath("notification.api.endpoint")
-            ? Platform.config.getString("notification.api.endpoint"): "/v1/notification";
+            ? Platform.config.getString("notification.api.endpoint"): "/v1/notification/email";
 
 
     public CertificateGenerator(Jedis redisConnect, Session cassandraSession) {
