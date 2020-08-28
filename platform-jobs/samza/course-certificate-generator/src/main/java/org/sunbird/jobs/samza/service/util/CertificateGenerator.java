@@ -61,12 +61,8 @@ public class CertificateGenerator {
     protected static final String KP_CONTENT_SERVICE_BASE_URL = Platform.config.hasPath("kp.content_service.base_url")
             ? Platform.config.getString("kp.content_service.base_url"): "http://localhost:9000";
 
-    private static final String CERT_GENERATE_URL = Platform.config.hasPath("certificate.generate.url")
-            ? Platform.config.getString("certificate.generate.url"): "/v2/certs/generate";
-    private static final String CERT_REGISTRY_ADD_URL = Platform.config.hasPath("certificate.registry.add.url")
-            ? Platform.config.getString("certificate.registry.add.url"): "/certs/v2/registry/add";
-    private static final String certGenerateURL = CERT_SERVICE_URL + CERT_GENERATE_URL;
-    private static final String certRegistryAddURL = CERT_REG_SERVICE_BASE_URL + CERT_REGISTRY_ADD_URL;
+    private static final String certGenerateURL = CERT_SERVICE_URL + "/v1/certs/generate";
+    private static final String certRegistryAddURL = CERT_REG_SERVICE_BASE_URL + "/certs/v1/registry/add";
 
     private static JobLogger LOGGER = new JobLogger(CertificateGenerator.class);
     private Session cassandraSession = null;
@@ -177,7 +173,7 @@ public class CertificateGenerator {
         try{
             String oldId = null;
             if(reIssue) {
-                oldId = certificates.stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), cert.get("name"))).map(cert -> {return  cert.get("identifier");}).findFirst().orElse("");
+                oldId = certificates.stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), cert.get("name"))).map(cert -> {return  cert.get("id");}).findFirst().orElse("");
             }
             String recipientName = getRecipientName(userResponse);
             Map<String, Object> certServiceRequest = prepareCertServiceRequest(courseName, batchId, userId, userResponse, certTemplate, issuedOn);
@@ -225,6 +221,7 @@ public class CertificateGenerator {
             request.put(CourseCertificateParams.jsonData.name(), certificate.get(CourseCertificateParams.jsonData.name()));
             request.put(CourseCertificateParams.jsonUrl.name(), certificate.get(CourseCertificateParams.jsonUrl.name()));
             request.put(CourseCertificateParams.id.name(), certificate.get(CourseCertificateParams.id.name()));
+            request.put(CourseCertificateParams.pdfUrl.name(), certificate.get(CourseCertificateParams.pdfUrl.name()));
             request.put("related", new HashMap<String, Object>(){{
                 put("type", certName.toLowerCase());
                 put(CourseCertificateParams.courseId.name(), courseId);
@@ -312,7 +309,7 @@ public class CertificateGenerator {
                    put(CourseCertificateParams.name.name(), certTemplate.get(CourseCertificateParams.name.name()));
                    put(CourseCertificateParams.issuer.name(), getIssuerDetails(certTemplate));
                    put(CourseCertificateParams.signatoryList.name(), getSignatoryList(certTemplate));
-                   put(CourseCertificateParams.svgTemplate.name(), certTemplate.get("template"));
+                   put(CourseCertificateParams.htmlTemplate.name(), certTemplate.get("template"));
                    put(CourseCertificateParams.tag.name(),  rootOrgId + "_" + batchId);
                    put(CourseCertificateParams.issuedDate.name(), dateFormatter.format(issuedOn));
                    if(MapUtils.isNotEmpty(keys))
@@ -476,7 +473,8 @@ public class CertificateGenerator {
     private void populateCreatedCertificate(List<Map<String, String>> updatedCerts, Map<String, Object> certificate, String certificateName, Date issuedOn, boolean reIssue) {
         updatedCerts.add(new HashMap<String, String>(){{
             put(CourseCertificateParams.name.name(), certificateName);
-            put(CourseCertificateParams.identifier.name(), (String) certificate.get(CourseCertificateParams.id.name()));
+            put(CourseCertificateParams.id.name(), (String) certificate.get(CourseCertificateParams.id.name()));
+            put(CourseCertificateParams.url.name(), (String) certificate.get(CourseCertificateParams.pdfUrl.name()));
             put(CourseCertificateParams.token.name(), (String) certificate.get(CourseCertificateParams.accessCode.name()));
             put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(new Date()));
             if(reIssue){
