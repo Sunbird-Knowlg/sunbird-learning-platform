@@ -114,41 +114,42 @@ public class MVCProcessorCassandraIndexer  {
     }
 
     // POST reqeuest for ml keywords api
-    void makepostreqForMlAPI(Map<String,Object> contentdef) throws Exception {
-        try {
+    void makepostreqForMlAPI(Map<String, Object> contentdef) throws Exception {
+        JSONObject obj = new JSONObject(mlworkbenchapirequest);
+        JSONObject req = ((JSONObject) (obj.get("request")));
+        JSONObject input = (JSONObject) req.get("input");
+        JSONArray content = (JSONArray) input.get("content");
+        content.put(contentdef);
+        req.put("job", jobname);
+        LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: The ML workbench URL is " + "http://" + Platform.config.getString("mlkeywordapi") + "/daggit/submit");
+        CompletableFuture.runAsync(() -> {
+            try {
+                String resp = HTTPUtil.makePostRequest("http://" + Platform.config.getString("mlkeywordapi") + ":3579/daggit/submit", obj.toString());
+                LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: The ML workbench response is " + resp);
 
-            JSONObject obj = new JSONObject(mlworkbenchapirequest);
-            JSONObject req = ((JSONObject)(obj.get("request")));
-            JSONObject input = (JSONObject)req.get("input");
-            JSONArray content = (JSONArray)input.get("content");
-            content.put(contentdef);
-            req.put("job",jobname);
-            LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: The ML workbench URL is " + "http://"+Platform.config.getString("mlkeywordapi") + "/daggit/submit" );
-            String resp = HTTPUtil.makePostRequest("http://"+Platform.config.getString("mlkeywordapi") + ":3579/daggit/submit",obj.toString());
-            LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: The ML workbench response is " + resp );
-        }
-        catch (Exception e) {
-            LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: ML workbench api request failed ");
-        }
+            } catch (Exception e) {
+                LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForMlAPI  ::: ML workbench api request failed ");
+            }
+        });
+
     }
 
 
     // Post reqeuest for vector api
-    public  void makepostreqForVectorApi(String contentText,String identifier) throws Exception {
+    public void makepostreqForVectorApi(String contentText, String identifier) throws Exception {
         String mlvectorapi = Platform.config.hasPath("mlvectorapi") ? Platform.config.getString("mlvectorapi") : "";
-        try {
-            JSONObject obj = new JSONObject(mlvectorListRequest);
-            JSONObject req = ((JSONObject) (obj.get("request")));
-            req.put("cid",identifier);
-            req.put("text",contentText);
-            String resp = HTTPUtil.makePostRequest("http://"+ mlvectorapi+ ":1729/ml/vector/search",obj.toString());
-            LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForVectorApi  ::: ML vector api request response is " + resp);
-
-        }
-        catch (Exception e) {
-            LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForVectorApi  ::: ML vector api request failed ");
-
-        }
+        JSONObject obj = new JSONObject(mlvectorListRequest);
+        JSONObject req = ((JSONObject) (obj.get("request")));
+        req.put("cid", identifier);
+        req.put("text", contentText);
+        CompletableFuture.runAsync(() -> {
+            try {
+                String resp = HTTPUtil.makePostRequest("http://" + mlvectorapi + ":1729/ml/vector/search", obj.toString());
+                LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForVectorApi  ::: ML vector api request response is " + resp);
+            } catch (Exception e) {
+                LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForVectorApi  ::: ML vector api request failed ");
+            }
+        });
     }
 
 }
