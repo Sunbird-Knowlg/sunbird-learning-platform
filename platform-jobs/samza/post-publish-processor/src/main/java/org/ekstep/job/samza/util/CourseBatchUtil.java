@@ -49,18 +49,19 @@ public class CourseBatchUtil {
 
     private static final String COURSE_BATCH_TABLE = "course_batch";
 	private static final String CASSANDRA_SESSION_KEY = "sunbird";
+	private static final String USER_ENROLMENTS_TABLE = "user_enrolments";
 
     private static JobLogger LOGGER = new JobLogger(CourseBatchUtil.class);
 
 
     public void syncCourseBatch(String courseId, MessageCollector collector) {
         //Get Coursebatch from course_batch table using courseId
-        List<Row> courseBatchRows = readBatch("course_batch", courseId);
+        List<Row> courseBatchRows = readBatch(COURSE_BATCH_TABLE, courseId);
 
         //For each batch exists. fetch enrollment from user_courses table and push the message to kafka
         for(Row row: courseBatchRows) {
             if(1 == row.getInt("status")) {
-                List<Row> userCoursesRows = read("user_courses", Arrays.asList(row.getString("batchid")));
+                List<Row> userCoursesRows = read(USER_ENROLMENTS_TABLE, courseId, Arrays.asList(row.getString("batchid")));
                 pushEventsToKafka(userCoursesRows, collector);
                 LOGGER.info("Pushed the events to sync courseBatch enrollment for : " + courseId);
             }
@@ -102,11 +103,11 @@ public class CourseBatchUtil {
     }
 
 
-    private static List<Row> read(String table, List<String> batchIds) {
+    private static List<Row> read(String table, String courseId, List<String> batchIds) {
         Session session = CassandraConnector.getSession("sunbird");
         Select.Where selectQuery = null;
-        if(null != batchIds && !batchIds.isEmpty() && StringUtils.equalsIgnoreCase("user_courses", table)){
-            selectQuery = QueryBuilder.select().json().all().from(keyspace, table).where(QueryBuilder.in("batchid", batchIds));
+        if(null != batchIds && !batchIds.isEmpty()){
+            selectQuery = QueryBuilder.select().json().all().from(keyspace, table).allowFiltering().where(QueryBuilder.eq("courseid", courseId)).and(QueryBuilder.in("batchid", batchIds));
         } else{
             selectQuery = QueryBuilder.select().json().all().from(keyspace, table).where();
         }
