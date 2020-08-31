@@ -2962,10 +2962,6 @@
           "description": "User Consent",
           "category": "General",
           "displayProperty": "Editable",
-          "range": [
-            "Yes",
-            "No"
-          ],
           "defaultValue": "",
           "renderingHints": "{ 'order': 20 }",
           "indexed": true,
