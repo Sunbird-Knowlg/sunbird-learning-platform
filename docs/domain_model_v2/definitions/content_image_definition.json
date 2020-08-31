@@ -2956,15 +2956,15 @@
         },
         {
           "required": false,
-          "dataType": "Multi-Select",
+          "dataType": "Select",
           "propertyName": "userConsent",
           "title": "User Consent",
           "description": "User Consent",
           "category": "General",
           "displayProperty": "Editable",
           "range": [
-            "email",
-            "phone"
+            "Yes",
+            "No"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'order': 20 }",
