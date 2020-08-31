@@ -1,7 +1,9 @@
 package org.ekstep.jobs.samza.util;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
+import com.google.api.client.http.HttpResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -10,6 +12,8 @@ import com.google.api.services.drive.DriveRequestInitializer;
 import com.google.api.services.drive.DriveScopes;
 import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.exception.ServerException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -45,13 +49,14 @@ public class GoogleDriveUtil {
 		} catch (Exception e) {
 			LOGGER.error("Error occurred while creating google drive client ::: " + e.getMessage(), e);
 			e.printStackTrace();
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Error occurred while creating google drive client ::: "+ e.getMessage());
 		}
 	}
 
 	public static File downloadFile(String fileId, String saveDir) {
 		try {
 			Drive.Files.Get getFile = drive.files().get(fileId);
-			LOGGER.info("key ::: " + getFile.getKey());
+			LOGGER.info("GoogleDriveUtil :: downloadFile ::: key ::: " + getFile.getKey());
 			getFile.setFields("id,name,size,owners,properties,permissionIds,webContentLink");
 			com.google.api.services.drive.model.File googleDriveFile = getFile.execute();
 			LOGGER.info("GoogleDriveUtil :: downloadFile ::: Drive File Details:: " + googleDriveFile);
@@ -61,23 +66,32 @@ public class GoogleDriveUtil {
 				saveFile.mkdirs();
 			}
 			String saveFilePath = saveDir + File.separator + fileName;
-			LOGGER.info("File Id :" + fileId + " | Save File Path: " + saveFilePath);
+			LOGGER.info("GoogleDriveUtil :: downloadFile :: File Id :" + fileId + " | Save File Path: " + saveFilePath);
 
 			OutputStream outputStream = new FileOutputStream(saveFilePath);
 			getFile.executeMediaAndDownloadTo(outputStream);
 			outputStream.close();
 			File file = new File(saveFilePath);
 			file = Slug.createSlugFile(file);
-			LOGGER.info("Sluggified File Name: " + file.getAbsolutePath());
+			LOGGER.info("GoogleDriveUtil :: downloadFile :: File Downloaded Successfully. Sluggified File Name: " + file.getAbsolutePath());
 			if (null != file && BACKOFF_DELAY != INITIAL_BACKOFF_DELAY)
 				BACKOFF_DELAY = INITIAL_BACKOFF_DELAY;
 			return file;
+		} catch(GoogleJsonResponseException ge) {
+			LOGGER.error("GoogleDriveUtil :: downloadFile :: GoogleJsonResponseException :: Error Occurred while downloading file having id "+fileId + " | Error is ::"+ge.getDetails().toString(), ge);
+			throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "Invalid Response Received From Google API for file Id : " + fileId + " | Error is : " + ge.getDetails().toString());
+		} catch(HttpResponseException he) {
+			LOGGER.error("GoogleDriveUtil :: downloadFile :: HttpResponseException :: Error Occurred while downloading file having id "+fileId + " | Error is ::"+he.getContent(), he);
+			he.printStackTrace();
+			if(he.getStatusCode() == 403) {
+				if (BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY)
+					delay(BACKOFF_DELAY);
+				BACKOFF_DELAY = BACKOFF_DELAY + INCREMENT_BACKOFF_DELAY;
+			} else  throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "Invalid Response Received From Google API for file Id : " + fileId + " | Error is : " + he.getContent());
 		} catch (Exception e) {
-			LOGGER.error("Error While Downloading Google Drive File having Id " + fileId + " : " + e.getMessage(), e);
+			LOGGER.error("GoogleDriveUtil :: downloadFile :: Exception :: Error Occurred While Downloading Google Drive File having Id " + fileId + " : " + e.getMessage(), e);
 			e.printStackTrace();
-			if (BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY)
-				delay(BACKOFF_DELAY);
-			BACKOFF_DELAY = BACKOFF_DELAY + INCREMENT_BACKOFF_DELAY;
+			throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "Invalid Response Received From Google API for file Id : " + fileId + " | Error is : " + e.getMessage());
 		}
 		return null;
 	}
