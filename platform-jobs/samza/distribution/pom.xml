@@ -59,13 +59,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
-			<artifactId>collection-migration</artifactId>
-			<version>0.0.21</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
 			<artifactId>course-batch-updater</artifactId>
 			<version>0.0.50</version>
 			<type>tar.gz</type>
