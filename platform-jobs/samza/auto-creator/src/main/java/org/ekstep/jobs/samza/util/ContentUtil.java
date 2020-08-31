@@ -71,6 +71,7 @@ public class ContentUtil {
 		String stage = (String) edata.getOrDefault(AutoCreatorParams.stage.name(), "");
 		String repository = (String) edata.getOrDefault(AutoCreatorParams.repository.name(), "");
 		Map<String, Object> metadata = (Map<String, Object>) edata.getOrDefault(AutoCreatorParams.metadata.name(), new HashMap<String, Object>());
+		Map<String, Object> filteredMetadata = metadata.entrySet().stream().filter(x -> !METADATA_FIELDS_TO_BE_REMOVED.contains(x.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		String mimeType = (String) metadata.getOrDefault(AutoCreatorParams.mimeType.name(), "");
 		Integer delayUpload = StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.h5p-archive") ? 6 * API_CALL_DELAY : API_CALL_DELAY;
 		List<Map<String, Object>> collection = (List<Map<String, Object>>) edata.getOrDefault(AutoCreatorParams.collection.name(), new ArrayList<HashMap<String, Object>>());
@@ -79,18 +80,16 @@ public class ContentUtil {
 		LOGGER.info("ContentUtil :: process :: started processing for: " + identifier + " | Channel : " + channelId + " | Metadata : " + metadata+ " | collection :"+collection +" | textbookInfo : "+textbookInfo);
 		String contentStage = "";
 		String internalId = "";
+		Boolean isCreated = false;
 		Boolean isUploaded = false;
 		Boolean isReviewed = false;
 		Boolean isPublished = false;
 		Double pkgVersion = Double.parseDouble(String.valueOf(metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), "0.0")));
-		Map<String, Object> createMetadata = new HashMap<String, Object>();
-		Map<String, Object> updateMetadata = new HashMap<String, Object>();
+		Map<String, Object> createMetadata = filteredMetadata.entrySet().stream().filter(x -> CONTENT_CREATE_PROPS.contains(x.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		Map<String, Object> updateMetadata = filteredMetadata.entrySet().stream().filter(x->!CONTENT_CREATE_PROPS.contains(x.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		Map<String, Object> contentMetadata = searchContent(identifier);
 		if (MapUtils.isEmpty(contentMetadata)) {
 			contentStage = "create";
-			createMetadata = metadata.entrySet().stream().filter(x -> !METADATA_FIELDS_TO_BE_REMOVED.contains(x.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-			updateMetadata = createMetadata.entrySet().stream().filter(x->!CONTENT_CREATE_PROPS.contains(x.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-			createMetadata.entrySet().removeIf(x-> !CONTENT_CREATE_PROPS.contains(x.getKey()));
 		} else {
 			contentStage = getContentStage(identifier, pkgVersion, contentMetadata);
 			internalId = (String) contentMetadata.get("contentId");
@@ -101,9 +100,18 @@ public class ContentUtil {
 				case "create": {
 					Map<String, Object> result = create(channelId, identifier, newIdentifier, repository, createMetadata);
 					internalId = (String) result.get(AutoCreatorParams.identifier.name());
-					updateMetadata.put(AutoCreatorParams.versionKey.name(), (String) result.get(AutoCreatorParams.versionKey.name()));
+					if (StringUtils.isNotBlank(internalId)) {
+						isCreated = true;
+						updateMetadata.put(AutoCreatorParams.versionKey.name(), (String) result.get(AutoCreatorParams.versionKey.name()));
+					}
+				}
+				case "update": {
+					if (!isCreated) {
+						Map<String, Object> readMetadata = read(channelId, internalId);
+						updateMetadata.put(AutoCreatorParams.versionKey.name(), (String) readMetadata.get(AutoCreatorParams.versionKey.name()));
+					}
 					update(channelId, internalId, updateMetadata);
-					if(StringUtils.equalsIgnoreCase("create", stage))
+					if (StringUtils.equalsIgnoreCase("create", stage))
 						break;
 					delay(API_CALL_DELAY);
 				}
@@ -229,9 +237,9 @@ public class ContentUtil {
 		String artifactUrl = (String) metadata.get(AutoCreatorParams.artifactUrl.name());
 		Double pkgVer = (Double) metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), 0.0);
 		if (!FINAL_STATUS.contains(status))
-			result = StringUtils.isNotBlank(artifactUrl) ? "publish" : "upload";
+			result = StringUtils.isNotBlank(artifactUrl) ? "review" : "update";
 		else if (pkgVersion > pkgVer)
-			result = "upload";
+			result = "update";
 		else
 			LOGGER.info("ContentUtil :: getContentStage :: Skipped Processing for : " + identifier + " | Internal Identifier : " + metadata.get("contentId") + " ,Status : " + status + " , artifactUrl : " + artifactUrl);
 		return result;
@@ -271,6 +279,27 @@ public class ContentUtil {
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while creating content for : " + identifier);
 		}
 		return resp.getResult();
+	}
+
+	private Map<String, Object> read(String channelId, String identifier) throws Exception {
+		String contentId = "";
+		String url = KP_CS_BASE_URL + "/content/v3/read/" + identifier;
+		LOGGER.info("ContentUtil :: read :: Reading content having identifier : "+identifier);
+		Map<String, String> header = new HashMap<String, String>() {{
+			put("X-Channel-Id", channelId);
+			put("Content-Type", DEFAULT_CONTENT_TYPE);
+		}};
+		Response resp = UnirestUtil.get(url, "mode=edit", header);
+		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
+			contentId = (String) ((Map<String, Object>)resp.getResult().getOrDefault("content", new HashMap<String, Object>())).get("identifier");
+			if(StringUtils.equalsIgnoreCase(identifier, contentId))
+			LOGGER.info("ContentUtil :: read :: Content Fetched Successfully with identifier : " + contentId);
+			else throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while reading content for : " + identifier);
+		} else {
+			LOGGER.info("ContentUtil :: read :: Invalid Response received while reading content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while reading content for : " + identifier);
+		}
+		return ((Map<String, Object>) resp.getResult().getOrDefault("content", new HashMap<String, Object>()));
 	}
 
 	private void update(String channelId, String internalId, Map<String, Object> updateMetadata) throws Exception {
@@ -338,8 +367,9 @@ public class ContentUtil {
 		Long size = FileUtils.sizeOf(file);
 		LOGGER.info("ContentUtil :: upload :: file size (MB): " + (size / 1048576));
 		String url = KP_CS_BASE_URL + "/content/v3/upload/" + identifier + "?validation=false";
-		if (StringUtils.isNotBlank(mimeType) && (StringUtils.equalsIgnoreCase("application/vnd.ekstep.h5p-archive", mimeType) && ".h5p" != FilenameUtils.getExtension(file.getAbsolutePath())))
+		if (StringUtils.isNotBlank(mimeType) && (StringUtils.equalsIgnoreCase("application/vnd.ekstep.h5p-archive", mimeType) && !StringUtils.equalsIgnoreCase("h5p", FilenameUtils.getExtension(file.getAbsolutePath()))))
 			url = url + "&fileFormat=composed-h5p-zip";
+		LOGGER.info("Upload API URL : " + url);
 		Map<String, String> header = new HashMap<String, String>() {{
 			put("X-Channel-Id", channelId);
 		}};
