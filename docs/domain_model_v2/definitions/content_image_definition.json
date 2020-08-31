@@ -2956,12 +2956,16 @@
         },
         {
           "required": false,
-          "dataType": "Text",
+          "dataType": "Select",
           "propertyName": "userConsent",
           "title": "User Consent",
           "description": "User Consent",
           "category": "General",
           "displayProperty": "Editable",
+          "range": [
+            "Yes",
+            "No"
+          ],
           "defaultValue": "",
           "renderingHints": "{ 'order': 20 }",
           "indexed": true,
