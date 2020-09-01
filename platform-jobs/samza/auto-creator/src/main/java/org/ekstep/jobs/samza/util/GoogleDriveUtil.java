@@ -10,6 +10,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveRequestInitializer;
 import com.google.api.services.drive.DriveScopes;
+import org.apache.commons.lang.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
@@ -53,14 +54,17 @@ public class GoogleDriveUtil {
 		}
 	}
 
-	public static File downloadFile(String fileId, String saveDir) {
+	public static File downloadFile(String fileId, String saveDir, String mimeType) {
 		try {
 			Drive.Files.Get getFile = drive.files().get(fileId);
-			LOGGER.info("GoogleDriveUtil :: downloadFile ::: key ::: " + getFile.getKey());
-			getFile.setFields("id,name,size,owners,properties,permissionIds,webContentLink");
+			getFile.setFields("id,name,size,owners,mimeType,properties,permissionIds,webContentLink");
 			com.google.api.services.drive.model.File googleDriveFile = getFile.execute();
 			LOGGER.info("GoogleDriveUtil :: downloadFile ::: Drive File Details:: " + googleDriveFile);
 			String fileName = googleDriveFile.getName();
+			String fileMimeType = googleDriveFile.getMimeType();
+			LOGGER.info("GoogleDriveUtil :: downloadFile ::: Node mimeType :: "+mimeType + " | File mimeType :: "+fileMimeType);
+			if(!(StringUtils.equalsIgnoreCase(mimeType, fileMimeType) || fileMimeType.contains(mimeType)))
+				throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "Invalid File Url! MimeType Mismatched for fileId : " + fileId + " | File MimeType is : " +fileMimeType + " | Node MimeType is : "+mimeType);
 			File saveFile = new File(saveDir);
 			if (!saveFile.exists()) {
 				saveFile.mkdirs();
@@ -86,7 +90,10 @@ public class GoogleDriveUtil {
 			if(he.getStatusCode() == 403) {
 				if (BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY)
 					delay(BACKOFF_DELAY);
-				BACKOFF_DELAY = BACKOFF_DELAY + INCREMENT_BACKOFF_DELAY;
+				if (BACKOFF_DELAY == 2400000)
+					BACKOFF_DELAY += 1500000;
+				else
+					BACKOFF_DELAY = BACKOFF_DELAY * INCREMENT_BACKOFF_DELAY;
 			} else  throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "Invalid Response Received From Google API for file Id : " + fileId + " | Error is : " + he.getContent());
 		} catch (Exception e) {
 			LOGGER.error("GoogleDriveUtil :: downloadFile :: Exception :: Error Occurred While Downloading Google Drive File having Id " + fileId + " : " + e.getMessage(), e);

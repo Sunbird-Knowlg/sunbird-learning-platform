@@ -53,10 +53,6 @@ public class ContentUtil {
 	private static final List<String> ALLOWED_ARTIFACT_SOURCE = Platform.config.hasPath("auto_creator.artifact_upload.allowed_source") ? Arrays.asList(Platform.config.getString("auto_creator.artifact_upload.allowed_source").split(",")) : new ArrayList<String>();
 	private static final Integer API_CALL_DELAY = Platform.config.hasPath("auto_creator.api_call_delay") ? Platform.config.getInt("auto_creator.api_call_delay") : 5;
 	public static final List<String> ALLOWED_CONTENT_STAGE = Platform.config.hasPath("auto_creator.allowed_content_stages") ? Arrays.asList(Platform.config.getString("auto_creator.allowed_content_stages").split(",")) : Arrays.asList("create", "upload", "review", "publish");
-	//private static final Integer INITIAL_BACKOFF_DELAY = Platform.config.hasPath("auto_creator.initial_backoff_delay") ? Platform.config.getInt("auto_creator.initial_backoff_delay") : 1200000;    // 20 min
-	//private static final Integer MAXIMUM_BACKOFF_DELAY = Platform.config.hasPath("auto_creator.maximum_backoff_delay") ? Platform.config.getInt("auto_creator.maximum_backoff_delay") : 3900000;    // 65 min
-	//private static final Integer INCREMENT_BACKOFF_DELAY = Platform.config.hasPath("auto_creator.increment_backoff_delay") ? Platform.config.getInt("auto_creator.increment_backoff_delay") : 300000; // 5 min
-	//private static Integer BACKOFF_DELAY = INITIAL_BACKOFF_DELAY;
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static Tika tika = new Tika();
 	private static JobLogger LOGGER = new JobLogger(ContentUtil.class);
@@ -359,14 +355,14 @@ public class ContentUtil {
 		Response resp = null;
 		Long downloadStartTime = System.currentTimeMillis();
 		String sourceUrl = (String) metadata.get(AutoCreatorParams.artifactUrl.name());
+		String mimeType = (String) metadata.getOrDefault("mimeType", "");
 		if (CollectionUtils.isNotEmpty(ALLOWED_ARTIFACT_SOURCE) && CollectionUtils.isEmpty(ALLOWED_ARTIFACT_SOURCE.stream().filter(x -> sourceUrl.contains(x)).collect(Collectors.toList()))) {
 			LOGGER.info("Artifact Source is not from allowed one for : " + identifier + " | artifactUrl: " + sourceUrl + " | Allowed Sources : " + ALLOWED_ARTIFACT_SOURCE);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Artifact Source is not from allowed one for : " + identifier + " | artifactUrl: " + sourceUrl + " | Allowed Sources : " + ALLOWED_ARTIFACT_SOURCE);
 		}
-		File file = getFile(identifier, sourceUrl);
+		File file = getFile(identifier, sourceUrl, mimeType);
 		Long downloadEndTime = System.currentTimeMillis();
 		LOGGER.info("ContentUtil :: upload :: Total time taken for download: " + (downloadEndTime - downloadStartTime));
-		String mimeType = (String) metadata.getOrDefault("mimeType", "");
 		if (null == file || !file.exists()) {
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Error Occurred while downloading file for " + identifier + " | File Url : "+sourceUrl);
 		}
@@ -614,7 +610,7 @@ public class ContentUtil {
 		return fileName;
 	}
 
-	private File getFile(String identifier, String fileUrl) {
+	private File getFile(String identifier, String fileUrl, String mimeType) {
 		File file = null;
 		try {
 			if (StringUtils.isNotBlank(fileUrl) && fileUrl.contains("drive.google.com")) {
@@ -622,7 +618,7 @@ public class ContentUtil {
 				if(StringUtils.isBlank(fileId))
 					throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "Invalid fileUrl received for : " + identifier + " | fileUrl : " + fileUrl);
 				while (null == file && GoogleDriveUtil.BACKOFF_DELAY <= GoogleDriveUtil.MAXIMUM_BACKOFF_DELAY) {
-					file = GoogleDriveUtil.downloadFile(fileId, getBasePath(identifier));
+					file = GoogleDriveUtil.downloadFile(fileId, getBasePath(identifier), mimeType);
 				}
 			} else {
 				file = HttpDownloadUtility.downloadFile(fileUrl, getBasePath(identifier));
