@@ -110,10 +110,12 @@ public class GoogleDriveUtil {
 			case "application/vnd.ekstep.h5p-archive" : {
 				if(!(StringUtils.equalsIgnoreCase("application/x-zip", fileMimeType) || StringUtils.equalsIgnoreCase("application/zip", fileMimeType)))
 					throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), errMsg);
+				break;
 			}
 			case "application/epub" : {
 				if(!StringUtils.equalsIgnoreCase("application/epub+zip", fileMimeType))
 					throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), errMsg);
+				break;
 			}
 			default: {
 				if(!StringUtils.equalsIgnoreCase(mimeType, fileMimeType))
