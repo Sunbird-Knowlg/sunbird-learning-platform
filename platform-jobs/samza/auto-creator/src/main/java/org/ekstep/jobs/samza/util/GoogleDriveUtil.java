@@ -54,7 +54,7 @@ public class GoogleDriveUtil {
 		}
 	}
 
-	public static File downloadFile(String fileId, String saveDir, String mimeType) {
+	public static File downloadFile(String fileId, String saveDir, String mimeType) throws Exception {
 		try {
 			Drive.Files.Get getFile = drive.files().get(fileId);
 			getFile.setFields("id,name,size,owners,mimeType,properties,permissionIds,webContentLink");
@@ -63,8 +63,7 @@ public class GoogleDriveUtil {
 			String fileName = googleDriveFile.getName();
 			String fileMimeType = googleDriveFile.getMimeType();
 			LOGGER.info("GoogleDriveUtil :: downloadFile ::: Node mimeType :: "+mimeType + " | File mimeType :: "+fileMimeType);
-			if(!(StringUtils.equalsIgnoreCase(mimeType, fileMimeType) || fileMimeType.contains(mimeType)))
-				throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "Invalid File Url! MimeType Mismatched for fileId : " + fileId + " | File MimeType is : " +fileMimeType + " | Node MimeType is : "+mimeType);
+			validateMimeType(fileId, mimeType, fileMimeType);
 			File saveFile = new File(saveDir);
 			if (!saveFile.exists()) {
 				saveFile.mkdirs();
@@ -98,9 +97,29 @@ public class GoogleDriveUtil {
 		} catch (Exception e) {
 			LOGGER.error("GoogleDriveUtil :: downloadFile :: Exception :: Error Occurred While Downloading Google Drive File having Id " + fileId + " : " + e.getMessage(), e);
 			e.printStackTrace();
-			throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "Invalid Response Received From Google API for file Id : " + fileId + " | Error is : " + e.getMessage());
+			if(e instanceof ServerException)
+				throw e;
+			else throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "Invalid Response Received From Google API for file Id : " + fileId + " | Error is : " + e.getMessage());
 		}
 		return null;
+	}
+
+	private static void validateMimeType(String fileId, String mimeType, String fileMimeType) {
+		String errMsg = "Invalid File Url! File MimeType Is Not Same As Object MimeType for File Id : " + fileId + " | File MimeType is : " +fileMimeType + " | Node MimeType is : "+mimeType;
+		switch (mimeType){
+			case "application/vnd.ekstep.h5p-archive" : {
+				if(!(StringUtils.equalsIgnoreCase("application/x-zip", fileMimeType) || StringUtils.equalsIgnoreCase("application/zip", fileMimeType)))
+					throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), errMsg);
+			}
+			case "application/epub" : {
+				if(!StringUtils.equalsIgnoreCase("application/epub+zip", fileMimeType))
+					throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), errMsg);
+			}
+			default: {
+				if(!StringUtils.equalsIgnoreCase(mimeType, fileMimeType))
+					throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), errMsg);
+			}
+		}
 	}
 
 	public static void delay(int time) {
