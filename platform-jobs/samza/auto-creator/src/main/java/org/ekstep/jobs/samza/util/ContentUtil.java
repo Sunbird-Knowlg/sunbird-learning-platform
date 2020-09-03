@@ -610,7 +610,7 @@ public class ContentUtil {
 		return fileName;
 	}
 
-	private File getFile(String identifier, String fileUrl, String mimeType) {
+	private File getFile(String identifier, String fileUrl, String mimeType) throws Exception {
 		File file = null;
 		try {
 			if (StringUtils.isNotBlank(fileUrl) && fileUrl.contains("drive.google.com")) {
