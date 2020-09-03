@@ -106,7 +106,7 @@ public class CertificateGenerator {
         String userId = (String) edata.get("userId");
         String courseId = (String) edata.get("courseId");
         Map<String, Object> template = (Map<String, Object>) edata.get("template");
-        Map<String, Object> certTemplate = getCertTemplate(template);
+        Map<String, Object> certTemplate = getCertTemplate((String) template.get("identifier"));
         String templateUrl = (String)certTemplate.get("template");
         if(StringUtils.isBlank(templateUrl) || !StringUtils.endsWith(templateUrl, ".svg")) {
         	LOGGER.info("CertificateGenerator:generate: Certificate is not generated for batchId : " + batchId + ", courseId : " + courseId + " and userId : " + userId + ". TemplateId: "+ (String) template.get("identifier") + " with Url: " + templateUrl + " is not supported.");
@@ -457,9 +457,9 @@ public class CertificateGenerator {
      * @param template
      * @return
      */
-    private Map<String,Object> getCertTemplate(Map<String, Object> template) {
+    protected static Map<String,Object> getCertTemplate(String id) {
         try{
-            String id = (String) template.get("identifier");
+            //String id = (String) template.get("identifier");
             String cacheKey = id +":certtemplate";
             String templateStr = RedisStoreUtil.get(cacheKey);
             if (StringUtils.isNotBlank(templateStr)) {

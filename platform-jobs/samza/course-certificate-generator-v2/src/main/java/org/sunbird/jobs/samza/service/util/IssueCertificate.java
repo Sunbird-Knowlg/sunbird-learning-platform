@@ -94,13 +94,13 @@ public class IssueCertificate {
             LOGGER.info("IssueCertificate:fetchUsersAndIssueCertificates: userIds " + userIds);
             for (String key : templates.keySet()) {
                 Map<String, String> template = templates.get(key);
-                String certName = template.getOrDefault("name", "");
+                //String certName = template.getOrDefault("name", "");
                 String criteriaString = template.get("criteria");
                 if (StringUtils.isNotBlank(criteriaString)) {
                     Map<String, Object> criteria = mapper.readValue(criteriaString, new TypeReference<Map<String, Object>>() {
                     });
                     if (MapUtils.isNotEmpty(criteria) && CollectionUtils.isNotEmpty(CollectionUtils.intersection(criteria.keySet(), certFilterKeys))) {
-                        List<String> enrollmentList = getUserFromEnrolmentCriteria((Map<String, Object>) criteria.get("enrollment"), batchId, courseId, userIds, certName, reIssue);
+                        List<String> enrollmentList = getUserFromEnrolmentCriteria((Map<String, Object>) criteria.get("enrollment"), batchId, courseId, userIds, template, reIssue);
                         List<String> assessmentList = getUsersFromAssessmentCriteria((Map<String, Object>) criteria.get("assessment"), batchId, courseId, userIds);
                         List<String> userList = getUsersFromUserCriteria((Map<String, Object>) criteria.get("user"), new ArrayList<String>() {{
                             addAll(enrollmentList);
@@ -257,8 +257,12 @@ public class IssueCertificate {
         return result;
     }
 
-    private List<String> getUserFromEnrolmentCriteria(Map<String, Object> enrollment, String batchId, String courseId, List<String> userIds, String certName, Boolean reIssue) {
+    public List<String> getUserFromEnrolmentCriteria(Map<String, Object> enrollment, String batchId, String courseId, List<String> userIds, Map<String, String> template, Boolean reIssue) {
         List<String> enrolledUsers = new ArrayList<>();
+        String certName = template.getOrDefault("name", "");
+        Map<String, Object> certTemplate = CertificateGenerator.getCertTemplate(template.getOrDefault("identifier", ""));
+        String templateUrl = (String)certTemplate.get("template");
+        
         try {
             if(MapUtils.isNotEmpty(enrollment)){
                 Map<String, Object> dataToFetch = new HashMap<String, Object>() {{
@@ -274,9 +278,19 @@ public class IssueCertificate {
                 Iterator<Row> rowIterator = resultSet.iterator();
                 while (rowIterator.hasNext()) {
                     Row row = rowIterator.next();
-                    List<Map<String, String>> certificates = row.getList("certificates", TypeTokens.mapOf(String.class, String.class));
+                    //TODO: Added code for validating issued_certificates and certificates with respect to template url. 
+                    // Need to be removed while depricating course-certificate-generator v1 job
+                    List<Map<String, String>> certificates=null;
+                    if(StringUtils.isNotBlank(templateUrl) && StringUtils.endsWith(templateUrl, ".svg")) {
+                    	certificates = row.getList("issued_certificates", TypeTokens.mapOf(String.class, String.class));
+                    }else if(StringUtils.isNotBlank(templateUrl) && !StringUtils.endsWith(templateUrl, ".svg")) {
+                    	certificates = row.getList("certificates", TypeTokens.mapOf(String.class, String.class));
+                    }
                     boolean isCertIssued = CollectionUtils.isNotEmpty(certificates) && 
-                            (CollectionUtils.isNotEmpty(certificates.stream().filter(map -> StringUtils.equalsIgnoreCase(certName, (String)map.getOrDefault("name", ""))).collect(Collectors.toList())));
+                            (CollectionUtils.isNotEmpty(certificates.stream().filter(map -> 
+                            StringUtils.equalsIgnoreCase(certName, (String)map.getOrDefault("name", ""))).collect(Collectors.toList())));
+                    
+                    
                     if (row.getBool("active") && (!isCertIssued || reIssue)) {
                         enrolledUsers.add(row.getString("userid"));
                     }
