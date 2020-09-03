@@ -94,6 +94,13 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
+			<artifactId>course-certificate-generator-v2</artifactId>
+			<version>0.0.1</version>
+			<type>tar.gz</type>
+			<classifier>distribution</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
 			<artifactId>auto-creator</artifactId>
 			<version>0.0.16</version>
 			<type>tar.gz</type>
