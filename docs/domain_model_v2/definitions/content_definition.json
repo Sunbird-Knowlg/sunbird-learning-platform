@@ -163,7 +163,8 @@
           "displayProperty": "Editable",
           "range": [
             "Student",
-            "Teacher"
+            "Teacher",
+            "Administrator"
           ],
           "defaultValue": "Student",
           "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
@@ -3015,7 +3016,14 @@
             "CourseAssessment",
             "ETB",
             "ContentPlayList",
-            "GenericCollection"
+            "GenericCollection",
+            "TVLesson",
+            "Template",
+            "Asset",
+            "Plugin",
+            "LessonPlanUnit",
+            "CourseUnit",
+            "TextBookUnit"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -3036,14 +3044,14 @@
             "CuriosityQuestionSet",
             "Textbook",
             "ExperientialResource",
-            "Explanation Video",
+            "ExplanationVideo",
             "FocusSpot",
             "LearningOutcomeDefinition",
             "MarkingSchemeRubric",
             "PedagogyFlow",
             "PracticeQuestionSet",
             "LessonPlan",
-            "Previous Board Exam Papers",
+            "PreviousBoardExamPapers",
             "ExplanationContent",
             "LearningResource",
             "OnlineCourse",
