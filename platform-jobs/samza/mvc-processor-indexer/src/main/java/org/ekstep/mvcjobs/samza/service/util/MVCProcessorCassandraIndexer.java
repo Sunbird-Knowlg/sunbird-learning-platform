@@ -139,12 +139,13 @@ public class MVCProcessorCassandraIndexer  {
         String mlvectorapi = Platform.config.hasPath("mlvectorapi") ? Platform.config.getString("mlvectorapi") : "";
         JSONObject obj = new JSONObject(mlvectorListRequest);
         JSONObject req = ((JSONObject) (obj.get("request")));
+        JSONArray text = (JSONArray) req.get("text");
         req.put("cid", identifier);
-        req.put("text", contentText);
-        LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForVectorApi  ::: The ML vector URL is " + "http://" + mlvectorapi + ":1729/ml/vector/searchld");
+        text.put(contentText);
+        LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForVectorApi  ::: The ML vector URL is " + "http://" + mlvectorapi + ":1729/ml/vector/ContentText");
 
         try {
-            String resp = HTTPUtil.makePostRequest("http://" + mlvectorapi + ":1729/ml/vector/search", obj.toString());
+            String resp = HTTPUtil.makePostRequest("http://" + mlvectorapi + ":1729/ml/vector/ContentText", obj.toString());
             LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForVectorApi  ::: ML vector api request response is " + resp);
         } catch (Exception e) {
             LOGGER.info("MVCProcessorCassandraIndexer :: makepostreqForVectorApi  ::: ML vector api request failed ");
