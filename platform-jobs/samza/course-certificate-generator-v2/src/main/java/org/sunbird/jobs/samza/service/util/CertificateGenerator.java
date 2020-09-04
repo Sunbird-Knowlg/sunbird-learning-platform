@@ -13,6 +13,9 @@ import com.mashape.unirest.http.Unirest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.samza.system.OutgoingMessageEnvelope;
+import org.apache.samza.system.SystemStream;
+import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -21,6 +24,7 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 import redis.clients.jedis.Jedis;
@@ -32,6 +36,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class CertificateGenerator {
@@ -56,15 +61,24 @@ public class CertificateGenerator {
     protected static final String KP_CONTENT_SERVICE_BASE_URL = Platform.config.hasPath("kp.content_service.base_url")
             ? Platform.config.getString("kp.content_service.base_url"): "http://localhost:9000";
 
-    private static final String certGenerateURL = CERT_SERVICE_URL + "/v1/certs/generate";
-    private static final String certRegistryAddURL = CERT_REG_SERVICE_BASE_URL + "/certs/v1/registry/add";
+    private static final String CERT_GENERATE_URL = Platform.config.hasPath("certificate.generate.url")
+            ? Platform.config.getString("certificate.generate.url"): "/v2/certs/generate";
+    private static final String CERT_REGISTRY_ADD_URL = Platform.config.hasPath("certificate.registry.add.url")
+            ? Platform.config.getString("certificate.registry.add.url"): "/certs/v2/registry/add";
+    private static final String certGenerateURL = CERT_SERVICE_URL + CERT_GENERATE_URL;
+    private static final String certRegistryAddURL = CERT_REG_SERVICE_BASE_URL + CERT_REGISTRY_ADD_URL;
+    
+    private static final Boolean certificateGenerateNotificationEnable = Platform.config.hasPath("certificate.generate.notification.enable")?
+            Platform.config.getBoolean("certificate.generate.notification.enable"): false;
 
     private static JobLogger LOGGER = new JobLogger(CertificateGenerator.class);
     private Session cassandraSession = null;
     private Jedis redisConnect =null;
     private static final String NOTIFICATION_URL = Platform.config.hasPath("notification.api.endpoint")
-            ? Platform.config.getString("notification.api.endpoint"): "/v1/notification/email";
+            ? Platform.config.getString("notification.api.endpoint"): "/v2/notification";
 
+    private static final String DEFAULT_CHANNEL_ID = Platform.config.hasPath("channel.default") ? Platform.config.getString("channel.default") : "in.ekstep";
+    private SystemStream certificateAuditEventStream = null;
 
     public CertificateGenerator(Jedis redisConnect, Session cassandraSession) {
         ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
@@ -76,14 +90,25 @@ public class CertificateGenerator {
         this.redisConnect = redisConnect;
     }
 
-    public void generate(Map<String, Object> edata) {
+    public CertificateGenerator(Jedis redisConnect, Session cassandraSession, SystemStream certificateAuditEventStream) {
+        ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
+        formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        this.cassandraSession = cassandraSession;
+        this.redisConnect = redisConnect;
+        this.certificateAuditEventStream = certificateAuditEventStream;
+    }
+
+    public void generate(Map<String, Object> edata, MessageCollector collector) {
         String batchId = (String) edata.get("batchId");
         String userId = (String) edata.get("userId");
         String courseId = (String) edata.get("courseId");
         Map<String, Object> template = (Map<String, Object>) edata.get("template");
-        Map<String, Object> certTemplate = getCertTemplate(template);
+        Map<String, Object> certTemplate = getCertTemplate((String) template.get("identifier"));
         String templateUrl = (String)certTemplate.get("template");
-        if(StringUtils.isBlank(templateUrl) || StringUtils.endsWith(templateUrl, ".svg")) {
+        if(StringUtils.isBlank(templateUrl) || !StringUtils.endsWith(templateUrl, ".svg")) {
         	LOGGER.info("CertificateGenerator:generate: Certificate is not generated for batchId : " + batchId + ", courseId : " + courseId + " and userId : " + userId + ". TemplateId: "+ (String) template.get("identifier") + " with Url: " + templateUrl + " is not supported.");
         	return;
         }
@@ -102,15 +127,15 @@ public class CertificateGenerator {
                 List<Row> rows = resulSet.all();
                 if(CollectionUtils.isNotEmpty(rows)) {
                     for (Row row : rows) {
-                        List<Map<String, String>> certificates = row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class))
+                        List<Map<String, String>> certificates = row.getList(CourseCertificateParams.issued_certificates.name(), TypeTokens.mapOf(String.class, String.class))
                                 .stream().filter(cert -> StringUtils.equalsIgnoreCase((String) certTemplate.get("name"), (String) cert.get(CourseCertificateParams.name.name()))).collect(Collectors.toList());
                         Date issuedOn = row.getTimestamp("completedOn");
                         if (CollectionUtils.isNotEmpty(certificates) && reIssue) {
-                            issueCertificate(certificates, courseId, certTemplate, batchId, userId, issuedOn, true);
+                            issueCertificate(certificates, courseId, certTemplate, batchId, userId, issuedOn, true, collector);
                         } else if (CollectionUtils.isEmpty(certificates)) {
-                            certificates = (null != row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class)))
-                                    ? row.getList(CourseCertificateParams.certificates.name(), TypeTokens.mapOf(String.class, String.class)) : new ArrayList<>();
-                            issueCertificate(certificates, courseId, certTemplate, batchId, userId, issuedOn, false);
+                            certificates = (null != row.getList(CourseCertificateParams.issued_certificates.name(), TypeTokens.mapOf(String.class, String.class)))
+                                    ? row.getList(CourseCertificateParams.issued_certificates.name(), TypeTokens.mapOf(String.class, String.class)) : new ArrayList<>();
+                            issueCertificate(certificates, courseId, certTemplate, batchId, userId, issuedOn, false, collector);
                         } else {
                             LOGGER.info("CertificateGenerator:generate: Certificate is available for batchId : " + batchId + ", courseId : " + courseId + " and userId : " + userId + ". Not applied for reIssue.");
                             throw new ClientException("ERR_GENERATE_CERTIFICATE", "Certificate is available for batchId : " + batchId + ", courseId : " + courseId + " and userId : " + userId + ". Not applied for reIssue.");
@@ -130,7 +155,7 @@ public class CertificateGenerator {
         }
     }
 
-    private void issueCertificate(List<Map<String, String>> certificates, String courseId, Map<String, Object> certTemplate, String batchId, String userId, Date issuedOn, boolean reIssue) {
+    private void issueCertificate(List<Map<String, String>> certificates, String courseId, Map<String, Object> certTemplate, String batchId, String userId, Date issuedOn, boolean reIssue, MessageCollector collector) {
         // get Course metadata from KP
         Map<String, Object> courseMetadata = getContent(courseId,null);
         if(MapUtils.isNotEmpty(courseMetadata)){
@@ -140,7 +165,7 @@ public class CertificateGenerator {
                 Map<String, Object> userResponse = getUserDetails(userId); // call user Service
                 // Save certificate to user_courses table cassandra
                 if(MapUtils.isNotEmpty(userResponse)){
-                    generateCertificate(certificates, courseId, courseName, batchId, userId, userResponse, certTemplate, issuedOn, reIssue);
+                    generateCertificate(certificates, courseId, courseName, batchId, userId, userResponse, certTemplate, issuedOn, reIssue, collector);
                 } else {
                     LOGGER.info("CertificateGenerator:issueCertificate: User not found for userId: " + userId);
                     throw new ClientException("ERR_GENERATE_CERTIFICATE", "User not found for userId: " + userId);
@@ -156,11 +181,11 @@ public class CertificateGenerator {
     }
 
     private void generateCertificate(List<Map<String, String>> certificates, String courseId, String courseName, String batchId, String userId, Map<String, Object> userResponse,
-                                     Map<String, Object> certTemplate, Date issuedOn, boolean reIssue) {
+                                     Map<String, Object> certTemplate, Date issuedOn, boolean reIssue, MessageCollector collector) {
         try{
             String oldId = null;
             if(reIssue) {
-                oldId = certificates.stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), cert.get("name"))).map(cert -> {return  cert.get("id");}).findFirst().orElse("");
+                oldId = certificates.stream().filter(cert -> StringUtils.equalsIgnoreCase((String)certTemplate.get("name"), cert.get("name"))).map(cert -> {return  cert.get("identifier");}).findFirst().orElse("");
             }
             String recipientName = getRecipientName(userResponse);
             Map<String, Object> certServiceRequest = prepareCertServiceRequest(courseName, batchId, userId, userResponse, certTemplate, issuedOn);
@@ -173,7 +198,7 @@ public class CertificateGenerator {
 
                 if(CollectionUtils.isNotEmpty(updatedCerts)) {
                     Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
-                        put(CourseCertificateParams.certificates.name(), updatedCerts);
+                        put(CourseCertificateParams.issued_certificates.name(), updatedCerts);
                     }};
                     Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
                         put(CourseCertificateParams.userId.name(), userId);
@@ -183,8 +208,11 @@ public class CertificateGenerator {
                     SunbirdCassandraUtil.update(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToUpdate, dataToSelect);
                     updatedES(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
                 }
-                if(addCertificateToUser(certificate, courseId, batchId, oldId, recipientName, (String)certTemplate.get("name"))) {
-                    notifyUser(userId, certTemplate, courseName, userResponse, issuedOn);
+
+                pushAuditEvent(userId, courseId, batchId, certificate, collector);
+
+                if(addCertificateToUser(certificate, courseId, batchId, oldId, recipientName, (String)certTemplate.get("name")) && certificateGenerateNotificationEnable) {
+                	notifyUser(userId, certTemplate, courseName, userResponse, issuedOn);
                 }
             } else {
                 LOGGER.info("CertificateGenerator:generateCertificate: Error while generation certificate for batchId : " + batchId +  ", courseId : " + courseId + " and userId : " + userId + " with error response : "  +  + httpResponse.getStatus()  + " :: " + httpResponse.getBody());
@@ -205,7 +233,6 @@ public class CertificateGenerator {
             request.put(CourseCertificateParams.jsonData.name(), certificate.get(CourseCertificateParams.jsonData.name()));
             request.put(CourseCertificateParams.jsonUrl.name(), certificate.get(CourseCertificateParams.jsonUrl.name()));
             request.put(CourseCertificateParams.id.name(), certificate.get(CourseCertificateParams.id.name()));
-            request.put(CourseCertificateParams.pdfUrl.name(), certificate.get(CourseCertificateParams.pdfUrl.name()));
             request.put("related", new HashMap<String, Object>(){{
                 put("type", certName.toLowerCase());
                 put(CourseCertificateParams.courseId.name(), courseId);
@@ -293,7 +320,7 @@ public class CertificateGenerator {
                    put(CourseCertificateParams.name.name(), certTemplate.get(CourseCertificateParams.name.name()));
                    put(CourseCertificateParams.issuer.name(), getIssuerDetails(certTemplate));
                    put(CourseCertificateParams.signatoryList.name(), getSignatoryList(certTemplate));
-                   put(CourseCertificateParams.htmlTemplate.name(), certTemplate.get("template"));
+                   put(CourseCertificateParams.svgTemplate.name(), certTemplate.get("template"));
                    put(CourseCertificateParams.tag.name(),  rootOrgId + "_" + batchId);
                    put(CourseCertificateParams.issuedDate.name(), dateFormatter.format(issuedOn));
                    if(MapUtils.isNotEmpty(keys))
@@ -430,9 +457,9 @@ public class CertificateGenerator {
      * @param template
      * @return
      */
-    private Map<String,Object> getCertTemplate(Map<String, Object> template) {
+    protected static Map<String,Object> getCertTemplate(String id) {
         try{
-            String id = (String) template.get("identifier");
+            //String id = (String) template.get("identifier");
             String cacheKey = id +":certtemplate";
             String templateStr = RedisStoreUtil.get(cacheKey);
             if (StringUtils.isNotBlank(templateStr)) {
@@ -457,8 +484,7 @@ public class CertificateGenerator {
     private void populateCreatedCertificate(List<Map<String, String>> updatedCerts, Map<String, Object> certificate, String certificateName, Date issuedOn, boolean reIssue) {
         updatedCerts.add(new HashMap<String, String>(){{
             put(CourseCertificateParams.name.name(), certificateName);
-            put(CourseCertificateParams.id.name(), (String) certificate.get(CourseCertificateParams.id.name()));
-            put(CourseCertificateParams.url.name(), (String) certificate.get(CourseCertificateParams.pdfUrl.name()));
+            put(CourseCertificateParams.identifier.name(), (String) certificate.get(CourseCertificateParams.id.name()));
             put(CourseCertificateParams.token.name(), (String) certificate.get(CourseCertificateParams.accessCode.name()));
             put(CourseCertificateParams.lastIssuedOn.name(), formatter.format(new Date()));
             if(reIssue){
@@ -492,5 +518,67 @@ public class CertificateGenerator {
 
     }
 
+    private void pushAuditEvent(String userId, String courseId, String batchId, Map<String, Object> certificate, MessageCollector collector) {
+        try {
+            Map<String, Object> certificateAuditEvent = generateAuditEvent(userId, courseId, batchId, certificate);
+            LOGGER.info("CertificateGenerator:pushAuditEvent: audit event generated for certificate : "
+                    + ((Map<String, Object>) certificateAuditEvent.getOrDefault("object", "")).getOrDefault("id", "")
+                    + " with mid : " + certificateAuditEvent.getOrDefault("mid", ""));
+            collector.send(new OutgoingMessageEnvelope(certificateAuditEventStream, certificateAuditEvent));
+            LOGGER.info("CertificateGenerator:pushAuditEvent: certificate audit event success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("CertificateGenerator:pushAuditEvent: certificate audit event failed : ", e);
+        }
+    }
+
+    private Map<String, Object> generateAuditEvent(String userId, String courseId, String batchId, Map<String, Object> certificate) throws Exception {
+        Map<String, Object> actor = new HashMap<>();
+        Map<String, Object> context = new HashMap<>();
+        Map<String, Object> object = new HashMap<>();
+        Map<String, Object> edata = new HashMap<>();
+
+        actor.putAll(new HashMap<String, Object>() {{
+            put(CourseCertificateParams.id.name(), userId);
+            put(CourseCertificateParams.type.name(), "User");
+        }});
+
+        context.putAll(new HashMap<String, Object>() {{
+            put(CourseCertificateParams.channel.name(), DEFAULT_CHANNEL_ID);
+            put(CourseCertificateParams.pdata.name(), new HashMap<String, Object>() {{
+                put(CourseCertificateParams.id.name(), "org.sunbird.learning.platform");
+                put(CourseCertificateParams.pid.name(), "course-certificate-generator");
+                put(CourseCertificateParams.ver.name(), "1.0");
+            }});
+            put(CourseCertificateParams.env.name(), "Course");
+            put(CourseCertificateParams.cdata.name(), new ArrayList<HashMap<String, Object>>() {{
+                add(new HashMap<String, Object>() {{
+                    put(CourseCertificateParams.type.name(), "CourseBatch");
+                    put(CourseCertificateParams.id.name(), batchId);
+                }});
+            }});
+        }});
+
+        object.putAll(new HashMap<String, Object>() {{
+            put(CourseCertificateParams.id.name(), certificate.get("id"));
+            put(CourseCertificateParams.type.name(), "Certificate");
+            put(CourseCertificateParams.rollup.name(), new HashMap<String, Object>() {{
+                put(CourseCertificateParams.l1.name(), courseId);
+            }});
+        }});
+
+        edata.putAll(new HashMap<String, Object>() {{
+            put(CourseCertificateParams.props.name(), new ArrayList<String>() {{
+                add("certificates");
+            }});
+            put(CourseCertificateParams.type.name(), "certificate-issued");
+        }});
+        String auditEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+        Map<String, Object> certificateAuditEvent = mapper.readValue(auditEvent, new TypeReference<Map<String, Object>>() {});
+        certificateAuditEvent.put(CourseCertificateParams.eid.name(), "AUDIT");
+        certificateAuditEvent.put(CourseCertificateParams.mid.name(), "LP.AUDIT."+System.currentTimeMillis()+"."+ UUID.randomUUID());
+        certificateAuditEvent.put(CourseCertificateParams.ver.name(), "3.0");
+        return certificateAuditEvent;
+    }
 
 }
