@@ -136,9 +136,11 @@ post-publish-processor: |
     keyspace = "{{ middleware_course_keyspace }}"
     batchTable = "course_batch"
   }
-
   content {
     search {
       basePath = "http://11.2.6.6/search"
     }
+  }
+  lms {
+    basePath = "http://11.2.6.6/lms"
   }
