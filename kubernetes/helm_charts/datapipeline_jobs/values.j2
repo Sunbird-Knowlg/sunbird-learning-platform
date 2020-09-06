@@ -70,6 +70,10 @@ base_config: |
       host = "{{ core_cassandra_connection_ip }}"
       port = "9042"
     }
+    neo4j {
+      routePath = "bolt://11.2.3.24:7687"
+      graph = "domain"
+    }
 
 activity-aggregate-updater: |
   include file("/data/flink/conf/base-config.conf")
