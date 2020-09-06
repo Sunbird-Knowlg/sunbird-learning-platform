@@ -296,18 +296,8 @@ public class PublishPipelineService implements ISamzaService {
                 throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
             }
             collector.send(new OutgoingMessageEnvelope(postPublishStream, linkDialcodeEvent));
-
-            if(StringUtils.equalsIgnoreCase("Course", (String) node.getMetadata().get("contentType"))) {
-                Map<String, Object> createCourseBatchEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "coursebatch-create");
-                if (MapUtils.isEmpty(createCourseBatchEvent)) {
-                    TelemetryManager.error("Post Publish event is not generated properly for action (coursebatch-create) : " + createCourseBatchEvent);
-                    throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly for coursebatch-create action.");
-                }
-                collector.send(new OutgoingMessageEnvelope(postPublishStream, createCourseBatchEvent));
-            }
-            LOGGER.info("All OLD format Events sent to post publish event topic");
+            LOGGER.info("OLD format Event - link-dialcode - sent to post publish event topic");
         }
-
         LOGGER.info("All Events sent to post publish event topic");
 	}
 
