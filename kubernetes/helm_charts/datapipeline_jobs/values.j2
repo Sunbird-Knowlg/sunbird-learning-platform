@@ -71,7 +71,7 @@ base_config: |
       port = "9042"
     }
     neo4j {
-      routePath = "bolt://11.2.3.24:7687"
+      routePath = "{{ neo4j_route_path }}"
       graph = "domain"
     }
 
@@ -142,9 +142,9 @@ post-publish-processor: |
   }
   content {
     search {
-      basePath = "http://11.2.6.6/search"
+      basePath = "{{ kp_search_service_base_url }}"
     }
   }
   lms {
-    basePath = "http://11.2.6.6/lms"
+    basePath = "{{ lms_service_base_url }}"
   }

@@ -85,3 +85,6 @@ flink_job_names:
 ### Global vars
 middleware_course_keyspace: "sunbird_courses"
 middleware_hierarchy_keyspace: "{{ instance }}_hierarchy_store"
+neo4j_route_path: "bolt://{{ groups['learning-neo4j-node1'][0] }}:7687"
+kp_search_service_base_url: "http://{{private_ingressgateway_ip}}/search"
+lms_service_base_url: "http://{{private_ingressgateway_ip}}/lms"
