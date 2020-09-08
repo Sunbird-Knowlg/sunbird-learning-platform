@@ -2999,7 +2999,7 @@
           "draft": false
         },
         {
-          "required": true,
+          "required": false,
           "dataType": "Select",
           "propertyName": "primaryCategory",
           "title": "Primary Category",
