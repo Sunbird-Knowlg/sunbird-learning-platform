@@ -163,7 +163,8 @@
           "displayProperty": "Editable",
           "range": [
             "Student",
-            "Teacher"
+            "Teacher",
+            "Administrator"
           ],
           "defaultValue": "Student",
           "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
@@ -2998,7 +2999,7 @@
           "draft": false
         },
         {
-          "required": true,
+          "required": false,
           "dataType": "Select",
           "propertyName": "primaryCategory",
           "title": "Primary Category",
