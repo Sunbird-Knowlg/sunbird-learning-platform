@@ -1,4 +1,7 @@
 ---
+- include: deploy.yml
+  when: cloud_store == 'azure'
+  
 - include: deploy-aws.yml
   when: cloud_store == 'aws'
 
