@@ -1,7 +1,4 @@
 ---
-- include: deploy.yml
-  when: deploy_jobs | default(false)
-  
 - include: deploy-aws.yml
   when: cloud_store == 'aws'
 
