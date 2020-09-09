@@ -106,6 +106,7 @@
           ],
           "required": true,
           "indexed": true,
+          "defaultValue": "",
           "displayProperty": "Editable",
           "renderingHints": "{'inputType': 'select', 'order': 5}"
         },
