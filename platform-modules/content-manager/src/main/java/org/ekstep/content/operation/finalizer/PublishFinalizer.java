@@ -142,8 +142,8 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	static {
 		try{
-			contentPrimaryCategoryString = Platform.config.hasPath("notification.sms.body") ?
-					mapper.readValue(Platform.config.getString("notification.sms.body"), new TypeReference<Map<String, String>>() {}) : new HashMap<>() ;
+			contentPrimaryCategoryString = Platform.config.hasPath("contentTypeToPrimaryCategory") ?
+					mapper.readValue(Platform.config.getString("contentTypeToPrimaryCategory"), new TypeReference<Map<String, String>>() {}) : new HashMap<>() ;
 		} catch (Exception e) {
 			contentPrimaryCategoryString = new HashMap<>();
 		}
@@ -1186,7 +1186,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			updateLeafNodeIds(node, content);
 			//TODO: REMOVE AFTER PRIMARY CATEGORY MIGRATION IS DONE
 			setContentAndCategoryTypes(content);
-
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
 			List<String> childNodes = getChildNode(content);
@@ -1428,9 +1427,11 @@ public class PublishFinalizer extends BaseFinalizer {
     		return null;
     }
 
-	private void setContentAndCategoryTypes(Map<String, Object> input)  {
+	 public void setContentAndCategoryTypes(Map<String, Object> input)  {
 		String contentType = (String)input.get("contentType");
-		String primaryCategory = (String)input.get("primaryCategory");
+		 System.out.println(contentType);
+		 System.out.println(contentPrimaryCategoryString);
+		String primaryCategory = (String) input.get("primaryCategory");
 		String updatedContentType = "";
 		String updatedPrimaryCategory = "";
 		if(StringUtils.isNotBlank(contentType) && StringUtils.isBlank(primaryCategory)) {
