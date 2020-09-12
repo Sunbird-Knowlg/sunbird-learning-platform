@@ -162,10 +162,11 @@
 					"category": "General",
 					"displayProperty": "Editable",
 					"range": [
-						"Learner",
-						"Instructor"
+						"Student",
+						"Teacher",
+						"Administrator"
 					],
-					"defaultValue": "Learner",
+					"defaultValue": "Student",
 					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
 					"indexed": true,
 					"draft": false
@@ -300,7 +301,8 @@
 					"range": [
 						"inline",
 						"online",
-						"attachment"
+						"attachment",
+						"online-only"
 					],
 					"defaultValue": "inline",
 					"renderingHints": "{ 'inputType': 'text',  'order': 5 }",
@@ -923,7 +925,9 @@
 						"CC BY-NC 4.0",
 						"CC BY-SA 4.0",
 						"CC BY 4.0",
-						"Standard YouTube License"
+						"CC BY-ND 4.0",
+						"Standard YouTube License",
+						"CC BY-NC-ND 4.0"
 					],
 					"category": "Ownership",
 					"displayProperty": "Editable",
@@ -1110,7 +1114,17 @@
 						"ExplanationResource",
 						"ExperientialResource",
 						"ConceptMap",
-						"SelfAssess"
+						"SelfAssess",
+						"PracticeResource",
+						"eTextBook",
+						"OnboardingResource",
+						"ExplanationVideo",
+						"ClassroomTeachingVideo",
+						"ExplanationReadingMaterial",
+						"LearningActivity",
+						"PreviousBoardExamPapers",
+						"LessonPlanResource",
+						"TVLesson"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -1127,7 +1141,7 @@
 					"displayProperty": "Editable",
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'table', 'order': 6 }",
-					"range":[
+					"range": [
 						"Read",
 						"Learn",
 						"Teach",
@@ -2910,6 +2924,136 @@
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
 					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "artifactBasePath",
+					"title": "ArtifactBasePath",
+					"description": "ArtifactBasePath for Program Context",
+					"category": "general",
+					"displayProperty": "Editable",
+					"range": null,
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text', 'order': 8 }",
+					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "Multi-Select",
+					"propertyName": "monitorable",
+					"title": "Monitorable",
+					"description": "Monitorable",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"progress-report",
+						"score-report"
+					],
+					"defaultValue": "",
+					"renderingHints": "{ 'order': 20 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Select",
+					"propertyName": "userConsent",
+					"title": "User Consent",
+					"description": "User Consent",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"Yes",
+						"No"
+					],
+					"defaultValue": "",
+					"renderingHints": "{ 'order': 20 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "trackable",
+					"title": "Trackable",
+					"description": "Trackable",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 9 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "credentials",
+					"title": "Credentials",
+					"description": "Credentials",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 10 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Select",
+					"propertyName": "primaryCategory",
+					"title": "Primary Category",
+					"description": "Primary Category",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"Explanation Content",
+						"Learning Resource",
+						"Course",
+						"Practice Question Set",
+						"eTextbook",
+						"Teacher Resource",
+						"Course Assessment",
+						"Digital Textbook",
+						"Content Playlist",
+						"Template",
+						"Asset",
+						"Plugin",
+						"Lesson Plan Unit",
+						"Course Unit",
+						"Textbook Unit"
+					],
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Multi-Select",
+					"propertyName": "additionalCategories",
+					"title": "Additional Categories",
+					"description": "Additional Categories",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"Textbook",
+						"TV Lesson",
+						"Previous Board Exam Papers",
+						"Pedagogy Flow",
+						"Marking Scheme Rubric",
+						"Lesson Plan",
+						"Learning Outcome Definition",
+						"Focus Spot",
+						"Explanation Video",
+						"Experiential Resource",
+						"Curiosity Question Set",
+						"Concept Map",
+						"Classroom Teaching Video"
+					],
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'multiselect',  'order': 14 }",
+					"indexed": true
 				}
 			],
 			"inRelations": [
@@ -2960,8 +3104,8 @@
 					"objectTypes": [
 						"ItemSet"
 					],
-					"title": "item_sets",
-					"description": "Assessment items associated with this content",
+					"title": "itemSets",
+					"description": "Item Sets associated with this content",
 					"required": false,
 					"renderingHints": "{ 'order': 26 }"
 				},

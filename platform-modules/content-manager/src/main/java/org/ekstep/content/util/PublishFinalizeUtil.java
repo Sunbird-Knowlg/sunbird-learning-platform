@@ -3,10 +3,16 @@ package org.ekstep.content.util;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -21,15 +27,19 @@ import org.ekstep.content.entity.Media;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.operation.finalizer.BaseFinalizer;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.contentstore.ContentStore;
 import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class PublishFinalizeUtil extends BaseFinalizer{
 	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
 	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
-	
+	private static final List<String> AUTOBATCH_RELATED_METADATA = Arrays.asList("trackable", "monitorable", "userConsent", "credentials");
+	private static final ControllerUtil util =  new ControllerUtil();
 	private ContentStore contentStore = new ContentStore();
+	private static final ObjectMapper mapper = new ObjectMapper();
 	
 	public PublishFinalizeUtil(ContentStore contentStore) {
 		this.contentStore = contentStore;
@@ -121,6 +131,82 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			}
 		}
 	}
+
+	public void handleAutoBatchAndTrackability(Node node) {
+		String channel = (String) node.getMetadata().getOrDefault("channel", "all");
+		String objectType = node.getObjectType();
+		String primaryCategory = (String) node.getMetadata().get("primaryCategory");
+		String categoryDefinitionId = "obj-cat:" + Slug.makeSlug(primaryCategory) + "_" + Slug.makeSlug(objectType) + "_" + Slug.makeSlug(channel);
+		System.out.println(categoryDefinitionId);
+		List<String> propsToAdd = (List<String>) CollectionUtils.subtract(AUTOBATCH_RELATED_METADATA, (List<String>) CollectionUtils.intersection(node.getMetadata().keySet(), AUTOBATCH_RELATED_METADATA));
+		System.out.println(propsToAdd);
+		//Get all the properties not present in node
+		if (CollectionUtils.isNotEmpty(propsToAdd)) {
+			//Get the node for primaryCategory Definition
+			if(!StringUtils.equalsIgnoreCase(channel, "all")) {
+				Map<String, Object> properties = getDefinitionProperties(categoryDefinitionId, "domain");
+				setPropertiesToNode(properties, propsToAdd, node);
+				propsToAdd = (List<String>) CollectionUtils.subtract(propsToAdd, (List<String>) CollectionUtils.intersection(properties.keySet(), propsToAdd));
+			}
+			System.out.println(propsToAdd);
+			//If it's still not done, fetch from all
+			if(CollectionUtils.isNotEmpty(propsToAdd)) {
+				categoryDefinitionId = "obj-cat:" + Slug.makeSlug(primaryCategory) + "_" + Slug.makeSlug(objectType) + "_" + "all";
+				Map<String, Object> properties = getDefinitionProperties(categoryDefinitionId, "domain");
+				setPropertiesToNode(properties, propsToAdd, node);
+				propsToAdd = (List<String>) CollectionUtils.subtract(propsToAdd, (List<String>) CollectionUtils.intersection(properties.keySet(), propsToAdd));
+			}
+			System.out.println(propsToAdd);
+			//If not fetch from Definition
+			if(CollectionUtils.isNotEmpty(propsToAdd)) {
+				List<String> propsToCheck = propsToAdd;
+				DefinitionDTO definition = new ControllerUtil().getDefinition("domain", objectType);
+				definition.getProperties().stream().filter(prop -> propsToCheck.contains(prop.getPropertyName())).forEach(prop -> node.getMetadata().put(prop.getPropertyName(), prop.getDefaultValue()));
+			}
+		}
+
+	}
+
+	public Map<String, Object> getDefinitionProperties(String categoryDefinitionIdentifier, String domain) {
+		try {
+			Node categoryDefinitionNode = util.getNode(domain, categoryDefinitionIdentifier);
+			Map<String, Object> objectMetadata = mapper.readValue((String) categoryDefinitionNode.getMetadata().getOrDefault("objectMetadata", "{}"), new TypeReference<Map<String, Object>>() {});
+			System.out.println(objectMetadata);
+			return (Map<String, Object>) ((Map<String, Object>) objectMetadata.getOrDefault("schema", new HashMap<String, Object>())).getOrDefault("properties", new HashMap<String, Object>());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new HashMap<>();
+		}
+	}
+
+	public void setPropertiesToNode(Map<String, Object> properties, List<String> propsToAdd, Node node) {
+		propsToAdd.forEach(prop -> {
+			switch (prop) {
+				case "trackable": {
+					Map<String, Object> trackable = (Map<String, Object>) ((Map<String, Object>) ((Map<String, Object>) properties.getOrDefault(prop, new HashMap<>())).getOrDefault("properties", new HashMap<String, Object>()))
+							.entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey(), entry -> ((Map<String, Object>) entry.getValue()).getOrDefault("default", "")));
+					node.getMetadata().put(prop, trackable);
+					break;
+				}
+				case "monitorable": {
+					List<String> monitorable = (List<String>) ((Map<String, Object>) properties.getOrDefault(prop, new HashMap<>())).getOrDefault("default", new ArrayList<String>());
+					node.getMetadata().put(prop, monitorable);
+					break;
+				}
+				case "userConsent": {
+					String userConsent = (String) ((Map<String, Object>) properties.getOrDefault(prop, new HashMap<>())).getOrDefault("default", "");
+					node.getMetadata().put(prop, userConsent);
+					break;
+				}
+				case "credentials": {
+					Map<String, Object> credentials = (Map<String, Object>) ((Map<String, Object>) ((Map<String, Object>) properties.getOrDefault(prop, new HashMap<>())).getOrDefault("properties", new HashMap<String, Object>()))
+							.entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey(), entry -> ((Map<String, Object>) entry.getValue()).getOrDefault("default", "")));
+					node.getMetadata().put(prop, credentials);
+					break;
+				}
+			}
+		});
+	}
 	
 	protected boolean validateAssetMediaForExternalLink(Media media){
 		boolean isExternal = false;
@@ -132,4 +218,5 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			isExternal = true; 
 		return isExternal;
 	}
+
 }

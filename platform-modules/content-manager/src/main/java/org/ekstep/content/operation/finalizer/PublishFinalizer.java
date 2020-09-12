@@ -1186,6 +1186,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			updateLeafNodeIds(node, content);
 			//TODO: REMOVE AFTER PRIMARY CATEGORY MIGRATION IS DONE
 			setContentAndCategoryTypes(content);
+			publishFinalizeUtil.handleAutoBatchAndTrackability(node);
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
 			List<String> childNodes = getChildNode(content);
