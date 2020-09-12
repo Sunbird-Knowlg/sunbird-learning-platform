@@ -1440,7 +1440,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		} else if(StringUtils.isBlank(contentType) && StringUtils.isNotBlank(primaryCategory)) {
 			updatedContentType = contentPrimaryCategoryString.entrySet().stream().filter(entry -> StringUtils.equalsIgnoreCase(entry.getValue(), primaryCategory))
 					.map(entry -> entry.getKey()).findFirst().orElse("");
-			updatedPrimaryCategory = contentPrimaryCategoryString.get(contentType);
+			updatedPrimaryCategory = primaryCategory
 		} else {
 			updatedContentType = contentType;
 			updatedPrimaryCategory = primaryCategory;
