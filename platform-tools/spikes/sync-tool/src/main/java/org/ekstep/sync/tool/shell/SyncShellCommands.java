@@ -49,12 +49,15 @@ public class SyncShellCommands implements CommandMarker {
 	public void syncByBookmark(
 			@CliOption(key = {"graphId"}, mandatory = false, unspecifiedDefaultValue = "domain", help = "graphId of the object") final String graphId,
 			@CliOption(key = {"id","ids"}, mandatory = true, help = "Unique Id of node object") final String[] ids,
-			@CliOption(key = {"bookmarkId", "bookmarkIds"}, mandatory = false, help = "Unique Id of node object") final String[] bookmarkIds) throws Exception {
+			@CliOption(key = {"bookmarkId", "bookmarkIds"}, mandatory = false, help = "Unique Id of node object") final String[] bookmarkIds,
+			@CliOption(key = {"metaDataRefresh"}, mandatory = false, help = "Refresh node metadata") final Boolean metaDataRefresh) throws Exception {
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
 		if(bookmarkIds != null)
 			syncManager.syncAllIds(graphId, new ArrayList<>(Arrays.asList(ids)), new ArrayList<>(Arrays.asList(bookmarkIds)));
+		else if (metaDataRefresh)
+			syncManager.syncAllIds(graphId, new ArrayList<>(Arrays.asList(ids)));
 		else
 			syncManager.syncAllIds(graphId, new ArrayList<>(Arrays.asList(ids)), null);
 

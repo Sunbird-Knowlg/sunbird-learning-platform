@@ -69,6 +69,10 @@ public class CassandraESSyncManager {
     private List<String> relationshipProperties = Platform.config.hasPath("content.relationship.properties") ?
             Arrays.asList(Platform.config.getString("content.relationship.properties").split(",")) : Collections.emptyList();
     private static final String CACHE_PREFIX = "hierarchy_";
+    private static final String PRIMARY_CATEGORY = "primaryCategory";
+    private static final String AUDIENCE = "audience";
+    private static final Map<String, String> contentTypeToPrimaryCategory = Platform.config.hasPath("contentTypeToPrimaryCategory") ?
+            (Map<String, String>) Platform.config.getAnyRef("contentTypeToPrimaryCategory") : new HashMap<String, String>();
 
     public CassandraESSyncManager() {}
     
@@ -538,4 +542,83 @@ public class CassandraESSyncManager {
 		System.out.println("CassandraESSyncManager:syncDialcodesByIds::dialcodeSyncedCount: " + dialcodeSyncedCount);
 		
 	}
+
+    public Boolean syncByBookmarkId(String graphId, String resourceId) {
+        this.graphId = RequestValidatorUtil.isEmptyOrNull(graphId) ? "domain" : graphId;
+        try {
+            Map<String, Object> hierarchy = getTextbookHierarchy(resourceId);
+            if (MapUtils.isNotEmpty(hierarchy)) {
+                Node node = util.getNode("domain", resourceId);
+                updateHierarchyMetadata(hierarchy, node);
+                Map<String, Object> units = getUnitsMetadata(hierarchy, node);
+                if(MapUtils.isNotEmpty(units)){
+                    pushToElastic(units);
+                    hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
+
+                    List<String> collectionUnitIds = new ArrayList<>(units.keySet());
+                    //Clear TextBookUnits from Cassandra Hierarchy Store
+                    hierarchyStore.deleteHierarchy(collectionUnitIds);
+                    //Clear TextBook from Redis Cache
+                    RedisStoreUtil.delete(CACHE_PREFIX + resourceId);
+                    //Clear TextBookUnits from Redis Cache
+                    collectionUnitIds.forEach(id -> RedisStoreUtil.delete(CACHE_PREFIX + id));
+                    printMessages("success", collectionUnitIds, resourceId);
+                }
+                return true;
+            } else {
+                System.out.println(resourceId + " is not a type of Collection or it is not live.");
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    public void syncAllIds(String graphId, List<String> resourceIds) {
+        if (CollectionUtils.isNotEmpty(resourceIds)) {
+            resourceIds.forEach(textbook -> {
+                Boolean flag = syncByBookmarkId(graphId, textbook);
+                System.out.println("Textbook id : " + textbook + " Sync status : " + flag);
+            });
+        }
+    }
+
+    private void updateHierarchyMetadata(Map<String, Object> hierarchy, Node node) {
+        if (!hierarchy.containsKey(PRIMARY_CATEGORY)) {
+            hierarchy.put(PRIMARY_CATEGORY, (String) node.getMetadata().getOrDefault(PRIMARY_CATEGORY, ""));
+        }
+        if (node != null && node.getMetadata().containsKey(AUDIENCE)) {
+            hierarchy.put(AUDIENCE, mapper.convertValue(node.getMetadata().get(AUDIENCE), new TypeReference<ArrayList<String>>() {
+            }));
+        }
+    }
+
+    public Map<String, Object> getUnitsMetadata(Map<String, Object> hierarchy, Node node) {
+        Map<String, Object> unitsMetadata = new HashMap<>();
+        getUnitsToBeSynced(unitsMetadata, (List<Map<String, Object>>) hierarchy.get("children"), node);
+        return unitsMetadata;
+    }
+
+    private void getUnitsToBeSynced(Map<String, Object> unitsMetadata, List<Map<String, Object>> children, Node node) {
+        if (CollectionUtils.isNotEmpty(children)) {
+            children.forEach(child -> {
+                if (child.containsKey("visibility") && StringUtils.equalsIgnoreCase((String) child.get("visibility"), "parent")) {
+                    if (!child.containsKey(PRIMARY_CATEGORY)) {
+                        String contentType = (String) child.get("contentType");
+                        child.put(PRIMARY_CATEGORY, contentTypeToPrimaryCategory.getOrDefault(contentType, ""));
+                    }
+                    if (node != null) {
+                        child.put(AUDIENCE, mapper.convertValue(node.getMetadata().get(AUDIENCE), new TypeReference<ArrayList<String>>() {
+                        }));
+                    }
+                    populateESDoc(unitsMetadata, child);
+                    if (child.containsKey("children")) {
+                        getUnitsToBeSynced(unitsMetadata, (List<Map<String, Object>>) child.get("children"), node);
+                    }
+                }
+            });
+        }
+    }
 }
