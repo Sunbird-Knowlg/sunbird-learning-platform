@@ -543,7 +543,16 @@ public class CassandraESSyncManager {
 		
 	}
 
-    public Boolean syncByBookmarkId(String graphId, String resourceId) {
+    public void syncCollectionIds(String graphId, List<String> resourceIds) {
+        if (CollectionUtils.isNotEmpty(resourceIds)) {
+            resourceIds.forEach(textbook -> {
+                Boolean flag = syncCollection(graphId, textbook);
+                System.out.println("Textbook id : " + textbook + " Sync status : " + flag);
+            });
+        }
+    }
+
+    public Boolean syncCollection(String graphId, String resourceId) {
         this.graphId = RequestValidatorUtil.isEmptyOrNull(graphId) ? "domain" : graphId;
         try {
             Map<String, Object> hierarchy = getTextbookHierarchy(resourceId);
@@ -576,18 +585,9 @@ public class CassandraESSyncManager {
         }
     }
 
-    public void syncAllIds(String graphId, List<String> resourceIds) {
-        if (CollectionUtils.isNotEmpty(resourceIds)) {
-            resourceIds.forEach(textbook -> {
-                Boolean flag = syncByBookmarkId(graphId, textbook);
-                System.out.println("Textbook id : " + textbook + " Sync status : " + flag);
-            });
-        }
-    }
-
     private void updateHierarchyMetadata(Map<String, Object> hierarchy, Node node) {
         if (!hierarchy.containsKey(PRIMARY_CATEGORY)) {
-            hierarchy.put(PRIMARY_CATEGORY, (String) node.getMetadata().getOrDefault(PRIMARY_CATEGORY, ""));
+            hierarchy.put(PRIMARY_CATEGORY, node.getMetadata().get(PRIMARY_CATEGORY));
         }
         if (node != null && node.getMetadata().containsKey(AUDIENCE)) {
             hierarchy.put(AUDIENCE, mapper.convertValue(node.getMetadata().get(AUDIENCE), new TypeReference<ArrayList<String>>() {
@@ -610,8 +610,7 @@ public class CassandraESSyncManager {
                         child.put(PRIMARY_CATEGORY, contentTypeToPrimaryCategory.getOrDefault(contentType, ""));
                     }
                     if (node != null) {
-                        child.put(AUDIENCE, mapper.convertValue(node.getMetadata().get(AUDIENCE), new TypeReference<ArrayList<String>>() {
-                        }));
+                        child.put(AUDIENCE, mapper.convertValue(node.getMetadata().get(AUDIENCE), new TypeReference<ArrayList<String>>() {}));
                     }
                     populateESDoc(unitsMetadata, child);
                     if (child.containsKey("children")) {

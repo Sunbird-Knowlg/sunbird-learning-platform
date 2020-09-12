@@ -57,7 +57,7 @@ public class SyncShellCommands implements CommandMarker {
 		if(bookmarkIds != null)
 			syncManager.syncAllIds(graphId, new ArrayList<>(Arrays.asList(ids)), new ArrayList<>(Arrays.asList(bookmarkIds)));
 		else if (metaDataRefresh)
-			syncManager.syncAllIds(graphId, new ArrayList<>(Arrays.asList(ids)));
+			syncManager.syncCollectionIds(graphId, new ArrayList<>(Arrays.asList(ids)));
 		else
 			syncManager.syncAllIds(graphId, new ArrayList<>(Arrays.asList(ids)), null);
 
