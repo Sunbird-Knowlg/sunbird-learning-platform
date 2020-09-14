@@ -586,7 +586,7 @@ public class CassandraESSyncManager {
     }
 
     private void updateHierarchyMetadata(Map<String, Object> hierarchy, Node node) {
-        if (!hierarchy.containsKey(PRIMARY_CATEGORY)) {
+        if (node != null && !hierarchy.containsKey(PRIMARY_CATEGORY)) {
             hierarchy.put(PRIMARY_CATEGORY, node.getMetadata().get(PRIMARY_CATEGORY));
         }
         if (node != null && node.getMetadata().containsKey(AUDIENCE)) {
