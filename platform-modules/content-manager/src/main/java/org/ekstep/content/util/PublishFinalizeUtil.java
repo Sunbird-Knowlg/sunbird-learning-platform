@@ -145,20 +145,21 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 				setPropertiesToNode(properties, propsToAdd, node);
 				propsToAdd = (List<String>) CollectionUtils.subtract(propsToAdd, (List<String>) CollectionUtils.intersection(properties.keySet(), propsToAdd));
 			}
-			System.out.println(propsToAdd);
 			//If it's still not done, fetch from all
 			if(CollectionUtils.isNotEmpty(propsToAdd)) {
+				System.out.println(propsToAdd);
 				categoryDefinitionId = "obj-cat:" + Slug.makeSlug(primaryCategory) + "_" + Slug.makeSlug(objectType) + "_" + "all";
 				Map<String, Object> properties = getDefinitionProperties(categoryDefinitionId, "domain");
 				setPropertiesToNode(properties, propsToAdd, node);
 				propsToAdd = (List<String>) CollectionUtils.subtract(propsToAdd, (List<String>) CollectionUtils.intersection(properties.keySet(), propsToAdd));
 			}
-			System.out.println(propsToAdd);
-			//If not fetch from Definition
+     		//If not fetch from Definition
 			if(CollectionUtils.isNotEmpty(propsToAdd)) {
+				System.out.println(propsToAdd);
 				List<String> propsToCheck = propsToAdd;
 				DefinitionDTO definition = new ControllerUtil().getDefinition("domain", objectType);
-				definition.getProperties().stream().filter(prop -> propsToCheck.contains(prop.getPropertyName())).filter(prop -> StringUtils.isNotBlank((String) prop.getDefaultValue()) ).forEach(prop -> node.getMetadata().put(prop.getPropertyName(), prop.getDefaultValue()));
+				definition.getProperties().stream().filter(prop -> propsToCheck.contains(prop.getPropertyName()))
+						.filter(prop -> StringUtils.isNotBlank((String) prop.getDefaultValue())).forEach(prop -> node.getMetadata().put(prop.getPropertyName(), prop.getDefaultValue()));
 			}
 		}
 

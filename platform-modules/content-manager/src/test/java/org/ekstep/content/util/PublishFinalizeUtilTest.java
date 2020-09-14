@@ -155,6 +155,7 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		PowerMockito.doNothing().when(contentStore).updateExternalLink(Mockito.anyString(), Mockito.anyList());
 		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil(contentStore);
 		Node node =getNode_1();
+		node.getMetadata().put("primaryCategory", "Course");
 		publishFinalizeUtil.handleAutoBatchAndTrackability(node);
 		Assert.isTrue( node.getMetadata().get("trackable") == null);
 		Assert.isTrue(  node.getMetadata().get("monitorable") == null);
@@ -162,7 +163,7 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 
 	private static void categoryDefinition_all_1() throws Exception {
 		ControllerUtil util = new ControllerUtil();
-		String categoryDefinition = "{\"objectType\":\"ObjectCategoryDefinition\",\"channel\": \"in.ekstep\",\"name\":\"Content Playlist\",\"description\":\"Content Playlist\",\"categoryId\":\"obj-cat:digital-textbook\",\"targetObjectType\":\"Collection\",\"identifier\":\"obj-cat:digital-textbook_content_in.ekstep\",\"objectMetadata\":{\"config\":{},\"schema\":{\"required\":[\"author\",\"copyright\",\"license\",\"audience\"],\"properties\":{\"audience\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"enum\":[\"Student\",\"Teacher\"]},\"default\":[\"Student\"]},\"mimeType\":{\"type\":\"string\",\"enum\":[\"application/vnd.ekstep.content-collection\"]},\"monitorable\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"enum\":[\"progress-report\",\"score-report\"]}},\"userConsent\":{\"type\":\"string\",\"enum\":[\"Yes\",\"No\"]},\"trackable\":{\"type\":\"object\",\"properties\":{\"enabled\":{\"type\":\"string\",\"enum\":[\"Yes\",\"No\"],\"default\":\"Yes\"},\"autoBatch\":{\"type\":\"string\",\"enum\":[\"Yes\",\"No\"],\"default\":\"Yes\"}},\"additionalProperties\":false},\"credentials\":{\"type\":\"object\",\"properties\":{\"enabled\":{\"type\":\"string\",\"enum\":[\"Yes\",\"No\"],\"default\":\"No\"}},\"additionalProperties\":false}}}}}";
+		String categoryDefinition = "{\"objectType\":\"ObjectCategoryDefinition\",\"channel\": \"in.ekstep\",\"name\":\"Content Playlist\",\"description\":\"Content Playlist\",\"categoryId\":\"obj-cat:digital-textbook\",\"targetObjectType\":\"Collection\",\"identifier\":\"obj-cat:digital-textbook_content_in.ekstep\",\"objectMetadata\":{\"config\":{},\"schema\":{\"required\":[\"author\",\"copyright\",\"license\",\"audience\"],\"properties\":{\"audience\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"enum\":[\"Student\",\"Teacher\"]},\"default\":[\"Student\"]},\"mimeType\":{\"type\":\"string\",\"enum\":[\"application/vnd.ekstep.content-collection\"]},\"userConsent\":{\"type\":\"string\",\"enum\":[\"Yes\",\"No\"]},\"trackable\":{\"type\":\"object\",\"properties\":{\"enabled\":{\"type\":\"string\",\"enum\":[\"Yes\",\"No\"],\"default\":\"Yes\"},\"autoBatch\":{\"type\":\"string\",\"enum\":[\"Yes\",\"No\"],\"default\":\"Yes\"}},\"additionalProperties\":false},\"credentials\":{\"type\":\"object\",\"properties\":{\"enabled\":{\"type\":\"string\",\"enum\":[\"Yes\",\"No\"],\"default\":\"No\"}},\"additionalProperties\":false}}}}}";
 		Node node = new Node();
 		node.setIdentifier("obj-cat:digital-textbook_content_in.ekstep");
 		node.setGraphId("domain");
@@ -193,6 +194,6 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		}));
 		return node;
 	}
-	
+
 	
 }
