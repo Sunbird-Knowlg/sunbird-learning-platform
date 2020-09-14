@@ -136,18 +136,19 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		String primaryCategory = (String) node.getMetadata().get("primaryCategory");
 		String categoryDefinitionId = "obj-cat:" + Slug.makeSlug(primaryCategory) + "_" + Slug.makeSlug(objectType) + "_" + Slug.makeSlug(channel);
 		List<String> propsToAdd = (List<String>) CollectionUtils.subtract(AUTOBATCH_RELATED_METADATA, (List<String>) CollectionUtils.intersection(node.getMetadata().keySet(), AUTOBATCH_RELATED_METADATA));
-		System.out.println(propsToAdd);
+        TelemetryManager.log("PublishFinalizeUtil::handleAutoBatchAndTrackability::propsToAdd " + propsToAdd);
 		//Get all the properties not present in node
 		if (CollectionUtils.isNotEmpty(propsToAdd)) {
 			//Get the node for primaryCategory Definition
 			if(!StringUtils.equalsIgnoreCase(channel, "all")) {
-				Map<String, Object> properties = getDefinitionProperties(categoryDefinitionId, "domain");
-				setPropertiesToNode(properties, propsToAdd, node);
+                Map<String, Object> properties = getDefinitionProperties(categoryDefinitionId, "domain");
+                TelemetryManager.log("PublishFinalizeUtil::handleAutoBatchAndTrackability::Channel definition::propsToAdd " + propsToAdd);
+                setPropertiesToNode(properties, propsToAdd, node);
 				propsToAdd = (List<String>) CollectionUtils.subtract(propsToAdd, (List<String>) CollectionUtils.intersection(properties.keySet(), propsToAdd));
 			}
 			//If it's still not done, fetch from all
 			if(CollectionUtils.isNotEmpty(propsToAdd)) {
-				System.out.println(propsToAdd);
+                TelemetryManager.log("PublishFinalizeUtil::handleAutoBatchAndTrackability::All definition ::propsToAdd " + propsToAdd);
 				categoryDefinitionId = "obj-cat:" + Slug.makeSlug(primaryCategory) + "_" + Slug.makeSlug(objectType) + "_" + "all";
 				Map<String, Object> properties = getDefinitionProperties(categoryDefinitionId, "domain");
 				setPropertiesToNode(properties, propsToAdd, node);
@@ -155,7 +156,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			}
      		//If not fetch from Definition
 			if(CollectionUtils.isNotEmpty(propsToAdd)) {
-				System.out.println(propsToAdd);
+                TelemetryManager.log("PublishFinalizeUtil::handleAutoBatchAndTrackability::From Content Definition ::propsToAdd " + propsToAdd);
 				List<String> propsToCheck = propsToAdd;
 				DefinitionDTO definition = new ControllerUtil().getDefinition("domain", objectType);
 				definition.getProperties().stream().filter(prop -> propsToCheck.contains(prop.getPropertyName()))
@@ -178,7 +179,8 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 
 	public void setPropertiesToNode(Map<String, Object> properties, List<String> propsToAdd, Node node) {
 		List<String> updatedPropsToAdd = (List<String>) CollectionUtils.intersection(propsToAdd, properties.keySet());
-		updatedPropsToAdd.forEach(prop -> {
+        TelemetryManager.log("PublishFinalizeUtil::setPropertiesToNode:: Common Props in definition ::propsToAdd " + updatedPropsToAdd);
+        updatedPropsToAdd.forEach(prop -> {
 			switch (prop) {
 				case "trackable": {
 					Map<String, Object> trackable = (Map<String, Object>) ((Map<String, Object>) ((Map<String, Object>) properties.getOrDefault(prop, new HashMap<>())).getOrDefault("properties", new HashMap<String, Object>()))

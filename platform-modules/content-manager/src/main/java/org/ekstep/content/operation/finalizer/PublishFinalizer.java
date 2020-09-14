@@ -734,7 +734,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		Set<String> leafNodeIds = new HashSet<>();
 		getLeafNodesIds(content, leafNodeIds);
 		content.put(ContentAPIParams.leafNodes.name(), new ArrayList<String>(leafNodeIds));
-		//TODO: REMOVE AFTER PRIMARY CATEGORY MIGRATION IS DONE
+		//PRIMARY CATEGORY MAPPING IS DONE
 		setContentAndCategoryTypes(content);
 		content.put(ContentWorkflowPipelineParams.status.name(), node.getMetadata().get(ContentWorkflowPipelineParams.status.name()));
 		content.put(ContentWorkflowPipelineParams.lastUpdatedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastUpdatedOn.name()));
@@ -1184,13 +1184,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			content.put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
 			node.getMetadata().put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
 			updateLeafNodeIds(node, content);
-			//TODO: REMOVE AFTER PRIMARY CATEGORY MIGRATION IS DONE
-			setContentAndCategoryTypes(content);
-			publishFinalizeUtil.handleAutoBatchAndTrackability(node);
-			System.out.println("Check if any populated trackable :: " + node.getMetadata().keySet().contains("trackable") + " " + node.getMetadata().get("trackable"));
-			System.out.println("Check if any populated monitorable :: " + node.getMetadata().keySet().contains("monitorable") + node.getMetadata().get("monitorable"));
-			System.out.println("Check if any populated credentials :: " + node.getMetadata().keySet().contains("credentials") + node.getMetadata().get("credentials"));
-			System.out.println("Check if any populated userConsent :: " + node.getMetadata().keySet().contains("userConsent") + node.getMetadata().get("userConsent"));
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
 			List<String> childNodes = getChildNode(content);
@@ -1204,6 +1197,14 @@ public class PublishFinalizer extends BaseFinalizer {
 			
 			node.getMetadata().put(ContentAPIParams.toc_url.name(), generateTOC(node, content));
 			try {
+				//PRIMARY CATEGORY MAPPING AND TRACKABILITY
+				setContentAndCategoryTypes(content);
+				setContentAndCategoryTypes(node.getMetadata());
+				publishFinalizeUtil.handleAutoBatchAndTrackability(node);
+				TelemetryManager.log("PublishFinalizer::enrichCollection::trackable " + node.getMetadata().keySet().contains("trackable") + " " + node.getMetadata().get("trackable"));
+				TelemetryManager.log("PublishFinalizer::enrichCollection::monitorable " + node.getMetadata().keySet().contains("monitorable") + node.getMetadata().get("monitorable"));
+				TelemetryManager.log("PublishFinalizer::enrichCollection:: credentials " + node.getMetadata().keySet().contains("credentials") + node.getMetadata().get("credentials"));
+				TelemetryManager.log("PublishFinalizer::enrichCollection:: userConsent " + node.getMetadata().keySet().contains("userConsent") + node.getMetadata().get("userConsent"));
 				node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), convertToString(mimeTypeMap));
 				node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), convertToString(contentTypeMap));
 			} catch (Exception e) {
@@ -1434,8 +1435,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	 public void setContentAndCategoryTypes(Map<String, Object> input)  {
 		String contentType = (String)input.get("contentType");
-		 System.out.println(contentType);
-		 System.out.println(contentPrimaryCategoryString);
+		TelemetryManager.log("PublishFinalizer::setContentAndCategoryTypes:: " +contentType);
 		String primaryCategory = (String) input.get("primaryCategory");
 		String updatedContentType = "";
 		String updatedPrimaryCategory = "";
