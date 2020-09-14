@@ -1200,7 +1200,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				//PRIMARY CATEGORY MAPPING AND TRACKABILITY
 				setContentAndCategoryTypes(content);
 				setContentAndCategoryTypes(node.getMetadata());
-				publishFinalizeUtil.handleAutoBatchAndTrackability(node);
+				publishFinalizeUtil.enrichTrackability(node);
 				TelemetryManager.log("PublishFinalizer::enrichCollection::trackable " + node.getMetadata().keySet().contains("trackable") + " " + node.getMetadata().get("trackable"));
 				TelemetryManager.log("PublishFinalizer::enrichCollection::monitorable " + node.getMetadata().keySet().contains("monitorable") + node.getMetadata().get("monitorable"));
 				TelemetryManager.log("PublishFinalizer::enrichCollection:: credentials " + node.getMetadata().keySet().contains("credentials") + node.getMetadata().get("credentials"));

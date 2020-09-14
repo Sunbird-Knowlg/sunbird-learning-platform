@@ -131,7 +131,7 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		PowerMockito.doNothing().when(contentStore).updateExternalLink(Mockito.anyString(), Mockito.anyList());
 		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil(contentStore);
 		Node node =getNode_1();
-		publishFinalizeUtil.handleAutoBatchAndTrackability(node);
+		publishFinalizeUtil.enrichTrackability(node);
 		Assert.equals("Yes",  ((Map<String, Object>)node.getMetadata().get("trackable")).get("enabled"));
 		Assert.equals("Yes",  ((Map<String, Object>)node.getMetadata().get("trackable")).get("autoBatch"));
 	}
@@ -143,7 +143,7 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		PowerMockito.doNothing().when(contentStore).updateExternalLink(Mockito.anyString(), Mockito.anyList());
 		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil(contentStore);
 		Node node =getNode_1();
-		publishFinalizeUtil.handleAutoBatchAndTrackability(node);
+		publishFinalizeUtil.enrichTrackability(node);
 		Assert.equals("Yes",  ((Map<String, Object>)node.getMetadata().get("trackable")).get("enabled"));
 		Assert.equals("Yes",  ((Map<String, Object>)node.getMetadata().get("trackable")).get("autoBatch"));
 		Assert.equals(Arrays.asList("progress-report"),  (List<String>)node.getMetadata().get("monitorable"));
@@ -156,7 +156,7 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil(contentStore);
 		Node node =getNode_1();
 		node.getMetadata().put("primaryCategory", "Course");
-		publishFinalizeUtil.handleAutoBatchAndTrackability(node);
+		publishFinalizeUtil.enrichTrackability(node);
 		Assert.isTrue( node.getMetadata().get("trackable") == null);
 		Assert.isTrue(  node.getMetadata().get("monitorable") == null);
 	}

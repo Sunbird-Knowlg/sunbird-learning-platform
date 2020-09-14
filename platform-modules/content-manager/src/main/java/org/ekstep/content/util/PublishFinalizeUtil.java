@@ -130,7 +130,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		}
 	}
 
-	public void handleAutoBatchAndTrackability(Node node) {
+	public void enrichTrackability(Node node) {
 		String channel = (String) node.getMetadata().getOrDefault("channel", "all");
 		String objectType = node.getObjectType();
 		String primaryCategory = (String) node.getMetadata().get("primaryCategory");
