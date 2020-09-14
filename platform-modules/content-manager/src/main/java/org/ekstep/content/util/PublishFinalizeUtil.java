@@ -139,22 +139,13 @@ public class PublishFinalizeUtil extends BaseFinalizer{
         TelemetryManager.log("PublishFinalizeUtil::handleAutoBatchAndTrackability::propsToAdd " + propsToAdd);
 		//Get all the properties not present in node
 		if (CollectionUtils.isNotEmpty(propsToAdd)) {
-			//Get the node for primaryCategory Definition
-			if(!StringUtils.equalsIgnoreCase(channel, "all")) {
+			//Get the node for primaryCategory OBject Definition
                 Map<String, Object> properties = getDefinitionProperties(categoryDefinitionId, "domain");
                 TelemetryManager.log("PublishFinalizeUtil::handleAutoBatchAndTrackability::Channel definition::propsToAdd " + propsToAdd);
                 setPropertiesToNode(properties, propsToAdd, node);
 				propsToAdd = (List<String>) CollectionUtils.subtract(propsToAdd, (List<String>) CollectionUtils.intersection(properties.keySet(), propsToAdd));
-			}
-			//If it's still not done, fetch from all
-			if(CollectionUtils.isNotEmpty(propsToAdd)) {
-                TelemetryManager.log("PublishFinalizeUtil::handleAutoBatchAndTrackability::All definition ::propsToAdd " + propsToAdd);
-				categoryDefinitionId = "obj-cat:" + Slug.makeSlug(primaryCategory) + "_" + Slug.makeSlug(objectType) + "_" + "all";
-				Map<String, Object> properties = getDefinitionProperties(categoryDefinitionId, "domain");
-				setPropertiesToNode(properties, propsToAdd, node);
-				propsToAdd = (List<String>) CollectionUtils.subtract(propsToAdd, (List<String>) CollectionUtils.intersection(properties.keySet(), propsToAdd));
-			}
-     		//If not fetch from Definition
+
+     		//If not fetch from Content Definition
 			if(CollectionUtils.isNotEmpty(propsToAdd)) {
                 TelemetryManager.log("PublishFinalizeUtil::handleAutoBatchAndTrackability::From Content Definition ::propsToAdd " + propsToAdd);
 				List<String> propsToCheck = propsToAdd;
