@@ -1187,6 +1187,10 @@ public class PublishFinalizer extends BaseFinalizer {
 			//TODO: REMOVE AFTER PRIMARY CATEGORY MIGRATION IS DONE
 			setContentAndCategoryTypes(content);
 			publishFinalizeUtil.handleAutoBatchAndTrackability(node);
+			TelemetryManager.log("Check if any populated trackable :: " + node.getMetadata().keySet().contains("trackable") + " " + node.getMetadata().get("trackable"));
+			TelemetryManager.log("Check if any populated monitorable :: " + node.getMetadata().keySet().contains("monitorable") + node.getMetadata().get("monitorable"));
+			TelemetryManager.log("Check if any populated credentials :: " + node.getMetadata().keySet().contains("credentials") + node.getMetadata().get("credentials"));
+			TelemetryManager.log("Check if any populated userConsent :: " + node.getMetadata().keySet().contains("userConsent") + node.getMetadata().get("userConsent"));
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
 			List<String> childNodes = getChildNode(content);
