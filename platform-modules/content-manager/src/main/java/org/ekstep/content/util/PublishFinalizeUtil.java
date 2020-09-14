@@ -135,7 +135,6 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		String objectType = node.getObjectType();
 		String primaryCategory = (String) node.getMetadata().get("primaryCategory");
 		String categoryDefinitionId = "obj-cat:" + Slug.makeSlug(primaryCategory) + "_" + Slug.makeSlug(objectType) + "_" + Slug.makeSlug(channel);
-		System.out.println(categoryDefinitionId);
 		List<String> propsToAdd = (List<String>) CollectionUtils.subtract(AUTOBATCH_RELATED_METADATA, (List<String>) CollectionUtils.intersection(node.getMetadata().keySet(), AUTOBATCH_RELATED_METADATA));
 		System.out.println(propsToAdd);
 		//Get all the properties not present in node
@@ -159,7 +158,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			if(CollectionUtils.isNotEmpty(propsToAdd)) {
 				List<String> propsToCheck = propsToAdd;
 				DefinitionDTO definition = new ControllerUtil().getDefinition("domain", objectType);
-				definition.getProperties().stream().filter(prop -> propsToCheck.contains(prop.getPropertyName())).filter(prop -> StringUtils.isNotBlank((String) prop.getDefaultValue())).forEach(prop -> node.getMetadata().put(prop.getPropertyName(), prop.getDefaultValue()));
+				definition.getProperties().stream().filter(prop -> propsToCheck.contains(prop.getPropertyName())).filter(prop -> StringUtils.isNotBlank((String) prop.getDefaultValue()) ).forEach(prop -> node.getMetadata().put(prop.getPropertyName(), prop.getDefaultValue()));
 			}
 		}
 
@@ -169,7 +168,6 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		try {
 			Node categoryDefinitionNode = util.getNode(domain, categoryDefinitionIdentifier);
 			Map<String, Object> objectMetadata = mapper.readValue((String) categoryDefinitionNode.getMetadata().getOrDefault("objectMetadata", "{}"), new TypeReference<Map<String, Object>>() {});
-			System.out.println(objectMetadata);
 			return (Map<String, Object>) ((Map<String, Object>) objectMetadata.getOrDefault("schema", new HashMap<String, Object>())).getOrDefault("properties", new HashMap<String, Object>());
 		} catch (Exception e) {
 			e.printStackTrace();
