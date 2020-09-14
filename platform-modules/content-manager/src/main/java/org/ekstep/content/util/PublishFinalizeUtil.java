@@ -159,7 +159,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			if(CollectionUtils.isNotEmpty(propsToAdd)) {
 				List<String> propsToCheck = propsToAdd;
 				DefinitionDTO definition = new ControllerUtil().getDefinition("domain", objectType);
-				definition.getProperties().stream().filter(prop -> propsToCheck.contains(prop.getPropertyName())).forEach(prop -> node.getMetadata().put(prop.getPropertyName(), prop.getDefaultValue()));
+				definition.getProperties().stream().filter(prop -> propsToCheck.contains(prop.getPropertyName())).filter(prop -> StringUtils.isNotBlank((String) prop.getDefaultValue())).forEach(prop -> node.getMetadata().put(prop.getPropertyName(), prop.getDefaultValue()));
 			}
 		}
 
