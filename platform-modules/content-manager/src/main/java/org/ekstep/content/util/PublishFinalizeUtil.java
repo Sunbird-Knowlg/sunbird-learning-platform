@@ -5,15 +5,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -185,23 +184,27 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 				case "trackable": {
 					Map<String, Object> trackable = (Map<String, Object>) ((Map<String, Object>) ((Map<String, Object>) properties.getOrDefault(prop, new HashMap<>())).getOrDefault("properties", new HashMap<String, Object>()))
 							.entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey(), entry -> ((Map<String, Object>) entry.getValue()).getOrDefault("default", "")));
-					node.getMetadata().put(prop, trackable);
+					if(MapUtils.isNotEmpty(trackable))
+						node.getMetadata().put(prop, trackable);
 					break;
 				}
 				case "monitorable": {
 					List<String> monitorable = (List<String>) ((Map<String, Object>) properties.getOrDefault(prop, new HashMap<>())).getOrDefault("default", new ArrayList<String>());
-					node.getMetadata().put(prop, monitorable);
+					if(CollectionUtils.isNotEmpty(monitorable))
+						node.getMetadata().put(prop, monitorable);
 					break;
 				}
 				case "userConsent": {
 					String userConsent = (String) ((Map<String, Object>) properties.getOrDefault(prop, new HashMap<>())).getOrDefault("default", "");
-					node.getMetadata().put(prop, userConsent);
+					if(StringUtils.isNotBlank(userConsent))
+						node.getMetadata().put(prop, userConsent);
 					break;
 				}
 				case "credentials": {
 					Map<String, Object> credentials = (Map<String, Object>) ((Map<String, Object>) ((Map<String, Object>) properties.getOrDefault(prop, new HashMap<>())).getOrDefault("properties", new HashMap<String, Object>()))
 							.entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey(), entry -> ((Map<String, Object>) entry.getValue()).getOrDefault("default", "")));
-					node.getMetadata().put(prop, credentials);
+					if(MapUtils.isNotEmpty(credentials))
+						node.getMetadata().put(prop, credentials);
 					break;
 				}
 			}
