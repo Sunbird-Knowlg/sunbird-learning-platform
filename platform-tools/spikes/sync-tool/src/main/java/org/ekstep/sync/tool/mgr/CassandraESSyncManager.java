@@ -545,12 +545,19 @@ public class CassandraESSyncManager {
 	}
 
     public void syncCollectionIds(String graphId, List<String> resourceIds) {
+        List<String> success = new ArrayList<String>();
+        List<String> failed = new ArrayList<String>();
         if (CollectionUtils.isNotEmpty(resourceIds)) {
             resourceIds.forEach(collection -> {
                 Boolean flag = syncCollection(graphId, collection);
-                System.out.println("CassandraESSyncManager:syncCollectionIds:: CollectionId : " + collection + " Sync status : " + flag);
+                if(flag)
+                    success.add(collection);
+                else
+                    failed.add(collection);
             });
         }
+        System.out.println("Success : " +  success);
+        System.out.println("Failed : " + failed);
     }
 
     public Boolean syncCollection(String graphId, String resourceId) {
