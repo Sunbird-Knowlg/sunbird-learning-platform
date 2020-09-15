@@ -118,7 +118,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	private ItemsetPublishManager itemsetPublishManager = new ItemsetPublishManager(util);
 	private PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil();
 	private long CONTENT_ARTIFACT_ONLINE_SIZE = Platform.config.hasPath("content.artifact.size.for_online") ? Platform.config.getLong("content.artifact.size.for_online") : 209715200;
-
+	private static Map<String, String> contentPrimaryCategoryString = null;
 
 	public void setItemsetPublishManager(ItemsetPublishManager itemsetPublishManager) {
 		this.itemsetPublishManager = itemsetPublishManager;
@@ -138,6 +138,15 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	static {
 		ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
+	}
+
+	static {
+		try{
+			contentPrimaryCategoryString = Platform.config.hasPath("contentTypeToPrimaryCategory") ?
+					mapper.readValue(Platform.config.getString("contentTypeToPrimaryCategory"), new TypeReference<Map<String, String>>() {}) : new HashMap<>() ;
+		} catch (Exception e) {
+			contentPrimaryCategoryString = new HashMap<>();
+		}
 	}
 
 	/** 3Days TTL for Collection hierarchy cache*/
@@ -725,6 +734,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		Set<String> leafNodeIds = new HashSet<>();
 		getLeafNodesIds(content, leafNodeIds);
 		content.put(ContentAPIParams.leafNodes.name(), new ArrayList<String>(leafNodeIds));
+		// PRIMARY CATEGORY MAPPING IS DONE
+		setContentAndCategoryTypes(content);
 		content.put(ContentWorkflowPipelineParams.status.name(), node.getMetadata().get(ContentWorkflowPipelineParams.status.name()));
 		content.put(ContentWorkflowPipelineParams.lastUpdatedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastUpdatedOn.name()));
 		content.put(ContentWorkflowPipelineParams.downloadUrl.name(), node.getMetadata().get(ContentWorkflowPipelineParams.downloadUrl.name()));
@@ -1173,8 +1184,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			content.put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
 			node.getMetadata().put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
 			updateLeafNodeIds(node, content);
-
-
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
 			List<String> childNodes = getChildNode(content);
@@ -1188,6 +1197,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			
 			node.getMetadata().put(ContentAPIParams.toc_url.name(), generateTOC(node, content));
 			try {
+				//PRIMARY CATEGORY MAPPING IS DONE
+				setContentAndCategoryTypes(node.getMetadata());
 				node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), convertToString(mimeTypeMap));
 				node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), convertToString(contentTypeMap));
 			} catch (Exception e) {
@@ -1416,4 +1427,23 @@ public class PublishFinalizer extends BaseFinalizer {
     		return null;
     }
 
+	 public void setContentAndCategoryTypes(Map<String, Object> input)  {
+		String contentType = (String)input.get("contentType");
+		String primaryCategory = (String) input.get("primaryCategory");
+		String updatedContentType = "";
+		String updatedPrimaryCategory = "";
+		if(StringUtils.isNotBlank(contentType) && StringUtils.isBlank(primaryCategory)) {
+			updatedContentType = contentType;
+			updatedPrimaryCategory = contentPrimaryCategoryString.get(contentType);
+		} else if(StringUtils.isBlank(contentType) && StringUtils.isNotBlank(primaryCategory)) {
+			updatedContentType = contentPrimaryCategoryString.entrySet().stream().filter(entry -> StringUtils.equalsIgnoreCase(entry.getValue(), primaryCategory))
+					.map(entry -> entry.getKey()).findFirst().orElse("");
+			updatedPrimaryCategory = primaryCategory;
+		} else {
+			updatedContentType = contentType;
+			updatedPrimaryCategory = primaryCategory;
+		}
+		input.put("contentType", updatedContentType);
+		input.put("primaryCategory", updatedPrimaryCategory);
+	}
 }
