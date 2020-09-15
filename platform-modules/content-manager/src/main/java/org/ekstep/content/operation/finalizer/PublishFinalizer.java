@@ -1198,7 +1198,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			node.getMetadata().put(ContentAPIParams.toc_url.name(), generateTOC(node, content));
 			try {
 				//PRIMARY CATEGORY MAPPING IS DONE
-				setContentAndCategoryTypes(content);
+				setContentAndCategoryTypes(node.getMetadata());
 				node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), convertToString(mimeTypeMap));
 				node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), convertToString(contentTypeMap));
 			} catch (Exception e) {
