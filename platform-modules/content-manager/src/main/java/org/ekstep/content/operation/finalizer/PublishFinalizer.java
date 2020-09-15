@@ -736,6 +736,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		content.put(ContentAPIParams.leafNodes.name(), new ArrayList<String>(leafNodeIds));
 		// PRIMARY CATEGORY MAPPING IS DONE
 		setContentAndCategoryTypes(content);
+		TelemetryManager.log("PublishFinzalizer::populatePublishMetadata:: " + content.get("primaryCategory"));
 		content.put(ContentWorkflowPipelineParams.status.name(), node.getMetadata().get(ContentWorkflowPipelineParams.status.name()));
 		content.put(ContentWorkflowPipelineParams.lastUpdatedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastUpdatedOn.name()));
 		content.put(ContentWorkflowPipelineParams.downloadUrl.name(), node.getMetadata().get(ContentWorkflowPipelineParams.downloadUrl.name()));
@@ -1428,9 +1429,11 @@ public class PublishFinalizer extends BaseFinalizer {
     }
 
 	 public void setContentAndCategoryTypes(Map<String, Object> input)  {
-		String contentType = (String)input.get("contentType");
-		String primaryCategory = (String) input.get("primaryCategory");
-		String updatedContentType = "";
+		String contentType = (String)input.getOrDefault("contentType", "");
+		 TelemetryManager.log("PublishFinzalizer::setContentAndCategoryTypes:: " + contentType);
+		 String primaryCategory = (String) input.getOrDefault("primaryCategory", "");
+		 TelemetryManager.log("PublishFinzalizer::setContentAndCategoryTypes:: " + primaryCategory);
+		 String updatedContentType = "";
 		String updatedPrimaryCategory = "";
 		if(StringUtils.isNotBlank(contentType) && StringUtils.isBlank(primaryCategory)) {
 			updatedContentType = contentType;

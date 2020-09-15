@@ -283,11 +283,11 @@ public class PublishFinalizerTest extends GraphEngineTestSetup {
 	public void testsetContentAndCategoryTypes_1() throws Exception {
 		PublishFinalizeUtil publishFinalizeUtil = PowerMockito.mock(PublishFinalizeUtil.class);//PowerMockito.spy(new PublishFinalizeUtil());
 		PowerMockito.doNothing().when(publishFinalizeUtil).replaceArtifactUrl(Mockito.anyObject());
-		String contentNodeString = "{\"identifier\":\"do_11292666508456755211\",\"objectType\":\"Content\",\"contentType\": \"TextBook\",\"artifactBasePath\":\"program/app\",\"artifactUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/program/app/content/do_112999482416209920112/artifact/1.pdf\",\"cloudStorageKey\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\",\"s3Key\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\"}";
+		String contentNodeString = "{\"identifier\":\"do_11292666508456755211\",\"objectType\":\"Content\",\"contentType\": \"CourseUnit\",\"artifactBasePath\":\"program/app\",\"artifactUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/program/app/content/do_112999482416209920112/artifact/1.pdf\",\"cloudStorageKey\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\",\"s3Key\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\"}";
 		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
 		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
 		publishFinalizer.setContentAndCategoryTypes(contentNodeMap);
-		Assert.assertEquals((String) contentNodeMap.get("primaryCategory"), "Digital Textbook" );
+		Assert.assertEquals((String) contentNodeMap.get("primaryCategory"), "Course Unit" );
 	}
 
 	@Test
