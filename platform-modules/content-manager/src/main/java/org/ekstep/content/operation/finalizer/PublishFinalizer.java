@@ -734,7 +734,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		Set<String> leafNodeIds = new HashSet<>();
 		getLeafNodesIds(content, leafNodeIds);
 		content.put(ContentAPIParams.leafNodes.name(), new ArrayList<String>(leafNodeIds));
-		//TODO: REMOVE AFTER PRIMARY CATEGORY MIGRATION IS DONE
+		// PRIMARY CATEGORY MAPPING IS DONE
 		setContentAndCategoryTypes(content);
 		content.put(ContentWorkflowPipelineParams.status.name(), node.getMetadata().get(ContentWorkflowPipelineParams.status.name()));
 		content.put(ContentWorkflowPipelineParams.lastUpdatedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastUpdatedOn.name()));
@@ -1184,8 +1184,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			content.put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
 			node.getMetadata().put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
 			updateLeafNodeIds(node, content);
-			//TODO: REMOVE AFTER PRIMARY CATEGORY MIGRATION IS DONE
-			setContentAndCategoryTypes(content);
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
 			List<String> childNodes = getChildNode(content);
@@ -1199,6 +1197,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			
 			node.getMetadata().put(ContentAPIParams.toc_url.name(), generateTOC(node, content));
 			try {
+				//PRIMARY CATEGORY MAPPING IS DONE
+				setContentAndCategoryTypes(content);
 				node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), convertToString(mimeTypeMap));
 				node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), convertToString(contentTypeMap));
 			} catch (Exception e) {
@@ -1429,8 +1429,6 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	 public void setContentAndCategoryTypes(Map<String, Object> input)  {
 		String contentType = (String)input.get("contentType");
-		 System.out.println(contentType);
-		 System.out.println(contentPrimaryCategoryString);
 		String primaryCategory = (String) input.get("primaryCategory");
 		String updatedContentType = "";
 		String updatedPrimaryCategory = "";
