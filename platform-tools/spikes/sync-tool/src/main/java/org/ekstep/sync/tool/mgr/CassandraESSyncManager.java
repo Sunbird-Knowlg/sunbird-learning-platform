@@ -73,6 +73,7 @@ public class CassandraESSyncManager {
     private static final String AUDIENCE = "audience";
     private static final Map<String, String> contentTypeToPrimaryCategory = Platform.config.hasPath("contentTypeToPrimaryCategory") ?
             (Map<String, String>) Platform.config.getAnyRef("contentTypeToPrimaryCategory") : new HashMap<String, String>();
+    private List<String> validCollectionStatus = Arrays.asList("Live", "Unlisted");
 
     public CassandraESSyncManager() {}
     
@@ -545,9 +546,9 @@ public class CassandraESSyncManager {
 
     public void syncCollectionIds(String graphId, List<String> resourceIds) {
         if (CollectionUtils.isNotEmpty(resourceIds)) {
-            resourceIds.forEach(textbook -> {
-                Boolean flag = syncCollection(graphId, textbook);
-                System.out.println("Textbook id : " + textbook + " Sync status : " + flag);
+            resourceIds.forEach(collection -> {
+                Boolean flag = syncCollection(graphId, collection);
+                System.out.println("CassandraESSyncManager:syncCollectionIds:: CollectionId : " + collection + " Sync status : " + flag);
             });
         }
     }
@@ -560,38 +561,40 @@ public class CassandraESSyncManager {
                 Node node = util.getNode("domain", resourceId);
                 updateHierarchyMetadata(hierarchy, node);
                 Map<String, Object> units = getUnitsMetadata(hierarchy, node);
+
+                hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
+                //Clear Collection from Redis Cache
+                RedisStoreUtil.delete(CACHE_PREFIX + resourceId);
                 if(MapUtils.isNotEmpty(units)){
                     pushToElastic(units);
-                    hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
-
                     List<String> collectionUnitIds = new ArrayList<>(units.keySet());
-                    //Clear TextBookUnits from Cassandra Hierarchy Store
+                    //Clear CollectionUnits from Cassandra Hierarchy Store
                     hierarchyStore.deleteHierarchy(collectionUnitIds);
-                    //Clear TextBook from Redis Cache
-                    RedisStoreUtil.delete(CACHE_PREFIX + resourceId);
-                    //Clear TextBookUnits from Redis Cache
+                    //Clear CollectionUnits from Redis Cache
                     collectionUnitIds.forEach(id -> RedisStoreUtil.delete(CACHE_PREFIX + id));
                     printMessages("success", collectionUnitIds, resourceId);
                 }
                 return true;
             } else {
-                System.out.println(resourceId + " is not a type of Collection or it is not live.");
+                System.out.println("CassandraESSyncManager:syncCollection:: " + resourceId + " is not a type of collection or it is not live.");
                 return false;
             }
         } catch (Exception e) {
+            System.out.println("CassandraESSyncManager:syncCollection:: Sync failed for collectionId : " + resourceId);
             e.printStackTrace();
-            System.out.println(e.getMessage());
             return false;
         }
     }
 
     private void updateHierarchyMetadata(Map<String, Object> hierarchy, Node node) {
-        if (node != null && !hierarchy.containsKey(PRIMARY_CATEGORY)) {
-            hierarchy.put(PRIMARY_CATEGORY, node.getMetadata().get(PRIMARY_CATEGORY));
-        }
-        if (node != null && node.getMetadata().containsKey(AUDIENCE)) {
-            hierarchy.put(AUDIENCE, mapper.convertValue(node.getMetadata().get(AUDIENCE), new TypeReference<ArrayList<String>>() {
-            }));
+        if (node != null && validCollectionStatus.contains(node.getMetadata().get("status"))) {
+            if (node.getMetadata().containsKey(PRIMARY_CATEGORY) && !hierarchy.containsKey(PRIMARY_CATEGORY)) {
+                hierarchy.put(PRIMARY_CATEGORY, node.getMetadata().get(PRIMARY_CATEGORY));
+            }
+            if (node.getMetadata().containsKey(AUDIENCE)) {
+                hierarchy.put(AUDIENCE, mapper.convertValue(node.getMetadata().get(AUDIENCE), new TypeReference<ArrayList<String>>() {
+                }));
+            }
         }
     }
 
@@ -609,7 +612,7 @@ public class CassandraESSyncManager {
                         String contentType = (String) child.get("contentType");
                         child.put(PRIMARY_CATEGORY, contentTypeToPrimaryCategory.getOrDefault(contentType, ""));
                     }
-                    if (node != null) {
+                    if (node != null && node.getMetadata().containsKey(AUDIENCE)) {
                         child.put(AUDIENCE, mapper.convertValue(node.getMetadata().get(AUDIENCE), new TypeReference<ArrayList<String>>() {}));
                     }
                     populateESDoc(unitsMetadata, child);
