@@ -143,6 +143,7 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		PowerMockito.doNothing().when(contentStore).updateExternalLink(Mockito.anyString(), Mockito.anyList());
 		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil(contentStore);
 		Node node =getNode_1();
+		node.getMetadata().remove("channel");
 		publishFinalizeUtil.enrichTrackability(node);
 		Assert.equals("Yes",  ((Map<String, Object>)node.getMetadata().get("trackable")).get("enabled"));
 		Assert.equals("Yes",  ((Map<String, Object>)node.getMetadata().get("trackable")).get("autoBatch"));
