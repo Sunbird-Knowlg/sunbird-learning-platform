@@ -714,10 +714,12 @@ public class PublishFinalizer extends BaseFinalizer {
 	private void updateHierarchyMetadata(List<Map<String, Object>> children, Node node) {
 		if(CollectionUtils.isNotEmpty(children)) {
 			for(Map<String, Object> child : children) {
+				System.out.println("PublishFinzalizer::populatePublishMetadata::child before update " + child.toString());
 				if(StringUtils.equalsIgnoreCase("Parent", 
 						(String)child.get("visibility"))){
 					//set child metadata -- compatibilityLevel, appIcon, posterImage, lastPublishedOn, pkgVersion, status
 					populatePublishMetadata(child, node);
+					System.out.println("PublishFinzalizer::populatePublishMetadata::child after update " + child.toString());
 					updateHierarchyMetadata((List<Map<String,Object>>)child.get("children"), node);
 				}
 			}
@@ -736,7 +738,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		content.put(ContentAPIParams.leafNodes.name(), new ArrayList<String>(leafNodeIds));
 		// PRIMARY CATEGORY MAPPING IS DONE
 		setContentAndCategoryTypes(content);
-		TelemetryManager.log("PublishFinzalizer::populatePublishMetadata:: " + content.get("primaryCategory"));
+		System.out.println("PublishFinzalizer::populatePublishMetadata::primaryCategory " + content.get("primaryCategory"));
 		content.put(ContentWorkflowPipelineParams.status.name(), node.getMetadata().get(ContentWorkflowPipelineParams.status.name()));
 		content.put(ContentWorkflowPipelineParams.lastUpdatedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastUpdatedOn.name()));
 		content.put(ContentWorkflowPipelineParams.downloadUrl.name(), node.getMetadata().get(ContentWorkflowPipelineParams.downloadUrl.name()));
@@ -1430,9 +1432,11 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	 public void setContentAndCategoryTypes(Map<String, Object> input)  {
 		String contentType = (String)input.getOrDefault("contentType", "");
-		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes:: " + contentType);
+		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes::identifier " + input.get("identifier"));
+		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes::contentType " + contentType);
 		 String primaryCategory = (String) input.getOrDefault("primaryCategory", "");
-		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes:: " + primaryCategory);
+		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes::primaryCategory " + primaryCategory);
+		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes::contentPrimaryCategoryString::" + contentPrimaryCategoryString.toString());
 		 String updatedContentType = "";
 		String updatedPrimaryCategory = "";
 		if(StringUtils.isNotBlank(contentType) && StringUtils.isBlank(primaryCategory)) {
@@ -1446,7 +1450,9 @@ public class PublishFinalizer extends BaseFinalizer {
 			updatedContentType = contentType;
 			updatedPrimaryCategory = primaryCategory;
 		}
-		input.put("contentType", updatedContentType);
+		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes::updatedContentType " + updatedContentType);
+		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes::updatedPrimaryCategory " + updatedPrimaryCategory);
+		 input.put("contentType", updatedContentType);
 		input.put("primaryCategory", updatedPrimaryCategory);
 	}
 }
