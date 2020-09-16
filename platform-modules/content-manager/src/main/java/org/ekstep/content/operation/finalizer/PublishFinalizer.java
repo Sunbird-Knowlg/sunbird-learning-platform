@@ -1430,9 +1430,9 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	 public void setContentAndCategoryTypes(Map<String, Object> input)  {
 		String contentType = (String)input.getOrDefault("contentType", "");
-		 TelemetryManager.log("PublishFinzalizer::setContentAndCategoryTypes:: " + contentType);
+		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes:: " + contentType);
 		 String primaryCategory = (String) input.getOrDefault("primaryCategory", "");
-		 TelemetryManager.log("PublishFinzalizer::setContentAndCategoryTypes:: " + primaryCategory);
+		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes:: " + primaryCategory);
 		 String updatedContentType = "";
 		String updatedPrimaryCategory = "";
 		if(StringUtils.isNotBlank(contentType) && StringUtils.isBlank(primaryCategory)) {
