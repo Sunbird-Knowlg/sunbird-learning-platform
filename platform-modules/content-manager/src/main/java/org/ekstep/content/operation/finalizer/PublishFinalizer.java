@@ -1440,13 +1440,16 @@ public class PublishFinalizer extends BaseFinalizer {
 		 String updatedContentType = "";
 		String updatedPrimaryCategory = "";
 		if(StringUtils.isNotBlank(contentType) && StringUtils.isBlank(primaryCategory)) {
+			System.out.println("Level 1");
 			updatedContentType = contentType;
 			updatedPrimaryCategory = contentPrimaryCategoryString.get(contentType);
 		} else if(StringUtils.isBlank(contentType) && StringUtils.isNotBlank(primaryCategory)) {
+			System.out.println("Level 2");
 			updatedContentType = contentPrimaryCategoryString.entrySet().stream().filter(entry -> StringUtils.equalsIgnoreCase(entry.getValue(), primaryCategory))
 					.map(entry -> entry.getKey()).findFirst().orElse("");
 			updatedPrimaryCategory = primaryCategory;
 		} else {
+			System.out.println("Level 3");
 			updatedContentType = contentType;
 			updatedPrimaryCategory = primaryCategory;
 		}
