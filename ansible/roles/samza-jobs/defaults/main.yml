@@ -20,6 +20,7 @@ retry_limit: 4
 retry_limit_enable: true
 publish_pipeline_container_count: 1
 publish_yarn_container_memory_mb: 1024
+publish_pipeline_task_opts: "-Dfile.encoding=UTF8 -XX:-UseG1GC -Xmx1G"
 mw_shard_id: 1
 google_vision_tagging: false
 es_port: 9200
