@@ -113,7 +113,6 @@ public class ContentUtil {
 					update(channelId, internalId, updateMetadata);
 					if (StringUtils.equalsIgnoreCase("create", stage))
 						break;
-					delay(API_CALL_DELAY);
 				}
 				case "upload": {
 					isUploaded = upload(channelId, internalId, metadata);

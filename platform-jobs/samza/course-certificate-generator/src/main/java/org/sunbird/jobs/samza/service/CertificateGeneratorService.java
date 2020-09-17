@@ -87,11 +87,11 @@ public class CertificateGeneratorService implements ISamzaService {
                         certificateGenerator.generate(edata);
                         LOGGER.info("Certificate is generated");
                         break;
-                    case "issue-certificate":
+                    /*case "issue-certificate":
                         LOGGER.info("Certificate issue process started ");
                         issueCertificate.issue(edata, collector);
                         LOGGER.info("Pushed certificate generation event");
-                        break;
+                        break;*/
                 }
             }
         } catch(ClientException e) {

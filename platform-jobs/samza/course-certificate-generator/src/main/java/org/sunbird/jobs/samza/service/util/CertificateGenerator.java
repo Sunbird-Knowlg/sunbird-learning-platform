@@ -63,7 +63,7 @@ public class CertificateGenerator {
     private Session cassandraSession = null;
     private Jedis redisConnect =null;
     private static final String NOTIFICATION_URL = Platform.config.hasPath("notification.api.endpoint")
-            ? Platform.config.getString("notification.api.endpoint"): "/v2/notification";
+            ? Platform.config.getString("notification.api.endpoint"): "/v1/notification/email";
 
 
     public CertificateGenerator(Jedis redisConnect, Session cassandraSession) {
@@ -82,6 +82,11 @@ public class CertificateGenerator {
         String courseId = (String) edata.get("courseId");
         Map<String, Object> template = (Map<String, Object>) edata.get("template");
         Map<String, Object> certTemplate = getCertTemplate(template);
+        String templateUrl = (String)certTemplate.get("template");
+        if(StringUtils.isBlank(templateUrl) || StringUtils.endsWith(templateUrl, ".svg")) {
+        	LOGGER.info("CertificateGenerator:generate: Certificate is not generated for batchId : " + batchId + ", courseId : " + courseId + " and userId : " + userId + ". TemplateId: "+ (String) template.get("identifier") + " with Url: " + templateUrl + " is not supported.");
+        	return;
+        }
         boolean reIssue = (null != edata.get(CourseCertificateParams.reIssue.name()))
                 ? (Boolean) edata.get(CourseCertificateParams.reIssue.name()): false;
 

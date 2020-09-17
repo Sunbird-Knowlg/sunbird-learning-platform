@@ -4,6 +4,18 @@
  */
 package org.ekstep.sync.tool.mgr;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,22 +40,12 @@ import org.ekstep.learning.contentstore.ContentStore;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.sync.tool.util.DialcodeSync;
 import org.ekstep.sync.tool.util.ElasticSearchConnector;
 import org.ekstep.sync.tool.util.GraphUtil;
 import org.ekstep.sync.tool.util.SyncMessageGenerator;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
-import javax.annotation.PostConstruct;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class CassandraESSyncManager {
@@ -60,16 +62,20 @@ public class CassandraESSyncManager {
 
     private HierarchyStore hierarchyStore = new HierarchyStore();
     private ContentStore contentStore = new ContentStore();
+    private DialcodeSync dialcodeSync = new DialcodeSync();
     private ElasticSearchConnector searchConnector = new ElasticSearchConnector();
     private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
     private static String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
-    private static List<String> nestedFields = Platform.config.getStringList("nested.fields");
     private List<String> relationshipProperties = Platform.config.hasPath("content.relationship.properties") ?
             Arrays.asList(Platform.config.getString("content.relationship.properties").split(",")) : Collections.emptyList();
-
     private static final String CACHE_PREFIX = "hierarchy_";
 
-
+    public CassandraESSyncManager() {}
+    
+    public CassandraESSyncManager(DialcodeSync dialcodeSync) {
+		this.dialcodeSync = dialcodeSync;
+	}
+    
     @PostConstruct
     private void init() throws Exception {
         definitionDTO = util.getDefinition(graphId, objectType);
@@ -520,5 +526,16 @@ public class CassandraESSyncManager {
 				!StringUtils.contains(urlLink, CloudStore.getContainerName()))
 			isExternal = true; 
 		return isExternal;
+	}
+	
+	public void syncDialcodesByIds(List<String> dialcodes) throws Exception {
+		if(CollectionUtils.isEmpty(dialcodes)) {
+			System.out.println("CassandraESSyncManager:syncDialcodesByIds:No dialcodes for syncing.");
+			return;
+		}
+		System.out.println("CassandraESSyncManager:syncDialcodesByIds:No dialcodes for syncing: " + dialcodes.size());
+		int dialcodeSyncedCount = dialcodeSync.sync(dialcodes);
+		System.out.println("CassandraESSyncManager:syncDialcodesByIds::dialcodeSyncedCount: " + dialcodeSyncedCount);
+		
 	}
 }
