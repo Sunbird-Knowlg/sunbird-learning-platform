@@ -100,58 +100,59 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             Map<String, Object> contentStatusDelta = new HashMap<>();
             Map<String, Object> lastReadContentStats = new HashMap<>(); 
             String key = courseProgressHandler.getKey(batchId, userId);
-            
+            Boolean enrolled = false;
             if(courseProgressHandler.containsKey(key)) {// Get Progress from the unprocessed list
                 populateContentStatusFromHandler(key, courseId, courseProgressHandler, contentStatus, contentStatusDelta, lastReadContentStats);
             } else { // Get progress from cassandra
-                populateContentStatusFromDB(batchId, courseId, userId, contentStatus, lastReadContentStats);
+                enrolled = populateContentStatusFromDB(batchId, courseId, userId, contentStatus, lastReadContentStats);
             }
             
-            contents.forEach(c -> {
-                String id = (String) c.get("contentId");
-                if(contentStatus.containsKey(id)) {
-                    contentStatus.put(id, Math.max(((Integer) contentStatus.get(id)), ((Integer)c.get("status"))));
-                    contentStatusDelta.put(id, Math.max(((Integer) contentStatus.get(id)), ((Integer)c.get("status"))));
-                } else {
-                    contentStatus.put(id, c.get("status"));
-                    contentStatusDelta.put(id, c.get("status"));
-                }
-            });
+            if (enrolled) {
+                contents.forEach(c -> {
+                    String id = (String) c.get("contentId");
+                    if(contentStatus.containsKey(id)) {
+                        contentStatus.put(id, Math.max(((Integer) contentStatus.get(id)), ((Integer)c.get("status"))));
+                        contentStatusDelta.put(id, Math.max(((Integer) contentStatus.get(id)), ((Integer)c.get("status"))));
+                    } else {
+                        contentStatus.put(id, c.get("status"));
+                        contentStatusDelta.put(id, c.get("status"));
+                    }
+                });
 
-            List<String> completedIds = contentStatus.entrySet().stream()
-                    .filter(entry -> (2 == ((Number) entry.getValue()).intValue()))
-                    .map(entry -> entry.getKey()).distinct().collect(Collectors.toList());
+                List<String> completedIds = contentStatus.entrySet().stream()
+                        .filter(entry -> (2 == ((Number) entry.getValue()).intValue()))
+                        .map(entry -> entry.getKey()).distinct().collect(Collectors.toList());
 
-            int size = CollectionUtils.intersection(completedIds, leafNodes).size();
-            double completionPercentage = (((Number)size).doubleValue()/((Number)leafNodes.size()).doubleValue())*100;
+                int size = CollectionUtils.intersection(completedIds, leafNodes).size();
+                double completionPercentage = (((Number)size).doubleValue()/((Number)leafNodes.size()).doubleValue())*100;
 
-            int status = (size == leafNodes.size()) ? 2 : 1;
+                int status = (size == leafNodes.size()) ? 2 : 1;
 
-            Map<String, Object> dataToUpdate =  new HashMap<String, Object>() {{
-                put("courseId", courseId);
-                put("contentStatus", contentStatus);
-                put("contentStatusDelta", contentStatusDelta);
-                put("status", status);
-                put("completionPercentage", ((Number)completionPercentage).intValue());
-                put("progress", size);
-                putAll(lastReadContentStats);
-                if(status == 2) {
-                    put("completedOn", new Timestamp(new Date().getTime()));
-                    put("userCourseBatch", new HashMap<String, Object>() {{
-                        put("userId", userId);
-                        put("batchId", batchId);
-                        put("courseId", courseId);
-                    }});
-                }
-            }};
-
-            if(MapUtils.isNotEmpty(dataToUpdate)) {
+                Map<String, Object> dataToUpdate =  new HashMap<String, Object>() {{
+                    put("courseId", courseId);
+                    put("contentStatus", contentStatus);
+                    put("contentStatusDelta", contentStatusDelta);
+                    put("status", status);
+                    put("completionPercentage", ((Number)completionPercentage).intValue());
+                    put("progress", size);
+                    putAll(lastReadContentStats);
+                    if(status == 2) {
+                        put("completedOn", new Timestamp(new Date().getTime()));
+                        put("userCourseBatch", new HashMap<String, Object>() {{
+                            put("userId", userId);
+                            put("batchId", batchId);
+                            put("courseId", courseId);
+                        }});
+                    }
+                }};
                 courseProgressHandler.put(key, dataToUpdate);
+            } else {
+               LOGGER.warn("Enrolment not found to update the status. ", edata);
             }
         }
     }
 
-    private void populateContentStatusFromDB(String batchId, String courseId, String userId, Map<String, Object> contentStatus, Map<String, Object> lastReadContentStats) {
+    private boolean populateContentStatusFromDB(String batchId, String courseId, String userId, Map<String, Object> contentStatus, Map<String, Object> lastReadContentStats) {
         Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
             put("batchid", batchId);
             put("userid", userId);
@@ -166,7 +167,9 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             lastReadContentStats.put("lastReadContentStatus", rows.get(0).getInt("lastreadcontentstatus"));
             if(MapUtils.isNotEmpty(contentStatusMap))
                 contentStatus.putAll(contentStatusMap);
+            return true;
         }
+        return false;
     }
 
     private void populateContentStatusFromHandler(String key, String courseId, CourseProgressHandler courseProgressHandler, Map<String, Object> contentStatus, Map<String, Object> contentStatusDelta, Map<String, Object> lastReadContentStats) {
