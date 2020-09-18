@@ -309,27 +309,26 @@ public class PublishFinalizer extends BaseFinalizer {
 			if (StringUtils.isNotBlank(artifactUrl))
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 		}
-		
-		Map<String,Object> collectionHierarchy = isContentShallowCopy ? 
-				getHierarchy((String)((Map<String, Object>)node.getMetadata()).get("origin"), false) :
+
+		List<Map<String, Object>> children = new ArrayList<Map<String, Object>>();
+
+		if (StringUtils.equalsIgnoreCase(((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())), COLLECTION_MIMETYPE)) {
+			TelemetryManager.log("Collection processing started for content: " + node.getIdentifier());
+			Map<String, Object> collectionHierarchy = isContentShallowCopy ?
+					getHierarchy((String) ((Map<String, Object>) node.getMetadata()).get("origin"), false) :
 					getHierarchy(node.getIdentifier(), true);
-		TelemetryManager.log("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
-		
-		List<Map<String, Object>> children = null;
-		if(MapUtils.isNotEmpty(collectionHierarchy)) {
-			children = (List<Map<String,Object>>)collectionHierarchy.get("children");
-			if(!isContentShallowCopy) {
-				Set<String> collectionResourceChildNodes = new HashSet<>();
-				enrichChildren(children, collectionResourceChildNodes, node);
-				if(!collectionResourceChildNodes.isEmpty()) {
-					List<String> collectionChildNodes = getList(node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name()));
-					collectionChildNodes.addAll(collectionResourceChildNodes);
+			TelemetryManager.log("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
+			if (MapUtils.isNotEmpty(collectionHierarchy)) {
+				children = (List<Map<String, Object>>) collectionHierarchy.get("children");
+				if (!isContentShallowCopy) {
+					Set<String> collectionResourceChildNodes = new HashSet<>();
+					enrichChildren(children, collectionResourceChildNodes, node);
+					if (!collectionResourceChildNodes.isEmpty()) {
+						List<String> collectionChildNodes = getList(node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name()));
+						collectionChildNodes.addAll(collectionResourceChildNodes);
+					}
 				}
 			}
-		}
-		
-		if (StringUtils.equalsIgnoreCase(((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),COLLECTION_MIMETYPE)) {
-			TelemetryManager.log("Collection processing started for content: " + node.getIdentifier());
 			processCollection(node, children);
 			TelemetryManager.log("Collection processing done for content: " + node.getIdentifier());
 		}
