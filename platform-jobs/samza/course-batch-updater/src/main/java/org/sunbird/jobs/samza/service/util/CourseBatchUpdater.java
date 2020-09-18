@@ -218,8 +218,11 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                         LOGGER.info("CourseBatchUpdater:updateBatchProgress: result:: " + result);
                         if (MapUtils.isNotEmpty(result)) {
                             int dbProgress = (int) result.getOrDefault("progress", 0);
-                            if (dbProgress > 0 && latestProgress > 0 && latestProgress > dbProgress) {
-                                userCertificateEvents.add((Map<String, Object>) dataToUpdate.get("userCourseBatch"));
+                            Map<String, Object> certEventData = (Map<String, Object>) dataToUpdate.get("userCourseBatch");
+                            if (latestProgress > 0) {
+                                if (latestProgress > dbProgress)
+                                    certEventData.put("reIssue", true);
+                                userCertificateEvents.add(certEventData);
                                 LOGGER.info("CourseBatchUpdater:updateBatchProgress: auto certificate generation triggered for userId " + userId + " and batchId " + batchId);
                             } else {
                                 LOGGER.info("CourseBatchUpdater:updateBatchProgress [2]: status is complete but, auto certificate generation not triggered for userId " + userId + " and batchId " + batchId);
@@ -310,6 +313,8 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         object.put(CourseBatchParams.id.name(), id);
         object.put(CourseBatchParams.type.name(), "CourseCertificateGeneration");
 
+        boolean reIssue = (Boolean) certificateEvent.getOrDefault("reIssue", false);
+
         edata.putAll(
                 new HashMap<String, Object>() {
                     {
@@ -317,7 +322,8 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                         put(CourseBatchParams.batchId.name(), certificateEvent.get("batchId"));
                         put(CourseBatchParams.courseId.name(), certificateEvent.get("courseId"));
                         put(CourseBatchParams.action.name(), "issue-certificate");
-                        put(CourseBatchParams.reIssue.name(), true);
+                        put(CourseBatchParams.reIssue.name(), reIssue);
+                        put("trigger", "auto-issue");
                     }
                 });
         String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
