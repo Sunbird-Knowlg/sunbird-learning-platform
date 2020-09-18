@@ -100,55 +100,53 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             Map<String, Object> contentStatusDelta = new HashMap<>();
             Map<String, Object> lastReadContentStats = new HashMap<>(); 
             String key = courseProgressHandler.getKey(batchId, userId);
-            Boolean enrolled = false;
             if(courseProgressHandler.containsKey(key)) {// Get Progress from the unprocessed list
                 populateContentStatusFromHandler(key, courseId, courseProgressHandler, contentStatus, contentStatusDelta, lastReadContentStats);
             } else { // Get progress from cassandra
-                enrolled = populateContentStatusFromDB(batchId, courseId, userId, contentStatus, lastReadContentStats);
+               Boolean enrolled = populateContentStatusFromDB(batchId, courseId, userId, contentStatus, lastReadContentStats);
+               if (!enrolled) {
+                   LOGGER.warn("User not enrolled - batchId: " + batchId + " :: userId: " + userId + " :: courseId: " + courseId);
+               }
             }
-            
-            if (enrolled) {
-                contents.forEach(c -> {
-                    String id = (String) c.get("contentId");
-                    if(contentStatus.containsKey(id)) {
-                        contentStatus.put(id, Math.max(((Integer) contentStatus.get(id)), ((Integer)c.get("status"))));
-                        contentStatusDelta.put(id, Math.max(((Integer) contentStatus.get(id)), ((Integer)c.get("status"))));
-                    } else {
-                        contentStatus.put(id, c.get("status"));
-                        contentStatusDelta.put(id, c.get("status"));
-                    }
-                });
 
-                List<String> completedIds = contentStatus.entrySet().stream()
-                        .filter(entry -> (2 == ((Number) entry.getValue()).intValue()))
-                        .map(entry -> entry.getKey()).distinct().collect(Collectors.toList());
+            contents.forEach(c -> {
+                String id = (String) c.get("contentId");
+                if(contentStatus.containsKey(id)) {
+                    contentStatus.put(id, Math.max(((Integer) contentStatus.get(id)), ((Integer)c.get("status"))));
+                    contentStatusDelta.put(id, Math.max(((Integer) contentStatus.get(id)), ((Integer)c.get("status"))));
+                } else {
+                    contentStatus.put(id, c.get("status"));
+                    contentStatusDelta.put(id, c.get("status"));
+                }
+            });
 
-                int size = CollectionUtils.intersection(completedIds, leafNodes).size();
-                double completionPercentage = (((Number)size).doubleValue()/((Number)leafNodes.size()).doubleValue())*100;
+            List<String> completedIds = contentStatus.entrySet().stream()
+                    .filter(entry -> (2 == ((Number) entry.getValue()).intValue()))
+                    .map(entry -> entry.getKey()).distinct().collect(Collectors.toList());
 
-                int status = (size == leafNodes.size()) ? 2 : 1;
+            int size = CollectionUtils.intersection(completedIds, leafNodes).size();
+            double completionPercentage = (((Number)size).doubleValue()/((Number)leafNodes.size()).doubleValue())*100;
 
-                Map<String, Object> dataToUpdate =  new HashMap<String, Object>() {{
-                    put("courseId", courseId);
-                    put("contentStatus", contentStatus);
-                    put("contentStatusDelta", contentStatusDelta);
-                    put("status", status);
-                    put("completionPercentage", ((Number)completionPercentage).intValue());
-                    put("progress", size);
-                    putAll(lastReadContentStats);
-                    if(status == 2) {
-                        put("completedOn", new Timestamp(new Date().getTime()));
-                        put("userCourseBatch", new HashMap<String, Object>() {{
-                            put("userId", userId);
-                            put("batchId", batchId);
-                            put("courseId", courseId);
-                        }});
-                    }
-                }};
-                courseProgressHandler.put(key, dataToUpdate);
-            } else {
-               LOGGER.warn("Enrolment not found to update the status. ", edata);
-            }
+            int status = (size == leafNodes.size()) ? 2 : 1;
+
+            Map<String, Object> dataToUpdate =  new HashMap<String, Object>() {{
+                put("courseId", courseId);
+                put("contentStatus", contentStatus);
+                put("contentStatusDelta", contentStatusDelta);
+                put("status", status);
+                put("completionPercentage", ((Number)completionPercentage).intValue());
+                put("progress", size);
+                putAll(lastReadContentStats);
+                if(status == 2) {
+                    put("completedOn", new Timestamp(new Date().getTime()));
+                    put("userCourseBatch", new HashMap<String, Object>() {{
+                        put("userId", userId);
+                        put("batchId", batchId);
+                        put("courseId", courseId);
+                    }});
+                }
+            }};
+            courseProgressHandler.put(key, dataToUpdate);
         }
     }
 
