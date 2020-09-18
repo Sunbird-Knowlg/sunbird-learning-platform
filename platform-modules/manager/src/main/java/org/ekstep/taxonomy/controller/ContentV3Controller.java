@@ -43,7 +43,7 @@ import java.util.Map;
  * @author Azhar
  */
 @Controller
-@RequestMapping("/content/v3") 
+@RequestMapping("/content/v3")
 public class ContentV3Controller extends BaseController {
 
 	@Autowired
