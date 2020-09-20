@@ -181,8 +181,6 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             if(MapUtils.isNotEmpty(contentStatusMap))
                 contentStatus.putAll(contentStatusMap);
             return true;
-        } else {
-
         }
         return false;
     }
