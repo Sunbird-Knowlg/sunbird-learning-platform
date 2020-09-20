@@ -27,6 +27,7 @@ import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 import redis.clients.jedis.Jedis;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -105,7 +106,21 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             } else { // Get progress from cassandra
                Boolean enrolled = populateContentStatusFromDB(batchId, courseId, userId, contentStatus, lastReadContentStats);
                if (!enrolled) {
-                   LOGGER.warn("User not enrolled - batchId: " + batchId + " :: userId: " + userId + " :: courseId: " + courseId);
+                   LOGGER.warn("User not enrolled to batch: " + batchId + " :: userId: " + userId + " :: courseId: " + courseId);
+                   Map<String, Object> propertiesToUpdate = new HashMap<String, Object>() {{
+                    put("addedBy", "System");
+                    put("enrolledDate", getDateFormatter().format(new Date()));
+                    put("status", 1);
+                    put("dateTime", new Timestamp(new Date().getTime()));
+                   }};
+                   Map<String, Object> propertiesToSelect = new HashMap<String, Object>() {{
+                       put("courseid", courseId);
+                       put("batchid", batchId);
+                       put("userid", userId);
+                   }};
+                   SunbirdCassandraUtil.update(cassandraSession, keyspace, table, propertiesToUpdate, propertiesToSelect);
+                   LOGGER.info("User auto-enrolled to batch: " + batchId + " :: userId: " + userId + " :: courseId: " + courseId);
+                   // TODO - Generate telemetry - AUDIT.
                }
             }
 
@@ -166,6 +181,8 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             if(MapUtils.isNotEmpty(contentStatusMap))
                 contentStatus.putAll(contentStatusMap);
             return true;
+        } else {
+
         }
         return false;
     }
@@ -182,6 +199,12 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 contentStatusDelta.putAll(contentStatusDeltaMap);
             }
         }
+    }
+
+    private static SimpleDateFormat getDateFormatter() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSSZ");
+        simpleDateFormat.setLenient(false);
+        return simpleDateFormat;
     }
 
 
