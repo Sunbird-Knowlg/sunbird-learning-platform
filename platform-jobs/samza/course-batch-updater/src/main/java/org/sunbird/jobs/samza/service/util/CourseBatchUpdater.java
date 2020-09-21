@@ -27,6 +27,7 @@ import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 import redis.clients.jedis.Jedis;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -100,13 +101,29 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             Map<String, Object> contentStatusDelta = new HashMap<>();
             Map<String, Object> lastReadContentStats = new HashMap<>(); 
             String key = courseProgressHandler.getKey(batchId, userId);
-            
             if(courseProgressHandler.containsKey(key)) {// Get Progress from the unprocessed list
                 populateContentStatusFromHandler(key, courseId, courseProgressHandler, contentStatus, contentStatusDelta, lastReadContentStats);
             } else { // Get progress from cassandra
-                populateContentStatusFromDB(batchId, courseId, userId, contentStatus, lastReadContentStats);
+               Boolean enrolled = populateContentStatusFromDB(batchId, courseId, userId, contentStatus, lastReadContentStats);
+               if (!enrolled) {
+                   LOGGER.warn("User not enrolled to batch: " + batchId + " :: userId: " + userId + " :: courseId: " + courseId);
+                   Map<String, Object> propertiesToUpdate = new HashMap<String, Object>() {{
+                    put("addedBy", "System");
+                    put("enrolledDate", getDateFormatter().format(new Date()));
+                    put("status", 1);
+                    put("dateTime", new Timestamp(new Date().getTime()));
+                   }};
+                   Map<String, Object> propertiesToSelect = new HashMap<String, Object>() {{
+                       put("courseid", courseId);
+                       put("batchid", batchId);
+                       put("userid", userId);
+                   }};
+                   SunbirdCassandraUtil.update(cassandraSession, keyspace, table, propertiesToUpdate, propertiesToSelect);
+                   LOGGER.info("User auto-enrolled to batch: " + batchId + " :: userId: " + userId + " :: courseId: " + courseId);
+                   // TODO - Generate telemetry - AUDIT.
+               }
             }
-            
+
             contents.forEach(c -> {
                 String id = (String) c.get("contentId");
                 if(contentStatus.containsKey(id)) {
@@ -144,14 +161,11 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     }});
                 }
             }};
-
-            if(MapUtils.isNotEmpty(dataToUpdate)) {
-                courseProgressHandler.put(key, dataToUpdate);
-            }
+            courseProgressHandler.put(key, dataToUpdate);
         }
     }
 
-    private void populateContentStatusFromDB(String batchId, String courseId, String userId, Map<String, Object> contentStatus, Map<String, Object> lastReadContentStats) {
+    private boolean populateContentStatusFromDB(String batchId, String courseId, String userId, Map<String, Object> contentStatus, Map<String, Object> lastReadContentStats) {
         Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
             put("batchid", batchId);
             put("userid", userId);
@@ -166,7 +180,9 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             lastReadContentStats.put("lastReadContentStatus", rows.get(0).getInt("lastreadcontentstatus"));
             if(MapUtils.isNotEmpty(contentStatusMap))
                 contentStatus.putAll(contentStatusMap);
+            return true;
         }
+        return false;
     }
 
     private void populateContentStatusFromHandler(String key, String courseId, CourseProgressHandler courseProgressHandler, Map<String, Object> contentStatus, Map<String, Object> contentStatusDelta, Map<String, Object> lastReadContentStats) {
@@ -181,6 +197,12 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 contentStatusDelta.putAll(contentStatusDeltaMap);
             }
         }
+    }
+
+    private static SimpleDateFormat getDateFormatter() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSSZ");
+        simpleDateFormat.setLenient(false);
+        return simpleDateFormat;
     }
 
 
@@ -215,8 +237,11 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                         LOGGER.info("CourseBatchUpdater:updateBatchProgress: result:: " + result);
                         if (MapUtils.isNotEmpty(result)) {
                             int dbProgress = (int) result.getOrDefault("progress", 0);
-                            if (dbProgress > 0 && latestProgress > 0 && latestProgress > dbProgress) {
-                                userCertificateEvents.add((Map<String, Object>) dataToUpdate.get("userCourseBatch"));
+                            Map<String, Object> certEventData = (Map<String, Object>) dataToUpdate.get("userCourseBatch");
+                            if (latestProgress > 0) {
+                                if (latestProgress > dbProgress)
+                                    certEventData.put("reIssue", true);
+                                userCertificateEvents.add(certEventData);
                                 LOGGER.info("CourseBatchUpdater:updateBatchProgress: auto certificate generation triggered for userId " + userId + " and batchId " + batchId);
                             } else {
                                 LOGGER.info("CourseBatchUpdater:updateBatchProgress [2]: status is complete but, auto certificate generation not triggered for userId " + userId + " and batchId " + batchId);
@@ -307,6 +332,8 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         object.put(CourseBatchParams.id.name(), id);
         object.put(CourseBatchParams.type.name(), "CourseCertificateGeneration");
 
+        boolean reIssue = (Boolean) certificateEvent.getOrDefault("reIssue", false);
+
         edata.putAll(
                 new HashMap<String, Object>() {
                     {
@@ -314,7 +341,8 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                         put(CourseBatchParams.batchId.name(), certificateEvent.get("batchId"));
                         put(CourseBatchParams.courseId.name(), certificateEvent.get("courseId"));
                         put(CourseBatchParams.action.name(), "issue-certificate");
-                        put(CourseBatchParams.reIssue.name(), true);
+                        put(CourseBatchParams.reIssue.name(), reIssue);
+                        put("trigger", "auto-issue");
                     }
                 });
         String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);

@@ -113,7 +113,6 @@ public class ContentUtil {
 					update(channelId, internalId, updateMetadata);
 					if (StringUtils.equalsIgnoreCase("create", stage))
 						break;
-					delay(API_CALL_DELAY);
 				}
 				case "upload": {
 					isUploaded = upload(channelId, internalId, metadata);
@@ -151,11 +150,12 @@ public class ContentUtil {
 	}
 
 	private void updateStatus(String channelId, String identifier, String message) throws Exception {
+		String errorMsg = StringUtils.isNotBlank(message) ? message : "Processing Error";
 		String url = KP_LEARNING_BASE_URL + "/system/v3/content/update/" + identifier;
 		Map<String, Object> request = new HashMap<String, Object>() {{
 			put("request", new HashMap<String, Object>() {{
 				put("content", new HashMap<String, Object>() {{
-					put(AutoCreatorParams.importError.name(), message);
+					put(AutoCreatorParams.importError.name(), errorMsg);
 					put(AutoCreatorParams.status.name(), "Failed");
 				}});
 			}});
@@ -354,16 +354,18 @@ public class ContentUtil {
 		Response resp = null;
 		Long downloadStartTime = System.currentTimeMillis();
 		String sourceUrl = (String) metadata.get(AutoCreatorParams.artifactUrl.name());
+		String mimeType = (String) metadata.getOrDefault("mimeType", "");
 		if (CollectionUtils.isNotEmpty(ALLOWED_ARTIFACT_SOURCE) && CollectionUtils.isEmpty(ALLOWED_ARTIFACT_SOURCE.stream().filter(x -> sourceUrl.contains(x)).collect(Collectors.toList()))) {
 			LOGGER.info("Artifact Source is not from allowed one for : " + identifier + " | artifactUrl: " + sourceUrl + " | Allowed Sources : " + ALLOWED_ARTIFACT_SOURCE);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Artifact Source is not from allowed one for : " + identifier + " | artifactUrl: " + sourceUrl + " | Allowed Sources : " + ALLOWED_ARTIFACT_SOURCE);
 		}
-		File file = getFile(identifier, sourceUrl);
+		File file = getFile(identifier, sourceUrl, mimeType);
 		Long downloadEndTime = System.currentTimeMillis();
 		LOGGER.info("ContentUtil :: upload :: Total time taken for download: " + (downloadEndTime - downloadStartTime));
-		String mimeType = (String) metadata.getOrDefault("mimeType", "");
-		if (null != file && file.exists())
-			LOGGER.info("ContentUtil :: upload :: File Path for " + identifier + "is : " + file.getAbsolutePath() + " | File Size : " + file.length());
+		if (null == file || !file.exists()) {
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Error Occurred while downloading file for " + identifier + " | File Url : "+sourceUrl);
+		}
+		LOGGER.info("ContentUtil :: upload :: File Path for " + identifier + "is : " + file.getAbsolutePath() + " | File Size : " + file.length());
 		Long size = FileUtils.sizeOf(file);
 		LOGGER.info("ContentUtil :: upload :: file size (MB): " + (size / 1048576));
 		String url = KP_CS_BASE_URL + "/content/v3/upload/" + identifier + "?validation=false";
@@ -607,16 +609,27 @@ public class ContentUtil {
 		return fileName;
 	}
 
-	private File getFile(String identifier, String fileUrl) {
+	private File getFile(String identifier, String fileUrl, String mimeType) throws Exception {
+		File file = null;
 		try {
-			//String fileName = getBasePath(identifier) + File.separator + getFileNameFromURL(fileUrl);
-			//File file = new File(fileName);
-			//FileUtils.copyURLToFile(new URL(fileUrl), file);
-			File file = HttpDownloadUtility.downloadFile(fileUrl, getBasePath(identifier));
+			if (StringUtils.isNotBlank(fileUrl) && fileUrl.contains("drive.google.com")) {
+				String fileId = fileUrl.split("download&id=")[1];
+				if(StringUtils.isBlank(fileId))
+					throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "Invalid fileUrl received for : " + identifier + " | fileUrl : " + fileUrl);
+				while (null == file && GoogleDriveUtil.BACKOFF_DELAY <= GoogleDriveUtil.MAXIMUM_BACKOFF_DELAY) {
+					file = GoogleDriveUtil.downloadFile(fileId, getBasePath(identifier), mimeType);
+				}
+			} else {
+				file = HttpDownloadUtility.downloadFile(fileUrl, getBasePath(identifier));
+			}
 			return file;
 		} catch (Exception e) {
-			LOGGER.info("Invalid fileUrl received for : " + identifier + " | fileUrl : " + fileUrl + "Exception is : " + e.getMessage());
-			throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "Invalid fileUrl received for : " + identifier + " | fileUrl : " + fileUrl);
+			if(e instanceof ServerException)
+				throw e;
+			else {
+				LOGGER.info("Invalid fileUrl received for : " + identifier + " | fileUrl : " + fileUrl + "Exception is : " + e.getMessage());
+				throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "Invalid fileUrl received for : " + identifier + " | fileUrl : " + fileUrl);
+			}
 		}
 	}
 
