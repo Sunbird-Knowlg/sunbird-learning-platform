@@ -3061,7 +3061,9 @@
           "relationName": "hasSequenceMember",
           "objectTypes": [
             "Content",
-            "ContentImage"
+            "ContentImage",
+            "Collection",
+            "CollectionImage"
           ],
           "title": "collections",
           "description": "Which all collections is this content part of",
@@ -3070,7 +3072,8 @@
         {
           "relationName": "associatedTo",
           "objectTypes": [
-            "Content"
+            "Content",
+            "Collection"
           ],
           "title": "usedByContent",
           "description": "Other content using this content",
@@ -3122,7 +3125,8 @@
         {
           "relationName": "associatedTo",
           "objectTypes": [
-            "Content"
+            "Content",
+            "Collection"
           ],
           "title": "usesContent",
           "description": "Screenshots and other media (assets) used by this content",
@@ -3133,7 +3137,9 @@
           "relationName": "hasSequenceMember",
           "objectTypes": [
             "Content",
-            "ContentImage"
+            "ContentImage",
+            "Collection",
+            "CollectionImage"
           ],
           "title": "children",
           "description": "Child content items (in sorted order) in case of collections like Textbooks",
