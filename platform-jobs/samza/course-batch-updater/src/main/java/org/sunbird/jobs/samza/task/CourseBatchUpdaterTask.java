@@ -73,7 +73,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
                 if(courseProgressBatchSize < courseProgressHandler.size()) {
                     executeCourseProgressBatch(collector);
                 }
-                courseBatchUpdater.processBatchProgress(message, courseProgressHandler);
+                courseBatchUpdater.processBatchProgress(message, courseProgressHandler, collector);
                 LOGGER.info("CourseBatchUpdaterTask:process: message mid : " + message.get("mid"));
             } else {
                 service.processMessage(message, null, null);
