@@ -54,6 +54,24 @@ public class JobLogger {
 		logger.info(getLogMessage(msg, null));
 	}
 
+	public void warn(String msg) {
+	    logger.warn(getLogMessage(msg, null));
+    }
+
+    public void warn(String msg, Map<String, Object> event) {
+	    if (logger.isWarnEnabled()) {
+	        try {
+	            warn(msg, JSONUtils.serialize(event));
+            } catch (Exception e) {
+	            e.printStackTrace();
+            }
+        }
+    }
+
+    private void warn(String msg, String event) {
+	    logger.warn(getLogMessage(msg, event));
+    }
+
 	public void info(String msg, String event) {
 		logger.info(getLogMessage(msg, event));
 	}
