@@ -107,6 +107,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     put("addedBy", "System");
                     put("enrolledDate", getDateFormatter().format(new Date()));
                     put("status", 1);
+                    put("active", true);
                     put("dateTime", new Timestamp(new Date().getTime()));
                    }};
                    Map<String, Object> propertiesToSelect = new HashMap<String, Object>() {{
