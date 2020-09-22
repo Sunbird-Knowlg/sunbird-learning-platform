@@ -92,8 +92,6 @@ public class BatchEnrolmentSyncManager {
             Map<String, Object> rowMap = mapper.readValue(row.getString("[json]"), Map.class);
             String enrolSyncEvent = generateBatchSyncKafkaEvent(rowMap);
             KafkaClient.send(enrolSyncEvent, KAFKA_TOPIC);
-            String enrolUpdateEvent = generateBatchEnrolUpdateKafkaEvent(rowMap);
-            KafkaClient.send(enrolUpdateEvent, KAFKA_TOPIC);
             current += 1;
             printProgress(startTime, total, current);
         }
@@ -153,12 +151,12 @@ public class BatchEnrolmentSyncManager {
                 put("id", rowMap.get("batchid") + "_" + rowMap.get("userid"));
             }});
             put("edata", new HashMap<String, Object>(){{
-                put("action", "batch-enrolment-sync");
+                put("action", "batch-enrolment-update");
                 put("iteration", 1);
                 put("batchId", rowMap.get("batchid"));
                 put("userId", rowMap.get("userid"));
                 put("courseId", rowMap.get("courseid"));
-                put("reset", Arrays.asList("completionPercentage","status","progress"));
+                put("contents", Arrays.asList(new HashMap(){{ put("contentId", "manual_sync"); put("status", 2);}}));
             }});
         }};
 
@@ -331,11 +329,10 @@ public class BatchEnrolmentSyncManager {
                 String dbBatchId = (String) m.get("batchid");
                 return (MapUtils.isNotEmpty(m) && StringUtils.equalsIgnoreCase(dbBatchId, batchId));
             }).collect(Collectors.toList());
-            System.out.println("Number of rows to be synced : " + rows.size());
+            System.out.println("Number of rows to be synced : " + list.size());
             System.out.println("-----------------------------------------");
             System.out.println("Pushing the events to kafka");
             pushEnrolmentSyncEventsToKafka(list);
-            System.out.println("-----------------------------------------");
         } else {
             System.out.println("No enrolments found for given user and batch.");
         }
@@ -353,6 +350,7 @@ public class BatchEnrolmentSyncManager {
             current += 1;
             printProgress(startTime, total, current);
         }
+        System.out.println("");
 
     }
 
