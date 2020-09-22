@@ -333,9 +333,9 @@ public class BatchEnrolmentSyncManager {
         ResultSet results = session.execute(selectQuery);
         List<Row> rows = results.all();
         if (CollectionUtils.isNotEmpty(rows)) {
-            rows.stream().filter(row -> StringUtils.equalsIgnoreCase(row.getString("batchid"), batchId)).collect(Collectors.toList());
+            return rows.stream().filter(row -> StringUtils.equalsIgnoreCase(row.getString("batchid"), batchId)).collect(Collectors.toList());
         } else {
-            Arrays.asList();
+            return Arrays.asList();
         }
     }
 }
