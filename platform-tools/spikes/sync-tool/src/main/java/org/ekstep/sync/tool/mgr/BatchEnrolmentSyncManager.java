@@ -89,15 +89,50 @@ public class BatchEnrolmentSyncManager {
         long current = 0;
         for(Row row: rows) {
             Map<String, Object> rowMap = mapper.readValue(row.getString("[json]"), Map.class);
-            String event = generatekafkaEvent(rowMap);
-            KafkaClient.send(event, KAFKA_TOPIC);
+            String enrolSyncEvent = generateBatchSyncKafkaEvent(rowMap);
+            KafkaClient.send(enrolSyncEvent, KAFKA_TOPIC);
+            String enrolUpdateEvent = generateBatchEnrolUpdateKafkaEvent(rowMap);
+            KafkaClient.send(enrolUpdateEvent, KAFKA_TOPIC);
             current += 1;
             printProgress(startTime, total, current);
         }
 
     }
 
-    private String generatekafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
+    private String generateBatchSyncKafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
+        Map<String, Object> event = new HashMap<String, Object>() {{
+            put("eid", "BE_JOB_REQUEST");
+            put("ets", System.currentTimeMillis());
+            put("mid", "LP." + System.currentTimeMillis() +"." + UUID.randomUUID());
+            put("actor", new HashMap<String, Object>(){{
+                put("type", "System");
+                put("id", "Course Batch Updater");
+            }});
+            put("context", new HashMap<String, Object>(){{
+                put("pdata", new HashMap<String, Object>(){{
+                    put("id", "org.sunbird.platform");
+                    put("ver", "1.0");
+                }});
+            }});
+            put("object", new HashMap<String, Object>(){{
+                put("type", "CourseBatchEnrolment");
+                put("id", rowMap.get("batchid") + "_" + rowMap.get("userid"));
+            }});
+            put("edata", new HashMap<String, Object>(){{
+                put("action", "batch-enrolment-sync");
+                put("iteration", 1);
+                put("batchId", rowMap.get("batchid"));
+                put("userId", rowMap.get("userid"));
+                put("courseId", rowMap.get("courseid"));
+                put("reset", Arrays.asList("completionPercentage","status","progress"));
+            }});
+        }};
+
+        return mapper.writeValueAsString(event);
+
+    }
+
+    private String generateBatchEnrolUpdateKafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
         Map<String, Object> event = new HashMap<String, Object>() {{
             put("eid", "BE_JOB_REQUEST");
             put("ets", System.currentTimeMillis());
@@ -278,28 +313,29 @@ public class BatchEnrolmentSyncManager {
         return results.all();
     }
 
-    public void syncEnrol(String userId, String batchId, String resetProgress) throws Exception {
-        ElasticSearchUtil.initialiseESClient("user-courses", Platform.config.getString("search.lms_es_conn_info"));
-        List<Row> rows = readEnrolment("user_courses", batchId, userId);
-        System.out.println("Number of rows to be synced : " + rows.size());
+    public void syncEnrol(String userId, String batchId) throws Exception {
 
-        List<String> docids = Arrays.asList("batchId", "userId");
-
-        pushDocsToES(rows, docids, "user-courses");
-        System.out.println("Number of rows to be synced to ES :" +  rows.size());
-        //TODO: If resetProgress Push the events to kafka
-        if(Boolean.valueOf(resetProgress)){
+        List<Row> rows = readEnrolment(userId, batchId);
+        if (CollectionUtils.isNotEmpty(rows)) {
+            System.out.println("Number of rows to be synced : " + rows.size());
             System.out.println("-----------------------------------------");
             System.out.println("Pushing the events to kafka");
             pushEventsToKafka(rows);
             System.out.println("-----------------------------------------");
+        } else {
+            System.out.println("No enrolments found for given user and batch.");
         }
     }
 
-    private List<Row> readEnrolment(String user_courses, String batchId, String userId) {
+    private List<Row> readEnrolment(String userId, String batchId) {
         Session session = CassandraConnector.getSession("platform-courses");
-        Select.Where selectQuery = QueryBuilder.select().json().all().from(keyspace, "user_courses").where(QueryBuilder.eq("batchid", batchId)).and(QueryBuilder.eq("userid", userId));;
+        Select.Where selectQuery = QueryBuilder.select().json().all().from(keyspace, "user_enrolments").where(QueryBuilder.eq("userid", userId));
         ResultSet results = session.execute(selectQuery);
-        return results.all();
+        List<Row> rows = results.all();
+        if (CollectionUtils.isNotEmpty(rows)) {
+            rows.stream().filter(row -> StringUtils.equalsIgnoreCase(row.getString("batchid"), batchId)).collect(Collectors.toList());
+        } else {
+            Arrays.asList();
+        }
     }
 }
