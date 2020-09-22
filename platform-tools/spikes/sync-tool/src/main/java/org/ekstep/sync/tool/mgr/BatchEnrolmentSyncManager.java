@@ -321,25 +321,27 @@ public class BatchEnrolmentSyncManager {
 
             List<Map<String, Object>> list = rows.stream().map(row -> {
                 try {
-                    return mapper.readValue(row.getString("[json]"), Map.class);
+                    Map<String, Object> jsonRow = mapper.readValue(row.getString("[json]"), Map.class);
+                    return jsonRow;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                return MapUtils.EMPTY_MAP;
+                return new HashMap<String, Object>();
             }).filter(m -> {
-                MapUtils.isNotEmpty(m) && StringUtils.equalsIgnoreCase((String) m.get("batchid"), batchId)
+                String dbBatchId = (String) m.get("batchid");
+                return (MapUtils.isNotEmpty(m) && StringUtils.equalsIgnoreCase(dbBatchId, batchId));
             }).collect(Collectors.toList());
             System.out.println("Number of rows to be synced : " + rows.size());
             System.out.println("-----------------------------------------");
             System.out.println("Pushing the events to kafka");
-            pushEventsToKafka(list);
+            pushEnrolmentSyncEventsToKafka(list);
             System.out.println("-----------------------------------------");
         } else {
             System.out.println("No enrolments found for given user and batch.");
         }
     }
 
-    private void pushEventsToKafka(List<Map<String, Object>> rows) throws Exception {
+    private void pushEnrolmentSyncEventsToKafka(List<Map<String, Object>> rows) throws Exception {
         long startTime = System.currentTimeMillis();
         long total = ((Number) rows.size()).longValue();
         long current = 0;
