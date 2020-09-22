@@ -18,6 +18,8 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.telemetry.TelemetryGenerator;
+import org.ekstep.telemetry.TelemetryParams;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 import org.sunbird.jobs.samza.task.CourseProgressHandler;
@@ -27,15 +29,9 @@ import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 import redis.clients.jedis.Jedis;
 
 import java.sql.Timestamp;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CourseBatchUpdater extends BaseCourseBatchUpdater {
@@ -66,7 +62,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         this.certificateInstructionStream = certificateInstructionStream;
     }
 
-    public void updateBatchStatus(Map<String, Object> edata, CourseProgressHandler courseProgressHandler) throws Exception {
+    public void updateBatchStatus(Map<String, Object> edata, CourseProgressHandler courseProgressHandler, MessageCollector collector) throws Exception {
         //Get data from content read
         String courseId = (String) edata.get("courseId");
         List<String> leafNodes = getLeafNodes(courseId);
@@ -74,7 +70,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             LOGGER.info("Content does not have leafNodes : " + courseId);
         } else {
             //Compute status
-            updateData(edata, leafNodes, courseProgressHandler);
+            updateData(edata, leafNodes, courseProgressHandler, collector);
         }
     }
 
@@ -90,7 +86,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         return leafNodes;
     }
 
-    private void updateData(Map<String, Object> edata, List<String> leafNodes, CourseProgressHandler courseProgressHandler)  throws Exception {
+    private void updateData(Map<String, Object> edata, List<String> leafNodes, CourseProgressHandler courseProgressHandler, MessageCollector collector)  throws Exception {
         List<Map<String, Object>> contents = (List<Map<String, Object>>) edata.get("contents");
         String batchId = (String)edata.get("batchId");
         String userId = (String)edata.get("userId");
@@ -111,6 +107,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                     put("addedBy", "System");
                     put("enrolledDate", getDateFormatter().format(new Date()));
                     put("status", 1);
+                    put("active", true);
                     put("dateTime", new Timestamp(new Date().getTime()));
                    }};
                    Map<String, Object> propertiesToSelect = new HashMap<String, Object>() {{
@@ -120,7 +117,10 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                    }};
                    SunbirdCassandraUtil.update(cassandraSession, keyspace, table, propertiesToUpdate, propertiesToSelect);
                    LOGGER.info("User auto-enrolled to batch: " + batchId + " :: userId: " + userId + " :: courseId: " + courseId);
-                   // TODO - Generate telemetry - AUDIT.
+                   String event = generateAuditEvent(userId, courseId, batchId);
+                   LOGGER.info("Audit event: " + event);
+                   collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", Platform.config.getString("telemetry.raw.topic")), event));
+                   LOGGER.info("Audit event generated and pushed to kafka.");
                }
             }
 
@@ -163,6 +163,13 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             }};
             courseProgressHandler.put(key, dataToUpdate);
         }
+    }
+
+    private String generateAuditEvent(String userId, String collectionId, String batchId) {
+        Object[] params = new Object[]{"LP."+System.currentTimeMillis()+"."+UUID.randomUUID(), userId, collectionId, batchId, System.currentTimeMillis()+""};
+        String eventTemplate = "|\"eid\":\"AUDIT\",\"ets\":{4},\"ver\":\"3.0\",\"mid\":\"{0}\",\"actor\":|\"id\":\"{1}\",\"type\":\"User\"#,\"context\":|\"channel\":\"ORG_001\",\"pdata\":|\"pid\":\"lms-service\",\"ver\":\"1.0\"#,\"env\":\"CourseBatch\",\"cdata\":[|\"id\":\"{2}\",\"type\":\"Course\"#,|\"id\":\"{3}\",\"type\":\"CourseBatch\"#]#,\"object\":|\"id\":\"{1}\",\"type\":\"User\",\"rollup\":|\"l1\":\"{2}\"##,\"edata\":|\"state\":\"Create\",\"type\":\"enrol\",\"props\":[\"courseId\",\"enrolledDate\",\"userId\",\"batchId\",\"active\"]##";
+        String event = MessageFormat.format(eventTemplate, params);
+        return event.replaceAll("\\|","{").replaceAll("#","}");
     }
 
     private boolean populateContentStatusFromDB(String batchId, String courseId, String userId, Map<String, Object> contentStatus, Map<String, Object> lastReadContentStats) {
@@ -272,10 +279,10 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         }
     }
 
-    public void processBatchProgress(Map<String, Object> message, CourseProgressHandler courseProgressHandler) {
+    public void processBatchProgress(Map<String, Object> message, CourseProgressHandler courseProgressHandler, MessageCollector collector) {
         try {
             Map<String, Object> eData = (Map<String, Object>) message.get(CourseBatchParams.edata.name());
-            updateBatchStatus(eData, courseProgressHandler);
+            updateBatchStatus(eData, courseProgressHandler, collector);
         } catch (Exception e) {
             e.printStackTrace();
         }
