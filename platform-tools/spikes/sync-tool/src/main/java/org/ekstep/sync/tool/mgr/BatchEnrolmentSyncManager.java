@@ -22,6 +22,7 @@ import org.ekstep.sync.tool.util.CassandraColumns;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -317,25 +318,46 @@ public class BatchEnrolmentSyncManager {
 
         List<Row> rows = readEnrolment(userId, batchId);
         if (CollectionUtils.isNotEmpty(rows)) {
+
+            List<Map<String, Object>> list = rows.stream().map(row -> {
+                try {
+                    return mapper.readValue(row.getString("[json]"), Map.class);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return MapUtils.EMPTY_MAP;
+            }).filter(m -> {
+                MapUtils.isNotEmpty(m) && StringUtils.equalsIgnoreCase((String) m.get("batchid"), batchId)
+            }).collect(Collectors.toList());
             System.out.println("Number of rows to be synced : " + rows.size());
             System.out.println("-----------------------------------------");
             System.out.println("Pushing the events to kafka");
-            pushEventsToKafka(rows);
+            pushEventsToKafka(list);
             System.out.println("-----------------------------------------");
         } else {
             System.out.println("No enrolments found for given user and batch.");
         }
     }
 
+    private void pushEventsToKafka(List<Map<String, Object>> rows) throws Exception {
+        long startTime = System.currentTimeMillis();
+        long total = ((Number) rows.size()).longValue();
+        long current = 0;
+        for(Map<String, Object> row: rows) {
+            String enrolSyncEvent = generateBatchSyncKafkaEvent(row);
+            KafkaClient.send(enrolSyncEvent, KAFKA_TOPIC);
+            String enrolUpdateEvent = generateBatchEnrolUpdateKafkaEvent(row);
+            KafkaClient.send(enrolUpdateEvent, KAFKA_TOPIC);
+            current += 1;
+            printProgress(startTime, total, current);
+        }
+
+    }
+
     private List<Row> readEnrolment(String userId, String batchId) {
         Session session = CassandraConnector.getSession("platform-courses");
         Select.Where selectQuery = QueryBuilder.select().json().all().from(keyspace, "user_enrolments").where(QueryBuilder.eq("userid", userId));
         ResultSet results = session.execute(selectQuery);
-        List<Row> rows = results.all();
-        if (CollectionUtils.isNotEmpty(rows)) {
-            return rows.stream().filter(row -> StringUtils.equalsIgnoreCase(row.getString("batchid"), batchId)).collect(Collectors.toList());
-        } else {
-            return Arrays.asList();
-        }
+        return results.all();
     }
 }
