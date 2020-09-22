@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AcceptFlagOperation extends BaseContentManager {
-
+    
     @SuppressWarnings("unchecked")
     public Response acceptFlag(String contentId) {
         Response response;
@@ -29,14 +29,14 @@ public class AcceptFlagOperation extends BaseContentManager {
         Response getResponse = validateAndGetNodeResponseForOperation(contentId);
 
         Node node = (Node) getResponse.get(GraphDACParams.node.name());
-        boolean isValidObj = StringUtils.equalsIgnoreCase(CONTENT_OBJECT_TYPE, node.getObjectType());
+        boolean isValidObj = VALID_FLAG_OBJECT_TYPES.contains(node.getObjectType());
         boolean isValidStatus = StringUtils.equalsIgnoreCase((String) node.getMetadata().get("status"), "Flagged");
 
         if (!isValidObj || !isValidStatus)
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
                     "Invalid Flagged Content! Content Can Not Be Accepted.");
 
-        DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+        DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
         List<String> externalPropsList = getExternalPropsList(definition);
 
         String imageContentId = getImageId(contentId);
@@ -47,7 +47,7 @@ public class AcceptFlagOperation extends BaseContentManager {
         if (!isImageNodeExist) {
             Node createNode = (Node) getResponse.get(GraphDACParams.node.name());
             createNode.setIdentifier(imageContentId);
-            createNode.setObjectType(CONTENT_IMAGE_OBJECT_TYPE);
+            createNode.setObjectType(node.getObjectType() + DEFAULT_OBJECT_TYPE_IMAGE_SUFFIX);
             createNode.getMetadata().put(ContentAPIParams.status.name(), "FlagDraft");
             createNode.setGraphId(TAXONOMY_ID);
             Response createResponse = createDataNode(createNode);
@@ -78,10 +78,8 @@ public class AcceptFlagOperation extends BaseContentManager {
         Node originalNode = (Node) getResponse.get(GraphDACParams.node.name());
         originalNode.getMetadata().put(ContentAPIParams.status.name(), "Retired");
         Response retireResponse = updateDataNode(originalNode);
+        clearRedisCache(contentId);
         if (!checkError(retireResponse)) {
-            if (StringUtils.equalsIgnoreCase((String) originalNode.getMetadata().get("mimeType"),
-                    "application/vnd.ekstep.content-collection"))
-                deleteHierarchy(Arrays.asList(contentId));
             response = getSuccessResponse();
             response.getResult().put("node_id", contentId);
             response.getResult().put("versionKey", versionKey);
