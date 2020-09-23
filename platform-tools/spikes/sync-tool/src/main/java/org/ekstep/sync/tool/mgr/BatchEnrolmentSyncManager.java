@@ -98,7 +98,7 @@ public class BatchEnrolmentSyncManager {
 
     }
 
-    private String generateBatchSyncKafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
+    public String generateBatchSyncKafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
         Map<String, Object> event = new HashMap<String, Object>() {{
             put("eid", "BE_JOB_REQUEST");
             put("ets", System.currentTimeMillis());
