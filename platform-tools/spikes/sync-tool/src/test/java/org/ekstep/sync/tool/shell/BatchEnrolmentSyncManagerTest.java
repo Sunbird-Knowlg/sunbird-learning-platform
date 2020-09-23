@@ -3,11 +3,13 @@ package org.ekstep.sync.tool.shell;
 import com.datastax.driver.core.Row;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.sync.tool.mgr.BatchEnrolmentSyncManager;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,9 +19,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({CassandraConnector.class, ControllerUtil.class})
@@ -59,5 +59,34 @@ public class BatchEnrolmentSyncManagerTest extends GraphEngineTestSetup {
         BatchEnrolmentSyncManager mgr = PowerMockito.spy(new BatchEnrolmentSyncManager());
         PowerMockito.doReturn(new ArrayList<>()).when(mgr).readBatch(new String[]{"do_112693299606175744173"});
         mgr.sync("batch-detail-update", null, null, null, null, new String[]{"do_112693299606175744173"});
+    }
+
+    @Test
+    public void testGenerateBatchEnrolUpdateKafkaEvent() throws Exception {
+        BatchEnrolmentSyncManager mgr = PowerMockito.spy(new BatchEnrolmentSyncManager());
+        Map<String, Object> map = new HashMap<String, Object>() {{
+           put("batchid", "batch-1");
+           put("courseid", "course-1");
+           put("userid", "user-1");
+        }};
+        String event = mgr.generateBatchEnrolUpdateKafkaEvent(map);
+        System.out.println("Event: " +event);
+        Assert.assertTrue(StringUtils.isNotBlank(event));
+    }
+
+    @Test
+    public void testSyncEnrol() throws Exception {
+        Row row = PowerMockito.mock(Row.class);
+        PowerMockito.doReturn(Arrays.asList(row)).when(mgr).readEnrolment("user-1", "batch-1");
+        PowerMockito.when(row.getInt("status")).thenReturn(1);
+        PowerMockito.when(row.getString("name")).thenReturn("testbatch");
+        PowerMockito.when(row.getString("batchid")).thenReturn("1023456");
+        PowerMockito.when(row.getString("startdate")).thenReturn("2020-02-06");
+        PowerMockito.when(row.getString("enddate")).thenReturn("2020-02-08");
+        PowerMockito.when(row.getString("enrollmentenddate")).thenReturn(null);
+        PowerMockito.when(row.getString("enrollmenttype")).thenReturn("open");
+        PowerMockito.when(row.getString("courseid")).thenReturn("do_112693299606175744173");
+        PowerMockito.when(row.getList("createdfor", String.class)).thenReturn(new ArrayList<>());
+        mgr.syncEnrol("user-1", "batch-1");
     }
 }

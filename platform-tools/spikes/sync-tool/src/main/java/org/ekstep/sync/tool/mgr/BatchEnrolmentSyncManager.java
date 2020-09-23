@@ -131,7 +131,7 @@ public class BatchEnrolmentSyncManager {
 
     }
 
-    private String generateBatchEnrolUpdateKafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
+    public String generateBatchEnrolUpdateKafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
         Map<String, Object> event = new HashMap<String, Object>() {{
             put("eid", "BE_JOB_REQUEST");
             put("ets", System.currentTimeMillis());
@@ -316,7 +316,6 @@ public class BatchEnrolmentSyncManager {
 
         List<Row> rows = readEnrolment(userId, batchId);
         if (CollectionUtils.isNotEmpty(rows)) {
-
             List<Map<String, Object>> list = rows.stream().map(row -> {
                 try {
                     Map<String, Object> jsonRow = mapper.readValue(row.getString("[json]"), Map.class);
@@ -354,7 +353,7 @@ public class BatchEnrolmentSyncManager {
 
     }
 
-    private List<Row> readEnrolment(String userId, String batchId) {
+    public List<Row> readEnrolment(String userId, String batchId) {
         Session session = CassandraConnector.getSession("platform-courses");
         Select.Where selectQuery = QueryBuilder.select().json().all().from(keyspace, "user_enrolments").where(QueryBuilder.eq("userid", userId));
         ResultSet results = session.execute(selectQuery);
