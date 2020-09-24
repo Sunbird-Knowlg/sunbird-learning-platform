@@ -240,17 +240,136 @@
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "JSON",
+          "propertyName": "variants",
+          "title": "Image Resolution variants",
+          "description": "Image Resolution variants",
+          "category": "General",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Select",
+          "propertyName": "primaryCategory",
+          "title": "Primary Category",
+          "description": "Primary Category",
+          "category": "General",
+          "displayProperty": "Editable",
+          "range": [
+            "Explanation Content",
+            "Learning Resource",
+            "Course",
+            "Practice Question Set",
+            "eTextbook",
+            "Teacher Resource",
+            "Course Assessment",
+            "Digital Textbook",
+            "Content Playlist",
+            "Template",
+            "Asset",
+            "Plugin",
+            "Lesson Plan Unit",
+            "Course Unit",
+            "Textbook Unit"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
         }
       ],
       "inRelations": [],
       "outRelations": [],
       "systemTags": [],
       "metadata": {
-        "ttl": 24,
         "limit": 50,
+        "status": [
+          "Live"
+        ],
+        "ttl": 24,
+        "variants": {
+          "high": {
+            "dimensions": [
+              1024,
+              1024
+            ],
+            "dpi": 240
+          },
+          "medium": {
+            "dimensions": [
+              512,
+              512
+            ],
+            "dpi": 240
+          },
+          "low": {
+            "dimensions": [
+              128,
+              128
+            ],
+            "dpi": 240
+          }
+        },
+        "versionCheckMode": "STRICT",
+        "allowupdate_status": false,
+        "allowupdate_framework": true,
+        "allowupdate_mimeType": false,
         "fields": [
+          "identifier",
           "name",
-          "description"
+          "description",
+          "code",
+          "keywords",
+          "appIcon",
+          "grayScaleAppIcon",
+          "size",
+          "downloadUrl",
+          "artifactUrl",
+          "pkgVersion",
+          "osId",
+          "posterImage",
+          "filter",
+          "mimeType",
+          "minSupportedVersion",
+          "checksum",
+          "lastUpdatedOn",
+          "createdOn",
+          "status",
+          "contentType",
+          "primaryCategory",
+          "visibility",
+          "thumbnail",
+          "language",
+          "owner",
+          "translatable",
+          "mediaType",
+          "optStatus",
+          "domain",
+          "lastPublishedOn",
+          "popularity",
+          "versionKey",
+          "variants",
+          "createdBy",
+          "createdFor",
+          "contentEncoding",
+          "contentDisposition",
+          "config",
+          "ownershipType",
+          "channel",
+          "framework",
+          "lastStatusChangedOn",
+          "uploadError",
+          "appId",
+          "s3Key",
+          "consumerId",
+          "organisation"
         ]
       }
     }
