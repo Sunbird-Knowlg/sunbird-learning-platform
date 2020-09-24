@@ -540,7 +540,7 @@ public abstract class BaseContentManager extends BaseManager {
 
     protected Node createContentImageNode(String taxonomyId, String contentImageId, Node node) {
 
-        Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(), CONTENT_IMAGE_OBJECT_TYPE);
+        Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(), node.getObjectType() + DEFAULT_OBJECT_TYPE_IMAGE_SUFFIX);
         imageNode.setGraphId(taxonomyId);
         imageNode.setIdentifier(contentImageId);
         imageNode.setMetadata(node.getMetadata());

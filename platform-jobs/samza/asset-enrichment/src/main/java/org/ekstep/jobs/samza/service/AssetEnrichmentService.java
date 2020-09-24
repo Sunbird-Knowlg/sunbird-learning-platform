@@ -69,11 +69,11 @@ public class AssetEnrichmentService implements ISamzaService {
 
 		if (null == edata)
 			return false;
-		if(StringUtils.isNotBlank((String)edata.get(AssetEnrichmentEnums.contentType.name())) &&
+		if(StringUtils.isNotBlank((String)edata.get(AssetEnrichmentEnums.objectType.name())) &&
 				StringUtils.isNotBlank((String)edata.get(AssetEnrichmentEnums.mediaType.name())) &&
 				StringUtils.isNotBlank((String)edata.get(AssetEnrichmentEnums.status.name()))) {
 
-			if(StringUtils.equalsIgnoreCase((String)edata.get(AssetEnrichmentEnums.contentType.name()), AssetEnrichmentEnums.Asset.name()) &&
+			if(StringUtils.equalsIgnoreCase((String)edata.get(AssetEnrichmentEnums.objectType.name()), AssetEnrichmentEnums.Asset.name()) &&
 					(StringUtils.equalsIgnoreCase((String)edata.get(AssetEnrichmentEnums.mediaType.name()), AssetEnrichmentEnums.image.name()) ||
 							StringUtils.equalsIgnoreCase((String)edata.get(AssetEnrichmentEnums.mediaType.name()), AssetEnrichmentEnums.video.name()))){
 
@@ -107,7 +107,7 @@ public class AssetEnrichmentService implements ISamzaService {
 		try {
 			String nodeId = (String) object.get(AssetEnrichmentEnums.id.name());
 			Node node = util.getNode(AssetEnrichmentEnums.domain.name(), nodeId);
-			if ((null != node) && (node.getObjectType().equalsIgnoreCase(AssetEnrichmentEnums.content.name()))){
+			if ((null != node) && (node.getObjectType().equalsIgnoreCase(AssetEnrichmentEnums.asset.name()))){
 				String mediaType = (String)edata.get(AssetEnrichmentEnums.mediaType.name());
 				if(CONTENT_UPLOAD_CONTEXT_DRIVEN && 
 						StringUtils.isNoneBlank((String)node.getMetadata().get("artifactBasePath")) &&

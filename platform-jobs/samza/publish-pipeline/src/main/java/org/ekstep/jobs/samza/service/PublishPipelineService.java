@@ -255,6 +255,7 @@ public class PublishPipelineService implements ISamzaService {
         String action = (String) edata.get("action");
         String contentType = (String) edata.get(PublishPipelineParams.contentType.name());
         Integer iteration = (Integer) edata.get(PublishPipelineParams.iteration.name());
+        //TODO: remove contentType validation
         if (StringUtils.equalsIgnoreCase("publish", action) && (!StringUtils.equalsIgnoreCase(contentType,
                 PublishPipelineParams.Asset.name())) &&  (iteration <= getMaxIterations())) {
                 return true;
