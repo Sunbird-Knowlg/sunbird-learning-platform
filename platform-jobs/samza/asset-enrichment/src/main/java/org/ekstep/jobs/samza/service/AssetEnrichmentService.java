@@ -171,10 +171,12 @@ public class AssetEnrichmentService implements ISamzaService {
 			node.getMetadata().put(AssetEnrichmentEnums.status.name(), AssetEnrichmentEnums.Live.name());
 			node.getMetadata().put(AssetEnrichmentEnums.variants.name(), variantsMap);
 		}
+		LOGGER.info("node metadata :: "+node.getMetadata());
 		Response res = util.updateNode(node);
 		if(checkError(res)) {
+
 			throw new ServerException(AssetEnrichmentEnums.PROCESSING_ERROR.name(), "Error! While Updating the Metadata | [Content Id: " +
-					node.getIdentifier() + "] :: " + res.getParams().getErr() + " :: " + res.getParams().getErrmsg());
+					node.getIdentifier() + "] :: " + res.getParams().getErr() + " :: " + res.getParams().getErrmsg() + " | Result: "+res.getResult());
 		}
 	}
 
