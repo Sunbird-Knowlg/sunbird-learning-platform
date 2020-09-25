@@ -3,6 +3,7 @@ package org.ekstep.content.operation.finalizer;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
@@ -43,7 +44,7 @@ public class PublishFinalizerTest extends GraphEngineTestSetup {
 	@BeforeClass
 	public static void create() throws Exception {
 		loadDefinition("definitions/content_definition.json", "definitions/item_definition.json",
-				"definitions/itemset_definition.json");
+				"definitions/itemset_definition.json", "definitions/collection_definition.json");
 
 	}
 
@@ -311,4 +312,199 @@ public class PublishFinalizerTest extends GraphEngineTestSetup {
 		publishFinalizer.setContentAndCategoryTypes(contentNodeMap);
 		Assert.assertEquals((String) contentNodeMap.get("contentType"), "TextBook" );
 	}
+
+	@Test (expected = Exception.class)
+	public void testprocessForEcar() throws Exception {
+		PublishFinalizeUtil publishFinalizeUtil = PowerMockito.mock(PublishFinalizeUtil.class);//PowerMockito.spy(new PublishFinalizeUtil());
+		PowerMockito.doNothing().when(publishFinalizeUtil).replaceArtifactUrl(Mockito.anyObject());
+		String contentNodeString = "{\"name\": \"Test_Object\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"identifier\":\"do_11292666508456755211\",\"objectType\":\"Content\",\"primaryCategory\": \"Digital Textbook\",\"artifactBasePath\":\"program/app\",\"artifactUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/program/app/content/do_112999482416209920112/artifact/1.pdf\",\"cloudStorageKey\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\",\"s3Key\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		Method method = PublishFinalizer.class.getDeclaredMethod("processForEcar", Node.class, List.class);
+		method.setAccessible(true);
+		Node node = new Node();
+		node.setMetadata(contentNodeMap);
+		node.setObjectType("Content");
+		method.invoke(publishFinalizer,node, new ArrayList<Map<String, Object>>());
+	}
+
+
+	@Test
+	public void testupdateRootChildrenList() throws Exception {
+		PublishFinalizeUtil publishFinalizeUtil = PowerMockito.mock(PublishFinalizeUtil.class);//PowerMockito.spy(new PublishFinalizeUtil());
+		PowerMockito.doNothing().when(publishFinalizeUtil).replaceArtifactUrl(Mockito.anyObject());
+		String contentNodeString = "{\"name\": \"Test_Object\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"identifier\":\"do_11292666508456755211\",\"objectType\":\"Content\",\"primaryCategory\": \"Digital Textbook\",\"artifactBasePath\":\"program/app\",\"artifactUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/program/app/content/do_112999482416209920112/artifact/1.pdf\",\"cloudStorageKey\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\",\"s3Key\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		Method method = PublishFinalizer.class.getDeclaredMethod("updateRootChildrenList", Node.class, List.class);
+		method.setAccessible(true);
+		Node node = new Node();
+		node.setMetadata(contentNodeMap);
+		node.setObjectType("Content");
+		method.invoke(publishFinalizer,node, new ArrayList<Map<String, Object>>() {{
+			add(new HashMap<String, Object>(){{
+				put("identifier", "do_123");
+				put("name", "Test_Unit");
+				put("objectType", "Collection");
+				put("description", "dlkaldal;d");
+				put("index", 1);
+
+			}});
+		}});
+	}
+
+	@Test
+	public void testgetContentMap() throws Exception {
+		PublishFinalizeUtil publishFinalizeUtil = PowerMockito.mock(PublishFinalizeUtil.class);//PowerMockito.spy(new PublishFinalizeUtil());
+		PowerMockito.doNothing().when(publishFinalizeUtil).replaceArtifactUrl(Mockito.anyObject());
+		String contentNodeString = "{\"name\": \"Test_Object\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"identifier\":\"do_11292666508456755211\",\"objectType\":\"Content\",\"primaryCategory\": \"Digital Textbook\",\"artifactBasePath\":\"program/app\",\"artifactUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/program/app/content/do_112999482416209920112/artifact/1.pdf\",\"cloudStorageKey\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\",\"s3Key\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		Method method = PublishFinalizer.class.getDeclaredMethod("getContentMap", Node.class, List.class);
+		method.setAccessible(true);
+		Node node = new Node();
+		node.setMetadata(contentNodeMap);
+		node.setObjectType("Content");
+		method.invoke(publishFinalizer,node, new ArrayList<Map<String, Object>>() {{
+			add(new HashMap<String, Object>(){{
+				put("identifier", "do_123");
+				put("name", "Test_Unit");
+				put("objectType", "Collection");
+				put("description", "dlkaldal;d");
+				put("index", 1);
+
+			}});
+		}});
+	}
+
+	@Test
+	public void testgetNodeForSyncing() throws Exception {
+		PublishFinalizeUtil publishFinalizeUtil = PowerMockito.mock(PublishFinalizeUtil.class);//PowerMockito.spy(new PublishFinalizeUtil());
+		PowerMockito.doNothing().when(publishFinalizeUtil).replaceArtifactUrl(Mockito.anyObject());
+		String contentNodeString = "{\"name\": \"Test_Object\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"identifier\":\"do_11292666508456755211\",\"objectType\":\"Content\",\"primaryCategory\": \"Digital Textbook\",\"artifactBasePath\":\"program/app\",\"artifactUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/program/app/content/do_112999482416209920112/artifact/1.pdf\",\"cloudStorageKey\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\",\"s3Key\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		Method method = PublishFinalizer.class.getDeclaredMethod("getNodeForSyncing", List.class, List.class, List.class, DefinitionDTO.class);
+		method.setAccessible(true);
+		Node node = new Node();
+		node.setMetadata(contentNodeMap);
+		node.setObjectType("Content");
+		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
+		method.invoke(publishFinalizer, new ArrayList<Map<String, Object>>() {{
+			add(new HashMap<String, Object>(){{
+				put("identifier", "do_123");
+				put("name", "Test_Unit");
+				put("description", "dlkaldal;d");
+				put("index", 1);
+
+			}});
+		}}, new ArrayList<Node>(){{add(node);}}, new ArrayList<String>(){{add("do_11292666508456755211");}}, contentDefinition);
+	}
+
+	@Test
+	public void testgetNodeMap_1() throws Exception {
+		PublishFinalizeUtil publishFinalizeUtil = PowerMockito.mock(PublishFinalizeUtil.class);//PowerMockito.spy(new PublishFinalizeUtil());
+		PowerMockito.doNothing().when(publishFinalizeUtil).replaceArtifactUrl(Mockito.anyObject());
+		String contentNodeString = "{\"name\": \"Test_Object\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"identifier\":\"do_11292666508456755211\",\"objectType\":\"Content\",\"primaryCategory\": \"Digital Textbook\",\"artifactBasePath\":\"program/app\",\"artifactUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/program/app/content/do_112999482416209920112/artifact/1.pdf\",\"cloudStorageKey\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\",\"s3Key\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		Method method = PublishFinalizer.class.getDeclaredMethod("getNodeMap", List.class, List.class, List.class, DefinitionDTO.class);
+		method.setAccessible(true);
+		Node node = new Node();
+		node.setMetadata(contentNodeMap);
+		node.setObjectType("Content");
+		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
+		method.invoke(publishFinalizer, new ArrayList<Map<String, Object>>() {{
+			add(new HashMap<String, Object>(){{
+				put("identifier", "do_123");
+				put("name", "Test_Unit");
+				put("description", "dlkaldal;d");
+				put("index", 1);
+				put("visibility", "Default");
+				put("children", new ArrayList<Map<String, Object>>() {{
+					add(new HashMap<String, Object>(){{
+						put("identifier", "identifier");
+						put("name", "name");
+						put("objectType", "Content");
+						put("description", "description");
+						put("index", 2);
+					}});
+				}});
+
+			}});
+		}}, new ArrayList<Node>(){{add(node);}}, new ArrayList<String>(){{add("do_11292666508456755211");}}, contentDefinition);
+	}
+
+	@Test
+	public void testgetNodeMap_2() throws Exception {
+		PublishFinalizeUtil publishFinalizeUtil = PowerMockito.mock(PublishFinalizeUtil.class);//PowerMockito.spy(new PublishFinalizeUtil());
+		PowerMockito.doNothing().when(publishFinalizeUtil).replaceArtifactUrl(Mockito.anyObject());
+		String contentNodeString = "{\"name\": \"Test_Object\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"identifier\":\"do_11292666508456755211\",\"objectType\":\"Content\",\"primaryCategory\": \"Digital Textbook\",\"artifactBasePath\":\"program/app\",\"artifactUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/program/app/content/do_112999482416209920112/artifact/1.pdf\",\"cloudStorageKey\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\",\"s3Key\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		Method method = PublishFinalizer.class.getDeclaredMethod("getNodeMap", List.class, List.class, List.class, DefinitionDTO.class);
+		method.setAccessible(true);
+		Node node = new Node();
+		node.setMetadata(contentNodeMap);
+		node.setObjectType("Content");
+		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
+		method.invoke(publishFinalizer, new ArrayList<Map<String, Object>>() {{
+			add(new HashMap<String, Object>(){{
+				put("identifier", "do_123");
+				put("name", "Test_Unit");
+				put("description", "dlkaldal;d");
+				put("index", 1);
+				put("visibility", "Parent");
+				put("children", new ArrayList<Map<String, Object>>() {{
+					add(new HashMap<String, Object>(){{
+						put("identifier", "identifier");
+						put("name", "name");
+						put("objectType", "Content");
+						put("description", "description");
+						put("index", 2);
+					}});
+				}});
+
+			}});
+		}}, new ArrayList<Node>(){{add(node);}}, new ArrayList<String>(){{add("do_11292666508456755211");}}, contentDefinition);
+	}
+
+	@Test
+	public void testgetOriginData() throws Exception {
+		PublishFinalizeUtil publishFinalizeUtil = PowerMockito.mock(PublishFinalizeUtil.class);//PowerMockito.spy(new PublishFinalizeUtil());
+		PowerMockito.doNothing().when(publishFinalizeUtil).replaceArtifactUrl(Mockito.anyObject());
+		String contentNodeString = "{\"name\": \"Test_Object\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"identifier\":\"do_11292666508456755211\",\"objectType\":\"Content\",\"primaryCategory\": \"Digital Textbook\",\"artifactBasePath\":\"program/app\",\"artifactUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/program/app/content/do_112999482416209920112/artifact/1.pdf\",\"cloudStorageKey\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\",\"s3Key\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		Method method = PublishFinalizer.class.getDeclaredMethod("getOriginData", Node.class);
+		method.setAccessible(true);
+		Node node = new Node();
+		node.setMetadata(contentNodeMap);
+		node.setObjectType("Content");
+		method.invoke(publishFinalizer,node);
+	}
+
+	@Test
+	public void testsyncNodes() throws Exception {
+		PublishFinalizeUtil publishFinalizeUtil = PowerMockito.mock(PublishFinalizeUtil.class);//PowerMockito.spy(new PublishFinalizeUtil());
+		PowerMockito.doNothing().when(publishFinalizeUtil).replaceArtifactUrl(Mockito.anyObject());
+		String contentNodeString = "{\"name\": \"Test_Object\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"identifier\":\"do_11292666508456755211\",\"objectType\":\"Content\",\"primaryCategory\": \"Digital Textbook\",\"artifactBasePath\":\"program/app\",\"artifactUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/program/app/content/do_112999482416209920112/artifact/1.pdf\",\"cloudStorageKey\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\",\"s3Key\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\"}";
+		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
+		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
+		Method method = PublishFinalizer.class.getDeclaredMethod("syncNodes", List.class, List.class);
+		method.setAccessible(true);
+		Node node = new Node();
+		node.setMetadata(contentNodeMap);
+		node.setObjectType("Content");
+		method.invoke(publishFinalizer, new ArrayList<Map<String, Object>>() {{
+			add(new HashMap<String, Object>(){{
+				put("identifier", "do_123");
+				put("name", "Test_Unit");
+				put("description", "dlkaldal;d");
+				put("index", 1);
+
+			}});
+		}},  new ArrayList<String>(){{add("do_11292666508456755211");}});
+	}
+
 }
