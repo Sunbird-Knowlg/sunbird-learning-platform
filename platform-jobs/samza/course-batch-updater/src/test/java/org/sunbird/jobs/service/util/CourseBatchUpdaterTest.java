@@ -84,7 +84,7 @@ public class CourseBatchUpdaterTest {
             put("status", 2);
         }});}});
 
-        updater.updateBatchStatus(request, new CourseProgressHandler());
+        updater.updateBatchStatus(request, new CourseProgressHandler(), collectorMock);
 
     }
 
