@@ -13,7 +13,6 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 
 /**
