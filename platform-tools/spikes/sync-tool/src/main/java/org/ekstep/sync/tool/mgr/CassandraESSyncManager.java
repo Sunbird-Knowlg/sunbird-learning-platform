@@ -227,7 +227,7 @@ public class CassandraESSyncManager {
         try {
             Node node = ConvertToGraphNode.convertToGraphNode(childData, definitionDTO, null);
             node.setGraphId(graphId);
-            node.setObjectType(objectType);
+            node.setObjectType("Collection");
             node.setNodeType(nodeType);
             Map<String, Object> nodeMap = SyncMessageGenerator.getMessage(node);
             Map<String, Object>  message = SyncMessageGenerator.getJSONMessage(nodeMap, relationMap);
