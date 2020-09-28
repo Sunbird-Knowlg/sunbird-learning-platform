@@ -9,4 +9,4 @@
   dest:  "{{ home_dir }}/dialcodes.csv"
 
 - name: run the sync script to sync the given dialcodes
-  command: "{{ home_dir }}/dialcode-sync.sh" {{ home_dir }}/dialcodes.csv {{ channel_name }}
+  command: "{{ home_dir }}/dialcode-sync.sh {{ home_dir }}/dialcodes.csv {{ channel_name }}"

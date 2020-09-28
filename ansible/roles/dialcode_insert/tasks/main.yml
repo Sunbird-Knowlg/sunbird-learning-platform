@@ -9,4 +9,4 @@
   dest:  "{{ home_dir }}/dialcodes.csv"
 
 - name: run the insert script to insert the given dialcodes
-  command: "{{ home_dir }}/dialcode-insert.sh" {{ home_dir }}/dialcodes.csv {{ date }} {{ env }}_dialcode_store {{ channel_name }}
+  command: "{{ home_dir }}/dialcode-insert.sh {{ home_dir }}/dialcodes.csv {{ date }} {{ env }}_dialcode_store {{ channel_name }}"
