@@ -33,13 +33,13 @@ public class SyncShellCommands implements CommandMarker {
 	public void syncByIds(@CliOption(key = {
 			"graphId" }, mandatory = false, unspecifiedDefaultValue = "domain", help = "graphId of the object") final String graphId,
 			@CliOption(key = { "id", "ids" }, mandatory = true, help = "Unique Id of node object") final String[] ids,
-			@CliOption(key = {"metaDataRefresh"}, mandatory = false, help = "Refresh node metadata") final Boolean metaDataRefresh)
+			@CliOption(key = {"metaDataRefresh"}, mandatory = false, unspecifiedDefaultValue = "false", help = "Refresh node metadata") final String metaDataRefresh)
 			throws Exception {
 
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
-		if (metaDataRefresh)
+		if ("true".equalsIgnoreCase(metaDataRefresh))
 			syncManager.syncCollectionIds(graphId, new ArrayList<>(Arrays.asList(ids)));
 		else
 			indexSyncManager.syncByIds(graphId, new ArrayList<>(Arrays.asList(ids)));
