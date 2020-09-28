@@ -33,9 +33,7 @@ public class MVCProcessorCassandraIndexer  {
                 getMLKeywords(obj);
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertIntoCassandra ::: update-es-index-1 event");
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertIntoCassandra ::: Inserting into cassandra stage-1");
-                CompletableFuture.runAsync( () -> {
-                    CassandraConnector.updateContentProperties(identifier,mapStage1);
-                });
+                CassandraConnector.updateContentProperties(identifier,mapStage1);
             } else if(action.equalsIgnoreCase("update-ml-keywords")) {
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertIntoCassandra ::: update-ml-keywords");
                  String ml_contentText;
@@ -47,9 +45,8 @@ public class MVCProcessorCassandraIndexer  {
                 Map<String,Object> mapForStage2 = new HashMap<>();
                 mapForStage2.put("ml_keywords",ml_Keywords);
                 mapForStage2.put("ml_content_text",ml_contentText);
-                CompletableFuture.runAsync( () -> {
-                    CassandraConnector.updateContentProperties(identifier,mapForStage2);
-                });
+                CassandraConnector.updateContentProperties(identifier,mapForStage2);
+
             }
             else  if(action.equalsIgnoreCase("update-ml-contenttextvector")) {
                 LOGGER.info("MVCProcessorCassandraIndexer :: insertIntoCassandra ::: update-ml-contenttextvector event");
@@ -63,9 +60,8 @@ public class MVCProcessorCassandraIndexer  {
                 }
                 Map<String,Object> mapForStage3 = new HashMap<>();
                 mapForStage3.put("ml_content_text_vector",ml_contentTextVector);
-                CompletableFuture.runAsync( () -> {
-                    CassandraConnector.updateContentProperties(identifier,mapForStage3);
-                });
+                CassandraConnector.updateContentProperties(identifier,mapForStage3);
+
 
             }
         }
