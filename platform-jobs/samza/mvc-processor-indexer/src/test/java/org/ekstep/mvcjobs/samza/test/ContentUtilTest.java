@@ -1,7 +1,7 @@
 package org.ekstep.mvcjobs.samza.test;
 
 import com.google.gson.Gson;
-import org.ekstep.mvcjobs.samza.service.util.GetContentMeta;
+import org.ekstep.mvcjobs.samza.service.util.ContentUtil;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({HTTPUtil.class})
 @PowerMockIgnore({"javax.management.*", "sun.security.ssl.*", "javax.net.ssl.*" , "javax.crypto.*"})
-public class GetContentMetaTest {
+public class ContentUtilTest {
         private Config configMock;
     private String getResp = "{\"id\":\"api.content.read\",\"ver\":\"1.0\",\"ts\":\"2020-07-21T05:38:46.301Z\",\"params\":{\"resmsgid\":\"7224a4d0-cb14-11ea-9313-0912071b8abe\",\"msgid\":\"722281f0-cb14-11ea-9313-0912071b8abe\",\"status\":\"successful\",\"err\":null,\"errmsg\":null},\"responseCode\":\"OK\",\"result\":{\"content\":{\"ownershipType\":[\"createdBy\"],\"code\":\"test.res.1\",\"channel\":\"in.ekstep\",\"language\":[\"English\"],\"mediaType\":\"content\",\"osId\":\"org.ekstep.quiz.app\",\"languageCode\":[\"en\"],\"version\":2,\"versionKey\":\"1591949601174\",\"license\":\"CC BY 4.0\",\"idealScreenDensity\":\"hdpi\",\"framework\":\"NCFCOPY\",\"s3Key\":\"content/do_113041248230580224116/artifact/validecml_1591949596304.zip\",\"createdBy\":\"95e4942d-cbe8-477d-aebd-ad8e6de4bfc8\",\"compatibilityLevel\":1,\"name\":\"Resource Content 1\",\"status\":\"Draft\",\"level1Concept\":[\"Addition\"],\"level1Name\":[\"Math-Magic\"],\"textbook_name\":[\"How Many Times?\"],\"sourceURL\":\"https://diksha.gov.in/play/content/do_30030488\",\"source\":[\"Diksha 1\"]}}}";
     private String eventData = "{\"identifier\":\"do_113041248230580224116\",\"action\":\"update-es-index\",\"stage\":1}";
@@ -38,7 +38,7 @@ public class GetContentMetaTest {
         public void getContentMetaData()throws Exception {
             PowerMockito.mockStatic(HTTPUtil.class);
             when(HTTPUtil.makeGetRequest(Mockito.anyString())).thenReturn(getResp);
-            GetContentMeta.getContentMetaData(getEvent(eventData),uniqueId);
+            ContentUtil.getContentMetaData(getEvent(eventData),uniqueId);
         }
 
     public  Map<String, Object> getEvent(String message) throws IOException {

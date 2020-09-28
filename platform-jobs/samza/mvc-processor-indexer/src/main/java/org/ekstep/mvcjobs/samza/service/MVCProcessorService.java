@@ -4,12 +4,11 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
-import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.mvcjobs.samza.service.util.GetContentMeta;
+import org.ekstep.mvcjobs.samza.service.util.ContentUtil;
 import org.ekstep.mvcjobs.samza.service.util.MVCProcessorCassandraIndexer;
 import org.ekstep.mvcjobs.samza.service.util.MVCProcessorESIndexer;
 import org.ekstep.jobs.samza.util.FailedEventsUtil;
@@ -86,10 +85,10 @@ public class MVCProcessorService implements ISamzaService {
 				case CompositeSearchConstants.NODE_TYPE_DATA: {
 					String action = eventData.get("action").toString();
 					if(action.equalsIgnoreCase("update-es-index")) {
-						eventData = GetContentMeta.getContentMetaData(eventData,uniqueId);
+						eventData = ContentUtil.getContentMetaData(eventData,uniqueId);
 					}
 					LOGGER.info("MVCProcessorService :: processMessage  ::: CAlling cassandra insertion ");
-					cassandraManager.insertintoCassandra(eventData,uniqueId);
+					cassandraManager.insertIntoCassandra(eventData,uniqueId);
 					LOGGER.info("MVCProcessorService :: processMessage  ::: CAlling elasticsearch insertion ");
 					mvcIndexer.upsertDocument(uniqueId,eventData);
 					break;

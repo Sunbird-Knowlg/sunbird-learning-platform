@@ -54,35 +54,29 @@ public class MVCProcessorESIndexer extends AbstractESIndexer {
 
 		String action = jsonIndexDocument.get("action").toString();
 		jsonIndexDocument = removeExtraParams(jsonIndexDocument);
-		String jsonindexasString = mapper.writeValueAsString(jsonIndexDocument);
-		String jsonindexasString2 = "";
+		String jsonAsString = mapper.writeValueAsString(jsonIndexDocument);
 		switch (action) {
-			case "update-es-index" :
+			case "update-es-index":
 				// Insert a new doc
-				CompletableFuture.runAsync( () -> {
-					ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.MVC_SEARCH_INDEX,
-							uniqueId, jsonindexasString);
-				});
+				ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.MVC_SEARCH_INDEX,
+						uniqueId, jsonAsString);
 				break;
-			case "update-ml-contenttextvector" :
+			case "update-ml-contenttextvector":
 				List<List<Double>> ml_contentTextVectorList;
 				Set<Double> ml_contentTextVector = null;
 				ml_contentTextVectorList = jsonIndexDocument.get("ml_contentTextVector") != null ? (List<List<Double>>) jsonIndexDocument.get("ml_contentTextVector") : null;
-				if(ml_contentTextVectorList != null)
-				{
+				if (ml_contentTextVectorList != null) {
 					ml_contentTextVector = new HashSet<Double>(ml_contentTextVectorList.get(0));
 
 				}
-				jsonIndexDocument.put("ml_contentTextVector",ml_contentTextVector);
-				jsonindexasString2 = mapper.writeValueAsString(jsonIndexDocument);
-			case "update-ml-keywords" :
+				jsonIndexDocument.put("ml_contentTextVector", ml_contentTextVector);
+				jsonAsString = mapper.writeValueAsString(jsonIndexDocument);
+			case "update-ml-keywords":
 				// Update a doc
-				String finalJsonindexasString = jsonindexasString2 != "" ? jsonindexasString2 : jsonindexasString;
-				CompletableFuture.runAsync( () -> {
-					ElasticSearchUtil.updateDocument(CompositeSearchConstants.MVC_SEARCH_INDEX,
-							uniqueId, finalJsonindexasString);
-				});
-			break;
+				ElasticSearchUtil.updateDocument(CompositeSearchConstants.MVC_SEARCH_INDEX,
+						uniqueId, jsonAsString);
+
+				break;
 			default:
 		}
 

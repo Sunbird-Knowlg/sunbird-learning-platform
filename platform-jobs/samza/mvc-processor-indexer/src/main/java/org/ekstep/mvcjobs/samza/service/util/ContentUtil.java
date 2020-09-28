@@ -8,16 +8,16 @@ import org.ekstep.searchindex.util.HTTPUtil;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GetContentMeta {
-    private static JobLogger LOGGER = new JobLogger(GetContentMeta.class);
+public class ContentUtil {
+    private static JobLogger LOGGER = new JobLogger(ContentUtil.class);
 
     public  static  Map<String,Object> getContentMetaData(Map<String,Object> newmap , String identifer) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        String contentreadapiurl = "";
+        String contentReadURL = "";
         try {
-            contentreadapiurl = Platform.config.hasPath("kp.content_service.base_url") ? Platform.config.getString("kp.content_service.base_url") : "" ;
-            LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData :::  Making API call to read content " + contentreadapiurl + "/content/v3/read/");
-            String content = HTTPUtil.makeGetRequest(contentreadapiurl + "/content/v3/read/" +identifer);
+            contentReadURL = Platform.config.hasPath("kp.content_service.base_url") ? Platform.config.getString("kp.content_service.base_url") : "" ;
+            LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData :::  Making API call to read content " + contentReadURL + "/content/v3/read/");
+            String content = HTTPUtil.makeGetRequest(contentReadURL + "/content/v3/read/" +identifer);
             LOGGER.info("MVCProcessorCassandraIndexer :: getContentMetaData ::: retrieved content meta " + content);
             Map<String,Object> obj = mapper.readValue(content,Map.class);
             Map<String,Object> contentobj = (HashMap<String,Object>) (((HashMap<String,Object>)obj.get("result")).get("content"));

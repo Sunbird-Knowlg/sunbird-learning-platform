@@ -49,7 +49,7 @@ public class MVCProcessorCassandraTest {
         PowerMockito.doNothing().when(CassandraConnector.class);
         CassandraConnector.updateContentProperties(Mockito.anyString(),Mockito.anyMap());
         MVCProcessorCassandraIndexer cassandraManager = new MVCProcessorCassandraIndexer();
-        cassandraManager.insertintoCassandra(getEvent(eventData),uniqueId);
+        cassandraManager.insertIntoCassandra(getEvent(eventData),uniqueId);
     }
     @Test
     public void testInsertToCassandraForStage2() throws Exception  {
@@ -59,7 +59,7 @@ public class MVCProcessorCassandraTest {
         PowerMockito.doNothing().when(CassandraConnector.class);
         CassandraConnector.updateContentProperties(Mockito.anyString(),Mockito.anyMap());
         MVCProcessorCassandraIndexer cassandraManager = new MVCProcessorCassandraIndexer();
-        cassandraManager.insertintoCassandra(getEvent(eventData2),uniqueId);
+        cassandraManager.insertIntoCassandra(getEvent(eventData2),uniqueId);
     }
     @Test
     public void testInsertToCassandraForStage3() throws Exception  {
@@ -67,7 +67,7 @@ public class MVCProcessorCassandraTest {
         PowerMockito.doNothing().when(CassandraConnector.class);
         CassandraConnector.updateContentProperties(Mockito.anyString(),Mockito.anyMap());
         MVCProcessorCassandraIndexer cassandraManager = new MVCProcessorCassandraIndexer();
-        cassandraManager.insertintoCassandra(getEvent(eventData3),uniqueId);
+        cassandraManager.insertIntoCassandra(getEvent(eventData3),uniqueId);
     }
 
     public  Map<String, Object> getEvent(String message) throws IOException {
