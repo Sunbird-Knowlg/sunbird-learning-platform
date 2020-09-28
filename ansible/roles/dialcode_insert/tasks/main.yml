@@ -1,0 +1,12 @@
+- name: copy the insert script
+  template:
+    src: dialcode-insert.j2
+    dest: "{{ home_dir }}/dialcode-insert.sh"
+    mode: 755
+
+- name: copy the dialcode.csv file to remote
+  copy: /tmp/dialcodes.csv
+  dest:  "{{ home_dir }}/dialcodes.csv"
+
+- name: run the insert script to insert the given dialcodes
+  command: "{{ home_dir }}/dialcode-insert.sh" {{ home_dir }}/dialcodes.csv {{ date }} dialcode_store {{ channel_name }}

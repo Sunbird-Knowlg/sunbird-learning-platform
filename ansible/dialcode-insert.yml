@@ -1,0 +1,5 @@
+- hosts: cassandra-node-1
+  become: yes
+  run_once: true
+  roles:
+   - dialcode_insert

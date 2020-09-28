@@ -1,0 +1,12 @@
+- name: copy the sync script
+  template:
+    src: dialcode-sync.j2
+    dest: "{{ home_dir }}/dialcode-sync.sh"
+    mode: 755
+
+- name: copy the dialcode.csv file to remote
+  copy: /tmp/dialcodes.csv
+  dest:  "{{ home_dir }}/dialcodes.csv"
+
+- name: run the sync script to sync the given dialcodes
+  command: "{{ home_dir }}/dialcode-sync.sh" {{ home_dir }}/dialcodes.csv {{ channel_name }}
