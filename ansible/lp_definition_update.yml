@@ -32,6 +32,9 @@
         -  'license_definition'
         -  'objectcategory_definition'
         -  'objectcategorydefinition_definition'
+        -  'collection_definition'
+        -  'collection_image_definition'
+        -  'asset_definition'
       register: definition_update_status
       tags:
       - update-definition
