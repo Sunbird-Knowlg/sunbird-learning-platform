@@ -12,14 +12,12 @@ import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
@@ -33,7 +31,6 @@ import org.ekstep.telemetry.dto.TelemetryBJREvent;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.rits.cloning.Cloner;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -197,10 +194,6 @@ public class PublishPipelineService implements ISamzaService {
 			pushInstructionEvent(publishedNode, collector);
 		}
 	}
-	
-	protected static String formatCurrentDate() {
-		return format(new Date());
-	}
 
 	protected static String format(Date date) {
 		if (null != date) {
@@ -262,6 +255,7 @@ public class PublishPipelineService implements ISamzaService {
         String action = (String) edata.get("action");
         String contentType = (String) edata.get(PublishPipelineParams.contentType.name());
         Integer iteration = (Integer) edata.get(PublishPipelineParams.iteration.name());
+        //TODO: remove contentType validation
         if (StringUtils.equalsIgnoreCase("publish", action) && (!StringUtils.equalsIgnoreCase(contentType,
                 PublishPipelineParams.Asset.name())) &&  (iteration <= getMaxIterations())) {
                 return true;
@@ -269,7 +263,7 @@ public class PublishPipelineService implements ISamzaService {
         return false;
     }
 
-	private void pushInstructionEvent(Node node, MessageCollector collector) throws Exception{
+	private void pushInstructionEvent(Node node, MessageCollector collector) throws Exception {
 		Map<String, Object> actor = new HashMap<String, Object>();
 		Map<String, Object> context = new HashMap<String, Object>();
 		Map<String, Object> object = new HashMap<String, Object>();
@@ -286,42 +280,26 @@ public class PublishPipelineService implements ISamzaService {
 			collector.send(new OutgoingMessageEnvelope(postPublishMVCStream, mvcProcessorEvent));
 			LOGGER.info("All Events sent to post publish mvc event topic");
 		}
-		 if (StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
-			Map<String, Object> linkDialcodeEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
 
-			if (MapUtils.isEmpty(linkDialcodeEvent)) {
-				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + linkDialcodeEvent);
-				throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
-			}
-			collector.send(new OutgoingMessageEnvelope(postPublishStream, linkDialcodeEvent));
+        Map<String, Object> postPublishEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "post-publish-process");
+        if (MapUtils.isEmpty(postPublishEvent)) {
+            TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + postPublishEvent);
+            throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+        }
+        collector.send(new OutgoingMessageEnvelope(postPublishStream, postPublishEvent));
 
-			Map<String, Object> courseBatchSyncEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "coursebatch-sync");
-			if (MapUtils.isEmpty(courseBatchSyncEvent)) {
-				TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + courseBatchSyncEvent);
-				throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
-			}
-			collector.send(new OutgoingMessageEnvelope(postPublishStream, courseBatchSyncEvent));
+        // TODO: delete below block after flink generic implementation.
+        if (StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
+            Map<String, Object> linkDialcodeEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
 
-			if(StringUtils.equalsIgnoreCase("Course", (String) node.getMetadata().get("contentType"))) {
-				Map<String, Object> createCourseBatchEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "coursebatch-create");
-				if (MapUtils.isEmpty(createCourseBatchEvent)) {
-					TelemetryManager.error("Post Publish event is not generated properly for action (coursebatch-create) : " + createCourseBatchEvent);
-					throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly for coursebatch-create action.");
-				}
-				collector.send(new OutgoingMessageEnvelope(postPublishStream, createCourseBatchEvent));
-			}
-
-			String originId = (String) node.getMetadata().getOrDefault("origin", "");
-			if(StringUtils.isBlank(originId) && !isShallowCopy(node)) {
-				Map<String, Object> publishShallowContentEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "publish-shallow-content");
-				if (MapUtils.isEmpty(publishShallowContentEvent)) {
-					TelemetryManager.error("Post Publish event is not generated properly for action (publish-shallow-content) : " + publishShallowContentEvent);
-					throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Publish shallow content event is not generated properly.");
-				}
-				collector.send(new OutgoingMessageEnvelope(postPublishStream, publishShallowContentEvent));
-			}
-			LOGGER.info("All Events sent to post publish event topic");
-		}
+            if (MapUtils.isEmpty(linkDialcodeEvent)) {
+                TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + linkDialcodeEvent);
+                throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+            }
+            collector.send(new OutgoingMessageEnvelope(postPublishStream, linkDialcodeEvent));
+            LOGGER.info("OLD format Event - link-dialcode - sent to post publish event topic");
+        }
+        LOGGER.info("All Events sent to post publish event topic");
 	}
 
 	Map<String,Object> updatevaluesForMVCEvent(Map<String,Object> mvcProcessorEvent) {
@@ -340,6 +318,7 @@ public class PublishPipelineService implements ISamzaService {
 		eventData.put("stage",1);
 		return mvcProcessorEvent;
 	}
+
 	private Map<String, Object> generateInstructionEventMetadata(Map<String, Object> actor, Map<String, Object> context,
 																 Map<String, Object> object, Map<String, Object> edata, Map<String, Object> metadata, String contentId, String action) {
 		TelemetryBJREvent te = new TelemetryBJREvent();
@@ -361,14 +340,16 @@ public class PublishPipelineService implements ISamzaService {
 		edata.put("action", action);
 		edata.put("contentType", metadata.get("contentType"));
 		edata.put("status", metadata.get("status"));
+		// TODO: remove 'id' after mvc-processor handled it.
 		edata.put("id", contentId);
+        edata.put("identifier", contentId);
 		edata.put("pkgVersion", metadata.get("pkgVersion"));
 		edata.put("mimeType", metadata.get("mimeType"));
-		if (StringUtils.equalsIgnoreCase("coursebatch-create", action)) {
-			edata.put("name", metadata.get("name"));
-			edata.put("createdBy", metadata.get("createdBy"));
-			edata.put("createdFor", metadata.get("createdFor"));
-		}
+        edata.put("name", metadata.get("name"));
+        edata.put("createdBy", metadata.get("createdBy"));
+        edata.put("createdFor", metadata.get("createdFor"));
+        edata.put("trackable", metadata.get("trackable"));
+
 		// generate event structure
 		long unixTime = System.currentTimeMillis();
 		String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();
@@ -390,11 +371,4 @@ public class PublishPipelineService implements ISamzaService {
 		return event;
 	}
 
-	private boolean isShallowCopy(Node node) {
-		DefinitionDTO definition = util.getDefinition(node.getGraphId(), ContentWorkflowPipelineParams.Content.name());
-		Map<String, Object> nodeMap = ConvertGraphNode.convertGraphNode(node, node.getGraphId(), definition, null);
-		return MapUtils.isNotEmpty((Map<String, Object>)nodeMap.get("originData")) &&
-				StringUtils.isNoneBlank((String)((Map<String, Object>)nodeMap.get("originData")).get("copyType")) &&
-				StringUtils.equalsIgnoreCase((String)((Map<String, Object>)nodeMap.get("originData")).get("copyType"), "shallow") ? true : false;
-	}
 }

@@ -24,7 +24,7 @@ public class RejectFlagOperation extends BaseContentManager {
 
         Node node = (Node) nodeResponse.getResult().get(ContentAPIParams.node.name());
         String objectType = node.getObjectType();
-        if (CONTENT_OBJECT_TYPE.equalsIgnoreCase(objectType)) {
+        if (VALID_FLAG_OBJECT_TYPES.contains(objectType)) {
             Map<String, Object> metadata = node.getMetadata();
             String status = (String) metadata.get(ContentAPIParams.status.name());
             if (ContentAPIParams.Flagged.name().equalsIgnoreCase(status)) {
@@ -35,11 +35,11 @@ public class RejectFlagOperation extends BaseContentManager {
                     request.put(ContentWorkflowPipelineParams.flagReasons.name(), null);
                     request.put(ContentAPIParams.versionKey.name(), metadata.get(ContentAPIParams.versionKey.name()));
                     request.put(ContentAPIParams.status.name(), ContentAPIParams.Live.name());
-                    request.put(ContentAPIParams.objectType.name(), CONTENT_OBJECT_TYPE);
+                    request.put(ContentAPIParams.objectType.name(), objectType);
                     request.put(ContentAPIParams.identifier.name(), contentId);
 
                     TelemetryManager.log("RejectFlagOperation:rejectFlag: Update data node for content: " + contentId);
-                    DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+                    DefinitionDTO definition = getDefinition(TAXONOMY_ID, objectType);
                     Node domainObj = ConvertToGraphNode.convertToGraphNode(request, definition, null);
                     return updateNode(contentId, objectType, domainObj);
 
