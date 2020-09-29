@@ -1,4 +1,4 @@
-- hosts: dial
+- hosts: learningall
   become: yes
   run_once: true
   roles:
