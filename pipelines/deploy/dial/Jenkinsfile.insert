@@ -43,6 +43,12 @@ node() {
                 currentBuild.description = "Artifact: ${values.artifact_version}, Private: ${params.private_branch}, Public: ${params.branch_or_tag}"
              }
         }
+
+        stage('remove tmp file'){
+             sh """
+                 rm -rf /tmp/dialcodes.csv
+                """
+     }
     }
     catch (err) {
         currentBuild.result = "FAILURE"

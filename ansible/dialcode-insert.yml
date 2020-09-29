@@ -1,4 +1,4 @@
-- hosts: cassandra-node-1
+- hosts: learningall
   become: yes
   run_once: true
   roles:
