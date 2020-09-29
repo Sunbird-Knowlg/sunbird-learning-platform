@@ -11,3 +11,8 @@
 
 - name: run the sync script to sync the given dialcodes
   command: "{{ home_dir }}/dialcode-sync.sh {{ home_dir }}/dialcodes.csv {{ channel_name }}"
+  register: output
+
+- name: printing the previous task output
+  debug:
+    msg: "{{ output }}"
