@@ -10,7 +10,6 @@ node() {
         stage("upload") {
         def inputFile = input message: 'Upload file', parameters: [file(name: 'dialcodes.csv')]
         new hudson.FilePath(new File("tmp/dialcodes.csv")).copyFrom(inputFile)
-        inputFile.delete()
         }
 
         stage('checkout public repo') {
