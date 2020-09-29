@@ -1,0 +1,5 @@
+- hosts: learningall
+  become: yes
+  run_once: true
+  roles:
+   - dialcode_sync
