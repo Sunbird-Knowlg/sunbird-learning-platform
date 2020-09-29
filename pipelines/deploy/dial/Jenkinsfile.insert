@@ -7,6 +7,12 @@ node() {
         String ANSI_RED = "\u001B[31m"
         String ANSI_YELLOW = "\u001B[33m"
 
+        stage("upload") {
+        def inputFile = input message: 'Upload file', parameters: [file(name: 'dialcodes.csv')]
+        new hudson.FilePath(new File("tmp/dialcodes.csv")).copyFrom(inputFile)
+        inputFile.delete()
+        }
+
         stage('checkout public repo') {
             folder = new File("$WORKSPACE/.git")
             if (folder.exists())
