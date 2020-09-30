@@ -53,15 +53,30 @@ public class MVCProcessorESIndexer extends AbstractESIndexer {
 
 		String action = jsonIndexDocument.get("action").toString();
 		jsonIndexDocument = removeExtraParams(jsonIndexDocument);
-		if(action.equalsIgnoreCase("update-es-index")) {
+		String jsonAsString = mapper.writeValueAsString(jsonIndexDocument);
+		switch (action) {
+			case "update-es-index":
+				// Insert a new doc
+				ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.MVC_SEARCH_INDEX,
+						uniqueId, jsonAsString);
+				break;
+			case "update-ml-contenttextvector":
+				List<List<Double>> ml_contentTextVectorList;
+				Set<Double> ml_contentTextVector = null;
+				ml_contentTextVectorList = jsonIndexDocument.get("ml_contentTextVector") != null ? (List<List<Double>>) jsonIndexDocument.get("ml_contentTextVector") : null;
+				if (ml_contentTextVectorList != null) {
+					ml_contentTextVector = new HashSet<Double>(ml_contentTextVectorList.get(0));
 
-			// Insert a new doc
-			ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.MVC_SEARCH_INDEX,
-					uniqueId, mapper.writeValueAsString(jsonIndexDocument));
-		} else {
-			// Update a doc
-			ElasticSearchUtil.updateDocument(CompositeSearchConstants.MVC_SEARCH_INDEX,
-					uniqueId, mapper.writeValueAsString(jsonIndexDocument));
+				}
+				jsonIndexDocument.put("ml_contentTextVector", ml_contentTextVector);
+				jsonAsString = mapper.writeValueAsString(jsonIndexDocument);
+			case "update-ml-keywords":
+				// Update a doc
+				ElasticSearchUtil.updateDocument(CompositeSearchConstants.MVC_SEARCH_INDEX,
+						uniqueId, jsonAsString);
+
+				break;
+			default:
 		}
 
 	}
