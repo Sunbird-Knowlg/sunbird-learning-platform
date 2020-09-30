@@ -5,6 +5,7 @@ import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ServerException;
@@ -15,6 +16,11 @@ import java.util.Map;
 public class UnirestUtil {
 
 	private static ObjectMapper mapper = new ObjectMapper();
+	private static JobLogger LOGGER = new JobLogger(UnirestUtil.class);
+	public static final Integer INITIAL_BACKOFF_DELAY = Platform.config.hasPath("auto_creator.internal_api.initial_backoff_delay") ? Platform.config.getInt("auto_creator.internal_api.initial_backoff_delay") : 10000;    // 10 seconds
+	public static final Integer MAXIMUM_BACKOFF_DELAY = Platform.config.hasPath("auto_creator.internal_api.maximum_backoff_delay") ? Platform.config.getInt("auto_creator.internal_api.initial_backoff_delay") : 300000;    // 5 min
+	public static final Integer INCREMENT_BACKOFF_DELAY = Platform.config.hasPath("auto_creator.increment_backoff_delay") ? Platform.config.getInt("auto_creator.increment_backoff_delay") : 2;
+	public static Integer BACKOFF_DELAY = INITIAL_BACKOFF_DELAY;
 
 	public static Response post(String url, Map<String, Object> requestMap, Map<String, String> headerParam)
 			throws Exception {
@@ -88,14 +94,32 @@ public class UnirestUtil {
 	}
 
 	private static Response getResponse(HttpResponse<String> response) {
+		Response resp = null;
 		if (null != response && StringUtils.isNotBlank(response.getBody())) {
 			try {
-				return mapper.readValue(response.getBody(), Response.class);
+				resp = mapper.readValue(response.getBody(), Response.class);
+				BACKOFF_DELAY = INITIAL_BACKOFF_DELAY;
 			} catch (Exception e) {
-				throw new ServerException("ERR_DATA_PARSER", "Unable to parse data! | Error is: " + e.getMessage());
+				LOGGER.error("UnirestUtil ::: getResponse ::: Error occurred while parsing api response. Error is: "+e.getMessage(), e);
+				if (BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY) {
+					delay(BACKOFF_DELAY);
+					BACKOFF_DELAY = BACKOFF_DELAY * INCREMENT_BACKOFF_DELAY;
+				} else throw new ServerException("ERR_API_CALL", "Unable to parse data! | Error is: " + e.getMessage());
 			}
-		} else
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Null Response Received While Making Api Call!");
+		} else {
+			LOGGER.info("Null Response Received While Making Api Call!");
+			throw new ServerException("ERR_API_CALL", "Null Response Received While Making Api Call!");
+		}
+		return resp;
+	}
+
+	private static void delay(int time) {
+		LOGGER.info("UnirestUtil :::: backoff delay is called with : " + time);
+		try {
+			Thread.sleep(time);
+		} catch (Exception e) {
+
+		}
 	}
 
 }

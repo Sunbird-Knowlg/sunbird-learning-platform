@@ -51,7 +51,7 @@ public class ContentUtil {
 	private static final List<String> BULK_UPLOAD_MIMETYPES = Platform.config.hasPath("auto_creator.bulk_upload.mime_types") ? Arrays.asList(Platform.config.getString("auto_creator.bulk_upload.mime_types").split(",")) : new ArrayList<String>();
 	private static final List<String> CONTENT_CREATE_PROPS = Platform.config.hasPath("auto_creator.content_create_props") ? Arrays.asList(Platform.config.getString("auto_creator.content_create_props").split(",")) : new ArrayList<String>();
 	private static final List<String> ALLOWED_ARTIFACT_SOURCE = Platform.config.hasPath("auto_creator.artifact_upload.allowed_source") ? Arrays.asList(Platform.config.getString("auto_creator.artifact_upload.allowed_source").split(",")) : new ArrayList<String>();
-	private static final Integer API_CALL_DELAY = Platform.config.hasPath("auto_creator.api_call_delay") ? Platform.config.getInt("auto_creator.api_call_delay") : 5;
+	private static final Integer API_CALL_DELAY = Platform.config.hasPath("auto_creator.api_call_delay") ? Platform.config.getInt("auto_creator.api_call_delay") : 2;
 	public static final List<String> ALLOWED_CONTENT_STAGE = Platform.config.hasPath("auto_creator.allowed_content_stages") ? Arrays.asList(Platform.config.getString("auto_creator.allowed_content_stages").split(",")) : Arrays.asList("create", "upload", "review", "publish");
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static Tika tika = new Tika();
@@ -135,7 +135,8 @@ public class ContentUtil {
 				}
 			}
 		}catch (Exception e) {
-			updateStatus(channelId, internalId, e.getMessage());
+			if(StringUtils.isNotBlank(internalId))
+				updateStatus(channelId, internalId, e.getMessage());
 			throw e;
 		}
 
@@ -151,6 +152,7 @@ public class ContentUtil {
 
 	private void updateStatus(String channelId, String identifier, String message) throws Exception {
 		String errorMsg = StringUtils.isNotBlank(message) ? message : "Processing Error";
+		Response resp = null;
 		String url = KP_LEARNING_BASE_URL + "/system/v3/content/update/" + identifier;
 		Map<String, Object> request = new HashMap<String, Object>() {{
 			put("request", new HashMap<String, Object>() {{
@@ -164,7 +166,10 @@ public class ContentUtil {
 			put("X-Channel-Id", channelId);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		Response resp = UnirestUtil.patch(url, request, header);
+		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
+			resp = UnirestUtil.patch(url, request, header);
+		}
+		//Response resp = UnirestUtil.patch(url, request, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String node_id = (String) resp.getResult().get("node_id");
 			if (StringUtils.isNotBlank(node_id)) {
@@ -174,11 +179,12 @@ public class ContentUtil {
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Content update status Call Failed For : " + identifier);
 		} else {
 			LOGGER.info("ContentUtil :: updateStatus :: Invalid Response received while updating failed status for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while updating content status for : " + identifier);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while updating content status for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
 	}
 
 	private Map<String, Object> searchContent(String identifier) throws Exception {
+		Response resp = null;
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, String> header = new HashMap<String, String>() {{
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
@@ -195,8 +201,10 @@ public class ContentUtil {
 				put("fields", SEARCH_FIELDS);
 			}});
 		}};
-
-		Response resp = UnirestUtil.post(KP_SEARCH_URL, request, header);
+		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
+			resp = UnirestUtil.post(KP_SEARCH_URL, request, header);
+		}
+		//Response resp = UnirestUtil.post(KP_SEARCH_URL, request, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK)) {
 			if (MapUtils.isNotEmpty(resp.getResult()) && (Integer) resp.getResult().get(AutoCreatorParams.count.name()) > 0) {
 				List<Object> contents = (List<Object>) resp.getResult().get(AutoCreatorParams.content.name());
@@ -226,7 +234,7 @@ public class ContentUtil {
 
 		} else {
 			LOGGER.info("ContentUtil :: searchContent :: Invalid Response received while searching content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while searching content for : " + identifier);
+			throw new ServerException("ERR_API_CALL", "Invalid Response received while searching content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
 		return result;
 	}
@@ -248,6 +256,7 @@ public class ContentUtil {
 
 	private Map<String, Object> create(String channelId, String identifier, String newIdentifier, String repository, Map<String, Object> metadata) throws Exception {
 		String contentId = "";
+		Response resp = null;
 		String url = KP_CS_BASE_URL + "/content/v3/create";
 		Map<String, Object> metaFields = new HashMap<String, Object>();
 		metaFields.putAll(metadata);
@@ -270,26 +279,31 @@ public class ContentUtil {
 			put("X-Channel-Id", channelId);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		Response resp = UnirestUtil.post(url, request, header);
+		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
+			resp = UnirestUtil.post(url, request, header);
+		}
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			contentId = (String) resp.getResult().get("identifier");
 			LOGGER.info("ContentUtil :: create :: Content Created Successfully with identifier : " + contentId);
 		} else {
 			LOGGER.info("ContentUtil :: create :: Invalid Response received while creating content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while creating content for : " + identifier);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while creating content for : " + identifier+ " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
 		return resp.getResult();
 	}
 
 	private Map<String, Object> read(String channelId, String identifier) throws Exception {
 		String contentId = "";
+		Response resp = null;
 		String url = KP_CS_BASE_URL + "/content/v3/read/" + identifier;
 		LOGGER.info("ContentUtil :: read :: Reading content having identifier : "+identifier);
 		Map<String, String> header = new HashMap<String, String>() {{
 			put("X-Channel-Id", channelId);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		Response resp = UnirestUtil.get(url, "mode=edit", header);
+		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
+			resp = UnirestUtil.get(url, "mode=edit", header);
+		}
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			contentId = (String) ((Map<String, Object>)resp.getResult().getOrDefault("content", new HashMap<String, Object>())).get("identifier");
 			if(StringUtils.equalsIgnoreCase(identifier, contentId))
@@ -297,12 +311,13 @@ public class ContentUtil {
 			else throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while reading content for : " + identifier);
 		} else {
 			LOGGER.info("ContentUtil :: read :: Invalid Response received while reading content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while reading content for : " + identifier);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while reading content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
 		return ((Map<String, Object>) resp.getResult().getOrDefault("content", new HashMap<String, Object>()));
 	}
 
 	private void update(String channelId, String internalId, Map<String, Object> updateMetadata) throws Exception {
+		Response resp = null;
 		String url = KP_CS_BASE_URL + "/content/v3/update/" + internalId;
 		Map<String, Object> request = new HashMap<String, Object>() {{
 			put("request", new HashMap<String, Object>() {{
@@ -314,7 +329,9 @@ public class ContentUtil {
 			put("X-Channel-Id", channelId);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		Response resp = UnirestUtil.patch(url, request, header);
+		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
+			resp = UnirestUtil.patch(url, request, header);
+		}
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String contentId = (String) resp.getResult().get("identifier");
 			LOGGER.info("ContentUtil :: update :: Content Update Successfully having identifier : " + contentId);
@@ -384,14 +401,20 @@ public class ContentUtil {
 				if (null != urls && StringUtils.isNotBlank(urls[1])) {
 					String uploadUrl = urls[IDX_CLOUD_URL];
 					LOGGER.info("ContentUtil :: upload :: Artifact Uploaded Successfully to cloud for : " + identifier + " | uploadUrl : " + uploadUrl);
-					resp = UnirestUtil.post(url, "fileUrl", uploadUrl, header);
+					while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
+						resp = UnirestUtil.post(url, "fileUrl", uploadUrl, header);
+					}
+					//resp = UnirestUtil.post(url, "fileUrl", uploadUrl, header);
 				}
 			} else {
 				LOGGER.info("ContentUtil :: upload :: File Size is larger than allowed file size allowed in upload api for : " + identifier + " | File Size (MB): " + (size / 1048576) + " | mimeType : " + mimeType);
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "File Size is larger than allowed file size allowed in upload api for : " + identifier + " | File Size (MB): " + (size / 1048576) + " | mimeType : " + mimeType);
 			}
 		} else {
-			resp = UnirestUtil.post(url, "file", file, header);
+			while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
+				resp = UnirestUtil.post(url, "file", file, header);
+			}
+			//resp = UnirestUtil.post(url, "file", file, header);
 		}
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String artifactUrl = (String) resp.getResult().get(AutoCreatorParams.artifactUrl.name());
@@ -407,6 +430,7 @@ public class ContentUtil {
 	}
 
 	private Boolean review(String channelId, String identifier) throws Exception {
+		Response resp = null;
 		String url = KP_LEARNING_BASE_URL + "/content/v3/review/" + identifier;
 		Map<String, Object> request = new HashMap<String, Object>() {{
 			put("request", new HashMap<String, Object>() {{
@@ -418,7 +442,10 @@ public class ContentUtil {
 			put("X-Channel-Id", channelId);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		Response resp = UnirestUtil.post(url, request, header);
+		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
+			resp = UnirestUtil.post(url, request, header);
+		}
+		//Response resp = UnirestUtil.post(url, request, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String contentId = (String) resp.getResult().get("node_id");
 			if(StringUtils.isNotBlank(contentId)) {
@@ -433,6 +460,7 @@ public class ContentUtil {
 	}
 
 	private Boolean publish(String channelId, String identifier, String lastPublishedBy) throws Exception {
+		Response resp = null;
 		String url = KP_LEARNING_BASE_URL + "/content/v3/publish/" + identifier;
 		Map<String, Object> request = new HashMap<String, Object>() {{
 			put("request", new HashMap<String, Object>() {{
@@ -445,7 +473,10 @@ public class ContentUtil {
 			put("X-Channel-Id", channelId);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		Response resp = UnirestUtil.post(url, request, header);
+		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
+			resp = UnirestUtil.post(url, request, header);
+		}
+		//Response resp = UnirestUtil.post(url, request, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String publishStatus = (String) resp.getResult().get("publishStatus");
 			if (StringUtils.isNotBlank(publishStatus)) {
@@ -563,12 +594,16 @@ public class ContentUtil {
 
 	private Boolean addToHierarchy(String channel, String textbookId, Map<String, Object> hierarchyReq) throws Exception {
 		Boolean result = false;
+		Response resp = null;
 		String url = KP_CS_BASE_URL + "/content/v3/hierarchy/add";
 		Map<String, String> header = new HashMap<String, String>() {{
 			put("X-Channel-Id", channel);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		Response resp = UnirestUtil.patch(url, hierarchyReq, header);
+		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
+			resp = UnirestUtil.patch(url, hierarchyReq, header);
+		}
+		//Response resp = UnirestUtil.patch(url, hierarchyReq, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String contentId = (String) resp.getResult().get("rootId");
 			if (StringUtils.equalsIgnoreCase(contentId, textbookId)) {
@@ -577,24 +612,28 @@ public class ContentUtil {
 			}
 		} else {
 			LOGGER.info("ContentUtil :: updateHierarchy :: Invalid Response received while adding resource to hierarchy for : " + textbookId + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while adding resource to hierarchy for : " + textbookId);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while adding resource to hierarchy for : " + textbookId + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
 		return result;
 	}
 
 	private Map<String, Object> getHierarchy(String identifier) throws Exception {
+		Response resp = null;
 		Map<String, Object> result = new HashMap<String, Object>();
 		String url = KP_CS_BASE_URL + "/content/v3/hierarchy/" + identifier;
 		Map<String, String> header = new HashMap<String, String>(){{
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		Response resp = UnirestUtil.get(url, "mode=edit", header);
+		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
+			resp = UnirestUtil.get(url, "mode=edit", header);
+		}
+		//Response resp = UnirestUtil.get(url, "mode=edit", header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			result = (Map<String, Object>) resp.getResult().getOrDefault("content", new HashMap<String, Object>());
 			return result;
 		} else {
 			LOGGER.info("ContentUtil :: getHierarchy :: Invalid Response received while fetching hierarchy for : " + identifier + " | Response Code : " + resp.getResponseCode().toString());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while fetching hierarchy for : " + identifier);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while fetching hierarchy for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
 	}
 

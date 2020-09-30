@@ -93,6 +93,10 @@ public class AutoCreatorService implements ISamzaService {
 			}else{
 				LOGGER.info("Event Reached Maximum Retry Limit having mid : " + message.get("mid"), message);
 			}
+			if ((e instanceof ServerException) && StringUtils.equalsIgnoreCase(((ServerException) e).getErrCode(), "ERR_API_CALL")) {
+				LOGGER.error("Error While making api calls. ", e);
+				throw e;
+			}
 		}
 	}
 
