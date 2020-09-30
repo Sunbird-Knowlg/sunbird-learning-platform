@@ -24,12 +24,16 @@ public class UnirestUtil {
 
 	public static Response post(String url, Map<String, Object> requestMap, Map<String, String> headerParam)
 			throws Exception {
+		Response resp = null;
 		validateRequest(url, headerParam);
 		if (MapUtils.isEmpty(requestMap))
 			throw new ServerException("ERR_INVALID_REQUEST_BODY", "Request Body is Missing!");
 		try {
-			HttpResponse<String> response = Unirest.post(url).headers(headerParam).body(mapper.writeValueAsString(requestMap)).asString();
-			return getResponse(response);
+			while (null == resp && BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY) {
+				HttpResponse<String> response = Unirest.post(url).headers(headerParam).body(mapper.writeValueAsString(requestMap)).asString();
+				resp = getResponse(response);
+			}
+			return resp;
 		} catch (Exception e) {
 			throw new ServerException("ERR_API_CALL", "Something Went Wrong While Making API Call | Error is: " + e.getMessage());
 		}
@@ -37,12 +41,16 @@ public class UnirestUtil {
 
 	public static Response patch(String url, Map<String, Object> requestMap, Map<String, String> headerParam)
 			throws Exception {
+		Response resp = null;
 		validateRequest(url, headerParam);
 		if (MapUtils.isEmpty(requestMap))
 			throw new ServerException("ERR_INVALID_REQUEST_BODY", "Request Body is Missing!");
 		try {
-			HttpResponse<String> response = Unirest.patch(url).headers(headerParam).body(mapper.writeValueAsString(requestMap)).asString();
-			return getResponse(response);
+			while (null == resp && BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY) {
+				HttpResponse<String> response = Unirest.patch(url).headers(headerParam).body(mapper.writeValueAsString(requestMap)).asString();
+				resp = getResponse(response);
+			}
+			return resp;
 		} catch (Exception e) {
 			throw new ServerException("ERR_API_CALL", "Something Went Wrong While Making API Call | Error is: " + e.getMessage());
 		}
@@ -50,12 +58,16 @@ public class UnirestUtil {
 
 	public static Response post(String url, String paramName, File value, Map<String, String> headerParam)
 			throws Exception {
+		Response resp = null;
 		validateRequest(url, headerParam);
 		if (null == value || null == value)
 			throw new ServerException("ERR_INVALID_REQUEST_PARAM", "Invalid Request Param!");
 		try {
-			HttpResponse<String> response = Unirest.post(url).headers(headerParam).multiPartContent().field(paramName, new File(value.getAbsolutePath())).asString();
-			return getResponse(response);
+			while (null == resp && BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY) {
+				HttpResponse<String> response = Unirest.post(url).headers(headerParam).multiPartContent().field(paramName, new File(value.getAbsolutePath())).asString();
+				resp = getResponse(response);
+			}
+			return resp;
 		} catch (Exception e) {
 			throw new ServerException("ERR_API_CALL", "Something Went Wrong While Making API Call | Error is: " + e.getMessage());
 		}
@@ -63,12 +75,16 @@ public class UnirestUtil {
 
 	public static Response post(String url, String paramName, String value, Map<String, String> headerParam)
 			throws Exception {
+		Response resp = null;
 		validateRequest(url, headerParam);
 		if (null == value || null == value)
 			throw new ServerException("ERR_INVALID_REQUEST_PARAM", "Invalid Request Param!");
 		try {
-			HttpResponse<String> response = Unirest.post(url).headers(headerParam).multiPartContent().field(paramName, value).asString();
-			return getResponse(response);
+			while (null == resp && BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY) {
+				HttpResponse<String> response = Unirest.post(url).headers(headerParam).multiPartContent().field(paramName, value).asString();
+				resp = getResponse(response);
+			}
+			return resp;
 		} catch (Exception e) {
 			throw new ServerException("ERR_API_CALL", "Something Went Wrong While Making API Call | Error is: " + e.getMessage());
 		}
@@ -76,11 +92,15 @@ public class UnirestUtil {
 
 	public static Response get(String url, String queryParam, Map<String, String> headerParam)
 			throws Exception {
+		Response resp = null;
 		validateRequest(url, headerParam);
 		String reqUrl = StringUtils.isNotBlank(queryParam) ? url + "?" + queryParam : url;
 		try {
-			HttpResponse<String> response = Unirest.get(reqUrl).headers(headerParam).asString();
-			return getResponse(response);
+			while (null == resp && BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY) {
+				HttpResponse<String> response = Unirest.get(reqUrl).headers(headerParam).asString();
+				resp = getResponse(response);
+			}
+			return resp;
 		} catch (Exception e) {
 			throw new ServerException("ERR_API_CALL", "Something Went Wrong While Making API Call | Error is: " + e.getMessage());
 		}
@@ -101,10 +121,11 @@ public class UnirestUtil {
 				BACKOFF_DELAY = INITIAL_BACKOFF_DELAY;
 			} catch (Exception e) {
 				LOGGER.error("UnirestUtil ::: getResponse ::: Error occurred while parsing api response. Error is: "+e.getMessage(), e);
+				if (BACKOFF_DELAY != INITIAL_BACKOFF_DELAY)
+					BACKOFF_DELAY = BACKOFF_DELAY * INCREMENT_BACKOFF_DELAY;
 				if (BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY) {
 					delay(BACKOFF_DELAY);
-					BACKOFF_DELAY = BACKOFF_DELAY * INCREMENT_BACKOFF_DELAY;
-				} else throw new ServerException("ERR_API_CALL", "Unable to parse data! | Error is: " + e.getMessage());
+				} else throw new ServerException("ERR_API_CALL", "Unable to parse response data! | Error is: " + e.getMessage());
 			}
 		} else {
 			LOGGER.info("Null Response Received While Making Api Call!");

@@ -152,7 +152,6 @@ public class ContentUtil {
 
 	private void updateStatus(String channelId, String identifier, String message) throws Exception {
 		String errorMsg = StringUtils.isNotBlank(message) ? message : "Processing Error";
-		Response resp = null;
 		String url = KP_LEARNING_BASE_URL + "/system/v3/content/update/" + identifier;
 		Map<String, Object> request = new HashMap<String, Object>() {{
 			put("request", new HashMap<String, Object>() {{
@@ -166,10 +165,7 @@ public class ContentUtil {
 			put("X-Channel-Id", channelId);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
-			resp = UnirestUtil.patch(url, request, header);
-		}
-		//Response resp = UnirestUtil.patch(url, request, header);
+		Response resp = UnirestUtil.patch(url, request, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String node_id = (String) resp.getResult().get("node_id");
 			if (StringUtils.isNotBlank(node_id)) {
@@ -184,7 +180,6 @@ public class ContentUtil {
 	}
 
 	private Map<String, Object> searchContent(String identifier) throws Exception {
-		Response resp = null;
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, String> header = new HashMap<String, String>() {{
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
@@ -201,10 +196,7 @@ public class ContentUtil {
 				put("fields", SEARCH_FIELDS);
 			}});
 		}};
-		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
-			resp = UnirestUtil.post(KP_SEARCH_URL, request, header);
-		}
-		//Response resp = UnirestUtil.post(KP_SEARCH_URL, request, header);
+		Response resp = UnirestUtil.post(KP_SEARCH_URL, request, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK)) {
 			if (MapUtils.isNotEmpty(resp.getResult()) && (Integer) resp.getResult().get(AutoCreatorParams.count.name()) > 0) {
 				List<Object> contents = (List<Object>) resp.getResult().get(AutoCreatorParams.content.name());
@@ -256,7 +248,6 @@ public class ContentUtil {
 
 	private Map<String, Object> create(String channelId, String identifier, String newIdentifier, String repository, Map<String, Object> metadata) throws Exception {
 		String contentId = "";
-		Response resp = null;
 		String url = KP_CS_BASE_URL + "/content/v3/create";
 		Map<String, Object> metaFields = new HashMap<String, Object>();
 		metaFields.putAll(metadata);
@@ -279,9 +270,7 @@ public class ContentUtil {
 			put("X-Channel-Id", channelId);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
-			resp = UnirestUtil.post(url, request, header);
-		}
+		Response resp = UnirestUtil.post(url, request, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			contentId = (String) resp.getResult().get("identifier");
 			LOGGER.info("ContentUtil :: create :: Content Created Successfully with identifier : " + contentId);
@@ -294,16 +283,13 @@ public class ContentUtil {
 
 	private Map<String, Object> read(String channelId, String identifier) throws Exception {
 		String contentId = "";
-		Response resp = null;
 		String url = KP_CS_BASE_URL + "/content/v3/read/" + identifier;
 		LOGGER.info("ContentUtil :: read :: Reading content having identifier : "+identifier);
 		Map<String, String> header = new HashMap<String, String>() {{
 			put("X-Channel-Id", channelId);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
-			resp = UnirestUtil.get(url, "mode=edit", header);
-		}
+		Response resp = UnirestUtil.get(url, "mode=edit", header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			contentId = (String) ((Map<String, Object>)resp.getResult().getOrDefault("content", new HashMap<String, Object>())).get("identifier");
 			if(StringUtils.equalsIgnoreCase(identifier, contentId))
@@ -317,7 +303,6 @@ public class ContentUtil {
 	}
 
 	private void update(String channelId, String internalId, Map<String, Object> updateMetadata) throws Exception {
-		Response resp = null;
 		String url = KP_CS_BASE_URL + "/content/v3/update/" + internalId;
 		Map<String, Object> request = new HashMap<String, Object>() {{
 			put("request", new HashMap<String, Object>() {{
@@ -329,9 +314,7 @@ public class ContentUtil {
 			put("X-Channel-Id", channelId);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
-			resp = UnirestUtil.patch(url, request, header);
-		}
+		Response resp = UnirestUtil.patch(url, request, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String contentId = (String) resp.getResult().get("identifier");
 			LOGGER.info("ContentUtil :: update :: Content Update Successfully having identifier : " + contentId);
@@ -401,20 +384,14 @@ public class ContentUtil {
 				if (null != urls && StringUtils.isNotBlank(urls[1])) {
 					String uploadUrl = urls[IDX_CLOUD_URL];
 					LOGGER.info("ContentUtil :: upload :: Artifact Uploaded Successfully to cloud for : " + identifier + " | uploadUrl : " + uploadUrl);
-					while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
-						resp = UnirestUtil.post(url, "fileUrl", uploadUrl, header);
-					}
-					//resp = UnirestUtil.post(url, "fileUrl", uploadUrl, header);
+					resp = UnirestUtil.post(url, "fileUrl", uploadUrl, header);
 				}
 			} else {
 				LOGGER.info("ContentUtil :: upload :: File Size is larger than allowed file size allowed in upload api for : " + identifier + " | File Size (MB): " + (size / 1048576) + " | mimeType : " + mimeType);
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "File Size is larger than allowed file size allowed in upload api for : " + identifier + " | File Size (MB): " + (size / 1048576) + " | mimeType : " + mimeType);
 			}
 		} else {
-			while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
-				resp = UnirestUtil.post(url, "file", file, header);
-			}
-			//resp = UnirestUtil.post(url, "file", file, header);
+			resp = UnirestUtil.post(url, "file", file, header);
 		}
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String artifactUrl = (String) resp.getResult().get(AutoCreatorParams.artifactUrl.name());
@@ -430,7 +407,6 @@ public class ContentUtil {
 	}
 
 	private Boolean review(String channelId, String identifier) throws Exception {
-		Response resp = null;
 		String url = KP_LEARNING_BASE_URL + "/content/v3/review/" + identifier;
 		Map<String, Object> request = new HashMap<String, Object>() {{
 			put("request", new HashMap<String, Object>() {{
@@ -442,10 +418,7 @@ public class ContentUtil {
 			put("X-Channel-Id", channelId);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
-			resp = UnirestUtil.post(url, request, header);
-		}
-		//Response resp = UnirestUtil.post(url, request, header);
+		Response resp = UnirestUtil.post(url, request, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String contentId = (String) resp.getResult().get("node_id");
 			if(StringUtils.isNotBlank(contentId)) {
@@ -460,7 +433,6 @@ public class ContentUtil {
 	}
 
 	private Boolean publish(String channelId, String identifier, String lastPublishedBy) throws Exception {
-		Response resp = null;
 		String url = KP_LEARNING_BASE_URL + "/content/v3/publish/" + identifier;
 		Map<String, Object> request = new HashMap<String, Object>() {{
 			put("request", new HashMap<String, Object>() {{
@@ -473,10 +445,7 @@ public class ContentUtil {
 			put("X-Channel-Id", channelId);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
-			resp = UnirestUtil.post(url, request, header);
-		}
-		//Response resp = UnirestUtil.post(url, request, header);
+		Response resp = UnirestUtil.post(url, request, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String publishStatus = (String) resp.getResult().get("publishStatus");
 			if (StringUtils.isNotBlank(publishStatus)) {
@@ -594,16 +563,12 @@ public class ContentUtil {
 
 	private Boolean addToHierarchy(String channel, String textbookId, Map<String, Object> hierarchyReq) throws Exception {
 		Boolean result = false;
-		Response resp = null;
 		String url = KP_CS_BASE_URL + "/content/v3/hierarchy/add";
 		Map<String, String> header = new HashMap<String, String>() {{
 			put("X-Channel-Id", channel);
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
-			resp = UnirestUtil.patch(url, hierarchyReq, header);
-		}
-		//Response resp = UnirestUtil.patch(url, hierarchyReq, header);
+		Response resp = UnirestUtil.patch(url, hierarchyReq, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String contentId = (String) resp.getResult().get("rootId");
 			if (StringUtils.equalsIgnoreCase(contentId, textbookId)) {
@@ -618,16 +583,12 @@ public class ContentUtil {
 	}
 
 	private Map<String, Object> getHierarchy(String identifier) throws Exception {
-		Response resp = null;
 		Map<String, Object> result = new HashMap<String, Object>();
 		String url = KP_CS_BASE_URL + "/content/v3/hierarchy/" + identifier;
 		Map<String, String> header = new HashMap<String, String>(){{
 			put("Content-Type", DEFAULT_CONTENT_TYPE);
 		}};
-		while (null == resp && UnirestUtil.BACKOFF_DELAY <= UnirestUtil.MAXIMUM_BACKOFF_DELAY) {
-			resp = UnirestUtil.get(url, "mode=edit", header);
-		}
-		//Response resp = UnirestUtil.get(url, "mode=edit", header);
+		Response resp = UnirestUtil.get(url, "mode=edit", header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			result = (Map<String, Object>) resp.getResult().getOrDefault("content", new HashMap<String, Object>());
 			return result;
