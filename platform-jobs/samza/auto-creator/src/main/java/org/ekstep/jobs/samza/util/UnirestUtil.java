@@ -17,10 +17,10 @@ public class UnirestUtil {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static JobLogger LOGGER = new JobLogger(UnirestUtil.class);
-	public static final Integer INITIAL_BACKOFF_DELAY = Platform.config.hasPath("auto_creator.internal_api.initial_backoff_delay") ? Platform.config.getInt("auto_creator.internal_api.initial_backoff_delay") : 10000;    // 10 seconds
-	public static final Integer MAXIMUM_BACKOFF_DELAY = Platform.config.hasPath("auto_creator.internal_api.maximum_backoff_delay") ? Platform.config.getInt("auto_creator.internal_api.initial_backoff_delay") : 300000;    // 5 min
+	public static final Long INITIAL_BACKOFF_DELAY = Platform.config.hasPath("auto_creator.internal_api.initial_backoff_delay") ? Platform.config.getLong("auto_creator.internal_api.initial_backoff_delay") : 10000;    // 10 seconds
+	public static final Long MAXIMUM_BACKOFF_DELAY = Platform.config.hasPath("auto_creator.internal_api.maximum_backoff_delay") ? Platform.config.getLong("auto_creator.internal_api.initial_backoff_delay") : 300000;    // 5 min
 	public static final Integer INCREMENT_BACKOFF_DELAY = Platform.config.hasPath("auto_creator.increment_backoff_delay") ? Platform.config.getInt("auto_creator.increment_backoff_delay") : 2;
-	public static Integer BACKOFF_DELAY = INITIAL_BACKOFF_DELAY;
+	public static Long BACKOFF_DELAY = INITIAL_BACKOFF_DELAY;
 
 	public static Response post(String url, Map<String, Object> requestMap, Map<String, String> headerParam)
 			throws Exception {
@@ -121,10 +121,10 @@ public class UnirestUtil {
 				BACKOFF_DELAY = INITIAL_BACKOFF_DELAY;
 			} catch (Exception e) {
 				LOGGER.error("UnirestUtil ::: getResponse ::: Error occurred while parsing api response. Error is: "+e.getMessage(), e);
-				if (BACKOFF_DELAY != INITIAL_BACKOFF_DELAY)
-					BACKOFF_DELAY = BACKOFF_DELAY * INCREMENT_BACKOFF_DELAY;
 				if (BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY) {
-					delay(BACKOFF_DELAY);
+					long delay = BACKOFF_DELAY;
+					BACKOFF_DELAY = BACKOFF_DELAY * INCREMENT_BACKOFF_DELAY;
+					delay(delay);
 				} else throw new ServerException("ERR_API_CALL", "Unable to parse response data! | Error is: " + e.getMessage());
 			}
 		} else {
@@ -134,7 +134,7 @@ public class UnirestUtil {
 		return resp;
 	}
 
-	private static void delay(int time) {
+	private static void delay(long time) {
 		LOGGER.info("UnirestUtil :::: backoff delay is called with : " + time);
 		try {
 			Thread.sleep(time);
