@@ -1,10 +1,12 @@
 package org.ekstep.jobs.samza.task;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.TaskCoordinator;
 import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.jobs.samza.service.AutoCreatorService;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -32,7 +34,7 @@ public class AutoCreatorTask extends BaseTask {
     }
 
     @Override
-    public void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) {
+    public void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
         try {
             LOGGER.info("Starting Task Process for auto-creator operation for mid : " + message.get("mid") + " at :: " + System.currentTimeMillis());
             long startTime = System.currentTimeMillis();
@@ -40,8 +42,11 @@ public class AutoCreatorTask extends BaseTask {
             long endTime = System.currentTimeMillis();
             LOGGER.info("Successfully completed processing for auto-creator operation for mid : " + message.get("mid") + " at :: " + System.currentTimeMillis());
         } catch (Exception e) {
-            LOGGER.error("Message processing failed", message, e);
-            metrics.incErrorCounter();
+            LOGGER.error("AutoCreatorTask ::: process ::: Message processing failed.", message, e);
+            if ((e instanceof ServerException) && StringUtils.equalsIgnoreCase(((ServerException) e).getErrCode(), "ERR_API_CALL")) {
+                LOGGER.error("Error While making api calls. ", e);
+                throw e;
+            }
         }
     }
 

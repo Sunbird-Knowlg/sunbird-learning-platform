@@ -51,7 +51,7 @@ public class ContentUtil {
 	private static final List<String> BULK_UPLOAD_MIMETYPES = Platform.config.hasPath("auto_creator.bulk_upload.mime_types") ? Arrays.asList(Platform.config.getString("auto_creator.bulk_upload.mime_types").split(",")) : new ArrayList<String>();
 	private static final List<String> CONTENT_CREATE_PROPS = Platform.config.hasPath("auto_creator.content_create_props") ? Arrays.asList(Platform.config.getString("auto_creator.content_create_props").split(",")) : new ArrayList<String>();
 	private static final List<String> ALLOWED_ARTIFACT_SOURCE = Platform.config.hasPath("auto_creator.artifact_upload.allowed_source") ? Arrays.asList(Platform.config.getString("auto_creator.artifact_upload.allowed_source").split(",")) : new ArrayList<String>();
-	private static final Integer API_CALL_DELAY = Platform.config.hasPath("auto_creator.api_call_delay") ? Platform.config.getInt("auto_creator.api_call_delay") : 5;
+	private static final Integer API_CALL_DELAY = Platform.config.hasPath("auto_creator.api_call_delay") ? Platform.config.getInt("auto_creator.api_call_delay") : 2;
 	public static final List<String> ALLOWED_CONTENT_STAGE = Platform.config.hasPath("auto_creator.allowed_content_stages") ? Arrays.asList(Platform.config.getString("auto_creator.allowed_content_stages").split(",")) : Arrays.asList("create", "upload", "review", "publish");
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static Tika tika = new Tika();
@@ -135,7 +135,8 @@ public class ContentUtil {
 				}
 			}
 		}catch (Exception e) {
-			updateStatus(channelId, internalId, e.getMessage());
+			if(StringUtils.isNotBlank(internalId))
+				updateStatus(channelId, internalId, e.getMessage());
 			throw e;
 		}
 
@@ -174,7 +175,7 @@ public class ContentUtil {
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Content update status Call Failed For : " + identifier);
 		} else {
 			LOGGER.info("ContentUtil :: updateStatus :: Invalid Response received while updating failed status for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while updating content status for : " + identifier);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while updating content status for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
 	}
 
@@ -195,7 +196,6 @@ public class ContentUtil {
 				put("fields", SEARCH_FIELDS);
 			}});
 		}};
-
 		Response resp = UnirestUtil.post(KP_SEARCH_URL, request, header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK)) {
 			if (MapUtils.isNotEmpty(resp.getResult()) && (Integer) resp.getResult().get(AutoCreatorParams.count.name()) > 0) {
@@ -226,7 +226,7 @@ public class ContentUtil {
 
 		} else {
 			LOGGER.info("ContentUtil :: searchContent :: Invalid Response received while searching content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while searching content for : " + identifier);
+			throw new ServerException("ERR_API_CALL", "Invalid Response received while searching content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
 		return result;
 	}
@@ -276,7 +276,7 @@ public class ContentUtil {
 			LOGGER.info("ContentUtil :: create :: Content Created Successfully with identifier : " + contentId);
 		} else {
 			LOGGER.info("ContentUtil :: create :: Invalid Response received while creating content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while creating content for : " + identifier);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while creating content for : " + identifier+ " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
 		return resp.getResult();
 	}
@@ -297,7 +297,7 @@ public class ContentUtil {
 			else throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while reading content for : " + identifier);
 		} else {
 			LOGGER.info("ContentUtil :: read :: Invalid Response received while reading content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while reading content for : " + identifier);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while reading content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
 		return ((Map<String, Object>) resp.getResult().getOrDefault("content", new HashMap<String, Object>()));
 	}
@@ -577,7 +577,7 @@ public class ContentUtil {
 			}
 		} else {
 			LOGGER.info("ContentUtil :: updateHierarchy :: Invalid Response received while adding resource to hierarchy for : " + textbookId + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while adding resource to hierarchy for : " + textbookId);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while adding resource to hierarchy for : " + textbookId + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
 		return result;
 	}
@@ -594,7 +594,7 @@ public class ContentUtil {
 			return result;
 		} else {
 			LOGGER.info("ContentUtil :: getHierarchy :: Invalid Response received while fetching hierarchy for : " + identifier + " | Response Code : " + resp.getResponseCode().toString());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while fetching hierarchy for : " + identifier);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while fetching hierarchy for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
 		}
 	}
 
