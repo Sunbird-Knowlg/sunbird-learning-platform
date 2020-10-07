@@ -69,6 +69,11 @@ public class CassandraESSyncManager {
     private List<String> relationshipProperties = Platform.config.hasPath("content.relationship.properties") ?
             Arrays.asList(Platform.config.getString("content.relationship.properties").split(",")) : Collections.emptyList();
     private static final String CACHE_PREFIX = "hierarchy_";
+    private static final String PRIMARY_CATEGORY = "primaryCategory";
+    private static final String AUDIENCE = "audience";
+    private static final Map<String, String> contentTypeToPrimaryCategory = Platform.config.hasPath("contentTypeToPrimaryCategory") ?
+            (Map<String, String>) Platform.config.getAnyRef("contentTypeToPrimaryCategory") : new HashMap<String, String>();
+    private List<String> validCollectionStatus = Arrays.asList("Live", "Unlisted");
 
     public CassandraESSyncManager() {}
     
@@ -222,7 +227,7 @@ public class CassandraESSyncManager {
         try {
             Node node = ConvertToGraphNode.convertToGraphNode(childData, definitionDTO, null);
             node.setGraphId(graphId);
-            node.setObjectType(objectType);
+            node.setObjectType("Collection");
             node.setNodeType(nodeType);
             Map<String, Object> nodeMap = SyncMessageGenerator.getMessage(node);
             Map<String, Object>  message = SyncMessageGenerator.getJSONMessage(nodeMap, relationMap);
@@ -538,4 +543,91 @@ public class CassandraESSyncManager {
 		System.out.println("CassandraESSyncManager:syncDialcodesByIds::dialcodeSyncedCount: " + dialcodeSyncedCount);
 		
 	}
+
+    public void syncCollectionIds(String graphId, List<String> resourceIds) {
+        List<String> success = new ArrayList<String>();
+        List<String> failed = new ArrayList<String>();
+        if (CollectionUtils.isNotEmpty(resourceIds)) {
+            resourceIds.forEach(collection -> {
+                Boolean flag = syncCollection(graphId, collection);
+                if(flag)
+                    success.add(collection);
+                else
+                    failed.add(collection);
+            });
+        }
+        System.out.println("Success : " +  success);
+        System.out.println("Failed : " + failed);
+    }
+
+    public Boolean syncCollection(String graphId, String resourceId) {
+        this.graphId = RequestValidatorUtil.isEmptyOrNull(graphId) ? "domain" : graphId;
+        try {
+            Map<String, Object> hierarchy = getTextbookHierarchy(resourceId);
+            if (MapUtils.isNotEmpty(hierarchy)) {
+                Node node = util.getNode("domain", resourceId);
+                updateHierarchyMetadata(hierarchy, node);
+                Map<String, Object> units = getUnitsMetadata(hierarchy, node);
+
+                hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
+                //Clear Collection from Redis Cache
+                RedisStoreUtil.delete(CACHE_PREFIX + resourceId);
+                if(MapUtils.isNotEmpty(units)){
+                    pushToElastic(units);
+                    List<String> collectionUnitIds = new ArrayList<>(units.keySet());
+                    //Clear CollectionUnits from Cassandra Hierarchy Store
+                    hierarchyStore.deleteHierarchy(collectionUnitIds);
+                    //Clear CollectionUnits from Redis Cache
+                    collectionUnitIds.forEach(id -> RedisStoreUtil.delete(CACHE_PREFIX + id));
+                    printMessages("success", collectionUnitIds, resourceId);
+                }
+                return true;
+            } else {
+                System.out.println("CassandraESSyncManager:syncCollection:: " + resourceId + " is not a type of collection or it is not live.");
+                return false;
+            }
+        } catch (Exception e) {
+            System.out.println("CassandraESSyncManager:syncCollection:: Sync failed for collectionId : " + resourceId);
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void updateHierarchyMetadata(Map<String, Object> hierarchy, Node node) {
+        if (node != null && validCollectionStatus.contains(node.getMetadata().get("status"))) {
+            if (node.getMetadata().containsKey(PRIMARY_CATEGORY) && !hierarchy.containsKey(PRIMARY_CATEGORY)) {
+                hierarchy.put(PRIMARY_CATEGORY, node.getMetadata().get(PRIMARY_CATEGORY));
+            }
+            if (node.getMetadata().containsKey(AUDIENCE)) {
+                hierarchy.put(AUDIENCE, mapper.convertValue(node.getMetadata().get(AUDIENCE), new TypeReference<ArrayList<String>>() {
+                }));
+            }
+        }
+    }
+
+    public Map<String, Object> getUnitsMetadata(Map<String, Object> hierarchy, Node node) {
+        Map<String, Object> unitsMetadata = new HashMap<>();
+        getUnitsToBeSynced(unitsMetadata, (List<Map<String, Object>>) hierarchy.get("children"), node);
+        return unitsMetadata;
+    }
+
+    private void getUnitsToBeSynced(Map<String, Object> unitsMetadata, List<Map<String, Object>> children, Node node) {
+        if (CollectionUtils.isNotEmpty(children)) {
+            children.forEach(child -> {
+                if (child.containsKey("visibility") && StringUtils.equalsIgnoreCase((String) child.get("visibility"), "parent")) {
+                    if (!child.containsKey(PRIMARY_CATEGORY)) {
+                        String contentType = (String) child.get("contentType");
+                        child.put(PRIMARY_CATEGORY, contentTypeToPrimaryCategory.getOrDefault(contentType, ""));
+                    }
+                    if (node != null && node.getMetadata().containsKey(AUDIENCE)) {
+                        child.put(AUDIENCE, mapper.convertValue(node.getMetadata().get(AUDIENCE), new TypeReference<ArrayList<String>>() {}));
+                    }
+                    populateESDoc(unitsMetadata, child);
+                    if (child.containsKey("children")) {
+                        getUnitsToBeSynced(unitsMetadata, (List<Map<String, Object>>) child.get("children"), node);
+                    }
+                }
+            });
+        }
+    }
 }

@@ -64,6 +64,7 @@ public abstract class BaseContentManager extends BaseManager {
 	 * ".img")
 	 */
 	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
+    protected static final String DEFAULT_OBJECT_TYPE_IMAGE_SUFFIX = "Image";
 	
 	private static final String DEFAULT_MIME_TYPE = "assets";
 
@@ -110,7 +111,9 @@ public abstract class BaseContentManager extends BaseManager {
 
     protected static final List<String> SYSTEM_UPDATE_ALLOWED_CONTENT_STATUS = Arrays.asList(TaxonomyAPIParams.Live.name(), TaxonomyAPIParams.Unlisted.name());
 
-	protected String getId(String identifier) {
+    protected static final List<String> VALID_FLAG_OBJECT_TYPES = Arrays.asList("Content", "Collection", "Asset");
+
+    protected String getId(String identifier) {
 		if (StringUtils.endsWith(identifier, ".img")) {
 			return identifier.replace(".img", "");
 		}
@@ -326,7 +329,7 @@ public abstract class BaseContentManager extends BaseManager {
         Map currentMetadata = node.getMetadata();
 
         if (originalId.endsWith(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
-            return updateContent(CONTENT_IMAGE_OBJECT_TYPE, originalId, inputMap, currentMetadata);
+            return updateContent(node.getObjectType(), originalId, inputMap, currentMetadata);
         } else {
             //Backup input data to update image node
             Cloner cloner = new Cloner();
@@ -347,7 +350,7 @@ public abstract class BaseContentManager extends BaseManager {
             //Update Content Node
             Response updateResponse = null;
             if(MapUtils.isNotEmpty(inputMap)) {
-                updateResponse = updateContent(CONTENT_OBJECT_TYPE, originalId, inputMap, currentMetadata);
+                updateResponse = updateContent(node.getObjectType(), originalId, inputMap, currentMetadata);
                 if (checkError(updateResponse)) {
                     return updateResponse;
                 }
@@ -358,7 +361,7 @@ public abstract class BaseContentManager extends BaseManager {
                 Map imageResultMap = imageNodeResponse.getResult();
                 Node imageNode = (Node) imageResultMap.get(ContentAPIParams.node.name());
                 Map currentImageMetadata = imageNode.getMetadata();
-                Response imageUpdateResponse = updateContent(CONTENT_IMAGE_OBJECT_TYPE, originalId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, backUpInputMap, currentImageMetadata);
+                Response imageUpdateResponse = updateContent(imageNode.getObjectType(), originalId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, backUpInputMap, currentImageMetadata);
                 if(checkError(imageUpdateResponse) || null == updateResponse)
                     return imageUpdateResponse;
             }
@@ -438,7 +441,7 @@ public abstract class BaseContentManager extends BaseManager {
 
     }
 
-    private void clearRedisCache(String originalId) {
+    protected void clearRedisCache(String originalId) {
         RedisStoreUtil.delete(originalId);
         RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + originalId);
     }
@@ -537,7 +540,7 @@ public abstract class BaseContentManager extends BaseManager {
 
     protected Node createContentImageNode(String taxonomyId, String contentImageId, Node node) {
 
-        Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(), CONTENT_IMAGE_OBJECT_TYPE);
+        Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(), node.getObjectType() + DEFAULT_OBJECT_TYPE_IMAGE_SUFFIX);
         imageNode.setGraphId(taxonomyId);
         imageNode.setIdentifier(contentImageId);
         imageNode.setMetadata(node.getMetadata());

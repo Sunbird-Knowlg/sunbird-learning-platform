@@ -68,7 +68,8 @@ public class OptimizerUtil {
 		LOGGER.info("Optimizing image - " + contentId + " | URL:" + originalURL);
 		Map<String, String> variantsMap = new HashMap<String, String>();
 		// get content definition to get configured resolution
-		DefinitionDTO contentDefinition = controllerUtil.getDefinition("domain", "Content");
+		DefinitionDTO contentDefinition = controllerUtil.getDefinition("domain", "Asset");
+		LOGGER.info("contentDefinition ::: objectType ::: "+contentDefinition.getObjectType() + " | metadata:: "+contentDefinition.getMetadata());
 		String variantsStr = (String) contentDefinition.getMetadata().get(ContentAPIParams.variants.name());
 		Map<String, Object> variants = mapper.readValue(variantsStr, Map.class);
 

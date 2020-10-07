@@ -1,0 +1,24 @@
+#!/bin/bash
+set -x
+echo "CSV file to read: $1"
+echo "Date passed is : $2"
+echo "Dialcode keyspace name passed: $3"
+echo "Channel name passed: $4"
+{
+	echo "identifier,dialcode_index,publisher,channel,batchCode,status,generated_on"
+	i=1
+	j=0
+	while IFS="," read f1
+	do
+		test $i -eq 1 && ((i=i+1)) && continue # can be removed if header is not there in dialcodes.csv
+		j=$(( $j + 1 ))
+		echo "$f1","-1","$4","$4","$4-01","Draft","$2" # pass date in format: 2019-10-17T10:00:00.000
+	done < $1
+} > ncert-dialcodes.csv
+echo "Total dialcodes to be inserted= $j"
+cat ncert-dialcodes.csv
+echo "Total dialcodes to be inserted: $j"
+echo "COPY $3.dial_code (identifier,dialcode_index,publisher,channel,batchCode,status,generated_on) FROM 'ncert-dialcodes.csv' WITH DELIMITER=',' AND HEADER=TRUE; exit" | cqlsh
+echo "Data has been inserted into cassandra successfully."
+echo "select * from $3.dial_code where channel='$4' ALLOW FILTERING; exit" | cqlsh
+echo "select count(*) from $3.dial_code where channel='$4' ALLOW FILTERING; exit" | cqlsh

@@ -15,16 +15,10 @@ import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
-import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
-import org.ekstep.telemetry.TelemetryGenerator;
-import org.ekstep.telemetry.TelemetryParams;
-import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 import org.sunbird.jobs.samza.task.CourseProgressHandler;
 import org.sunbird.jobs.samza.util.CourseBatchParams;
-import org.sunbird.jobs.samza.util.ESUtil;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 import redis.clients.jedis.Jedis;
 
@@ -43,8 +37,6 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
     private String table = "user_enrolments";
   /*  private static final String ES_INDEX_NAME = "user-courses";
     private static final String ES_DOC_TYPE = "_doc";*/
-    private int leafNodesTTL = Platform.config.hasPath("content.leafnodes.ttl")
-            ? Platform.config.getInt("content.leafnodes.ttl"): 3600;
     private Jedis redisConnect= null;
     private Session cassandraSession = null;
     private SystemStream certificateInstructionStream = null;
@@ -67,7 +59,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         String courseId = (String) edata.get("courseId");
         List<String> leafNodes = getLeafNodes(courseId);
         if(CollectionUtils.isEmpty(leafNodes)){
-            LOGGER.info("Content does not have leafNodes : " + courseId);
+            LOGGER.info("Content does not have leafNodes. So, skipped processing for : " + courseId);
         } else {
             //Compute status
             updateData(edata, leafNodes, courseProgressHandler, collector);
@@ -75,13 +67,13 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
     }
 
     private List<String> getLeafNodes(String courseId) throws Exception {
-        String key = courseId + ":leafnodes";
+        String key = courseId + ":" + courseId + ":leafnodes";
         List<String> leafNodes = getStringList(key);
         if (CollectionUtils.isEmpty(leafNodes)) {
+            System.out.println("Cache not found from redis. Fetching from content read: " + courseId);
+            LOGGER.info("Cache not found from redis. Fetching from content read: " + courseId);
             Map<String, Object> content = getContent(courseId, "leafNodes");
             leafNodes = (List<String>) content.getOrDefault("leafNodes", new ArrayList<String>());
-            if (CollectionUtils.isNotEmpty(leafNodes))
-                RedisStoreUtil.saveStringList(key, leafNodes, leafNodesTTL);
         }
         return leafNodes;
     }

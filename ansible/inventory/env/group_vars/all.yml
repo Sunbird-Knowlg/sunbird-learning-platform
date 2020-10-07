@@ -53,6 +53,7 @@ other_bolt_write_url: bolt://{{ groups['learning-neo4j-cluster'][0] }}:8687
 lp_cassandra_connection: "{{groups['cassandra']|join(':9042,')}}:9042"
 cassandra_host: "{{ groups['cassandra'][0] }}"
 redis_host: "{{ groups['redis1'][0] }}"
+dp_redis_host: "{{ groups['dp-redis'][0] }}"
 kafka_brokers: "{{groups['processing-cluster-kafka']|join(':9092,')}}:9092"
 zookeepers: "{{groups['processing-cluster-zookeepers']|join(':2181,')}}:2181"
 audit_es_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"

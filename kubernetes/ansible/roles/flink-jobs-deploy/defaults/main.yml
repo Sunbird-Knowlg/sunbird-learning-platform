@@ -45,11 +45,16 @@ activity_agg_parallelism: 1
 middleware_consumption_table: "user_content_consumption"
 middleware_user_activity_agg_table: "user_activity_agg"
 
-### UserCacheUpdater Job related Vars
+### Relation Cache Updater Job related Vars
 extractor_consumer_parallelism: 1
 relation_cache_updater_consumer_parallelism: 1
 relation_cache_updater_parallelism: 1
 middleware_content_hierarchy_table: "content_hierarchy"
+
+### Post Publish Processor Job related Vars
+post_publish_processor_consumer_parallesim: 1
+post_publish_processor_parallelism: 1
+post_publish_event_router_parallelism: 1
 
 ### taskmanager related vars
 healthcheck: true
@@ -76,6 +81,13 @@ flink_job_names:
   relation-cache-updater:
     job_class_name: 'org.sunbird.job.task.RelationCacheUpdaterStreamTask'
     replica: 1
+  post-publish-processor:
+    job_class_name: 'org.sunbird.job.task.PostPublishProcessorStreamTask'
+    replica: 1
+
 ### Global vars
 middleware_course_keyspace: "sunbird_courses"
 middleware_hierarchy_keyspace: "{{ instance }}_hierarchy_store"
+neo4j_route_path: "bolt://{{ groups['learning-neo4j-node1'][0] }}:7687"
+kp_search_service_base_url: "http://{{private_ingressgateway_ip}}/search"
+lms_service_base_url: "http://{{private_ingressgateway_ip}}/lms"
