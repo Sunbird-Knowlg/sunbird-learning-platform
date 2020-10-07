@@ -44,10 +44,12 @@ public class CourseBatchUpdaterTask extends BaseTask {
     private static String executionHour = "00";
     private SystemStream certificateInstructionStream = null;
     private Boolean certificateAutoGenerateEnable = Platform.config.hasPath("certificate.auto.generate.enable") ? Platform.config.getBoolean("certificate.auto.generate.enable") : true;
+    private int redisDBIndex = Platform.config.hasPath("redis.dbIndex") ? Platform.config.getInt("redis.dbIndex") : 0;
 
     public ISamzaService initialize() throws Exception {
         LOGGER.info("Task initialized");
-        this.redisConnect = new RedisConnect(config).getConnection();
+
+        this.redisConnect = new RedisConnect(config).getConnection(redisDBIndex, 0L);
         this.cassandraSession = new CassandraConnector(config).getSession();
         this.certificateInstructionStream = new SystemStream("kafka", config.get("course.batch.certificate.topic"));
         this.action = Arrays.asList("batch-enrolment-update", "batch-enrolment-sync", "batch-status-update","course-batch-update");
