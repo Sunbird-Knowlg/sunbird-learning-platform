@@ -10,6 +10,6 @@
   ignore_errors: yes
 
 - name: helm upgrade
-  shell: helm upgrade --install {{ item }} {{ chart_path }} --set job_classname={{ flink_job_names['%s'|format(item)].job_class_name }} -n {{ flink_namespace }}
+  shell: helm upgrade --install {{ item }} {{ chart_path }} --set job_classname={{ flink_job_names['%s'|format(item)].job_class_name }} --set taskmanager.replicas={{ flink_job_names['%s'|format(item)].replica }} -n {{ flink_namespace }}
   with_items:
     - "{{ job_names_to_deploy.split(',')|list }}"
