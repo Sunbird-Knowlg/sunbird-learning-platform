@@ -81,14 +81,14 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-certificate-generator</artifactId>
-			<version>0.0.61</version>
+			<version>0.0.62</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-certificate-generator-v2</artifactId>
-			<version>0.0.4</version>
+			<version>0.0.5</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
