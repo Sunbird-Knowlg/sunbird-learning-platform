@@ -71,10 +71,11 @@ job_classname: ""
 ### class name vars
 flink_job_names:
   activity-aggregate-updater:
-      job_class_name: 'org.sunbird.job.task.ActivityAggregateUpdaterStreamTask'
+    job_class_name: 'org.sunbird.job.task.ActivityAggregateUpdaterStreamTask'
+    replica: 1
   relation-cache-updater:
-      job_class_name: 'org.sunbird.job.task.RelationCacheUpdaterStreamTask'
-
+    job_class_name: 'org.sunbird.job.task.RelationCacheUpdaterStreamTask'
+    replica: 1
 ### Global vars
 middleware_course_keyspace: "sunbird_courses"
 middleware_hierarchy_keyspace: "{{ instance }}_hierarchy_store"
