@@ -164,7 +164,7 @@ public class ElasticSearchUtil {
 
 
 	public static void updateDocument(String indexName, String documentId, String document)
-			throws InterruptedException, ExecutionException {
+			 {
 		try {Map<String, Object> doc = mapper.readValue(document, new TypeReference<Map<String, Object>>() {
 		});
              logger.info("Inside updateDocument");

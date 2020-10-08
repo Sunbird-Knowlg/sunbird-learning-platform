@@ -88,4 +88,4 @@ lms_service_base_url: "http://{{swarm_manager_lb_ip}}:9005"
 
 search_es7_host: "{{ groups['es7']|join(':9200,')}}:9200"
 
-mlworkbench: "{{ groups['mlworkbench']|join(':3579,')}}:3579"
+mlworkbench: "{{ groups['mlworkbench'][0]}}"
