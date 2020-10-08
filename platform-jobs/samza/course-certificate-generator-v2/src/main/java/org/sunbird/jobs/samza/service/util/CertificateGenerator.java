@@ -521,7 +521,6 @@ public class CertificateGenerator {
     private void pushAuditEvent(String userId, String courseId, String batchId, Map<String, Object> certificate, MessageCollector collector) {
         try {
             Map<String, Object> certificateAuditEvent = generateAuditEvent(userId, courseId, batchId, certificate);
-            LOGGER.info("CertificateGenerator:pushAuditEvent: svg audit log : ", certificateAuditEvent);
             LOGGER.info("CertificateGenerator:pushAuditEvent: audit event generated for certificate : "
                     + ((Map<String, Object>) certificateAuditEvent.getOrDefault("object", "")).getOrDefault("id", "")
                     + " with mid : " + certificateAuditEvent.getOrDefault("mid", ""));
