@@ -1099,7 +1099,11 @@ public class PublishFinalizer extends BaseFinalizer {
 				}
 				List<String> keywordsList = new ArrayList<>();
 				keywordsList.addAll(keywords);
-				node.getMetadata().put("keywords", keywordsList);
+				if (CollectionUtils.isNotEmpty(keywordsList)) {
+				    List<String> finalKeywords = keywordsList.stream().map(k -> StringUtils.trimToEmpty(k))
+                            .filter(k -> StringUtils.isNotBlank(k)).distinct().collect(toList());
+                    node.getMetadata().put("keywords", finalKeywords);
+                }
 			}
 		}
 
