@@ -277,7 +277,8 @@
             "Plugin",
             "Lesson Plan Unit",
             "Course Unit",
-            "Textbook Unit"
+            "Textbook Unit",
+            "Certificate Template"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
