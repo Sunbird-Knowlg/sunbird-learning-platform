@@ -175,7 +175,7 @@ public class ContentUtil {
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Content update status Call Failed For : " + identifier);
 		} else {
 			LOGGER.info("ContentUtil :: updateStatus :: Invalid Response received while updating failed status for : " + identifier + getErrorDetails(resp));
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while updating content status for : " + identifier + getErrorDetails(resp));
+			throw new ServerException("ERR_API_CALL", "Invalid Response received while updating content status for : " + identifier + getErrorDetails(resp));
 		}
 	}
 
@@ -276,7 +276,7 @@ public class ContentUtil {
 			LOGGER.info("ContentUtil :: create :: Content Created Successfully with identifier : " + contentId);
 		} else {
 			LOGGER.info("ContentUtil :: create :: Invalid Response received while creating content for : " + identifier + getErrorDetails(resp));
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while creating content for : " + identifier+ getErrorDetails(resp));
+			throw new ServerException("ERR_API_CALL", "Invalid Response received while creating content for : " + identifier+ getErrorDetails(resp));
 		}
 		return resp.getResult();
 	}
