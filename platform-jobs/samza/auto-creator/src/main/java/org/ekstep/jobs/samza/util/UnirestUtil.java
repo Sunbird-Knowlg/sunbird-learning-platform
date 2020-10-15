@@ -29,7 +29,6 @@ public class UnirestUtil {
 		if (MapUtils.isEmpty(requestMap))
 			throw new ServerException("ERR_INVALID_REQUEST_BODY", "Request Body is Missing!");
 		try {
-			//while (null == resp && BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY) {
 			while (null == resp) {
 				HttpResponse<String> response = Unirest.post(url).headers(headerParam).body(mapper.writeValueAsString(requestMap)).asString();
 				resp = getResponse(url, response);
@@ -47,7 +46,7 @@ public class UnirestUtil {
 		if (MapUtils.isEmpty(requestMap))
 			throw new ServerException("ERR_INVALID_REQUEST_BODY", "Request Body is Missing!");
 		try {
-			while (null == resp && BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY) {
+			while (null == resp) {
 				HttpResponse<String> response = Unirest.patch(url).headers(headerParam).body(mapper.writeValueAsString(requestMap)).asString();
 				resp = getResponse(url, response);
 			}
@@ -64,7 +63,7 @@ public class UnirestUtil {
 		if (null == value || null == value)
 			throw new ServerException("ERR_INVALID_REQUEST_PARAM", "Invalid Request Param!");
 		try {
-			while (null == resp && BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY) {
+			while (null == resp) {
 				HttpResponse<String> response = Unirest.post(url).headers(headerParam).multiPartContent().field(paramName, new File(value.getAbsolutePath())).asString();
 				resp = getResponse(url, response);
 			}
@@ -81,7 +80,7 @@ public class UnirestUtil {
 		if (null == value || null == value)
 			throw new ServerException("ERR_INVALID_REQUEST_PARAM", "Invalid Request Param!");
 		try {
-			while (null == resp && BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY) {
+			while (null == resp) {
 				HttpResponse<String> response = Unirest.post(url).headers(headerParam).multiPartContent().field(paramName, value).asString();
 				resp = getResponse(url, response);
 			}
@@ -97,7 +96,7 @@ public class UnirestUtil {
 		validateRequest(url, headerParam);
 		String reqUrl = StringUtils.isNotBlank(queryParam) ? url + "?" + queryParam : url;
 		try {
-			while (null == resp && BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY) {
+			while (null == resp) {
 				HttpResponse<String> response = Unirest.get(reqUrl).headers(headerParam).asString();
 				resp = getResponse(reqUrl, response);
 			}
@@ -121,7 +120,7 @@ public class UnirestUtil {
 				resp = mapper.readValue(response.getBody(), Response.class);
 				BACKOFF_DELAY = INITIAL_BACKOFF_DELAY;
 			} catch (Exception e) {
-				LOGGER.error("UnirestUtil ::: getResponse ::: Error occurred while parsing api response. Error is: "+e.getMessage(), e);
+				LOGGER.error("UnirestUtil ::: getResponse ::: Error occurred while parsing api response for url ::: " + url + ". | Error is: " + e.getMessage(), e);
 				LOGGER.info("UnirestUtil :::: BACKOFF_DELAY ::: " + BACKOFF_DELAY);
 				if (BACKOFF_DELAY <= MAXIMUM_BACKOFF_DELAY) {
 					long delay = BACKOFF_DELAY;
