@@ -149,3 +149,20 @@ post-publish-processor: |
   lms {
     basePath = "{{ lms_service_base_url }}"
   }
+
+certificate-generator: |
+  include file("/data/flink/conf/base-config.conf")
+  kafka {
+    input.topic = {{ env_name }}.generate.certificate.request
+    groupId = {{ env_name }}-generator-certificate-group
+  }
+  task {
+    consumer.parallelism = {{ certificate_generator_consumer_parallelism }}
+    parallelism = {{ certificate_generator_parallelism }}
+  }
+  cert-reg {
+    basePath = "{{ cert_reg_service_base_url }}"
+  }
+  enc-service {
+    basePath = "http://enc-service:8013"
+  }
