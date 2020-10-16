@@ -60,7 +60,7 @@ public class CassandraConnector {
             }
             values[i] = contentId;
             BoundStatement bound = ps.bind(values);
-
+            LOGGER.info("Executing the statement to insert into cassandra for identifier  " + contentId);
             session.execute(bound);
         } catch (Exception e) {
           System.out.println("Exception " + e);

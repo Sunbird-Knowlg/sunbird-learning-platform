@@ -174,8 +174,8 @@ public class ContentUtil {
 			else
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Content update status Call Failed For : " + identifier);
 		} else {
-			LOGGER.info("ContentUtil :: updateStatus :: Invalid Response received while updating failed status for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while updating content status for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			LOGGER.info("ContentUtil :: updateStatus :: Invalid Response received while updating failed status for : " + identifier + getErrorDetails(resp));
+			throw new ServerException("ERR_API_CALL", "Invalid Response received while updating content status for : " + identifier + getErrorDetails(resp));
 		}
 	}
 
@@ -225,8 +225,8 @@ public class ContentUtil {
 				LOGGER.info("ContentUtil :: searchContent :: Received 0 count while searching content for : " + identifier);
 
 		} else {
-			LOGGER.info("ContentUtil :: searchContent :: Invalid Response received while searching content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString());
-			throw new ServerException("ERR_API_CALL", "Invalid Response received while searching content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			LOGGER.info("ContentUtil :: searchContent :: Invalid Response received while searching content for : " + identifier + getErrorDetails(resp));
+			throw new ServerException("ERR_API_CALL", "Invalid Response received while searching content for : " + identifier + getErrorDetails(resp));
 		}
 		return result;
 	}
@@ -275,8 +275,8 @@ public class ContentUtil {
 			contentId = (String) resp.getResult().get("identifier");
 			LOGGER.info("ContentUtil :: create :: Content Created Successfully with identifier : " + contentId);
 		} else {
-			LOGGER.info("ContentUtil :: create :: Invalid Response received while creating content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while creating content for : " + identifier+ " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			LOGGER.info("ContentUtil :: create :: Invalid Response received while creating content for : " + identifier + getErrorDetails(resp));
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while creating content for : " + identifier+ getErrorDetails(resp));
 		}
 		return resp.getResult();
 	}
@@ -296,8 +296,8 @@ public class ContentUtil {
 			LOGGER.info("ContentUtil :: read :: Content Fetched Successfully with identifier : " + contentId);
 			else throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while reading content for : " + identifier);
 		} else {
-			LOGGER.info("ContentUtil :: read :: Invalid Response received while reading content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while reading content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			LOGGER.info("ContentUtil :: read :: Invalid Response received while reading content for : " + identifier + getErrorDetails(resp));
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while reading content for : " + identifier + getErrorDetails(resp));
 		}
 		return ((Map<String, Object>) resp.getResult().getOrDefault("content", new HashMap<String, Object>()));
 	}
@@ -319,8 +319,8 @@ public class ContentUtil {
 			String contentId = (String) resp.getResult().get("identifier");
 			LOGGER.info("ContentUtil :: update :: Content Update Successfully having identifier : " + contentId);
 		} else {
-			LOGGER.info("ContentUtil :: update :: Invalid Response received while updating content for : " + internalId + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while updating content for : " + internalId + "| Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			LOGGER.info("ContentUtil :: update :: Invalid Response received while updating content for : " + internalId + getErrorDetails(resp));
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while updating content for : " + internalId + getErrorDetails(resp));
 		}
 	}
 
@@ -341,7 +341,7 @@ public class ContentUtil {
 				if (StringUtils.isNotBlank(artifactUrl) && StringUtils.equalsIgnoreCase(fileUrl, artifactUrl))
 					LOGGER.info("ContentUtil :: upload :: Content Uploaded Successfully for : " + identifier + " | artifactUrl : " + artifactUrl);
 			} else {
-				LOGGER.info("ContentUtil :: upload :: Invalid Response received while uploading for: " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+				LOGGER.info("ContentUtil :: upload :: Invalid Response received while uploading for: " + identifier + getErrorDetails(resp));
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while uploading : " + identifier);
 			}
 		} else {
@@ -400,8 +400,8 @@ public class ContentUtil {
 				return true;
 			}
 		} else {
-			LOGGER.info("ContentUtil :: upload :: Invalid Response received while uploading for: " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while uploading : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			LOGGER.info("ContentUtil :: upload :: Invalid Response received while uploading for: " + identifier + getErrorDetails(resp));
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while uploading : " + identifier + getErrorDetails(resp));
 		}
 		return false;
 	}
@@ -426,8 +426,8 @@ public class ContentUtil {
 				return true;
 			}
 		} else {
-			LOGGER.info("ContentUtil :: review :: Invalid Response received while sending content to review for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while sending content to review for  : " + identifier + "| Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			LOGGER.info("ContentUtil :: review :: Invalid Response received while sending content to review for : " + identifier + getErrorDetails(resp));
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while sending content to review for  : " + identifier + getErrorDetails(resp));
 		}
 		return false;
 	}
@@ -455,8 +455,8 @@ public class ContentUtil {
 			else
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Content Publish Call Failed For : " + identifier);
 		} else {
-			LOGGER.info("ContentUtil :: publish :: Invalid Response received while publishing content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while publishing content for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			LOGGER.info("ContentUtil :: publish :: Invalid Response received while publishing content for : " + identifier + getErrorDetails(resp));
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while publishing content for : " + identifier + getErrorDetails(resp));
 		}
 
 	}
@@ -479,8 +479,8 @@ public class ContentUtil {
 			preSignedUrl = (String) resp.getResult().get("pre_signed_url");
 			return preSignedUrl;
 		} else {
-			LOGGER.info("ContentUtil :: getPreSignedUrl :: Invalid Response received while generating pre-signed url for : " + identifier + " | Response Code : " + resp.getResponseCode().toString());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while generating pre-signed url for : " + identifier);
+			LOGGER.info("ContentUtil :: getPreSignedUrl :: Invalid Response received while generating pre-signed url for : " + identifier + getErrorDetails(resp));
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while generating pre-signed url for : " + identifier + getErrorDetails(resp));
 		}
 	}
 
@@ -576,8 +576,8 @@ public class ContentUtil {
 				result = true;
 			}
 		} else {
-			LOGGER.info("ContentUtil :: updateHierarchy :: Invalid Response received while adding resource to hierarchy for : " + textbookId + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while adding resource to hierarchy for : " + textbookId + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			LOGGER.info("ContentUtil :: updateHierarchy :: Invalid Response received while adding resource to hierarchy for : " + textbookId + getErrorDetails(resp));
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while adding resource to hierarchy for : " + textbookId + getErrorDetails(resp));
 		}
 		return result;
 	}
@@ -593,8 +593,8 @@ public class ContentUtil {
 			result = (Map<String, Object>) resp.getResult().getOrDefault("content", new HashMap<String, Object>());
 			return result;
 		} else {
-			LOGGER.info("ContentUtil :: getHierarchy :: Invalid Response received while fetching hierarchy for : " + identifier + " | Response Code : " + resp.getResponseCode().toString());
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while fetching hierarchy for : " + identifier + " | Response Code : " + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg());
+			LOGGER.info("ContentUtil :: getHierarchy :: Invalid Response received while fetching hierarchy for : " + identifier + getErrorDetails(resp));
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while fetching hierarchy for : " + identifier + getErrorDetails(resp));
 		}
 	}
 
@@ -654,6 +654,10 @@ public class ContentUtil {
 		} catch (Exception e) {
 
 		}
+	}
+
+	private static String getErrorDetails(Response resp) {
+		return (null != resp) ? (" | Response Code :" + resp.getResponseCode().toString() + " | Result : " + resp.getResult() + " | Error Message : " + resp.getParams().getErrmsg()) : " | Null Response Received.";
 	}
 
 }
