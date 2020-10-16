@@ -10,6 +10,7 @@ import com.datastax.driver.core.querybuilder.Update;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
@@ -197,8 +198,10 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         if(MapUtils.isNotEmpty(enrollmentDetails)) {
             Map<String, Integer> contentStatusMap = (Map<String, Integer>) enrollmentDetails.get("contentStatus");
             Map<String, Integer> contentStatusDeltaMap = (Map<String, Integer>) enrollmentDetails.getOrDefault("contentStatusDelta", new HashMap<>());
-            lastReadContentStats.put("lastReadContentId", (String) enrollmentDetails.get("lastReadContentId"));
-            lastReadContentStats.put("lastReadContentStatus", (int) enrollmentDetails.get("lastReadContentStatus"));
+            if(StringUtils.isNotBlank((String) enrollmentDetails.getOrDefault("lastReadContentId", "")))
+                lastReadContentStats.put("lastReadContentId", (String) enrollmentDetails.get("lastReadContentId"));
+            if(null != enrollmentDetails.get("lastReadContentStatus"))
+                lastReadContentStats.put("lastReadContentStatus", enrollmentDetails.get("lastReadContentStatus"));
             if(MapUtils.isNotEmpty(contentStatusMap)){
                 contentStatus.putAll(contentStatusMap);
                 contentStatusDelta.putAll(contentStatusDeltaMap);
