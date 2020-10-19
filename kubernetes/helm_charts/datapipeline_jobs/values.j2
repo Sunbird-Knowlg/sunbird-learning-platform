@@ -55,10 +55,10 @@ base_config: |
     }
     task {
       parallelism = 1
-      consumer {
-        parallelism = 1
-      }
+      consumer.parallelism = 1
+      checkpointing.compressed = {{ checkpoint_compression_enabled|lower }}
       checkpointing.interval = {{ checkpoint_interval }}
+      checkpointing.pause.between.seconds = {{ checkpoint_pause_between_seconds }}
       restart-strategy.attempts = {{ restart_attempts }}
       restart-strategy.delay = {{ restart_delay }} # in milli-seconds
     }
@@ -81,9 +81,10 @@ activity-aggregate-updater:
       groupId = {{ env_name }}-activity-aggregate-group
     }
     task {
-      checkpointing.interval = 300000
-      restart-strategy.attempts = {{ restart_attempts }}
-      restart-strategy.delay = 240000 # in milli-seconds
+      checkpointing.interval = 300000 # checkpointing for every 5 min.
+      checkpointing.pause.between.seconds = 90000 # 1.5 min between two checkpointing triggers for guarenteed progress.
+      restart-strategy.attempts = {{ restart_attempts }} # max 3 restart attempts
+      restart-strategy.delay = 240000 # in milli-seconds # on max restarts (3) within 4 min the job will fail.
       consumer.parallelism = {{ activity_agg_consumer_parallelism }}
       activity.agg.parallelism = {{ activity_agg_parallelism }}
     }
@@ -91,12 +92,12 @@ activity-aggregate-updater:
         keyspace = "{{ middleware_course_keyspace }}"
         consumption.table = "{{ middleware_consumption_table }}"
         user_activity_agg.table = "{{ middleware_user_activity_agg_table }}"
-      }
+    }
     redis {
         database {
           relationCache.id = 10
         }
-      }
+    }
     threshold.batch.read.interval = 60 
     threshold.batch.read.size = 1000
     threshold.batch.write.size = 10  
