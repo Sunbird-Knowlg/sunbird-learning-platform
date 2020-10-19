@@ -87,12 +87,24 @@ public class ContentUtil {
 		Double pkgVersion = Double.parseDouble(String.valueOf(metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), "0.0")));
 		Map<String, Object> createMetadata = filteredMetadata.entrySet().stream().filter(x -> CONTENT_CREATE_PROPS.contains(x.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		Map<String, Object> updateMetadata = filteredMetadata.entrySet().stream().filter(x->!CONTENT_CREATE_PROPS.contains(x.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-		Map<String, Object> contentMetadata = searchContent(identifier);
-		if (MapUtils.isEmpty(contentMetadata)) {
-			contentStage = "create";
-		} else {
-			contentStage = getContentStage(identifier, pkgVersion, contentMetadata);
-			internalId = (String) contentMetadata.get("contentId");
+		Map<String, Object> reqOriginData = (Map<String, Object>) edata.getOrDefault(AutoCreatorParams.originData.name(), new HashMap<String, Object>());
+		String originId = (String) reqOriginData.getOrDefault(AutoCreatorParams.identifier.name(), "");
+		if (MapUtils.isNotEmpty(reqOriginData) && StringUtils.isNotBlank(originId)) {
+			Map<String, Object> contentMetadata = getOriginContent(channelId, identifier);
+			if (MapUtils.isNotEmpty(contentMetadata)) {
+				internalId = originId;
+				contentStage = "na";
+			}
+		}
+
+		if (!StringUtils.equalsIgnoreCase("na", contentStage) && !StringUtils.equalsIgnoreCase(originId, internalId)) {
+			Map<String, Object> contentMetadata = searchContent(identifier);
+			if (MapUtils.isEmpty(contentMetadata)) {
+				contentStage = "create";
+			} else {
+				contentStage = getContentStage(identifier, pkgVersion, contentMetadata);
+				internalId = (String) contentMetadata.get("contentId");
+			}
 		}
 
 		try {
@@ -291,7 +303,7 @@ public class ContentUtil {
 		}};
 		Response resp = UnirestUtil.get(url, "mode=edit", header);
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
-			contentId = (String) ((Map<String, Object>)resp.getResult().getOrDefault("content", new HashMap<String, Object>())).get("identifier");
+			contentId = ((String) ((Map<String, Object>)resp.getResult().getOrDefault("content", new HashMap<String, Object>())).getOrDefault("identifier", "")).replace(".img", "");
 			if(StringUtils.equalsIgnoreCase(identifier, contentId))
 			LOGGER.info("ContentUtil :: read :: Content Fetched Successfully with identifier : " + contentId);
 			else throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while reading content for : " + identifier);
@@ -596,6 +608,29 @@ public class ContentUtil {
 			LOGGER.info("ContentUtil :: getHierarchy :: Invalid Response received while fetching hierarchy for : " + identifier + getErrorDetails(resp));
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Invalid Response received while fetching hierarchy for : " + identifier + getErrorDetails(resp));
 		}
+	}
+
+	private Map<String, Object> getOriginContent(String channelId, String identifier) throws Exception {
+		String contentId = "";
+		String url = KP_CS_BASE_URL + "/content/v3/read/" + identifier;
+		LOGGER.info("ContentUtil :: getOriginContent :: Reading origin content having identifier : " + identifier);
+		Map<String, String> header = new HashMap<String, String>() {{
+			put("X-Channel-Id", channelId);
+			put("Content-Type", DEFAULT_CONTENT_TYPE);
+		}};
+		Response resp = UnirestUtil.get(url, "mode=edit", header);
+		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
+			contentId = ((String) ((Map<String, Object>) resp.getResult().getOrDefault("content", new HashMap<String, Object>())).getOrDefault("identifier", "")).replace(".img", "");
+			if (StringUtils.equalsIgnoreCase(identifier, contentId)) {
+				LOGGER.info("ContentUtil :: getOriginContent :: Origin Content Fetched Successfully with identifier : " + contentId);
+				return ((Map<String, Object>) resp.getResult().getOrDefault("content", new HashMap<String, Object>()));
+			} else
+				throw new ServerException("ERR_API_CALL", "Identifier Mismatched while reading content for : " + identifier);
+		} else if (null != resp && resp.getResponseCode() == ResponseCode.RESOURCE_NOT_FOUND) {
+			LOGGER.info("ContentUtil :: getOriginContent :: Origin Content Not Found With Identifier : " + identifier + getErrorDetails(resp));
+		} else
+			throw new ServerException("ERR_API_CALL", "ContentUtil :: getOriginContent :: Invalid Response Received While Reading Origin Content With Identifier : " + identifier + getErrorDetails(resp));
+		return new HashMap<String, Object>();
 	}
 
 	private String getBasePath(String objectId) {
