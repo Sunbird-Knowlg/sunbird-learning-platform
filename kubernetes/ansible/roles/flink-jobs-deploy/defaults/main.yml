@@ -73,9 +73,17 @@ flink_job_names:
   activity-aggregate-updater:
     job_class_name: 'org.sunbird.job.task.ActivityAggregateUpdaterStreamTask'
     replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
   relation-cache-updater:
     job_class_name: 'org.sunbird.job.task.RelationCacheUpdaterStreamTask'
     replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
 ### Global vars
 middleware_course_keyspace: "sunbird_courses"
 middleware_hierarchy_keyspace: "{{ instance }}_hierarchy_store"
