@@ -8,6 +8,5 @@ metadata:
 data:
   base-config: |+
 {{ .Values.base_config | indent 4 }}
-  {{ .Release.Name }}:
 {{- $name := .Release.Name }}
-{{ index .Values $name | toYaml | indent 4 }}
+{{ index .Values $name | toYaml | indent 2 }}
