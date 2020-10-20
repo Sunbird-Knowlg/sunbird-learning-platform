@@ -97,7 +97,7 @@ public class ContentUtil {
 			}
 		}
 
-		if (!StringUtils.equalsIgnoreCase("na", contentStage) && !StringUtils.equalsIgnoreCase(originId, internalId)) {
+		if (StringUtils.isBlank(contentStage)) {
 			Map<String, Object> contentMetadata = searchContent(identifier);
 			if (MapUtils.isEmpty(contentMetadata)) {
 				contentStage = "create";
