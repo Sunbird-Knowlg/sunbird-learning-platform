@@ -145,29 +145,37 @@ relation-cache-updater:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
-  }
 
-post-publish-processor: |
-  include file("/data/flink/conf/base-config.conf")
-  kafka {
-    input.topic = {{ env_name }}.content.postpublish.request
-    groupId = {{ env_name }}-post-publish-processor-group
-    publish.topic = {{ env_name }}.learning.job.request
-  }
-  task {
-    consumer.parallelism = {{ post_publish_processor_consumer_parallesim }}
-    parallelism = {{ post_publish_processor_parallelism }}
-    router.parallelism = {{ post_publish_event_router_parallelism }}
-  }
-  lms-cassandra {
-    keyspace = "{{ middleware_course_keyspace }}"
-    batchTable = "course_batch"
-  }
-  content {
-    search {
-      basePath = "{{ kp_search_service_base_url }}"
+post-publish-processor:
+  post-publish-processor: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.content.postpublish.request
+      groupId = {{ env_name }}-post-publish-processor-group
+      publish.topic = {{ env_name }}.learning.job.request
     }
-  }
-  lms {
-    basePath = "{{ lms_service_base_url }}"
-  }
+    task {
+      consumer.parallelism = {{ post_publish_processor_consumer_parallesim }}
+      parallelism = {{ post_publish_processor_parallelism }}
+      router.parallelism = {{ post_publish_event_router_parallelism }}
+    }
+    lms-cassandra {
+      keyspace = "{{ middleware_course_keyspace }}"
+      batchTable = "course_batch"
+    }
+    content {
+      search {
+        basePath = "{{ kp_search_service_base_url }}"
+      }
+    }
+    lms {
+      basePath = "{{ lms_service_base_url }}"
+    }
+  
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['post-publish-processor'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['post-publish-processor'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['post-publish-processor'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
