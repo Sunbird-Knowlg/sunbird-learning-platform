@@ -339,10 +339,7 @@ public class LinkDialCodeOperation extends BaseContentManager {
      * @throws Exception
      */
     private Response updateDataNode(String identifier, Map<String, Object> map, String mode) throws Exception {
-        DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
         String contentId=identifier;
-        String objectType = CONTENT_OBJECT_TYPE;
-        map.put("objectType", CONTENT_OBJECT_TYPE);
         map.put("identifier", contentId);
 
         boolean isImageObjectCreationNeeded = false;
@@ -358,19 +355,22 @@ public class LinkDialCodeOperation extends BaseContentManager {
         } else
             imageObjectExists = true;
 
-        List<String> externalPropsList = getExternalPropsList(definition);
+        
 
         Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
         TelemetryManager.log("Graph node found: " + graphNode.getIdentifier());
         Map<String, Object> metadata = graphNode.getMetadata();
         String status = (String) metadata.get("status");
 
+        DefinitionDTO definition = getDefinition(TAXONOMY_ID, graphNode.getObjectType());
+        List<String> externalPropsList = getExternalPropsList(definition);
+
         boolean checkError = false;
         Response createResponse = null;
         if (finalStatus.contains(status)) {
             if (isImageObjectCreationNeeded) {
                 graphNode.setIdentifier(contentImageId);
-                graphNode.setObjectType(CONTENT_IMAGE_OBJECT_TYPE);
+                graphNode.setObjectType(graphNode.getObjectType() + DEFAULT_OBJECT_TYPE_IMAGE_SUFFIX);
                 metadata.put("status", "Draft");
                 Object lastUpdatedBy = map.get("lastUpdatedBy");
                 if (null != lastUpdatedBy)
@@ -392,10 +392,8 @@ public class LinkDialCodeOperation extends BaseContentManager {
                     map.put("versionKey", createResponse.get("versionKey"));
                 }
             }
-            objectType = CONTENT_IMAGE_OBJECT_TYPE;
             contentId = contentImageId;
         } else if (imageObjectExists) {
-            objectType = CONTENT_IMAGE_OBJECT_TYPE;
             contentId = contentImageId;
         }
 
@@ -404,14 +402,14 @@ public class LinkDialCodeOperation extends BaseContentManager {
 
         TelemetryManager.log("Updating content node: " + contentId);
         if (imageObjectExists || isImageObjectCreationNeeded) {
-            definition = getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE);
+            definition = getDefinition(TAXONOMY_ID, graphNode.getObjectType());
         }
         String passportKey = Platform.config.getString("graph.passport.key.base");
         map.put("versionKey", passportKey);
         Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
         domainObj.setGraphId(TAXONOMY_ID);
         domainObj.setIdentifier(contentId);
-        domainObj.setObjectType(objectType);
+        domainObj.setObjectType(graphNode.getObjectType());
         createResponse = updateDataNode(domainObj);
 
         return createResponse;

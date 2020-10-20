@@ -120,7 +120,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	private PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil();
 	private long CONTENT_ARTIFACT_ONLINE_SIZE = Platform.config.hasPath("content.artifact.size.for_online") ? Platform.config.getLong("content.artifact.size.for_online") : 209715200;
 	public static final Logger LOGGER = LoggerFactory.getLogger(PublishFinalizer.class); 
-
+	private static Map<String, String> contentPrimaryCategoryString = null;
 
 	public void setItemsetPublishManager(ItemsetPublishManager itemsetPublishManager) {
 		this.itemsetPublishManager = itemsetPublishManager;
@@ -140,6 +140,15 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	static {
 		ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
+	}
+
+	static {
+		try{
+			contentPrimaryCategoryString = Platform.config.hasPath("contentTypeToPrimaryCategory") ?
+					mapper.readValue(Platform.config.getString("contentTypeToPrimaryCategory"), new TypeReference<Map<String, String>>() {}) : new HashMap<>() ;
+		} catch (Exception e) {
+			contentPrimaryCategoryString = new HashMap<>();
+		}
 	}
 
 	/** 3Days TTL for Collection hierarchy cache*/
@@ -211,7 +220,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			}
 		}
 		node.setIdentifier(contentId);
-		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
 		
 		contextDrivenContentUpload(node);
 		
@@ -303,25 +311,25 @@ public class PublishFinalizer extends BaseFinalizer {
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 		}
 		
-		Map<String,Object> collectionHierarchy = isContentShallowCopy ? 
-				getHierarchy((String)((Map<String, Object>)node.getMetadata()).get("origin"), false) :
-					getHierarchy(node.getIdentifier(), true);
-		LOGGER.debug("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
-		
 		List<Map<String, Object>> children = null;
-		if(MapUtils.isNotEmpty(collectionHierarchy)) {
-			children = (List<Map<String,Object>>)collectionHierarchy.get("children");
-			if(!isContentShallowCopy) {
-				Set<String> collectionResourceChildNodes = new HashSet<>();
-				enrichChildren(children, collectionResourceChildNodes, node);
-				if(!collectionResourceChildNodes.isEmpty()) {
-					List<String> collectionChildNodes = getList(node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name()));
-					collectionChildNodes.addAll(collectionResourceChildNodes);
+		if (StringUtils.equalsIgnoreCase(((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),COLLECTION_MIMETYPE)) {
+			Map<String,Object> collectionHierarchy = isContentShallowCopy ?
+					getHierarchy((String)((Map<String, Object>)node.getMetadata()).get("origin"), false) :
+					getHierarchy(node.getIdentifier(), true);
+			LOGGER.debug("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
+
+			if(MapUtils.isNotEmpty(collectionHierarchy)) {
+				children = (List<Map<String,Object>>)collectionHierarchy.get("children");
+				if(!isContentShallowCopy) {
+					Set<String> collectionResourceChildNodes = new HashSet<>();
+					enrichChildren(children, collectionResourceChildNodes, node);
+					if(!collectionResourceChildNodes.isEmpty()) {
+						List<String> collectionChildNodes = getList(node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name()));
+						collectionChildNodes.addAll(collectionResourceChildNodes);
+					}
 				}
 			}
-		}
-		
-		if (StringUtils.equalsIgnoreCase(((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),COLLECTION_MIMETYPE)) {
+			
 			LOGGER.info("Collection processing started for content: " + node.getIdentifier());
 			processCollection(node, children);
 			LOGGER.info("Collection processing done for content: " + node.getIdentifier());
@@ -404,7 +412,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	private Map<String, Object> getOriginData(Node node) {
-		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
+		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, node.getObjectType());
 		Map<String, Object> nodeMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
 		return (Map<String, Object>) nodeMap.getOrDefault("originData", new HashMap<String, Object>());
 	}
@@ -507,7 +515,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	private void syncNodes(List<Map<String, Object>> children, List<String> unitNodes) {
-		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
+		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Collection.name());
 		if (null == definition) {
 			LOGGER.error("Content definition is null.");
 		}
@@ -522,7 +530,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		Map<String, String> errors;
 		Map<String, Object> def =  mapper.convertValue(definition, new TypeReference<Map<String, Object>>() {});
-		Map<String, String> relationMap = GraphUtil.getRelationMap(ContentWorkflowPipelineParams.Content.name(), def);
+		Map<String, String> relationMap = GraphUtil.getRelationMap(ContentWorkflowPipelineParams.Collection.name(), def);
 		if(CollectionUtils.isNotEmpty(nodes)) {
 			while (!nodes.isEmpty()) {
 				int currentBatchSize = (nodes.size() >= batchSize) ? batchSize : nodes.size();
@@ -531,7 +539,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				if (CollectionUtils.isNotEmpty(nodeBatch)) {
 					
 					errors = new HashMap<>();
-					Map<String, Object> messages = SyncMessageGenerator.getMessages(nodeBatch, ContentWorkflowPipelineParams.Content.name(), relationMap, errors);
+					Map<String, Object> messages = SyncMessageGenerator.getMessages(nodeBatch, ContentWorkflowPipelineParams.Collection.name(), relationMap, errors);
 					if (!errors.isEmpty())
 						LOGGER.error("Error! while forming ES document data from nodes, below nodes are ignored: " + errors);
 					if(MapUtils.isNotEmpty(messages)) {
@@ -575,7 +583,7 @@ public class PublishFinalizer extends BaseFinalizer {
 								Map<String, Object> metadata = new HashMap<String, Object>() {{
 									put("identifier", nextLevelNode.get("identifier"));
 									put("name", nextLevelNode.get("name"));
-									put("objectType", "Content");
+									put("objectType", nextLevelNode.get("objectType"));
 									put("description", nextLevelNode.get("description"));
 									put("index", nextLevelNode.get("index"));
 								}};
@@ -596,7 +604,7 @@ public class PublishFinalizer extends BaseFinalizer {
 								Map<String, Object> metadata = new HashMap<String, Object>() {{
 									put("identifier", nextLevelNode.get("identifier"));
 									put("name", nextLevelNode.get("name"));
-									put("objectType", "Content");
+									put("objectType", nextLevelNode.get("objectType"));
 									put("description", nextLevelNode.get("description"));
 									put("index", nextLevelNode.get("index"));
 								}};
@@ -658,7 +666,7 @@ public class PublishFinalizer extends BaseFinalizer {
                         		}
                         }
                         if(StringUtils.isBlank(node.getObjectType()))
-                        		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
+                        		node.setObjectType(ContentWorkflowPipelineParams.Collection.name());
                         if(StringUtils.isBlank(node.getGraphId()))
                         		node.setGraphId(ContentWorkflowPipelineParams.domain.name());
                         if(!nodeIds.contains(node.getIdentifier())) {
@@ -682,7 +690,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	private Map<String, Object> getContentMap(Node node, List<Map<String,Object>> childrenList) {
-		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
+		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, node.getObjectType());
 		Map<String, Object> collectionHierarchy  = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
 		collectionHierarchy.put("children", childrenList);
 		collectionHierarchy.put("identifier", node.getIdentifier());
@@ -707,7 +715,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	private void updateHierarchyMetadata(List<Map<String, Object>> children, Node node) {
 		if(CollectionUtils.isNotEmpty(children)) {
 			for(Map<String, Object> child : children) {
-				if(StringUtils.equalsIgnoreCase("Parent", 
+				if(StringUtils.equalsIgnoreCase("Parent",
 						(String)child.get("visibility"))){
 					//set child metadata -- compatibilityLevel, appIcon, posterImage, lastPublishedOn, pkgVersion, status
 					populatePublishMetadata(child, node);
@@ -727,6 +735,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		Set<String> leafNodeIds = new HashSet<>();
 		getLeafNodesIds(content, leafNodeIds);
 		content.put(ContentAPIParams.leafNodes.name(), new ArrayList<String>(leafNodeIds));
+		// PRIMARY CATEGORY MAPPING IS DONE
+		setContentAndCategoryTypes(content);
 		content.put(ContentWorkflowPipelineParams.status.name(), node.getMetadata().get(ContentWorkflowPipelineParams.status.name()));
 		content.put(ContentWorkflowPipelineParams.lastUpdatedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastUpdatedOn.name()));
 		content.put(ContentWorkflowPipelineParams.downloadUrl.name(), node.getMetadata().get(ContentWorkflowPipelineParams.downloadUrl.name()));
@@ -978,7 +988,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	            childrenMap.add(new HashMap<String, Object>() {{
                     put("identifier", nextLevelNode.get("identifier"));
                     put("name", nextLevelNode.get("name"));
-                    put("objectType", "Content");
+                    put("objectType", nextLevelNode.get("objectType"));
                     put("description", nextLevelNode.get("description"));
                     put("index", nextLevelNode.get("index"));
                 }});
@@ -995,7 +1005,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		nodes.add(node);
 		
 		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get("mimeType"),COLLECTION_MIMETYPE)) {
-			DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
+			DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, node.getObjectType());
 			updateHierarchyMetadata(children, node);
 
 			List<String> nodeIds = new ArrayList<>();
@@ -1089,7 +1099,11 @@ public class PublishFinalizer extends BaseFinalizer {
 				}
 				List<String> keywordsList = new ArrayList<>();
 				keywordsList.addAll(keywords);
-				node.getMetadata().put("keywords", keywordsList);
+				if (CollectionUtils.isNotEmpty(keywordsList)) {
+				    List<String> finalKeywords = keywordsList.stream().map(k -> StringUtils.trimToEmpty(k))
+                            .filter(k -> StringUtils.isNotBlank(k)).distinct().collect(toList());
+                    node.getMetadata().put("keywords", finalKeywords);
+                }
 			}
 		}
 
@@ -1180,8 +1194,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			content.put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
 			node.getMetadata().put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
 			updateLeafNodeIds(node, content);
-
-
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
 			List<String> childNodes = getChildNode(content);
@@ -1195,6 +1207,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			
 			node.getMetadata().put(ContentAPIParams.toc_url.name(), generateTOC(node, content));
 			try {
+				//PRIMARY CATEGORY MAPPING IS DONE
+				setContentAndCategoryTypes(node.getMetadata());
 				node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), convertToString(mimeTypeMap));
 				node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), convertToString(contentTypeMap));
 			} catch (Exception e) {
@@ -1423,4 +1437,26 @@ public class PublishFinalizer extends BaseFinalizer {
     		return null;
     }
 
+	 public void setContentAndCategoryTypes(Map<String, Object> input)  {
+		String contentType = (String)input.getOrDefault("contentType", "");
+		 String primaryCategory = (String) input.getOrDefault("primaryCategory", "");
+		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes::contentType " + contentType);
+		 String updatedContentType = "";
+		String updatedPrimaryCategory = "";
+		if(StringUtils.isNotBlank(contentType) && StringUtils.isBlank(primaryCategory)) {
+			updatedContentType = contentType;
+			updatedPrimaryCategory = contentPrimaryCategoryString.get(contentType);
+		} else if(StringUtils.isBlank(contentType) && StringUtils.isNotBlank(primaryCategory)) {
+			updatedContentType = contentPrimaryCategoryString.entrySet().stream().filter(entry -> StringUtils.equalsIgnoreCase(entry.getValue(), primaryCategory))
+					.map(entry -> entry.getKey()).findFirst().orElse("");
+			updatedPrimaryCategory = primaryCategory;
+		} else {
+			updatedContentType = contentType;
+			updatedPrimaryCategory = primaryCategory;
+		}
+		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes::updatedContentType " + updatedContentType);
+		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes::updatedPrimaryCategory " + updatedPrimaryCategory);
+		 input.put("contentType", updatedContentType);
+		input.put("primaryCategory", updatedPrimaryCategory);
+	}
 }

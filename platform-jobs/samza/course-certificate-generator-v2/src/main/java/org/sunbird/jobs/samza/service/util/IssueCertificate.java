@@ -47,7 +47,7 @@ public class IssueCertificate {
     private static final String KEYSPACE = Platform.config.hasPath("courses.keyspace.name")
             ? Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
 
-    private static final String topic = Platform.config.getString("task.inputs").replace("kafka.", "");
+    private static final String topic = Platform.config.getString("course_batch_cert_topic");
     private static final List<String> certFilterKeys = Arrays.asList("enrollment", "assessment", "user");
     private static JobLogger LOGGER = new JobLogger(IssueCertificate.class);
     private Session cassandraSession = null;
