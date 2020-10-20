@@ -63,7 +63,7 @@ base_config: |
       restart-strategy.delay = {{ restart_delay }} # in milli-seconds
     }
     redis {
-      host = {{ dp_redis_host }}
+      host = {{ kp_redis_host }}
       port = 6379
     }
     lms-cassandra {
@@ -124,12 +124,14 @@ relation-cache-updater:
     lms-cassandra {
           keyspace = "{{ middleware_hierarchy_keyspace }}"
           table = "{{ middleware_content_hierarchy_table }}"
-      }
+    }
     redis {
-      database {
-        relationCache.id = 10
-        collectionCache.id = 5
-      }
+      database.index = 10
+    }
+    dp-redis {
+      host = {{ dp_redis_host }}
+      port = 6379
+      database.index = 5
     }
 
   flink-conf: |+
