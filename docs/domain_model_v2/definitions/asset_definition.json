@@ -278,7 +278,8 @@
             "Lesson Plan Unit",
             "Course Unit",
             "Textbook Unit",
-            "Certificate Template"
+            "Certificate Template",
+            "CertAsset"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
