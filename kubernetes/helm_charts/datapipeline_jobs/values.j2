@@ -98,9 +98,9 @@ activity-aggregate-updater:
           relationCache.id = 10
         }
     }
-    threshold.batch.read.interval = 60 
-    threshold.batch.read.size = 1000
-    threshold.batch.write.size = 10  
+    threshold.batch.read.interval = {{ activity_agg_batch_interval }} 
+    threshold.batch.read.size = {{ activity_agg_batch_read_size }}
+    threshold.batch.write.size = {{ activity_agg_batch_write_size }}
   
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['activity-aggregate-updater'].jobmanager_memory }}
