@@ -81,8 +81,8 @@ activity-aggregate-updater:
       groupId = {{ env_name }}-activity-aggregate-group
     }
     task {
-      checkpointing.interval = 300000 # checkpointing for every 5 min.
-      checkpointing.pause.between.seconds = 90000 # 1.5 min between two checkpointing triggers for guarenteed progress.
+      checkpointing.interval = {{ activity_agg_checkpointing_interval }}
+      checkpointing.pause.between.seconds = {{ activity_agg_checkpointing_pause_interval }}
       restart-strategy.attempts = {{ restart_attempts }} # max 3 restart attempts
       restart-strategy.delay = 240000 # in milli-seconds # on max restarts (3) within 4 min the job will fail.
       consumer.parallelism = {{ activity_agg_consumer_parallelism }}
