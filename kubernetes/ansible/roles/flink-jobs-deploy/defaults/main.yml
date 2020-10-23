@@ -66,6 +66,12 @@ cert_cloud_storage_type: "{{cert_service_cloud_storage_type}}"
 cert_azure_storage_secret: "{{sunbird_private_storage_account_key}}"
 cert_azure_storage_key: "{{sunbird_private_storage_account_name}}"
 
+###  Post Certificate Processor Job related Vars
+post_certificate_processor_consumer_parallelism: 1
+post_certificate_processor_parallelism: 1
+middleware_user_enrollment_table: "user_enrolments"
+middleware_course_batch_table: "course_batch"
+
 
 ### taskmanager related vars
 healthcheck: true
@@ -105,3 +111,4 @@ middleware_hierarchy_keyspace: "{{ instance }}_hierarchy_store"
 neo4j_route_path: "bolt://{{ groups['learning-neo4j-node1'][0] }}:7687"
 kp_search_service_base_url: "http://{{private_ingressgateway_ip}}/search"
 lms_service_base_url: "http://{{private_ingressgateway_ip}}/lms"
+learner_service_base_url: "http://{{private_ingressgateway_ip}}/learner"
