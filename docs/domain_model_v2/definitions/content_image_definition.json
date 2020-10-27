@@ -3066,6 +3066,18 @@
           "defaultValue": "",
           "renderingHints": "{'inputType': 'table', 'order': 20}",
           "indexed": true
+        },
+        {
+          "propertyName": "displayScore",
+          "title": "DisplayScore",
+          "description": "displayScore",
+          "category": "General",
+          "dataType": "Boolean",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'checkbox', 'order': 21}",
+          "indexed": true
         }
       ],
       "inRelations": [
