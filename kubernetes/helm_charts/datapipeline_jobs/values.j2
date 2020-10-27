@@ -159,7 +159,7 @@ certificate-pre-processor: |
     output.failed.topic = {{ env_name }}.certificate.events.failed
   }
   task {
-    consumer.parallelism = {{ certificate_pre_processor_consumer_parallesim }}
+    consumer.parallelism = {{ certificate_pre_processor_consumer_parallelism }}
     parallelism = {{ certificate_pre_processor_parallelism }}
   }
   lms-cassandra {
