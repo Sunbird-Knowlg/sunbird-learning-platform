@@ -80,9 +80,9 @@ CREATE TRIGGER framework_hierarchy_trigger ON {{ hierarchy_keyspace_name }}.fram
 CREATE TRIGGER content_hierarchy_trigger ON {{ hierarchy_keyspace_name }}.content_hierarchy USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
 
 
-CREATE KEYSPACE {{ category_keyspace_name }} WITH replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': '2'}  AND durable_writes = true;
+CREATE KEYSPACE IF NOT EXISTS {{ category_keyspace_name }} WITH replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': '2'}  AND durable_writes = true;
 
-CREATE TABLE {{ category_keyspace_name }}.category_definition_data (
+CREATE TABLE IF NOT EXISTS {{ category_keyspace_name }}.category_definition_data (
     identifier text PRIMARY KEY,
     forms map<text, text>,
     objectmetadata map<text, text>
