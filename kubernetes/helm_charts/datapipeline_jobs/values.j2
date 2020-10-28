@@ -235,3 +235,45 @@ post-certificate-processor:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+certificate-pre-processor:
+ certificate-pre-processor: |+
+   include file("/data/flink/conf/base-config.conf")
+   kafka {
+     input.topic = {{ env_name }}.issue.certificate.request
+     groupId = {{ env_name }}-certificate-pre-processor-group
+     output.topic = {{ env_name }}.generate.certificate.request
+     output.failed.topic = {{ env_name }}.certificate.events.failed
+   }
+   task {
+     consumer.parallelism = {{ certificate_pre_processor_consumer_parallelism }}
+     parallelism = {{ certificate_pre_processor_parallelism }}
+   }
+   lms-cassandra {
+     keyspace = "{{ middleware_course_keyspace }}"
+     batchTable = "course_batch"
+     userTable = "user_enrolments"
+     assessmentAggregatorTable = "assessment_aggregator"
+   }
+   content {
+     search {
+       basePath = "{{ kp_search_service_base_url }}"
+     }
+     basePath = "{{ kp_content_service_base_url }}"
+   }
+   lms {
+     basePath = "{{ lms_service_base_url }}"
+   }
+   cert {
+     basePath = "{{ certificate_base_path }}"
+   }
+   learner-service {
+     basePath = "{{ learner_service_base_url }}"
+   }
+
+ flink-conf: |+
+   jobmanager.memory.flink.size: {{ flink_job_names['certificate-pre-processor'].jobmanager_memory }}
+   taskmanager.memory.flink.size: {{ flink_job_names['certificate-pre-processor'].taskmanager_memory }}
+   taskmanager.numberOfTaskSlots: {{ flink_job_names['certificate-pre-processor'].taskslots }}
+   parallelism.default: 1
+   jobmanager.execution.failover-strategy: region
+   taskmanager.memory.network.fraction: 0.1
