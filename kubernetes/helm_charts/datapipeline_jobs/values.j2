@@ -185,6 +185,8 @@ certificate-generator:
     include file("/data/flink/conf/base-config.conf")
     kafka {
       input.topic = {{ env_name }}.generate.certificate.request
+      output.failed.topic = {{ env_name }}.generate.certificate.failed
+      output.post.certificate.processor.topic = {{ env_name }}.post.certificate.process.request
       groupId = {{ env_name }}-generator-certificate-group
     }
     task {
