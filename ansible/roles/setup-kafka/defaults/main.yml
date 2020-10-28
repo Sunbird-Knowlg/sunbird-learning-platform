@@ -105,6 +105,18 @@ processing_kafka_topics:
   - name: issue.certificate.request
     num_of_partitions: 1
     replication_factor: 1
+  - name: generate.certificate.request
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: post.certificate.process.request
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: post.certificate.process.failed
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: generate.certificate.failed
+    num_of_partitions: 1
+    replication_factor: 1
 
 processing_kafka_overriden_topics:
   - name: telemetry.raw
@@ -161,6 +173,12 @@ processing_kafka_overriden_topics:
   - name: issue.certificate.request
     retention_time: 1209600000
     replication_factor: 1
+  - name: generate.certificate.request
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: post.certificate.process.request
+    retention_time: 1209600000
+    replication_factor: 1
   # Error/Failed Topics
   - name: telemetry.failed
     retention_time: 604800000
@@ -203,6 +221,12 @@ processing_kafka_overriden_topics:
     replication_factor: 1
   - name: activity.agg.failed
     retention_time: 1296000000
+    replication_factor: 1
+  - name: post.certificate.process.failed
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: generate.certificate.failed
+    retention_time: 1209600000
     replication_factor: 1
 
 
