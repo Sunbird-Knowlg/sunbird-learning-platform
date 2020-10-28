@@ -185,6 +185,8 @@ certificate-generator:
     include file("/data/flink/conf/base-config.conf")
     kafka {
       input.topic = {{ env_name }}.generate.certificate.request
+      output.failed.topic = {{ env_name }}.generate.certificate.failed
+      output.post.certificate.processor.topic = {{ env_name }}.post.certificate.process.request
       groupId = {{ env_name }}-generator-certificate-group
     }
     task {
@@ -197,6 +199,11 @@ certificate-generator:
     enc-service {
       basePath = "http://enc-service:8013"
     }
+    cert_domain_url = "{{ cert_domain_url }}"
+    cert_container_name = "{{ cert_container_name }}"
+    cert_cloud_storage_type = "{{ cert_cloud_storage_type }}"
+    cert_azure_storage_secret = "{{ cert_azure_storage_secret }}"
+    cert_azure_storage_key = "{{ cert_azure_storage_key }}"
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['certificate-generator'].jobmanager_memory }}
@@ -235,6 +242,7 @@ post-certificate-processor:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+
 certificate-pre-processor:
  certificate-pre-processor: |+
    include file("/data/flink/conf/base-config.conf")
