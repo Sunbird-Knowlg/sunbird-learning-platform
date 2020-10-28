@@ -211,6 +211,9 @@ certificate-pre-processor:
    cert {
      basePath = "{{ cert_service_base_url }}"
    }
+   learner-service {
+     basePath = "{{ learner_service_base_url }}"
+   }
 
  flink-conf: |+
    jobmanager.memory.flink.size: {{ flink_job_names['certificate-pre-processor'].jobmanager_memory }}
