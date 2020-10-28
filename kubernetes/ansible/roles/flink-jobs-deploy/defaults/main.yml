@@ -82,7 +82,7 @@ middleware_course_batch_table: "course_batch"
 
 
 ### Certificate Pre Processor Job related Vars
-certificate_pre_processor_consumer_parallesim: 1
+certificate_pre_processor_consumer_parallelism: 1
 certificate_pre_processor_parallelism: 1
 middleware_course_batch_table: "course_batch"
 middleware_user_enrolments_table: "user_enrolments"
