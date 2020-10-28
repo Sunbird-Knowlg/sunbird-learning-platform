@@ -114,6 +114,10 @@ flink_job_names:
   certificate-pre-processor:
     job_class_name: 'org.sunbird.job.task.CertificatePreProcessorStreamTask'
     replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
 
 ### Global vars
 middleware_course_keyspace: "sunbird_courses"
@@ -122,4 +126,4 @@ neo4j_route_path: "bolt://{{ groups['learning-neo4j-node1'][0] }}:7687"
 kp_search_service_base_url: "http://{{private_ingressgateway_ip}}/search"
 lms_service_base_url: "http://{{private_ingressgateway_ip}}/lms"
 content_service_base_url: "http://{{private_ingressgateway_ip}}/content"
-cert_service_base_url: "http://{{private_ingressgateway_ip}}/cert"
+cert_service_base_url: "http://{{private_ingressgateway_ip}}/certs"
