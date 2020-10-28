@@ -55,15 +55,15 @@ base_config: |
     }
     task {
       parallelism = 1
-      consumer {
-        parallelism = 1
-      }
+      consumer.parallelism = 1
+      checkpointing.compressed = {{ checkpoint_compression_enabled|lower }}
       checkpointing.interval = {{ checkpoint_interval }}
+      checkpointing.pause.between.seconds = {{ checkpoint_pause_between_seconds }}
       restart-strategy.attempts = {{ restart_attempts }}
       restart-strategy.delay = {{ restart_delay }} # in milli-seconds
     }
     redis {
-      host = {{ dp_redis_host }}
+      host = {{ kp_redis_host }}
       port = 6379
     }
     lms-cassandra {
@@ -75,77 +75,107 @@ base_config: |
       graph = "domain"
     }
 
-activity-aggregate-updater: |
-  include file("/data/flink/conf/base-config.conf")
-  kafka {
-    input.topic = {{ env_name }}.coursebatch.job.request
-    output.audit.topic = {{ env_name }}.telemetry.raw
-    output.failed.topic = {{ env_name }}.activity.agg.failed
-    groupId = {{ env_name }}-activity-aggregate-group
-  }
-  task {
-    checkpointing.interval = 300000
-    restart-strategy.attempts = {{ restart_attempts }}
-    restart-strategy.delay = 240000 # in milli-seconds
-    consumer.parallelism = {{ activity_agg_consumer_parallelism }}
-    activity.agg.parallelism = {{ activity_agg_parallelism }}
-  }
-  lms-cassandra {
-      keyspace = "{{ middleware_course_keyspace }}"
-      consumption.table = "{{ middleware_consumption_table }}"
-      user_activity_agg.table = "{{ middleware_user_activity_agg_table }}"
+activity-aggregate-updater:
+  activity-aggregate-updater: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.coursebatch.job.request
+      output.audit.topic = {{ env_name }}.telemetry.raw
+      output.failed.topic = {{ env_name }}.activity.agg.failed
+      groupId = {{ env_name }}-activity-aggregate-group
     }
-  redis {
-      database {
-        relationCache.id = 10
+    task {
+      checkpointing.interval = {{ activity_agg_checkpointing_interval }}
+      checkpointing.pause.between.seconds = {{ activity_agg_checkpointing_pause_interval }}
+      restart-strategy.attempts = {{ restart_attempts }} # max 3 restart attempts
+      restart-strategy.delay = 240000 # in milli-seconds # on max restarts (3) within 4 min the job will fail.
+      consumer.parallelism = {{ activity_agg_consumer_parallelism }}
+      activity.agg.parallelism = {{ activity_agg_parallelism }}
+    }
+    lms-cassandra {
+        keyspace = "{{ middleware_course_keyspace }}"
+        consumption.table = "{{ middleware_consumption_table }}"
+        user_activity_agg.table = "{{ middleware_user_activity_agg_table }}"
+    }
+    redis {
+        database {
+          relationCache.id = 10
+        }
+    }
+    threshold.batch.read.interval = 60 
+    threshold.batch.read.size = 1000
+    threshold.batch.write.size = 10  
+  
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['activity-aggregate-updater'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['activity-aggregate-updater'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['activity-aggregate-updater'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+relation-cache-updater:
+  relation-cache-updater: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.content.postpublish.request
+      groupId = {{ env_name }}-relation-cache-updater-group
+    }
+    task {
+      consumer.parallelism = {{ relation_cache_updater_consumer_parallelism }}
+      parallelism = {{ relation_cache_updater_parallelism }}
+    }
+    lms-cassandra {
+          keyspace = "{{ middleware_hierarchy_keyspace }}"
+          table = "{{ middleware_content_hierarchy_table }}"
+    }
+    redis {
+      database.index = 10
+    }
+    dp-redis {
+      host = {{ dp_redis_host }}
+      port = 6379
+      database.index = 5
+    }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['relation-cache-updater'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['relation-cache-updater'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['relation-cache-updater'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+post-publish-processor:
+  post-publish-processor: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.content.postpublish.request
+      groupId = {{ env_name }}-post-publish-processor-group
+      publish.topic = {{ env_name }}.learning.job.request
+    }
+    task {
+      consumer.parallelism = {{ post_publish_processor_consumer_parallesim }}
+      parallelism = {{ post_publish_processor_parallelism }}
+      router.parallelism = {{ post_publish_event_router_parallelism }}
+    }
+    lms-cassandra {
+      keyspace = "{{ middleware_course_keyspace }}"
+      batchTable = "course_batch"
+    }
+    content {
+      search {
+        basePath = "{{ kp_search_service_base_url }}"
       }
     }
-  threshold.batch.read.interval = 60 
-  threshold.batch.read.size = 1000
-  threshold.batch.write.size = 10  
-
-relation-cache-updater: |
-  include file("/data/flink/conf/base-config.conf")
-  kafka {
-    input.topic = {{ env_name }}.content.postpublish.request
-    groupId = {{ env_name }}-relation-cache-updater-group
-  }
-  task {
-    consumer.parallelism = {{ relation_cache_updater_consumer_parallelism }}
-    parallelism = {{ relation_cache_updater_parallelism }}
-  }
-  lms-cassandra {
-        keyspace = "{{ middleware_hierarchy_keyspace }}"
-        table = "{{ middleware_content_hierarchy_table }}"
+    lms {
+      basePath = "{{ lms_service_base_url }}"
     }
-  redis {
-    database {
-      relationCache.id = 10
-      collectionCache.id = 5
-    }
-  }
-
-post-publish-processor: |
-  include file("/data/flink/conf/base-config.conf")
-  kafka {
-    input.topic = {{ env_name }}.content.postpublish.request
-    groupId = {{ env_name }}-post-publish-processor-group
-    publish.topic = {{ env_name }}.learning.job.request
-  }
-  task {
-    consumer.parallelism = {{ post_publish_processor_consumer_parallesim }}
-    parallelism = {{ post_publish_processor_parallelism }}
-    router.parallelism = {{ post_publish_event_router_parallelism }}
-  }
-  lms-cassandra {
-    keyspace = "{{ middleware_course_keyspace }}"
-    batchTable = "course_batch"
-  }
-  content {
-    search {
-      basePath = "{{ kp_search_service_base_url }}"
-    }
-  }
-  lms {
-    basePath = "{{ lms_service_base_url }}"
-  }
+  
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['post-publish-processor'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['post-publish-processor'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['post-publish-processor'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1

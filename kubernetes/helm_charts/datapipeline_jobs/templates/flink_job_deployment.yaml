@@ -90,6 +90,8 @@ spec:
         configMap:
           name: {{ .Release.Name }}-config
           items:
+          - key: flink-conf
+            path: flink-conf.yaml
           - key: base-config
             path: base-config.conf
           - key: {{ .Release.Name }}
@@ -114,7 +116,6 @@ spec:
                "-Dparallelism.default=1", 
                "-Dblob.server.port={{ .Values.jobmanager.blob_port }}", 
                "-Dqueryable-state.server.ports={{ .Values.jobmanager.query_port }}",
-               "-Djobmanager.heap.size={{ .Values.jobmanager.heap_memory }}m",
                "--config.file.path",
                "/data/flink/conf/{{ .Release.Name }}.conf"]
         ports:
@@ -128,7 +129,14 @@ spec:
           name: ui
         volumeMounts:
         - name: flink-config-volume
-          mountPath: /data/flink/conf
+          mountPath: /opt/flink/conf/flink-conf.yaml
+          subPath: flink-conf.yaml
+        - name: flink-config-volume
+          mountPath: /data/flink/conf/base-config.conf
+          subPath: base-config.conf
+        - name: flink-config-volume
+          mountPath: /data/flink/conf/{{ .Release.Name }}.conf
+          subPath: {{ .Release.Name }}.conf
 
 ---
 apiVersion: apps/v1
@@ -148,12 +156,22 @@ spec:
         app: flink
         component: {{ .Release.Name }}-taskmanager
     spec:
+      volumes:
+      - name: flink-config-volume
+        configMap:
+          name: {{ .Release.Name }}-config
+          items:
+          - key: flink-conf
+            path: flink-conf.yaml
       imagePullSecrets:
       - name: {{ .Values.imagepullsecrets }}
       containers:
       - name: {{ .Release.Name }}-taskmanager
         image: "{{ .Values.dockerhub }}/{{ .Values.repository }}:{{ .Values.image_tag }}"
         imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: "{{ .Values.taskmanager.cpu_requests }}"
         workingDir: {{ .Values.taskmanager.flink_work_dir }}
         command: ["/opt/flink/bin/taskmanager.sh"]
         args: ["start-foreground",
@@ -163,8 +181,7 @@ spec:
           "-Dmetrics.reporter.prom.host={{ .Release.Name }}-taskmanager",
           "-Dmetrics.reporter.prom.port=9251-9260",
           "-Djobmanager.rpc.address={{ .Release.Name }}-jobmanager",
-          "-Dtaskmanager.rpc.port={{ .Values.taskmanager.rpc_port }}",
-          "-Dtaskmanager.heap.size={{ .Values.taskmanager.heap_memory }}m"]
+          "-Dtaskmanager.rpc.port={{ .Values.taskmanager.rpc_port }}"]
         ports:
         - containerPort: {{ .Values.taskmanager.rpc_port }}
           name: rpc
@@ -172,3 +189,7 @@ spec:
         livenessProbe:
 {{ toYaml .Values.livenessProbe | indent 10 }}
         {{- end }}
+        volumeMounts:
+        - name: flink-config-volume
+          mountPath: /opt/flink/conf/flink-conf.yaml
+          subPath: flink-conf.yaml
