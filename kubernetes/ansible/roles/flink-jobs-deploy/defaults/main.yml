@@ -71,8 +71,8 @@ certificate_generator_parallelism: 1
 cert_domain_url:  "{{proto}}://{{domain_name}}"
 cert_container_name: "{{env}}-e-credentials"
 cert_cloud_storage_type: "azure"
-cert_azure_storage_secret: "{{sunbird_analytics_blob_account_key}}"
-cert_azure_storage_key: "{{sunbird_analytics_blob_account_name}}"
+cert_azure_storage_secret: "{{sunbird_private_storage_account_key}}"
+cert_azure_storage_key: "{{sunbird_private_storage_account_name}}"
 
 ###  Post Certificate Processor Job related Vars
 post_certificate_processor_consumer_parallelism: 1
