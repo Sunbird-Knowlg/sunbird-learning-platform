@@ -88,4 +88,3 @@ CREATE TABLE IF NOT EXISTS {{ category_keyspace_name }}.category_definition_data
     objectmetadata map<text, text>
 );
 
-CREATE TRIGGER category_definition_data_trigger ON  {{ category_keyspace_name }}.category_definition_data USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
