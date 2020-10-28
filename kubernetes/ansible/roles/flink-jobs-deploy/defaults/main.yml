@@ -69,8 +69,8 @@ post_publish_event_router_parallelism: 1
 certificate_generator_consumer_parallelism: 1
 certificate_generator_parallelism: 1
 cert_domain_url:  "{{proto}}://{{proxy_server_name}}"
-cert_container_name: "{{cert_service_container_name}}"
-cert_cloud_storage_type: "{{cert_service_cloud_storage_type}}"
+cert_container_name: "{{env}}-e-credentials"
+cert_cloud_storage_type: "azure"
 cert_azure_storage_secret: "{{sunbird_private_storage_account_key}}"
 cert_azure_storage_key: "{{sunbird_private_storage_account_name}}"
 
