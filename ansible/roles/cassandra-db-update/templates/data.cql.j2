@@ -78,3 +78,14 @@ CREATE TRIGGER content_data_trigger ON {{ content_keyspace_name }}.content_data 
 CREATE TRIGGER question_data_trigger ON {{ content_keyspace_name }}.question_data USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
 CREATE TRIGGER framework_hierarchy_trigger ON {{ hierarchy_keyspace_name }}.framework_hierarchy USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
 CREATE TRIGGER content_hierarchy_trigger ON {{ hierarchy_keyspace_name }}.content_hierarchy USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
+
+
+CREATE KEYSPACE {{ category_keyspace_name }} WITH replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': '2'}  AND durable_writes = true;
+
+CREATE TABLE {{ category_keyspace_name }}.category_definition_data (
+    identifier text PRIMARY KEY,
+    forms map<text, text>,
+    objectmetadata map<text, text>
+);
+
+CREATE TRIGGER category_definition_data_trigger ON  {{ category_keyspace_name }}.category_definition_data USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
