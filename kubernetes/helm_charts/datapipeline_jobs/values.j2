@@ -180,6 +180,61 @@ post-publish-processor:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
+certificate-generator:
+  certificate-generator: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.generate.certificate.request
+      groupId = {{ env_name }}-generator-certificate-group
+    }
+    task {
+      consumer.parallelism = {{ certificate_generator_consumer_parallelism }}
+      parallelism = {{ certificate_generator_parallelism }}
+    }
+    cert-reg {
+      basePath = "{{ cert_reg_service_base_url }}"
+    }
+    enc-service {
+      basePath = "http://enc-service:8013"
+    }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['certificate-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['certificate-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['certificate-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+post-publish-processor:
+  post-certificate-processor: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.post.certificate.process.request
+      output.audit.topic = {{ env_name }}.telemetry.raw
+      output.failed.topic = {{ env_name }}.post.certificate.process.failed
+      groupId = {{ env_name }}-post-certificate-process-group
+    }
+    task {
+      consumer.parallelism = {{ post_certificate_processor_consumer_parallelism }}
+      parallelism = {{ post_certificate_processor_parallelism }}
+    }
+    lms-cassandra {
+      keyspace = "{{ middleware_course_keyspace }}"
+      enrollment.table = "{{ middleware_user_enrollment_table }}"
+      course_batch.table = "{{ middleware_course_batch_table }}"
+    }
+    learner-service {
+      basePath = "{{ learner_service_base_url }}"
+    }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['post-publish-processor'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['post-publish-processor'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['post-publish-processor'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
 certificate-pre-processor:
  certificate-pre-processor: |+
    include file("/data/flink/conf/base-config.conf")
