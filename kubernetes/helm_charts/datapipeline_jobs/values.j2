@@ -206,7 +206,7 @@ certificate-generator:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
-post-publish-processor:
+post-certificate-processor:
   post-certificate-processor: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
