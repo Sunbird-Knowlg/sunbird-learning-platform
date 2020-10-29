@@ -63,7 +63,7 @@ base_config: |
       restart-strategy.delay = {{ restart_delay }} # in milli-seconds
     }
     redis {
-      host = {{ kp_redis_host }}
+      host = {{ dp_redis_host }}
       port = 6379
     }
     lms-cassandra {
