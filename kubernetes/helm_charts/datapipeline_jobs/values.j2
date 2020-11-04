@@ -197,7 +197,7 @@ certificate-generator:
       basePath = "{{ cert_reg_service_base_url }}"
     }
     enc-service {
-      basePath = "http://enc-service:8013"
+      basePath = "{{ enc_service_base_url }}"
     }
     cert_domain_url = "{{ cert_domain_url }}"
     cert_container_name = "{{ cert_container_name }}"
