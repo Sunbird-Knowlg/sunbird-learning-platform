@@ -319,7 +319,7 @@ public class IssueCertificate {
             LOGGER.info(template.get("name") + " - " + "certificate will be issuing to : "+ usersToIssue);
             for(String userId: usersToIssue) {
                 Map<String, Object> event = prepareCertificateEvent(batchId, courseId, userId, reIssue, certTemplate);
-                collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", topic), event));
+                collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", topic), userId, event));
             }
         } else {
             LOGGER.info("IssueCertificate:generateCertificatesForEnrollment: NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);

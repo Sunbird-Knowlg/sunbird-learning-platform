@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-batch-updater</artifactId>
-			<version>0.0.53</version>
+			<version>0.0.54</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -81,14 +81,14 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-certificate-generator</artifactId>
-			<version>0.0.62</version>
+			<version>0.0.63</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-certificate-generator-v2</artifactId>
-			<version>0.0.5</version>
+			<version>0.0.6</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
