@@ -302,8 +302,9 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         userCertificateEvents.stream().forEach(certificateEvent -> {
             try {
                 Map<String, Object> updatedCertificateEvent = generateInstructionEvent(certificateEvent);
+                String key = certificateEvent.get("batchId") + "_" +  certificateEvent.get("courseId");
                 LOGGER.info("CourseBatchUpdater:pushCertificateEvents: updatedCertificateEvent mid : " + mapper.writeValueAsString(updatedCertificateEvent.getOrDefault("mid", "")));
-                collector.send(new OutgoingMessageEnvelope(certificateInstructionStream, updatedCertificateEvent));
+                collector.send(new OutgoingMessageEnvelope(certificateInstructionStream, key, updatedCertificateEvent));
             } catch (Exception e) {
                 e.printStackTrace();
                 LOGGER.error("CourseBatchUpdater:pushCertificateEvents: push user course certificate event failed: ", e);
