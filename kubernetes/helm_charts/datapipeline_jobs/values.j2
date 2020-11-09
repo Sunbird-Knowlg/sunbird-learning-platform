@@ -115,8 +115,8 @@ activity-aggregate-updater:
     threshold.batch.read.size = 1000
     threshold.batch.write.size = 10
     activity {
-      module.aggs.enabled = {{ activity_module_aggs_enabled }}
-      input.dedup.enabled = {{ activity_input_dedup_enabled }}
+      module.aggs.enabled = true
+      input.dedup.enabled = true
     }
   
   flink-conf: |+
