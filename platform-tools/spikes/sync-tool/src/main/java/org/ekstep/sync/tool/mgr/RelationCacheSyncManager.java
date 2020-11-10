@@ -90,7 +90,7 @@ public class RelationCacheSyncManager {
 
 
     public String generateKafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
-        rowMap.put("action", "post-publish-process");
+        rowMap.put("action", "relation-cache-update");
         rowMap.put("iteration", 1);
         Map<String, Object> event = new HashMap<String, Object>() {{
             put("eid", "BE_JOB_REQUEST");
