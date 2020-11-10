@@ -2109,6 +2109,19 @@
           "draft": false
         },
         {
+            "required": false,
+            "dataType": "Number",
+            "propertyName": "me_totalRatingsCount",
+            "title": "Total Ratings Count",
+            "description": "Total number of ratings count given for this content",
+            "category": "Measured",
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{}",
+            "indexed": true,
+            "draft": false
+        },
+        {
           "required": false,
           "dataType": "Number",
           "propertyName": "me_totalComments",
@@ -3373,6 +3386,7 @@
           "me_totalDownloads",
           "me_totalSideloads",
           "me_totalRatings",
+          "me_totalRatingsCount",
           "me_totalComments",
           "me_totalDialcode",
           "me_totalDialcodeLinkedToContent",
