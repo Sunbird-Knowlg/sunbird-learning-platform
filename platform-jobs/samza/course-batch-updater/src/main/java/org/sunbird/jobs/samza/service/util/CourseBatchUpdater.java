@@ -71,7 +71,6 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
         String key = courseId + ":" + courseId + ":leafnodes";
         List<String> leafNodes = getStringList(key);
         if (CollectionUtils.isEmpty(leafNodes)) {
-            System.out.println("Cache not found from redis. Fetching from content read: " + courseId);
             LOGGER.info("Cache not found from redis. Fetching from content read: " + courseId);
             Map<String, Object> content = getContent(courseId, "leafNodes");
             leafNodes = (List<String>) content.getOrDefault("leafNodes", new ArrayList<String>());
@@ -210,6 +209,8 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
 
     public List<String> getStringList(String key) {
         try {
+            LOGGER.info("Redis Host :: " + redisConnect.getClient().getHost() + " \t Redis DB :: " + redisConnect.getDB());
+            LOGGER.info("Key used to fetch leafNodes from Redis :: " + key);
             Set<String> set = redisConnect.smembers(key);
             List<String> list = new ArrayList<String>(set);
             return list;
