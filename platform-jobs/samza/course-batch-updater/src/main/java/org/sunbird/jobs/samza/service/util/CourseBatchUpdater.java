@@ -214,8 +214,6 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
                 LOGGER.info("Resetting redis db index to " + redisDBIndex);
                 redisConnect.select(redisDBIndex);
             }
-            LOGGER.info("Redis Host :: " + redisConnect.getClient().getHost() + " \t Redis DB :: " + redisConnect.getDB());
-            LOGGER.info("Key used to fetch leafNodes from Redis :: " + key);
             Set<String> set = redisConnect.smembers(key);
             List<String> list = new ArrayList<String>(set);
             return list;
