@@ -41,6 +41,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
     private Jedis redisConnect= null;
     private Session cassandraSession = null;
     private SystemStream certificateInstructionStream = null;
+    private int redisDBIndex = Platform.config.hasPath("redis.dbIndex") ? Platform.config.getInt("redis.dbIndex") : 0;
 
     public CourseBatchUpdater(Jedis redisConnect, Session cassandraSession) {
         //ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
@@ -209,6 +210,10 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
 
     public List<String> getStringList(String key) {
         try {
+            if(null != redisConnect && redisDBIndex != redisConnect.getDB()) {
+                LOGGER.info("Resetting redis db index to " + redisDBIndex);
+                redisConnect.select(redisDBIndex);
+            }
             LOGGER.info("Redis Host :: " + redisConnect.getClient().getHost() + " \t Redis DB :: " + redisConnect.getDB());
             LOGGER.info("Key used to fetch leafNodes from Redis :: " + key);
             Set<String> set = redisConnect.smembers(key);
