@@ -3078,6 +3078,19 @@
           "defaultValue": "",
           "renderingHints": "{'inputType': 'checkbox', 'order': 21}",
           "indexed": true
+        },
+        {
+            "required": false,
+            "dataType": "List",
+            "propertyName": "relatedBoards",
+            "title": "Related Boards",
+            "description": "Related Boards",
+            "category": "General",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'table',  'order': 15 }",
+            "indexed": true,
+            "draft": false
         }
       ],
       "inRelations": [
