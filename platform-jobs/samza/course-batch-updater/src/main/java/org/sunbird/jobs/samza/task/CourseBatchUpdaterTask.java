@@ -50,6 +50,7 @@ public class CourseBatchUpdaterTask extends BaseTask {
         LOGGER.info("Task initialized");
 
         this.redisConnect = new RedisConnect(config).getConnection(redisDBIndex, 0L);
+        LOGGER.info("Redis configuration settings :: " + redisConnect.getDB() + "    :: Redis host :: " + redisConnect.getClient().getHost() + "\t RedisDBIndex :: " + redisDBIndex );
         this.cassandraSession = new CassandraConnector(config).getSession();
         this.certificateInstructionStream = new SystemStream("kafka", config.get("course.batch.certificate.topic"));
         this.action = Arrays.asList("batch-enrolment-update", "batch-enrolment-sync", "batch-status-update","course-batch-update");
