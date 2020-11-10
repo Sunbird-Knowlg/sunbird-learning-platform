@@ -82,7 +82,7 @@ activity-aggregate-updater:
       input.topic = {{ env_name }}.coursebatch.job.request
       output.audit.topic = {{ env_name }}.telemetry.raw
       output.failed.topic = {{ env_name }}.activity.agg.failed
-      output.certissue.topic = {{ env_name }}.coursebatch.certificate.request
+      output.certissue.topic = {{ env_name }}.issue.certificate.request
       groupId = {{ env_name }}-activity-aggregate-group
     }
     task {
