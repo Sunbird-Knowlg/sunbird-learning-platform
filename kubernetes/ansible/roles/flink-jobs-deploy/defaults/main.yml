@@ -53,12 +53,12 @@ activity_agg_checkpointing_pause_interval: 90000
 activity_agg_batch_interval: 60
 activity_agg_batch_read_size: 1000
 activity_agg_batch_write_size: 10
+activity_agg_window_shards: 10
 dedup_redis_host: "{{ groups['lms-redis'][0] }}"
 activity_agg_dedup_index: 13
 activity_agg_dedup_expiry: 604800
 activity_module_aggs_enabled: true
 activity_input_dedup_enabled: true
-
 
 ### Relation Cache Updater Job related Vars
 extractor_consumer_parallelism: 1
