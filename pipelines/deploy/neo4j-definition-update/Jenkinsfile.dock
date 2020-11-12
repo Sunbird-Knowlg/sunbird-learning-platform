@@ -12,7 +12,7 @@ node() {
             checkout scm
 	    sh'''
 	      rm -rf docs/domain_model_v2/definitions/*
-	      git clone https://github.com/Sunbird-Ed/creation-portal.git -b creation_portal
+	      git clone https://github.com/Sunbird-Ed/creation-portal.git -b ${params.schemas_branch} 
               cp creation-portal/neo4j_schemas/* docs/domain_model_v2/definitions
 	    '''
         }
