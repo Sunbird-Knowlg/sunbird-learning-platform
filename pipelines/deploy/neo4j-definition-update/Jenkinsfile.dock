@@ -10,11 +10,11 @@ node() {
         stage('checkout public repo') {
             cleanWs()
             checkout scm
-	    sh'''
+	    sh """
 	      rm -rf docs/domain_model_v2/definitions/*
 	      git clone https://github.com/Sunbird-Ed/creation-portal.git -b ${params.schemas_branch} 
               cp creation-portal/neo4j_schemas/* docs/domain_model_v2/definitions
-	    '''
+	    """
         }
 
         ansiColor('xterm') {
