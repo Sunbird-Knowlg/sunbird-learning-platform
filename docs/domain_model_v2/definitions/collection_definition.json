@@ -2111,6 +2111,19 @@
                 {
                     "required": false,
                     "dataType": "Number",
+                    "propertyName": "me_totalRatingsCount",
+                    "title": "Total Ratings Count",
+                    "description": "Total number of ratings count given for this content",
+                    "category": "Measured",
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{}",
+                    "indexed": true,
+                    "draft": false
+                },
+                {
+                    "required": false,
+                    "dataType": "Number",
                     "propertyName": "me_totalComments",
                     "title": "Total Comments",
                     "description": "Total number of comments given for this content",
@@ -3030,30 +3043,28 @@
                 },
                 {
                     "required": false,
-                    "dataType": "Multi-Select",
+                    "dataType": "List",
                     "propertyName": "additionalCategories",
                     "title": "Additional Categories",
                     "description": "Additional Categories",
                     "category": "General",
                     "displayProperty": "Editable",
-                    "range": [
-                        "Textbook",
-                        "TV Lesson",
-                        "Previous Board Exam Papers",
-                        "Pedagogy Flow",
-                        "Marking Scheme Rubric",
-                        "Lesson Plan",
-                        "Learning Outcome Definition",
-                        "Focus Spot",
-                        "Explanation Video",
-                        "Experiential Resource",
-                        "Curiosity Question Set",
-                        "Concept Map",
-                        "Classroom Teaching Video"
-                    ],
                     "defaultValue": "",
                     "renderingHints": "{ 'inputType': 'multiselect',  'order': 14 }",
                     "indexed": true
+                },
+                {
+                    "required": false,
+                    "dataType": "List",
+                    "propertyName": "relatedBoards",
+                    "title": "Related Boards",
+                    "description": "Related Boards",
+                    "category": "General",
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'table',  'order': 15 }",
+                    "indexed": true,
+                    "draft": false
                 }
             ],
             "inRelations": [
@@ -3336,6 +3347,7 @@
                     "me_totalDownloads",
                     "me_totalSideloads",
                     "me_totalRatings",
+                    "me_totalRatingsCount",
                     "me_totalComments",
                     "me_totalDialcode",
                     "me_totalDialcodeLinkedToContent",

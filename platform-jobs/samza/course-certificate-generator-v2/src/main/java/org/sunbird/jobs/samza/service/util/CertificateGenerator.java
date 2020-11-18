@@ -243,9 +243,9 @@ public class CertificateGenerator {
             }});
             if(StringUtils.isNotBlank(oldId))
                 request.put(CourseCertificateParams.oldId.name(), oldId);
-            LOGGER.info("CertificateGenerator:addCertificateToUser: Add certificate to registry request : " + mapper.writeValueAsString(request));
+            LOGGER.debug("CertificateGenerator:addCertificateToUser: Add certificate to registry request : " + mapper.writeValueAsString(request));
             HttpResponse<String> response = Unirest.post(certRegistryAddURL).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
-            LOGGER.info("CertificateGenerator:addCertificateToUser: Add certificate to registry response for batchid: " + batchId  +" and courseid: " + courseId + " is : " + response.getStatus() + " :: "+ response.getBody());
+            LOGGER.debug("CertificateGenerator:addCertificateToUser: Add certificate to registry response for batchid: " + batchId  +" and courseid: " + courseId + " is : " + response.getStatus() + " :: "+ response.getBody());
             return (200 == response.getStatus());
         } catch(Exception e) {
             LOGGER.error("Error while adding the certificate to user: " + certificate, e);
