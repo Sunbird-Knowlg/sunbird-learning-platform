@@ -571,7 +571,7 @@ public class CertificateGenerator {
             put(CourseCertificateParams.props.name(), new ArrayList<String>() {{
                 add("certificates");
             }});
-            put(CourseCertificateParams.type.name(), "certificate-issued");
+            put(CourseCertificateParams.type.name(), "certificate-issued-svg");
         }});
         String auditEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
         Map<String, Object> certificateAuditEvent = mapper.readValue(auditEvent, new TypeReference<Map<String, Object>>() {});

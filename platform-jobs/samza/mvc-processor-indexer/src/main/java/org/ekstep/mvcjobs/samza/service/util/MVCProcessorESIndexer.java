@@ -3,7 +3,9 @@
  */
 package org.ekstep.mvcjobs.samza.service.util;
 
+import org.apache.commons.collections4.MapUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.service.util.AbstractESIndexer;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -24,6 +26,7 @@ public class MVCProcessorESIndexer extends AbstractESIndexer {
 	private JobLogger LOGGER = new JobLogger(MVCProcessorESIndexer.class);
 	private ObjectMapper mapper = new ObjectMapper();
 	private ControllerUtil util = new ControllerUtil();
+	private static List<String>  NESTED_FIELDS = Platform.config.hasPath("nested.fields")? Arrays.asList(Platform.config.getString("nested.fields").split(",")): new ArrayList<String>();
 
 	@Override
 	public void init() {
@@ -53,6 +56,7 @@ public class MVCProcessorESIndexer extends AbstractESIndexer {
 
 		String action = jsonIndexDocument.get("action").toString();
 		jsonIndexDocument = removeExtraParams(jsonIndexDocument);
+		proocessNestedProps(jsonIndexDocument);
 		String jsonAsString = mapper.writeValueAsString(jsonIndexDocument);
 		switch (action) {
 			case "update-es-index":
@@ -81,6 +85,18 @@ public class MVCProcessorESIndexer extends AbstractESIndexer {
 
 	}
 
+	private void proocessNestedProps(Map<String, Object> jsonIndexDocument) throws IOException {
+		if (MapUtils.isNotEmpty(jsonIndexDocument)) {
+			for (String propertyName : jsonIndexDocument.keySet()) {
+				if (NESTED_FIELDS.contains(propertyName)) {
+					Map<String, Object> propertyNewValue = mapper.readValue((String) jsonIndexDocument.get(propertyName),
+							new TypeReference<Object>() {
+							});
+					jsonIndexDocument.put(propertyName, propertyNewValue);
+				}
+			}
+		}
+	}
 
 
 	// Remove params which should not be inserted into ES

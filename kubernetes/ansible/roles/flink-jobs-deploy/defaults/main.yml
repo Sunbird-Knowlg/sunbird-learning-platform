@@ -71,6 +71,30 @@ post_publish_processor_consumer_parallesim: 1
 post_publish_processor_parallelism: 1
 post_publish_event_router_parallelism: 1
 
+
+###  Certificate Job related Vars
+certificate_generator_consumer_parallelism: 1
+certificate_generator_parallelism: 1
+cert_domain_url:  "{{proto}}://{{domain_name}}"
+cert_container_name: "{{instance}}-e-credentials"
+cert_cloud_storage_type: "azure"
+cert_azure_storage_secret: "{{sunbird_private_storage_account_key}}"
+cert_azure_storage_key: "{{sunbird_private_storage_account_name}}"
+
+###  Post Certificate Processor Job related Vars
+post_certificate_processor_consumer_parallelism: 1
+post_certificate_processor_parallelism: 1
+middleware_user_enrollment_table: "user_enrolments"
+middleware_course_batch_table: "course_batch"
+
+
+### Certificate Pre Processor Job related Vars
+certificate_pre_processor_consumer_parallelism: 1
+certificate_pre_processor_parallelism: 1
+middleware_course_batch_table: "course_batch"
+middleware_user_enrolments_table: "user_enrolments"
+middleware_assessment_aggregator_table: "assessment_aggregator"
+
 ### taskmanager related vars
 healthcheck: true
 taskmanager_liveness:
@@ -111,6 +135,27 @@ flink_job_names:
     taskmanager_memory: 1024m
     taskslots: 1
     cpu_requests: 0.3
+  certificate-generator:
+    job_class_name: 'org.sunbird.job.task.CertificateGeneratorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  post-certificate-processor:
+    job_class_name: 'org.sunbird.job.task.PostCertificateProcessorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  certificate-pre-processor:
+    job_class_name: 'org.sunbird.job.task.CertificatePreProcessorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
 
 ### Global vars
 middleware_course_keyspace: "sunbird_courses"
@@ -118,3 +163,7 @@ middleware_hierarchy_keyspace: "{{ instance }}_hierarchy_store"
 neo4j_route_path: "bolt://{{ groups['learning-neo4j-node1'][0] }}:7687"
 kp_search_service_base_url: "http://{{private_ingressgateway_ip}}/search"
 lms_service_base_url: "http://{{private_ingressgateway_ip}}/lms"
+learner_service_base_url: "http://{{private_ingressgateway_ip}}/learner"
+content_service_base_url: "http://{{private_ingressgateway_ip}}/content"
+certificate_base_path: "https://{{private_ingressgateway_ip}}/certs"
+enc_service_base_url: "http://{{private_ingressgateway_ip}}/enc"
