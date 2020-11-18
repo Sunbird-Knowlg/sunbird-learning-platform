@@ -92,6 +92,7 @@ activity-aggregate-updater:
       restart-strategy.attempts = {{ restart_attempts }} # max 3 restart attempts
       restart-strategy.delay = 240000 # in milli-seconds # on max restarts (3) within 4 min the job will fail.
       consumer.parallelism = {{ activity_agg_consumer_parallelism }}
+      dedup.parallelism = {{ activity_agg_dedup_parallelism }}
       activity.agg.parallelism = {{ activity_agg_parallelism }}
       enrolment.complete.parallelism = {{ enrolment_complete_parallelism }}
     }
@@ -112,9 +113,9 @@ activity-aggregate-updater:
       database.index = {{ activity_agg_dedup_index }}
       database.expiry = {{ activity_agg_dedup_expiry }}
     }
-    threshold.batch.read.interval = 60
-    threshold.batch.read.size = 1000
-    threshold.batch.write.size = 10
+    threshold.batch.read.interval = {{ activity_agg_batch_interval }}
+    threshold.batch.read.size = {{ activity_agg_batch_read_size }}
+    threshold.batch.write.size = {{ activity_agg_batch_write_size }}
     activity {
       module.aggs.enabled = true
       input.dedup.enabled = true
