@@ -48,7 +48,7 @@ public class RelationCacheSyncManager {
 
         Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
         try (Session session = driver.session()) {
-            StatementResult result = session.run("MATCH (n:domain{IL_FUNC_OBJECT_TYPE:\"Content\", mimeType: \"application/vnd.ekstep.content-collection\", visibility: \"Default\"}) WHERE n.status in [\"Live\", \"Unlisted\", \"Retired\", \"Flagged\"] RETURN count(n.IL_UNIQUE_ID) as totalContents;");
+            StatementResult result = session.run("MATCH (n:domain{IL_FUNC_OBJECT_TYPE:\"Collection\", mimeType: \"application/vnd.ekstep.content-collection\", visibility: \"Default\"}) WHERE n.status in [\"Live\", \"Unlisted\", \"Retired\", \"Flagged\"] RETURN count(n.IL_UNIQUE_ID) as totalContents;");
             int totalCount = 0;
             if (null != result && CollectionUtils.isNotEmpty(result.keys())) {
                 totalCount = result.single().get("totalContents", 0);
@@ -59,7 +59,7 @@ public class RelationCacheSyncManager {
 
     public List<Map<String, Object>> getCollectionProps(int offset, int limit)  {
         List<Map<String, Object>> list = new ArrayList<>();
-        String query = "MATCH (n:domain{IL_FUNC_OBJECT_TYPE:\"Content\", mimeType: \"application/vnd.ekstep.content-collection\", visibility: \"Default\"}) WHERE n.status in [\"Live\", \"Unlisted\", \"Retired\", \"Flagged\"] RETURN n.IL_UNIQUE_ID AS identifier, n.contentType as contentType, n.pkgVersion as pkgVersion, n.status as status, n.name as name, n.createdBy as createdBy SKIP " + offset + " LIMIT " + limit + ";";
+        String query = "MATCH (n:domain{IL_FUNC_OBJECT_TYPE:\"Collection\", mimeType: \"application/vnd.ekstep.content-collection\", visibility: \"Default\"}) WHERE n.status in [\"Live\", \"Unlisted\", \"Retired\", \"Flagged\"] RETURN n.IL_UNIQUE_ID AS identifier, n.contentType as contentType, n.pkgVersion as pkgVersion, n.status as status, n.name as name, n.createdBy as createdBy SKIP " + offset + " LIMIT " + limit + ";";
         Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
         try (Session session = driver.session()) {
             StatementResult result = session.run(query);
@@ -73,7 +73,7 @@ public class RelationCacheSyncManager {
 
                     String createdBy = record.get("createdBy", "");
                     Map<String, Object> collection = new HashMap<String, Object>(){{
-                        put("id", identifier);
+                        put("identifier", identifier);
                         put("name", name);
                         put("contentType", contentType);
                         put("status", status);
@@ -108,7 +108,7 @@ public class RelationCacheSyncManager {
             }});
             put("object", new HashMap<String, Object>(){{
                 put("type", rowMap.get("contentType"));
-                put("id", rowMap.get("id"));
+                put("id", rowMap.get("identifier"));
                 put("version", rowMap.get("pkgVersion"));
             }});
             rowMap.put("manual-sync", true);
