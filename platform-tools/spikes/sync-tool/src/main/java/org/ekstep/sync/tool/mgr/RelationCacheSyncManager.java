@@ -73,7 +73,7 @@ public class RelationCacheSyncManager {
 
                     String createdBy = record.get("createdBy", "");
                     Map<String, Object> collection = new HashMap<String, Object>(){{
-                        put("id", identifier);
+                        put("identifier", identifier);
                         put("name", name);
                         put("contentType", contentType);
                         put("status", status);
@@ -108,7 +108,7 @@ public class RelationCacheSyncManager {
             }});
             put("object", new HashMap<String, Object>(){{
                 put("type", rowMap.get("contentType"));
-                put("id", rowMap.get("id"));
+                put("id", rowMap.get("identifier"));
                 put("version", rowMap.get("pkgVersion"));
             }});
             rowMap.put("manual-sync", true);
