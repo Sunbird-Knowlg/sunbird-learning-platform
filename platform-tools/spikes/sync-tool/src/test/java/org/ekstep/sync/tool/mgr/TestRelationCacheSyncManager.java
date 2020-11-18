@@ -28,7 +28,7 @@ public class TestRelationCacheSyncManager {
         Map<String, Object> edata = (Map<String, Object>) eventObj.get("edata");
         Assert.assertTrue(MapUtils.isNotEmpty(edata));
         String action = (String) edata.getOrDefault("action", "");
-        Assert.assertTrue(StringUtils.equals("link-dialcode", action));
+        Assert.assertTrue(StringUtils.equals("relation-cache-update", action));
 
     }
 }
