@@ -583,7 +583,7 @@ public class CertificateGenerator {
         try{
             Request request = new Request();
             request.put("data", new HashMap<String, Object>(){{
-                put("trainingName", "courseName");
+                put("trainingName", courseName);
                 put("message", feedMessage);
                 put("heldDate", dateFormatter.format(issuedOn));
                 put("category", "certificates");
