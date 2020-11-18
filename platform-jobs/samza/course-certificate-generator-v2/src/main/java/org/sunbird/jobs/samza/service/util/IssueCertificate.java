@@ -25,7 +25,6 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -260,8 +259,7 @@ public class IssueCertificate {
     public List<String> getUserFromEnrolmentCriteria(Map<String, Object> enrollment, String batchId, String courseId, List<String> userIds, Map<String, String> template, Boolean reIssue) {
         List<String> enrolledUsers = new ArrayList<>();
         String certName = template.getOrDefault("name", "");
-        Map<String, Object> certTemplate = CertificateGenerator.getCertTemplate(template.getOrDefault("identifier", ""));
-        String templateUrl = (String)certTemplate.get("template");
+        String templateUrl = (String)template.getOrDefault("url", "");
         
         try {
             if(MapUtils.isNotEmpty(enrollment)){
