@@ -93,28 +93,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             if(courseProgressHandler.containsKey(key)) {// Get Progress from the unprocessed list
                 populateContentStatusFromHandler(key, courseId, courseProgressHandler, contentStatus, contentStatusDelta, lastReadContentStats);
             } else { // Get progress from cassandra
-               Boolean enrolled = populateContentStatusFromDB(batchId, courseId, userId, contentStatus, lastReadContentStats);
-               if (!enrolled) {
-                   LOGGER.warn("User not enrolled to batch: " + batchId + " :: userId: " + userId + " :: courseId: " + courseId);
-                   Map<String, Object> propertiesToUpdate = new HashMap<String, Object>() {{
-                    put("addedBy", "System");
-                    put("enrolledDate", getDateFormatter().format(new Date()));
-                    put("status", 1);
-                    put("active", true);
-                    put("dateTime", new Timestamp(new Date().getTime()));
-                   }};
-                   Map<String, Object> propertiesToSelect = new HashMap<String, Object>() {{
-                       put("courseid", courseId);
-                       put("batchid", batchId);
-                       put("userid", userId);
-                   }};
-                   SunbirdCassandraUtil.update(cassandraSession, keyspace, table, propertiesToUpdate, propertiesToSelect);
-                   LOGGER.info("User auto-enrolled to batch: " + batchId + " :: userId: " + userId + " :: courseId: " + courseId);
-                   String event = generateAuditEvent(userId, courseId, batchId);
-                   LOGGER.info("Audit event: " + event);
-                   collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", Platform.config.getString("telemetry.raw.topic")), event));
-                   LOGGER.info("Audit event generated and pushed to kafka.");
-               }
+               populateContentStatusFromDB(batchId, courseId, userId, contentStatus, lastReadContentStats);
             }
 
             contents.forEach(c -> {
@@ -156,13 +135,6 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             }};
             courseProgressHandler.put(key, dataToUpdate);
         }
-    }
-
-    private String generateAuditEvent(String userId, String collectionId, String batchId) {
-        Object[] params = new Object[]{"LP."+System.currentTimeMillis()+"."+UUID.randomUUID(), userId, collectionId, batchId, System.currentTimeMillis()+""};
-        String eventTemplate = "|\"eid\":\"AUDIT\",\"ets\":{4},\"ver\":\"3.0\",\"mid\":\"{0}\",\"actor\":|\"id\":\"{1}\",\"type\":\"User\"#,\"context\":|\"channel\":\"ORG_001\",\"pdata\":|\"pid\":\"lms-service\",\"ver\":\"1.0\"#,\"env\":\"CourseBatch\",\"cdata\":[|\"id\":\"{2}\",\"type\":\"Course\"#,|\"id\":\"{3}\",\"type\":\"CourseBatch\"#]#,\"object\":|\"id\":\"{1}\",\"type\":\"User\",\"rollup\":|\"l1\":\"{2}\"##,\"edata\":|\"state\":\"Create\",\"type\":\"enrol\",\"props\":[\"courseId\",\"enrolledDate\",\"userId\",\"batchId\",\"active\"]##";
-        String event = MessageFormat.format(eventTemplate, params);
-        return event.replaceAll("\\|","{").replaceAll("#","}");
     }
 
     private boolean populateContentStatusFromDB(String batchId, String courseId, String userId, Map<String, Object> contentStatus, Map<String, Object> lastReadContentStats) {
