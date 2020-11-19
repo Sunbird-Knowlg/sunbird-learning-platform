@@ -93,28 +93,7 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             if(courseProgressHandler.containsKey(key)) {// Get Progress from the unprocessed list
                 populateContentStatusFromHandler(key, courseId, courseProgressHandler, contentStatus, contentStatusDelta, lastReadContentStats);
             } else { // Get progress from cassandra
-               Boolean enrolled = populateContentStatusFromDB(batchId, courseId, userId, contentStatus, lastReadContentStats);
-               if (!enrolled) {
-                   LOGGER.warn("User not enrolled to batch: " + batchId + " :: userId: " + userId + " :: courseId: " + courseId);
-                   Map<String, Object> propertiesToUpdate = new HashMap<String, Object>() {{
-                    put("addedBy", "System");
-                    put("enrolledDate", getDateFormatter().format(new Date()));
-                    put("status", 1);
-                    put("active", true);
-                    put("dateTime", new Timestamp(new Date().getTime()));
-                   }};
-                   Map<String, Object> propertiesToSelect = new HashMap<String, Object>() {{
-                       put("courseid", courseId);
-                       put("batchid", batchId);
-                       put("userid", userId);
-                   }};
-                   SunbirdCassandraUtil.update(cassandraSession, keyspace, table, propertiesToUpdate, propertiesToSelect);
-                   LOGGER.info("User auto-enrolled to batch: " + batchId + " :: userId: " + userId + " :: courseId: " + courseId);
-                   Map<String, Object> event = generateAuditEvent(userId, courseId, batchId);
-                   LOGGER.info("Audit event: " + event);
-                   collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", Platform.config.getString("telemetry.raw.topic")), event));
-                   LOGGER.info("Audit event generated and pushed to kafka.");
-               }
+               populateContentStatusFromDB(batchId, courseId, userId, contentStatus, lastReadContentStats);
             }
 
             contents.forEach(c -> {
@@ -156,70 +135,6 @@ public class CourseBatchUpdater extends BaseCourseBatchUpdater {
             }};
             courseProgressHandler.put(key, dataToUpdate);
         }
-    }
-
-    /*private String generateAuditEvent(String userId, String collectionId, String batchId) {
-        Object[] params = new Object[]{"LP."+System.currentTimeMillis()+"."+UUID.randomUUID(), userId, collectionId, batchId, System.currentTimeMillis()+""};
-        
-        String eventTemplate = "|\"eid\":\"AUDIT\",\"ets\":{4},\"ver\":\"3.0\",\"mid\":\"{0}\",\"actor\":|\"id\":\"{1}\",\"type\":\"User\"#,\"context\":|\"channel\":\"ORG_001\",\"pdata\":|\"pid\":\"lms-service\",\"ver\":\"1.0\"#,\"env\":\"CourseBatch\",\"cdata\":[|\"id\":\"{2}\",\"type\":\"Course\"#,|\"id\":\"{3}\",\"type\":\"CourseBatch\"#]#,\"object\":|\"id\":\"{1}\",\"type\":\"User\",\"rollup\":|\"l1\":\"{2}\"##,\"edata\":|\"state\":\"Create\",\"type\":\"enrol\",\"props\":[\"courseId\",\"enrolledDate\",\"userId\",\"batchId\",\"active\"]##";
-        String event = MessageFormat.format(eventTemplate, params);
-        return event.replaceAll("\\|","{").replaceAll("#","}");
-    }*/
-
-    private Map<String, Object> generateAuditEvent(String userId, String collectionId, String batchId) {
-        Map<String, Object> actor = new HashMap<>();
-        Map<String, Object> context = new HashMap<>();
-        Map<String, Object> object = new HashMap<>();
-        Map<String, Object> edata = new HashMap<>();
-
-        actor.putAll(new HashMap<String, Object>() {{
-            put("id", userId);
-            put("type", "User");
-        }});
-
-        context.putAll(new HashMap<String, Object>() {{
-            put("channel", "ORG_001");
-            put("pdata", new HashMap<String, Object>() {{
-                put("id", "org.sunbird.learning.platform");
-                put("pid", "lms-service");
-                put("ver", "1.0");
-            }});
-            put("env", "CourseBatch");
-            put("cdata", new ArrayList<HashMap<String, Object>>() {{
-                add(new HashMap<String, Object>() {{
-                    put("type", "Course");
-                    put("id", collectionId);
-                }});
-                add(new HashMap<String, Object>() {{
-                    put("type", "CourseBatch");
-                    put("id", batchId);
-                }});
-            }});
-        }});
-
-        object.putAll(new HashMap<String, Object>() {{
-            put("id", userId);
-            put("type", "User");
-            put("rollup", new HashMap<String, Object>() {{
-                put("l1", collectionId);
-            }});
-        }});
-
-        edata.putAll(new HashMap<String, Object>() {{
-            put("props", Arrays.asList("courseId", "enrolledDate", "userId", "batchId", "active"));
-            put("type", "enrol");
-        }});
-        Map<String, Object> enrolAuditEvent = new HashMap<String, Object>() {{
-            put("eid", "AUDIT");
-            put("ets", System.currentTimeMillis());
-            put("mid", "LP.AUDIT."+System.currentTimeMillis()+"."+ UUID.randomUUID());
-            put("actor", actor);
-            put("context", context);
-            put("edata", edata);
-            put("object", object);
-            put("ver", "3.0");
-        }};
-        return enrolAuditEvent;
     }
 
     private boolean populateContentStatusFromDB(String batchId, String courseId, String userId, Map<String, Object> contentStatus, Map<String, Object> lastReadContentStats) {
