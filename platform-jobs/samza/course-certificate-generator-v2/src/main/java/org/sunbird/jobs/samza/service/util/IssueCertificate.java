@@ -25,7 +25,6 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

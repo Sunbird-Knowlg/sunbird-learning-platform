@@ -110,6 +110,7 @@ public class CertificateGenerator {
         String courseId = (String) edata.get("courseId");
         Map<String, Object> template = (Map<String, Object>) edata.get("template");
         String templateUrl = (String)template.getOrDefault("url", getCertTemplate((String) template.getOrDefault("identifier", "")));
+
         if(StringUtils.isBlank(templateUrl) || !StringUtils.endsWith(templateUrl, ".svg")) {
         	LOGGER.info("CertificateGenerator:generate: Certificate is not generated for batchId : " + batchId + ", courseId : " + courseId + " and userId : " + userId + ". TemplateId: "+ (String) template.get("identifier") + " with Url: " + templateUrl + " is not supported.");
         	return;
@@ -242,9 +243,9 @@ public class CertificateGenerator {
             }});
             if(StringUtils.isNotBlank(oldId))
                 request.put(CourseCertificateParams.oldId.name(), oldId);
-            LOGGER.info("CertificateGenerator:addCertificateToUser: Add certificate to registry request : " + mapper.writeValueAsString(request));
+            LOGGER.debug("CertificateGenerator:addCertificateToUser: Add certificate to registry request : " + mapper.writeValueAsString(request));
             HttpResponse<String> response = Unirest.post(certRegistryAddURL).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
-            LOGGER.info("CertificateGenerator:addCertificateToUser: Add certificate to registry response for batchid: " + batchId  +" and courseid: " + courseId + " is : " + response.getStatus() + " :: "+ response.getBody());
+            LOGGER.debug("CertificateGenerator:addCertificateToUser: Add certificate to registry response for batchid: " + batchId  +" and courseid: " + courseId + " is : " + response.getStatus() + " :: "+ response.getBody());
             return (200 == response.getStatus());
         } catch(Exception e) {
             LOGGER.error("Error while adding the certificate to user: " + certificate, e);
@@ -434,7 +435,6 @@ public class CertificateGenerator {
         criteria.put(CourseCertificateParams.narrative.name(), certTemplate.getOrDefault("name", "course completion certificate"));
         return criteria;
     }
-
 
     private void populateCreatedCertificate(List<Map<String, String>> updatedCerts, Map<String, Object> certificate, String certificateName, Date issuedOn, boolean reIssue) {
         updatedCerts.add(new HashMap<String, String>(){{
