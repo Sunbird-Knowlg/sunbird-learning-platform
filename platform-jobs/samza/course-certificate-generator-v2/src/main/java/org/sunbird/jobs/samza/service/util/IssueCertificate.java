@@ -259,8 +259,8 @@ public class IssueCertificate {
     public List<String> getUserFromEnrolmentCriteria(Map<String, Object> enrollment, String batchId, String courseId, List<String> userIds, Map<String, String> template, Boolean reIssue) {
         List<String> enrolledUsers = new ArrayList<>();
         String certName = template.getOrDefault("name", "");
-        String templateUrl = (String)template.getOrDefault("url", "");
-        
+        String templateUrl = (String)template.getOrDefault("url", CertificateGenerator.getCertTemplate((String)template.getOrDefault("identifier", "")));
+        template.put("url", templateUrl);
         try {
             if(MapUtils.isNotEmpty(enrollment)){
                 Map<String, Object> dataToFetch = new HashMap<String, Object>() {{
