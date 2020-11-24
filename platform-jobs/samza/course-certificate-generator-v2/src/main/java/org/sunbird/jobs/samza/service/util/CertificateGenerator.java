@@ -215,7 +215,7 @@ public class CertificateGenerator {
 
                 if(addCertificateToUser(certificate, courseId, batchId, oldId, recipientName, (String)certTemplate.get("name")) && certificateGenerateNotificationEnable) {
                 	notifyUser(userId, certTemplate, courseName, userResponse, issuedOn);
-                    createUserFeed(userId, courseName, issuedOn);
+                    createUserFeed(userId, courseId, courseName, issuedOn);
                 }
             } else {
                 LOGGER.info("CertificateGenerator:generateCertificate: Error while generation certificate for batchId : " + batchId +  ", courseId : " + courseId + " and userId : " + userId + " with error response : "  +  + httpResponse.getStatus()  + " :: " + httpResponse.getBody());
@@ -541,16 +541,20 @@ public class CertificateGenerator {
         return certificateAuditEvent;
     }
 
-    private void createUserFeed(String userId, String courseName, Date issuedOn) {
+    private void createUserFeed(String userId, String courseId, String courseName, Date issuedOn) {
         try{
             Request request = new Request();
+            request.put("userId", userId);
+            request.put("category", "Notification");
+            request.put("priority", 1);
             request.put("data", new HashMap<String, Object>(){{
-                put("trainingName", courseName);
-                put("message", feedMessage);
-                put("heldDate", dateFormatter.format(issuedOn));
-                put("category", "certificates");
-                put("priority", 1);
-                put("userId", userId);
+                put("type", 1);
+                put("action", new HashMap<String, Object>() {{
+                    put("actionType", "certificateUpdate");
+                    put("title", courseName);
+                    put("description", feedMessage);
+                    put("identifier", courseId);
+                }});
             }});
             HttpResponse<String> httpResponse = Unirest.post(LEARNER_SERVICE_PRIVATE_URL + CREATE_USER_FEED_URL).header("Content-Type", "application/json").body(mapper.writeValueAsString(request)).asString();
             LOGGER.info("Create User Feed response: " + httpResponse.getStatus() + " :: " + httpResponse.getBody() );
