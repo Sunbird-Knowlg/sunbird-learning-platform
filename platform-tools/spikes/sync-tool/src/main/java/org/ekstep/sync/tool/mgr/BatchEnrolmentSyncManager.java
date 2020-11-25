@@ -270,7 +270,7 @@ public class BatchEnrolmentSyncManager {
                 }
             });
                 ControllerUtil util = new ControllerUtil();
-                Response response = util.getDataNodes("domain", new ArrayList<String>(courseMetadata.keySet()));
+                Response response = util.getDataNodes("domain", Arrays.asList(courseIds));
                 if(null != response){
                     List<Node> nodeList = (List<Node>) response.get("node_list");
                     if(CollectionUtils.isNotEmpty(nodeList)){
