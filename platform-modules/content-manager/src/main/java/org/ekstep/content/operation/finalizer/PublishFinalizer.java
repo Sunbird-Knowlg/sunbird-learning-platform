@@ -232,6 +232,9 @@ public class PublishFinalizer extends BaseFinalizer {
 			e.printStackTrace();
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage() + ". Please Try Again After Sometime!");
 		}
+		
+		//Enhancing node metadata with framework specific metadata.
+		node.getMetadata().putAll(publishFinalizeUtil.mergeOrganisationAndtargetFrameworks(node));
 		 
 		boolean isCompressionApplied = (boolean) parameterMap.get(ContentWorkflowPipelineParams.isCompressionApplied.name());
 		LOGGER.debug("Compression Applied ? " + isCompressionApplied);
