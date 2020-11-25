@@ -95,13 +95,15 @@ public class BatchCountUpdater extends BaseCourseBatchUpdater {
                 }
             }
         }
+        Request request = new Request();
+        Map<String,Object> contentMap = new HashMap<>();
         if(CollectionUtils.isNotEmpty(courseBatchMetaData)){
-            Request request = new Request();
-            Map<String,Object> contentMap = new HashMap<>();
             contentMap.put("batches",courseBatchMetaData);
-            request.put("content", contentMap);
-            systemUpdate(courseId,request);
+        } else {
+            contentMap.put("batches", null);
         }
+        request.put("content", contentMap);
+        systemUpdate(courseId,request);
     }
 
     private String getBatchEnrollmentDate(String enrollmentEndDate, String endDate) throws ParseException {
