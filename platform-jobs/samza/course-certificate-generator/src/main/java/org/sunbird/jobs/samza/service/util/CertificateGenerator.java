@@ -569,11 +569,16 @@ public class CertificateGenerator {
             }});
             put(CourseCertificateParams.type.name(), "certificate-issued-pdf");
         }});
-        String auditEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
-        Map<String, Object> certificateAuditEvent = mapper.readValue(auditEvent, new TypeReference<Map<String, Object>>() {});
-        certificateAuditEvent.put(CourseCertificateParams.eid.name(), "AUDIT");
-        certificateAuditEvent.put(CourseCertificateParams.mid.name(), "LP.AUDIT."+System.currentTimeMillis()+"."+ UUID.randomUUID());
-        certificateAuditEvent.put(CourseCertificateParams.ver.name(), "3.0");
+        Map<String, Object> certificateAuditEvent = new HashMap<String, Object>() {{
+            put(CourseCertificateParams.eid.name(), "AUDIT");
+            put("ets", System.currentTimeMillis());
+            put(CourseCertificateParams.mid.name(), "LP.AUDIT."+System.currentTimeMillis()+"."+ UUID.randomUUID());
+            put("actor", actor);
+            put("context", context);
+            put("edata", edata);
+            put("object", object);
+            put(CourseCertificateParams.ver.name(), "3.0");
+        }};
         return certificateAuditEvent;
     }
 
