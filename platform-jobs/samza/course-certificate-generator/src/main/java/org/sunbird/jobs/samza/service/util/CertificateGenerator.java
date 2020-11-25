@@ -54,8 +54,6 @@ public class CertificateGenerator {
     private static final String USER_COURSES_TABLE = "user_enrolments";
     private SimpleDateFormat formatter = null;
     private SimpleDateFormat dateFormatter = null;
-    private static final String ES_INDEX_NAME = "user-courses";
-    private static final String ES_DOC_TYPE = "_doc";
     private static final String CERTIFICATE_BASE_PATH = Platform.config.hasPath("certificate.base_path")
             ? Platform.config.getString("certificate.base_path"): "http://localhost:9000/certs";
     protected static final String KP_CONTENT_SERVICE_BASE_URL = Platform.config.hasPath("kp.content_service.base_url")
@@ -74,7 +72,6 @@ public class CertificateGenerator {
     private SystemStream certificateAuditEventStream = null;
 
     public CertificateGenerator(Jedis redisConnect, Session cassandraSession) {
-        ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
         formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
         mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
@@ -84,7 +81,6 @@ public class CertificateGenerator {
     }
 
     public CertificateGenerator(Jedis redisConnect, Session cassandraSession, SystemStream certificateAuditEventStream) {
-        ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
         formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
         mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
@@ -200,7 +196,6 @@ public class CertificateGenerator {
                         put(CourseCertificateParams.batchId.name(), batchId);
                     }};
                     SunbirdCassandraUtil.update(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToUpdate, dataToSelect);
-                    updatedES(ES_INDEX_NAME, ES_DOC_TYPE, dataToUpdate, dataToSelect);
                 }
 
                 pushAuditEvent(userId, courseId, batchId, certificate, collector);
@@ -429,21 +424,6 @@ public class CertificateGenerator {
             Map<String , Object> criteria = new HashMap<>();
             criteria.put(CourseCertificateParams.narrative.name(), "course completion certificate");
             return criteria;
-        }
-    }
-
-
-    private void updatedES(String index, String type, Map<String, Object> dataToUpdate, Map<String, Object> dataToSelect) {
-        try {
-            String key = dataToSelect.entrySet().stream().map(entry -> (String) entry.getValue()).collect(Collectors.joining("_"));
-            String documentJson = ElasticSearchUtil.getDocumentAsStringById(index, type, key);
-            Map<String, Object> document = new HashMap<>();
-            if(StringUtils.isNotBlank(documentJson))
-                document = mapper.readValue(documentJson, Map.class);
-            document.putAll(dataToUpdate);
-            ElasticSearchUtil.updateDocument(index, type, mapper.writeValueAsString(document), key);
-        } catch (Exception e) {
-            LOGGER.error("Error while update to ES: ", e);
         }
     }
 
