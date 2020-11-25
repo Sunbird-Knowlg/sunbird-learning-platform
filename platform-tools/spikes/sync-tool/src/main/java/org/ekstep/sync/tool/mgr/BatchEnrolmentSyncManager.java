@@ -269,14 +269,16 @@ public class BatchEnrolmentSyncManager {
                     courseMetadata.put(courseId, batchDetailList);
                 }
             });
-            if(MapUtils.isNotEmpty(courseMetadata)){
                 ControllerUtil util = new ControllerUtil();
-                Response response = util.getDataNodes("domain", new ArrayList<String>(courseMetadata.keySet()));
+                Response response = util.getDataNodes("domain", Arrays.asList(courseIds));
                 if(null != response){
                     List<Node> nodeList = (List<Node>) response.get("node_list");
                     if(CollectionUtils.isNotEmpty(nodeList)){
                         nodeList.stream().forEach(node -> {
-                            node.getMetadata().put("batches", courseMetadata.get(node.getIdentifier()));
+                            if(MapUtils.isNotEmpty(courseMetadata))
+                                node.getMetadata().put("batches", courseMetadata.get(node.getIdentifier()));
+                            else
+                                node.getMetadata().put("batches", null);
                             Response updateResponse = util.updateNodeWithoutValidation(node);
                             if(util.checkError(updateResponse)){
                                 System.out.println("Update failed for courseId: " + node.getIdentifier() + " :: "
@@ -292,9 +294,6 @@ public class BatchEnrolmentSyncManager {
                 } else {
                     System.out.println("Unable to fetch courses for update");
                 }
-            }else {
-                System.out.println("No on-going course batches found");
-            }
         } else {
             System.out.println("No data found to be updated");
         }

@@ -40,7 +40,7 @@ public class BaseCourseBatchUpdater {
         HttpResponse<String> httpResponse = Unirest.patch(url).header("Content-Type", "application/json").body(mapper.writeValueAsString(payload)).asString();
         Response response = mapper.readValue(httpResponse.getBody(), Response.class);
         if(200 != response.getResponseCode().code()){
-            System.err.println("Error while reading content from KP : " + courseId + " : " + response.getParams().getStatus() + " : " + response.getResult());
+            System.err.println("Error while updating content in KP : " + courseId + " : " + response.getParams().getStatus() + " : " + response.getResult());
             throw new ServerException("ERR_COURSE_BATCH_SAMZA", "Error while updating metadata content from KP : " + courseId + " : " + response.getParams().getStatus() + " : " + response.getResult());
         }
     }
