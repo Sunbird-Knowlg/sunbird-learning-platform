@@ -149,25 +149,26 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	
 	public Map<String, List<String>> mergeOrganisationAndtargetFrameworks(Node node) {
 		Map<String, List<String>> frameworkMetadata = new HashMap<String, List<String>>();
+		String[] defaultArray = {};
 		Map<String, Object> metaData = node.getMetadata();
 		System.out.println("ContentId:: " + node.getIdentifier() + " :: metadat:: " + metaData);
 		String organisationFrameworkId = (String)metaData.get("organisationFrameworkId");
 		if(StringUtils.isNotBlank(organisationFrameworkId))
 			frameworkMetadata.put("se_frameworkIds", mergeIds(Arrays.asList(organisationFrameworkId), 
-					(List<String>)metaData.getOrDefault("targetFrameworkIds", new ArrayList<String>())));
+					Arrays.asList((String[])metaData.getOrDefault("targetFrameworkIds", defaultArray))));
 		else
 			frameworkMetadata.put("se_frameworkIds", mergeIds(new ArrayList<String>(), 
-					(List<String>)metaData.getOrDefault("targetFrameworkIds", new ArrayList<String>())));
-		frameworkMetadata.put("se_boardIds", mergeIds((List<String>)metaData.getOrDefault("organisationBoardIds", new ArrayList<String>()), 
-				(List<String>)metaData.getOrDefault("targetBoardIds", new ArrayList<String>())));
-		frameworkMetadata.put("se_subjectIds", mergeIds((List<String>)metaData.getOrDefault("organisationSubjectIds", new ArrayList<String>()), 
-				(List<String>)metaData.getOrDefault("targetSubjectIds", new ArrayList<String>())));
-		frameworkMetadata.put("se_mediumIds", mergeIds((List<String>)metaData.getOrDefault("organisationMediumids", new ArrayList<String>()), 
-				(List<String>)metaData.getOrDefault("targetMediumIds", new ArrayList<String>())));
-		frameworkMetadata.put("se_topicIds", mergeIds((List<String>)metaData.getOrDefault("organisationTopicsIds", new ArrayList<String>()), 
-				(List<String>)metaData.getOrDefault("targetTopicIds", new ArrayList<String>())));
-		frameworkMetadata.put("se_gradeLevelIds", mergeIds((List<String>)metaData.getOrDefault("organisationGradeLevelIds", new ArrayList<String>()), 
-				(List<String>)metaData.getOrDefault("targetGradeLevelIds", new ArrayList<String>())));
+					Arrays.asList((String[])metaData.getOrDefault("targetFrameworkIds", defaultArray))));
+		frameworkMetadata.put("se_boardIds", mergeIds(Arrays.asList((String[])metaData.getOrDefault("organisationBoardIds", defaultArray)), 
+				Arrays.asList((String[])metaData.getOrDefault("targetBoardIds", defaultArray))));
+		frameworkMetadata.put("se_subjectIds", mergeIds(Arrays.asList((String[])metaData.getOrDefault("organisationSubjectIds", defaultArray)), 
+				Arrays.asList((String[])metaData.getOrDefault("targetSubjectIds", defaultArray))));
+		frameworkMetadata.put("se_mediumIds", mergeIds(Arrays.asList((String[])metaData.getOrDefault("organisationMediumids", defaultArray)), 
+				Arrays.asList((String[])metaData.getOrDefault("targetMediumIds", defaultArray))));
+		frameworkMetadata.put("se_topicIds", mergeIds(Arrays.asList((String[])metaData.getOrDefault("organisationTopicsIds", defaultArray)), 
+				Arrays.asList((String[])metaData.getOrDefault("targetTopicIds", defaultArray))));
+		frameworkMetadata.put("se_gradeLevelIds", mergeIds(Arrays.asList((String[])metaData.getOrDefault("organisationGradeLevelIds", defaultArray)), 
+				Arrays.asList((String[])metaData.getOrDefault("targetGradeLevelIds", defaultArray))));
 		
 		Map<String, List<String>> frameworkMetafieldsLabel = getLabels(metaData, node.getIdentifier());
 		if(MapUtils.isNotEmpty(frameworkMetafieldsLabel)) {
@@ -193,8 +194,9 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	}
 	protected Map<String, List<String>> getLabels(Map<String, Object> metadata, String identifier){
 		List<String> ids = new ArrayList<String>();
+		String[] defaultArray = {};
 		for(String id : contentFrameworkMetafields) 
-			ids.addAll((List<String>)metadata.getOrDefault(id, new ArrayList<String>()));
+			ids.addAll(Arrays.asList((String[])metadata.getOrDefault(id, defaultArray)));
 		if(CollectionUtils.isEmpty(ids)) {
 			TelemetryManager.info("For Content :: " + identifier + " no framework categories are set in metadata.");
 			return null;
@@ -214,7 +216,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			Map<String, List<String>> frameworkMetadata = new HashMap<String, List<String>>();
 			if(!nodeMap.isEmpty()) {
 				for(String metaField : contentFrameworkMetafields) {
-					List<String> idList = (List<String>)metadata.getOrDefault(metaField, new ArrayList<String>());
+					List<String> idList = Arrays.asList((String[])metadata.getOrDefault(metaField, defaultArray));
 					if(CollectionUtils.isNotEmpty(idList)) {
 						List<String> labelList =  new ArrayList<String>();
 						idList.stream().forEach(id -> labelList.add((String)((Map<String, Object>)nodeMap.get(id)).get("name")));
