@@ -285,6 +285,19 @@
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "maxAttempts",
+          "title": "Maximum Attempts",
+          "description": "Maximum attempts for content",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": null,
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 8 }",
+          "indexed": true
         }
       ],
       "inRelations": [],
@@ -371,7 +384,8 @@
           "appId",
           "s3Key",
           "consumerId",
-          "organisation"
+          "organisation",
+          "maxAttempts"
         ]
       }
     }

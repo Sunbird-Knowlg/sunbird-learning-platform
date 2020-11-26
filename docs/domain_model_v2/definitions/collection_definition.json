@@ -3039,6 +3039,19 @@
                     "defaultValue": "",
                     "renderingHints": "{ 'inputType': 'multiselect',  'order': 14 }",
                     "indexed": true
+                },
+                {
+                    "required": false,
+                    "dataType": "Number",
+                    "propertyName": "maxAttempts",
+                    "title": "Maximum Attempts",
+                    "description": "Maximum attempts for content",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 8 }",
+                    "indexed": true
                 }
             ],
             "inRelations": [
@@ -3354,7 +3367,8 @@
                     "leafNodes",
                     "origin",
                     "originData",
-                    "plugins"
+                    "plugins",
+                    "maxAttempts"
                 ]
             }
         }
