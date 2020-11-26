@@ -19,7 +19,6 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
-import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.HttpDownloadUtility;
@@ -151,7 +150,6 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		Map<String, List<String>> frameworkMetadata = new HashMap<String, List<String>>();
 		String[] defaultArray = {};
 		Map<String, Object> metaData = node.getMetadata();
-		System.out.println("ContentId:: " + node.getIdentifier() + " :: metadat:: " + metaData);
 		String organisationFrameworkId = (String)metaData.get("organisationFrameworkId");
 		if(StringUtils.isNotBlank(organisationFrameworkId))
 			frameworkMetadata.put("se_frameworkIds", mergeIds(Arrays.asList(organisationFrameworkId), 
@@ -183,7 +181,6 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			frameworkMetadata.put("se_gradeLevels", mergeIds((List<String>)frameworkMetafieldsLabel.getOrDefault("organisationGradeLevelIds", new ArrayList<String>()), 
 					(List<String>)frameworkMetafieldsLabel.getOrDefault("targetGradeLevelIds", new ArrayList<String>())));
 		}
-		System.out.println("ContentId:: " + node.getIdentifier() + " :: frameworkMetadata:: " + frameworkMetadata);
 		return frameworkMetadata;
 	}
 	protected List<String> mergeIds(List<String> orgList, List<String> targetList){

@@ -1,7 +1,9 @@
 package org.ekstep.content.util;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.ekstep.common.mgr.ConvertToGraphNode;
@@ -25,6 +27,8 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.util.Assert;
 
@@ -80,6 +84,58 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		Assert.equals("https://sunbirddev.blob.core.windows.net/sunbird-content-dev/content/do_112999482416209920112/artifact/1.pdf", artifactUrl);
 		Assert.equals("content/do_112999482416209920112/artifact/1.pdf", cloudStorageKey);
 		Assert.equals("content/do_112999482416209920112/artifact/1.pdf", s3Key);
+	}
+	
+	@Test
+	public void testMergeOrganisationAndtargetFrameworks() throws Exception {
+		
+		Map<String, Object> contentNodeMap = new HashMap<>();
+		contentNodeMap.put("identifier", "do_11292666508456755211");
+		contentNodeMap.put("objectType", "Content");
+		contentNodeMap.put("organisationFrameworkId", "ncf");
+		
+		String[] organisationBoardIds = {"ncf_board_cbse"};
+		contentNodeMap.put("organisationBoardIds", organisationBoardIds);
+		
+		String[] organisationGradeLevelIds = {"ncf_gradelevel_grade1"};
+		contentNodeMap.put("organisationGradeLevelIds", organisationGradeLevelIds);
+		
+		String[] organisationSubjectIds = {"ncf_subject_math"};
+		contentNodeMap.put("organisationSubjectIds", organisationSubjectIds);
+		
+		String[] organisationMediumids = {"ncf_medium_english"};
+		contentNodeMap.put("organisationMediumids", organisationMediumids);
+		
+		String[] targetFrameworkIds = {"tpd"};
+		contentNodeMap.put("targetFrameworkIds", targetFrameworkIds);
+		
+		String[] targetBoardIds = {"tpd_board_cbse"};
+		contentNodeMap.put("targetBoardIds", targetBoardIds);
+		
+		String[] targetGradeLevelIds = {"tpd_gradelevel_class1"};
+		contentNodeMap.put("targetGradeLevelIds", targetGradeLevelIds);
+		
+		String[] targetSubjectIds = {"tpd_subject_math"};
+		contentNodeMap.put("targetSubjectIds", targetSubjectIds);
+		
+		String[] targetMediumIds = {"tpd_medium_english"};
+		contentNodeMap.put("targetMediumIds", targetMediumIds);
+		
+		String[] targetTopicIds = {"tpd_medium_abc"};
+		contentNodeMap.put("targetTopicIds", targetTopicIds);
+		
+		
+		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
+		Node contentNode = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
+		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil();
+		Map<String, List<String>> frameworkMetadata = publishFinalizeUtil.mergeOrganisationAndtargetFrameworks(contentNode);
+		
+		Assert.isTrue(((List<String>)frameworkMetadata.get("se_frameworkIds")).containsAll(Arrays.asList("ncf", "tpd")));
+		Assert.isTrue(((List<String>)frameworkMetadata.get("se_boardIds")).containsAll(Arrays.asList("ncf_board_cbse", "tpd_board_cbse")));
+		Assert.isTrue(((List<String>)frameworkMetadata.get("se_subjectIds")).containsAll(Arrays.asList("ncf_subject_math", "tpd_subject_math")));
+		Assert.isTrue(((List<String>)frameworkMetadata.get("se_mediumIds")).containsAll(Arrays.asList("ncf_medium_english", "tpd_medium_english")));
+		Assert.isTrue(((List<String>)frameworkMetadata.get("se_gradeLevelIds")).containsAll(Arrays.asList("ncf_gradelevel_grade1", "tpd_gradelevel_class1")));
+		Assert.isTrue(((List<String>)frameworkMetadata.get("se_topicIds")).containsAll(Arrays.asList("tpd_medium_abc")));
 	}
 	
 	@Test
