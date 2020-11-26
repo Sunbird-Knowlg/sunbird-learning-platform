@@ -110,7 +110,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	protected static final String PRINT_SERVICE_BASE_URL = Platform.config.hasPath("kp.print.service.base.url")
 			? Platform.config.getString("kp.print.service.base.url") : "http://localhost:5001";
 
-	private static final Boolean IS_STREAMING_ENABLED = Platform.config.hasPath("content.streaming_enabled") ? Platform.config.getBoolean("content.streaming_enabled") : true;
+	private static final Boolean IS_STREAMING_ENABLED = Platform.config.hasPath("content.streaming_enabled") ? Platform.config.getBoolean("content.streaming_enabled") : false;
 	private static final Boolean CONTENT_UPLOAD_CONTEXT_DRIVEN = Platform.config.hasPath("content.upload.context.driven") ? Platform.config.getBoolean("content.upload.context.driven") : true;
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
