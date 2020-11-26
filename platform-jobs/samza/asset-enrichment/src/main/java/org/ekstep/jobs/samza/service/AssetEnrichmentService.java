@@ -54,6 +54,7 @@ public class AssetEnrichmentService implements ISamzaService {
 			return MAXITERTIONCOUNT;
 	}
 	private static final Boolean CONTENT_UPLOAD_CONTEXT_DRIVEN = Platform.config.hasPath("content.upload.context.driven") ? Platform.config.getBoolean("content.upload.context.driven") : true;
+	private static Boolean IS_STREAMING_ENABLED;
 
 	@Override
 	public void initialize(Config config) throws Exception {
@@ -63,6 +64,7 @@ public class AssetEnrichmentService implements ISamzaService {
 		LearningRequestRouterPool.init();
 		LOGGER.info("Akka actors initialized");
 		streamJobRequest  = new VideoStreamingJobRequest();
+		IS_STREAMING_ENABLED = Platform.config.hasPath("content.streaming_enabled") ? Platform.config.getBoolean("content.streaming_enabled") : false;
 	}
 
 	private boolean validateObject(Map<String, Object> edata) {
@@ -322,7 +324,7 @@ public class AssetEnrichmentService implements ISamzaService {
 	public void pushStreamingUrlRequest(Node node, String videoUrl) {
         List<String> streamableMimeType = Platform.config.hasPath("stream.mime.type") ?
                 Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Arrays.asList("video/mp4");
-        if (streamableMimeType.contains((String) node.getMetadata().get(AssetEnrichmentEnums.mimeType.name()))) {
+        if (IS_STREAMING_ENABLED && streamableMimeType.contains((String) node.getMetadata().get(AssetEnrichmentEnums.mimeType.name()))) {
             streamJobRequest.insert(node.getIdentifier(), videoUrl,
                     (String) node.getMetadata().get(AssetEnrichmentEnums.channel.name()), "1.0");
         }

@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>asset-enrichment</artifactId>
-			<version>0.0.103</version>
+			<version>0.0.104</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 			<exclusions>
@@ -53,7 +53,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
-            <version>0.0.358</version>
+            <version>0.0.359</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
