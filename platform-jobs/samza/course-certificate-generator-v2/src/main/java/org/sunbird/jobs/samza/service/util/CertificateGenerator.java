@@ -570,13 +570,22 @@ public class CertificateGenerator {
      * @return
      */
     protected static String getCertTemplate(String id) {
-        try{
+        try {
             if(StringUtils.isNotBlank(id)) {
+                Map<String, Object> certTemplate = new HashMap<>();
+                String assetStr = RedisStoreUtil.get(id);
+                if(StringUtils.isNotBlank(assetStr)) {
+                    certTemplate = mapper.readValue(assetStr, Map.class);
+                    return (String) certTemplate.getOrDefault("artifactUrl", ""); 
+                }
                 String url = KP_CONTENT_SERVICE_BASE_URL + ASSET_READ_URL + id;
                 HttpResponse<String> httpResponse = Unirest.get(url).header("Content-Type", "application/json").asString();
                 if(200 == httpResponse.getStatus()) {
                     Response response = mapper.readValue(httpResponse.getBody(), Response.class);
-                    Map<String, Object> certTemplate = (Map<String, Object>) response.getResult().getOrDefault("content", new HashMap<>());
+                    certTemplate = (Map<String, Object>) response.getResult().getOrDefault("content", new HashMap<>());
+                    if(MapUtils.isNotEmpty(certTemplate)) {
+                        RedisStoreUtil.save(id, mapper.writeValueAsString(certTemplate), 600);
+                    }
                     return (String) certTemplate.getOrDefault("artifactUrl", "");
                 }
             }
