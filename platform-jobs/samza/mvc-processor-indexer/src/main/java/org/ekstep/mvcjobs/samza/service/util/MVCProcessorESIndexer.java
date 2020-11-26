@@ -15,6 +15,7 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 
 /**
@@ -64,6 +65,19 @@ public class MVCProcessorESIndexer extends AbstractESIndexer {
 				ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.MVC_SEARCH_INDEX,
 						uniqueId, jsonAsString);
 				break;
+			case "update-content-rating" :
+				String resp = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX,
+						uniqueId);
+				if (resp.contains(uniqueId)) {
+					LOGGER.info("ES Document Found With Identifier " + uniqueId +" | Updating Content Rating.");
+					Map<String, Object> metadata = (Map<String, Object>) jsonIndexDocument.get("metadata");
+					String finalJsonindexasString = mapper.writeValueAsString(metadata);
+					CompletableFuture.runAsync(() -> {
+						ElasticSearchUtil.updateDocument(CompositeSearchConstants.MVC_SEARCH_INDEX,
+								uniqueId, finalJsonindexasString);
+
+					});
+				}
 			case "update-ml-contenttextvector":
 				List<List<Double>> ml_contentTextVectorList;
 				Set<Double> ml_contentTextVector = null;
