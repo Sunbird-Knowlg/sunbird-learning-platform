@@ -1,4 +1,3 @@
-flink_namespace: "flink-kp-{{ instance }}"
 imagepullsecrets: sunbird-registry-secret
 
 ### Job manager related vars
@@ -30,8 +29,6 @@ taskmanager_heap_memory: 1024
 
 ### base-config related vars
 postgres_max_connections: 2
-azure_account: "{{ sunbird_public_storage_account_name }}"
-azure_secret: "{{ sunbird_public_storage_account_key }}"
 flink_container_name: flink-check-points-store
 checkpoint_interval: 60000
 checkpoint_pause_between_seconds: 5000
@@ -39,8 +36,6 @@ checkpoint_compression_enabled: true
 restart_attempts: 3
 restart_delay: 30000 # in milli-seconds
 producer_max_request_size: 1572864
-dp_redis_host: "{{ groups['dp-redis'][0] }}"
-kp_redis_host: "{{ groups['redisall'][0] }}"
 
 ### Activity Aggregate job related vars
 activity_agg_consumer_parallelism: 1
@@ -55,7 +50,6 @@ activity_agg_batch_interval: 60
 activity_agg_batch_read_size: 2
 activity_agg_batch_write_size: 10
 activity_agg_window_shards: 1000
-dedup_redis_host: "{{ groups['lms-redis'][0] }}"
 activity_agg_dedup_index: 13
 activity_agg_dedup_expiry: 604800
 activity_module_aggs_enabled: true
@@ -76,11 +70,6 @@ post_publish_event_router_parallelism: 1
 ###  Certificate Job related Vars
 certificate_generator_consumer_parallelism: 1
 certificate_generator_parallelism: 1
-cert_domain_url:  "{{proto}}://{{domain_name}}"
-cert_container_name: "{{instance}}-e-credentials"
-cert_cloud_storage_type: "azure"
-cert_azure_storage_secret: "{{sunbird_private_storage_account_key}}"
-cert_azure_storage_key: "{{sunbird_private_storage_account_name}}"
 
 ###  Post Certificate Processor Job related Vars
 post_certificate_processor_consumer_parallelism: 1
@@ -160,11 +149,3 @@ flink_job_names:
 
 ### Global vars
 middleware_course_keyspace: "sunbird_courses"
-middleware_hierarchy_keyspace: "{{ instance }}_hierarchy_store"
-neo4j_route_path: "bolt://{{ groups['learning-neo4j-node1'][0] }}:7687"
-kp_search_service_base_url: "http://{{private_ingressgateway_ip}}/search"
-lms_service_base_url: "http://{{private_ingressgateway_ip}}/lms"
-learner_service_base_url: "http://{{private_ingressgateway_ip}}/learner"
-content_service_base_url: "http://{{private_ingressgateway_ip}}/content"
-certificate_base_path: "https://{{private_ingressgateway_ip}}/certs"
-enc_service_base_url: "http://{{private_ingressgateway_ip}}/enc"
