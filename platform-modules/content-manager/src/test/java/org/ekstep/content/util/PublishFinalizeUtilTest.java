@@ -6,10 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ekstep.common.dto.Response;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.content.entity.Manifest;
 import org.ekstep.content.entity.Media;
 import org.ekstep.content.entity.Plugin;
+import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.graph.model.node.DefinitionDTO;
@@ -126,8 +128,65 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		
 		
 		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
+		DefinitionDTO termDefinition = new ControllerUtil().getDefinition("domain", "Term");
+		
+		
+		   
+		Response response = new Response();
+		Map<String, Object> termMap = new HashMap<>();
+		termMap.put("identifier", "ncf_board_cbse");
+		termMap.put("name", "CBSE");
+		Node termOrgCbse =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
+		
+		termMap = new HashMap<>();
+		termMap.put("identifier", "ncf_gradelevel_grade1");
+		termMap.put("name", "Class 1");
+		Node termOrgGradeLevel =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
+		
+		termMap = new HashMap<>();
+		termMap.put("identifier", "ncf_subject_math");
+		termMap.put("name", "Math");
+		Node termOrgSubject =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
+		
+		termMap = new HashMap<>();
+		termMap.put("identifier", "ncf_medium_english");
+		termMap.put("name", "English");
+		Node terOrgMedium =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
+		
+		termMap = new HashMap<>();
+		termMap.put("identifier", "tpd_board_cbse");
+		termMap.put("name", "CBSE Board");
+		Node termTarCbse =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
+		
+		termMap = new HashMap<>();
+		termMap.put("identifier", "tpd_gradelevel_class1");
+		termMap.put("name", "Class 1");
+		Node termTarGradeLevel =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
+		
+		termMap = new HashMap<>();
+		termMap.put("identifier", "tpd_subject_math");
+		termMap.put("name", "Mathematics");
+		Node termTarSubject =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
+		
+		termMap = new HashMap<>();
+		termMap.put("identifier", "tpd_medium_english");
+		termMap.put("name", "English Medium");
+		Node terTarMedium =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
+		
+		termMap = new HashMap<>();
+		termMap.put("identifier", "tpd_medium_abc");
+		termMap.put("name", "Abc");
+		Node terTarTopic =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
+		
+		List<Node> nodeList = Arrays.asList(termOrgCbse, termOrgGradeLevel, termOrgSubject, terOrgMedium, termTarCbse, termTarGradeLevel, termTarSubject, terTarMedium, terTarTopic);
+		response.put(GraphDACParams.node_list.name(), nodeList);
+		
+		
+		ControllerUtil controllerUtil = PowerMockito.spy(new ControllerUtil());
+		PowerMockito.when(controllerUtil.getDataNodes(Mockito.anyString(), Mockito.anyList())).thenReturn(response);
+		
 		Node contentNode = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
-		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil();
+		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil(controllerUtil);
 		Map<String, List<String>> frameworkMetadata = publishFinalizeUtil.mergeOrganisationAndtargetFrameworks(contentNode);
 		
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_frameworkIds")).containsAll(Arrays.asList("ncf", "tpd")));
@@ -136,6 +195,11 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_mediumIds")).containsAll(Arrays.asList("ncf_medium_english", "tpd_medium_english")));
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_gradeLevelIds")).containsAll(Arrays.asList("ncf_gradelevel_grade1", "tpd_gradelevel_class1")));
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_topicIds")).containsAll(Arrays.asList("tpd_medium_abc")));
+		
+		Assert.isTrue(((List<String>)frameworkMetadata.get("se_boards")).containsAll(Arrays.asList("CBSE", "CBSE Board")));
+		Assert.isTrue(((List<String>)frameworkMetadata.get("se_subjects")).containsAll(Arrays.asList("Math", "Mathematics")));
+		Assert.isTrue(((List<String>)frameworkMetadata.get("se_mediums")).containsAll(Arrays.asList("English", "English Medium")));
+		Assert.isTrue(((List<String>)frameworkMetadata.get("se_gradeLevels")).containsAll(Arrays.asList("Class 1")));
 	}
 	
 	@Test

@@ -47,6 +47,9 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	public PublishFinalizeUtil(ContentStore contentStore) {
 		this.contentStore = contentStore;
 	}
+	public PublishFinalizeUtil(ControllerUtil controllerUtil) {
+		this.controllerUtil = controllerUtil;
+	}
 	public PublishFinalizeUtil() {}
 
 	public String uploadFile(String fileUrl, Node node, String basePath) {
