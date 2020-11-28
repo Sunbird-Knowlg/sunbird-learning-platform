@@ -3055,6 +3055,19 @@
                 },
                 {
                     "required": false,
+                    "dataType": "Number",
+                    "propertyName": "maxAttempts",
+                    "title": "Maximum Attempts",
+                    "description": "Maximum attempts for content",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 8 }",
+                    "indexed": true
+                },
+                {
+                    "required": false,
                     "dataType": "List",
                     "propertyName": "relatedBoards",
                     "title": "Related Boards",
@@ -3381,7 +3394,8 @@
                     "leafNodes",
                     "origin",
                     "originData",
-                    "plugins"
+                    "plugins",
+                    "maxAttempts"
                 ]
             }
         }
