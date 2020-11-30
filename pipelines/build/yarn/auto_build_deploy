@@ -23,7 +23,7 @@ node() {
         
 //        stage Build learning.
            println ANSI_BOLD + ANSI_GREEN + "Triggering KnowledgePlatform build.." + ANSI_NORMAL
-           lpbuild = build job: "Build/$module/KnowledgePlatform", parameters: [string(name: 'github_release_tag', value: "$tag_name")]
+           lpbuild = build job: "AutoBuild/SBStaging/KnowledgePlatform/$module/KnowledgePlatform", parameters: [string(name: 'github_release_tag', value: "$tag_name")]
 
           if (lpbuild.currentResult == "SUCCESS") {
 //        stage Build
