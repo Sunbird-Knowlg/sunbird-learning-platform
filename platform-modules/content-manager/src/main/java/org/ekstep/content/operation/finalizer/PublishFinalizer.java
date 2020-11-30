@@ -234,7 +234,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		
 		//Enhancing node metadata with framework specific metadata.
-		node.getMetadata().putAll(publishFinalizeUtil.mergeOrganisationAndtargetFrameworks(node));
+		node.getMetadata().putAll(publishFinalizeUtil.enrichFrameworkMetadata(node));
 		 
 		boolean isCompressionApplied = (boolean) parameterMap.get(ContentWorkflowPipelineParams.isCompressionApplied.name());
 		LOGGER.debug("Compression Applied ? " + isCompressionApplied);

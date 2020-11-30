@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -40,6 +39,22 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	private static final List<String> contentFrameworkMetafields = Arrays.asList("organisationBoardIds", "organisationSubjectIds", 
 			"organisationMediumids", "organisationTopicsIds", "organisationGradeLevelIds", "targetBoardIds", "targetSubjectIds", 
 			"targetMediumIds", "targetTopicIds", "targetGradeLevelIds");
+	private static final Map<String, Map<String, List<String>>> frameworkCategoryFieldsMap = new HashMap<String, Map<String, List<String>>>(){{
+		put("id", new HashMap<String, List<String>>() {{
+			put("se_boardIds", Arrays.asList("organisationBoardIds", "targetBoardIds"));
+			put("se_subjectIds", Arrays.asList("organisationSubjectIds", "targetSubjectIds"));
+			put("se_mediumIds", Arrays.asList("organisationMediumids", "targetMediumIds"));
+			put("se_topicIds", Arrays.asList("organisationTopicsIds", "targetTopicIds"));
+			put("se_gradeLevelIds", Arrays.asList("organisationGradeLevelIds", "targetGradeLevelIds"));
+		}});
+		put("name", new HashMap<String, List<String>>() {{
+			put("se_boards", Arrays.asList("organisationBoardIds", "targetBoardIds"));
+			put("se_subjects", Arrays.asList("organisationSubjectIds", "targetSubjectIds"));
+			put("se_mediums", Arrays.asList("organisationMediumids", "targetMediumIds"));
+			put("se_topics", Arrays.asList("organisationTopicsIds", "targetTopicIds"));
+			put("se_gradeLevels", Arrays.asList("organisationGradeLevelIds", "targetGradeLevelIds"));
+		}});
+	}};
 	
 	private ContentStore contentStore = new ContentStore();
 	ControllerUtil controllerUtil = new ControllerUtil();
@@ -149,42 +164,37 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		return isExternal;
 	}
 	
-	public Map<String, List<String>> mergeOrganisationAndtargetFrameworks(Node node) {
+	public Map<String, List<String>> enrichFrameworkMetadata(Node node){
+		String[] defaultArray = {};
 		Map<String, List<String>> frameworkMetadata = new HashMap<String, List<String>>();
+		List<String> organisationFrameworkIds = StringUtils.isNotBlank((String)node.getMetadata().get("organisationFrameworkId")) ? 
+				Arrays.asList((String)node.getMetadata().get("organisationFrameworkId")) : new ArrayList<String>();
+		List<String> targetFrameworkIds =  Arrays.asList((String[])node.getMetadata().getOrDefault("targetFrameworkIds", defaultArray));
+		
+		frameworkMetadata.put("se_frameworkIds", mergeIds(organisationFrameworkIds, targetFrameworkIds));
+		enrichFrameworkCategoryMetadata(frameworkMetadata, node);
+		
+		return frameworkMetadata;
+		
+	}
+	protected void enrichFrameworkCategoryMetadata(Map<String, List<String>> frameworkMetadata, Node node) {
 		String[] defaultArray = {};
 		Map<String, Object> metaData = node.getMetadata();
-		String organisationFrameworkId = (String)metaData.get("organisationFrameworkId");
-		if(StringUtils.isNotBlank(organisationFrameworkId))
-			frameworkMetadata.put("se_frameworkIds", mergeIds(Arrays.asList(organisationFrameworkId), 
-					Arrays.asList((String[])metaData.getOrDefault("targetFrameworkIds", defaultArray))));
-		else
-			frameworkMetadata.put("se_frameworkIds", mergeIds(new ArrayList<String>(), 
-					Arrays.asList((String[])metaData.getOrDefault("targetFrameworkIds", defaultArray))));
-		frameworkMetadata.put("se_boardIds", mergeIds(Arrays.asList((String[])metaData.getOrDefault("organisationBoardIds", defaultArray)), 
-				Arrays.asList((String[])metaData.getOrDefault("targetBoardIds", defaultArray))));
-		frameworkMetadata.put("se_subjectIds", mergeIds(Arrays.asList((String[])metaData.getOrDefault("organisationSubjectIds", defaultArray)), 
-				Arrays.asList((String[])metaData.getOrDefault("targetSubjectIds", defaultArray))));
-		frameworkMetadata.put("se_mediumIds", mergeIds(Arrays.asList((String[])metaData.getOrDefault("organisationMediumids", defaultArray)), 
-				Arrays.asList((String[])metaData.getOrDefault("targetMediumIds", defaultArray))));
-		frameworkMetadata.put("se_topicIds", mergeIds(Arrays.asList((String[])metaData.getOrDefault("organisationTopicsIds", defaultArray)), 
-				Arrays.asList((String[])metaData.getOrDefault("targetTopicIds", defaultArray))));
-		frameworkMetadata.put("se_gradeLevelIds", mergeIds(Arrays.asList((String[])metaData.getOrDefault("organisationGradeLevelIds", defaultArray)), 
-				Arrays.asList((String[])metaData.getOrDefault("targetGradeLevelIds", defaultArray))));
-		
+		Map<String, List<String>> idMap = frameworkCategoryFieldsMap.get("id");
+		Map<String, List<String>> nameMap = frameworkCategoryFieldsMap.get("name");
 		Map<String, List<String>> frameworkMetafieldsLabel = getLabels(metaData, node.getIdentifier());
-		if(MapUtils.isNotEmpty(frameworkMetafieldsLabel)) {
-			frameworkMetadata.put("se_boards", mergeIds((List<String>)frameworkMetafieldsLabel.getOrDefault("organisationBoardIds", new ArrayList<String>()), 
-					(List<String>)frameworkMetafieldsLabel.getOrDefault("targetBoardIds", new ArrayList<String>())));
-			frameworkMetadata.put("se_subjects", mergeIds((List<String>)frameworkMetafieldsLabel.getOrDefault("organisationSubjectIds", new ArrayList<String>()), 
-					(List<String>)frameworkMetafieldsLabel.getOrDefault("targetSubjectIds", new ArrayList<String>())));
-			frameworkMetadata.put("se_mediums", mergeIds((List<String>)frameworkMetafieldsLabel.getOrDefault("organisationMediumids", new ArrayList<String>()), 
-					(List<String>)frameworkMetafieldsLabel.getOrDefault("targetMediumIds", new ArrayList<String>())));
-			frameworkMetadata.put("se_topics", mergeIds((List<String>)frameworkMetafieldsLabel.getOrDefault("organisationTopicsIds", new ArrayList<String>()), 
-					(List<String>)frameworkMetafieldsLabel.getOrDefault("targetTopicIds", new ArrayList<String>())));
-			frameworkMetadata.put("se_gradeLevels", mergeIds((List<String>)frameworkMetafieldsLabel.getOrDefault("organisationGradeLevelIds", new ArrayList<String>()), 
-					(List<String>)frameworkMetafieldsLabel.getOrDefault("targetGradeLevelIds", new ArrayList<String>())));
-		}
-		return frameworkMetadata;
+		
+		idMap.keySet().forEach(category -> {
+			List<String> orgData = Arrays.asList((String[])metaData.getOrDefault(idMap.get(category).get(0), defaultArray));
+			List<String> targetData = Arrays.asList((String[])metaData.getOrDefault(idMap.get(category).get(1), defaultArray));
+			frameworkMetadata.put(category, mergeIds(orgData, targetData));
+		});
+		nameMap.keySet().forEach(category -> {
+			List<String> orgData = (List<String>)frameworkMetafieldsLabel.getOrDefault(idMap.get(category).get(0), new ArrayList<String>());
+			List<String> targetData = (List<String>)frameworkMetafieldsLabel.getOrDefault(idMap.get(category).get(1), new ArrayList<String>());
+			frameworkMetadata.put(category, mergeIds(orgData, targetData));
+		});
+		
 	}
 	protected List<String> mergeIds(List<String> orgList, List<String> targetList){
 		Set<String> mergedList = new HashSet<String>();

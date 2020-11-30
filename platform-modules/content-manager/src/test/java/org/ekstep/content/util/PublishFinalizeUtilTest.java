@@ -1,6 +1,5 @@
 package org.ekstep.content.util;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -29,8 +28,6 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.util.Assert;
 
@@ -89,7 +86,7 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 	}
 	
 	@Test
-	public void testMergeOrganisationAndtargetFrameworks() throws Exception {
+	public void testEnrichFrameworkMetadata() throws Exception {
 		
 		Map<String, Object> contentNodeMap = new HashMap<>();
 		contentNodeMap.put("identifier", "do_11292666508456755211");
@@ -187,7 +184,7 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		
 		Node contentNode = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
 		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil(controllerUtil);
-		Map<String, List<String>> frameworkMetadata = publishFinalizeUtil.mergeOrganisationAndtargetFrameworks(contentNode);
+		Map<String, List<String>> frameworkMetadata = publishFinalizeUtil.enrichFrameworkMetadata(contentNode);
 		
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_frameworkIds")).containsAll(Arrays.asList("ncf", "tpd")));
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_boardIds")).containsAll(Arrays.asList("ncf_board_cbse", "tpd_board_cbse")));
