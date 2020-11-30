@@ -190,8 +190,8 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			frameworkMetadata.put(category, mergeIds(orgData, targetData));
 		});
 		nameMap.keySet().forEach(category -> {
-			List<String> orgData = (List<String>)frameworkMetafieldsLabel.getOrDefault(idMap.get(category).get(0), new ArrayList<String>());
-			List<String> targetData = (List<String>)frameworkMetafieldsLabel.getOrDefault(idMap.get(category).get(1), new ArrayList<String>());
+			List<String> orgData = (List<String>)frameworkMetafieldsLabel.getOrDefault(nameMap.get(category).get(0), new ArrayList<String>());
+			List<String> targetData = (List<String>)frameworkMetafieldsLabel.getOrDefault(nameMap.get(category).get(1), new ArrayList<String>());
 			frameworkMetadata.put(category, mergeIds(orgData, targetData));
 		});
 		
