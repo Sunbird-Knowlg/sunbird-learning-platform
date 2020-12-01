@@ -3,16 +3,22 @@ package org.ekstep.content.util;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.ekstep.common.Slug;
+import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
@@ -20,19 +26,44 @@ import org.ekstep.content.entity.Manifest;
 import org.ekstep.content.entity.Media;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.operation.finalizer.BaseFinalizer;
+import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.contentstore.ContentStore;
 import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class PublishFinalizeUtil extends BaseFinalizer{
 	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
 	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
+	private static final List<String> contentFrameworkMetafields = Arrays.asList("organisationBoardIds", "organisationSubjectIds", 
+			"organisationMediumids", "organisationTopicsIds", "organisationGradeLevelIds", "targetBoardIds", "targetSubjectIds", 
+			"targetMediumIds", "targetTopicIds", "targetGradeLevelIds");
+	private static final Map<String, Map<String, List<String>>> frameworkCategoryFieldsMap = new HashMap<String, Map<String, List<String>>>(){{
+		put("id", new HashMap<String, List<String>>() {{
+			put("se_boardIds", Arrays.asList("organisationBoardIds", "targetBoardIds"));
+			put("se_subjectIds", Arrays.asList("organisationSubjectIds", "targetSubjectIds"));
+			put("se_mediumIds", Arrays.asList("organisationMediumids", "targetMediumIds"));
+			put("se_topicIds", Arrays.asList("organisationTopicsIds", "targetTopicIds"));
+			put("se_gradeLevelIds", Arrays.asList("organisationGradeLevelIds", "targetGradeLevelIds"));
+		}});
+		put("name", new HashMap<String, List<String>>() {{
+			put("se_boards", Arrays.asList("organisationBoardIds", "targetBoardIds"));
+			put("se_subjects", Arrays.asList("organisationSubjectIds", "targetSubjectIds"));
+			put("se_mediums", Arrays.asList("organisationMediumids", "targetMediumIds"));
+			put("se_topics", Arrays.asList("organisationTopicsIds", "targetTopicIds"));
+			put("se_gradeLevels", Arrays.asList("organisationGradeLevelIds", "targetGradeLevelIds"));
+		}});
+	}};
 	
 	private ContentStore contentStore = new ContentStore();
+	ControllerUtil controllerUtil = new ControllerUtil();
 	
 	public PublishFinalizeUtil(ContentStore contentStore) {
 		this.contentStore = contentStore;
+	}
+	public PublishFinalizeUtil(ControllerUtil controllerUtil) {
+		this.controllerUtil = controllerUtil;
 	}
 	public PublishFinalizeUtil() {}
 
@@ -131,5 +162,80 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 				!StringUtils.contains(urlLink, CloudStore.getContainerName()))
 			isExternal = true; 
 		return isExternal;
+	}
+	
+	public Map<String, List<String>> enrichFrameworkMetadata(Node node){
+		String[] defaultArray = {};
+		Map<String, List<String>> frameworkMetadata = new HashMap<String, List<String>>();
+		List<String> organisationFrameworkIds = StringUtils.isNotBlank((String)node.getMetadata().get("organisationFrameworkId")) ? 
+				Arrays.asList((String)node.getMetadata().get("organisationFrameworkId")) : new ArrayList<String>();
+		List<String> targetFrameworkIds =  Arrays.asList((String[])node.getMetadata().getOrDefault("targetFrameworkIds", defaultArray));
+		
+		frameworkMetadata.put("se_frameworkIds", mergeIds(organisationFrameworkIds, targetFrameworkIds));
+		enrichFrameworkCategoryMetadata(frameworkMetadata, node);
+		
+		return frameworkMetadata;
+		
+	}
+	protected void enrichFrameworkCategoryMetadata(Map<String, List<String>> frameworkMetadata, Node node) {
+		String[] defaultArray = {};
+		Map<String, Object> metaData = node.getMetadata();
+		Map<String, List<String>> idMap = frameworkCategoryFieldsMap.get("id");
+		Map<String, List<String>> nameMap = frameworkCategoryFieldsMap.get("name");
+		Map<String, List<String>> frameworkMetafieldsLabel = getLabels(metaData, node.getIdentifier());
+		
+		idMap.keySet().forEach(category -> {
+			List<String> orgData = Arrays.asList((String[])metaData.getOrDefault(idMap.get(category).get(0), defaultArray));
+			List<String> targetData = Arrays.asList((String[])metaData.getOrDefault(idMap.get(category).get(1), defaultArray));
+			frameworkMetadata.put(category, mergeIds(orgData, targetData));
+		});
+		nameMap.keySet().forEach(category -> {
+			List<String> orgData = (List<String>)frameworkMetafieldsLabel.getOrDefault(nameMap.get(category).get(0), new ArrayList<String>());
+			List<String> targetData = (List<String>)frameworkMetafieldsLabel.getOrDefault(nameMap.get(category).get(1), new ArrayList<String>());
+			frameworkMetadata.put(category, mergeIds(orgData, targetData));
+		});
+		
+	}
+	protected List<String> mergeIds(List<String> orgList, List<String> targetList){
+		Set<String> mergedList = new HashSet<String>();
+		mergedList.addAll(orgList);
+		mergedList.addAll(targetList);
+		return CollectionUtils.isEmpty(mergedList)? null : new ArrayList<String>(mergedList);
+	}
+	protected Map<String, List<String>> getLabels(Map<String, Object> metadata, String identifier){
+		List<String> ids = new ArrayList<String>();
+		String[] defaultArray = {};
+		for(String id : contentFrameworkMetafields) 
+			ids.addAll(Arrays.asList((String[])metadata.getOrDefault(id, defaultArray)));
+		if(CollectionUtils.isEmpty(ids)) {
+			TelemetryManager.info("For Content :: " + identifier + " no framework categories are set in metadata.");
+			return null;
+		}
+		Response response = controllerUtil.getDataNodes("domain", ids);
+		if (response.getResponseCode() != ResponseCode.OK) {
+			TelemetryManager.error("Error while fetching framework related objects:: ResponseCode:: " + response.getResponseCode() + 
+					" Error Mesaage:: " + response.getParams().getErrmsg());
+			return null;
+		}else {
+			List<Node> nodes = (List<Node>) response.getResult().get(GraphDACParams.node_list.name());
+			if(CollectionUtils.isEmpty(nodes)) {
+				TelemetryManager.info("For Content :: " + identifier + " no framework categories object found for ids:: " + ids);
+				return null;
+			}
+			Map<String, Map<String, Object>> nodeMap = nodes.stream().collect(Collectors.toMap(Node:: getIdentifier, Node:: getMetadata));
+			Map<String, List<String>> frameworkMetadata = new HashMap<String, List<String>>();
+			if(!nodeMap.isEmpty()) {
+				for(String metaField : contentFrameworkMetafields) {
+					List<String> idList = Arrays.asList((String[])metadata.getOrDefault(metaField, defaultArray));
+					if(CollectionUtils.isNotEmpty(idList)) {
+						List<String> labelList =  new ArrayList<String>();
+						idList.stream().forEach(id -> labelList.add((String)((Map<String, Object>)nodeMap.get(id)).get("name")));
+						frameworkMetadata.put(metaField, labelList);
+					}
+					
+				}
+			}
+			return frameworkMetadata;
+		}
 	}
 }
