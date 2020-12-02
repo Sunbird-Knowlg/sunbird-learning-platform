@@ -550,7 +550,7 @@ public class CertificateGenerator {
             request.put("priority", 1);
             request.put("data", new HashMap<String, Object>(){{
                 put("type", 1);
-                put("action", new HashMap<String, Object>() {{
+                put("actionData", new HashMap<String, Object>() {{
                     put("actionType", "certificateUpdate");
                     put("title", courseName);
                     put("description", feedMessage);
