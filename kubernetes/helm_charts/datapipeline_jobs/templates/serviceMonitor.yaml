@@ -1,3 +1,4 @@
+{{- if .Values.serviceMonitor.enabled }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -36,3 +37,4 @@ spec:
   namespaceSelector:
     matchNames:
     - {{ .Values.namespace }}
+{{- end }}
