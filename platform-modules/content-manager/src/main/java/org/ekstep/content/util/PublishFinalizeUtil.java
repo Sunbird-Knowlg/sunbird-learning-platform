@@ -203,27 +203,28 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		return CollectionUtils.isEmpty(mergedList)? null : new ArrayList<String>(mergedList);
 	}
 	protected Map<String, List<String>> getLabels(Map<String, Object> metadata, String identifier){
+		Map<String, List<String>> frameworkMetadata = new HashMap<String, List<String>>();
 		List<String> ids = new ArrayList<String>();
 		String[] defaultArray = {};
 		for(String id : contentFrameworkMetafields) 
 			ids.addAll(Arrays.asList((String[])metadata.getOrDefault(id, defaultArray)));
 		if(CollectionUtils.isEmpty(ids)) {
 			TelemetryManager.info("For Content :: " + identifier + " no framework categories are set in metadata.");
-			return null;
+			return frameworkMetadata;
 		}
 		Response response = controllerUtil.getDataNodes("domain", ids);
 		if (response.getResponseCode() != ResponseCode.OK) {
 			TelemetryManager.error("Error while fetching framework related objects:: ResponseCode:: " + response.getResponseCode() + 
 					" Error Mesaage:: " + response.getParams().getErrmsg());
-			return null;
+			return frameworkMetadata;
 		}else {
 			List<Node> nodes = (List<Node>) response.getResult().get(GraphDACParams.node_list.name());
 			if(CollectionUtils.isEmpty(nodes)) {
 				TelemetryManager.info("For Content :: " + identifier + " no framework categories object found for ids:: " + ids);
-				return null;
+				return frameworkMetadata;
 			}
 			Map<String, Map<String, Object>> nodeMap = nodes.stream().collect(Collectors.toMap(Node:: getIdentifier, Node:: getMetadata));
-			Map<String, List<String>> frameworkMetadata = new HashMap<String, List<String>>();
+			
 			if(!nodeMap.isEmpty()) {
 				for(String metaField : contentFrameworkMetafields) {
 					List<String> idList = Arrays.asList((String[])metadata.getOrDefault(metaField, defaultArray));
