@@ -213,9 +213,10 @@ public class CertificateGenerator {
 
                 pushAuditEvent(userId, courseId, batchId, certificate, collector);
 
-                if(addCertificateToUser(certificate, courseId, batchId, oldId, recipientName, (String)certTemplate.get("name")) && certificateGenerateNotificationEnable) {
-                	notifyUser(userId, certTemplate, courseName, userResponse, issuedOn);
+                if(addCertificateToUser(certificate, courseId, batchId, oldId, recipientName, (String)certTemplate.get("name"))) {
                     createUserFeed(userId, courseId, courseName, issuedOn);
+                    if(certificateGenerateNotificationEnable)
+                	    notifyUser(userId, certTemplate, courseName, userResponse, issuedOn);
                 }
             } else {
                 LOGGER.info("CertificateGenerator:generateCertificate: Error while generation certificate for batchId : " + batchId +  ", courseId : " + courseId + " and userId : " + userId + " with error response : "  +  + httpResponse.getStatus()  + " :: " + httpResponse.getBody());
@@ -549,7 +550,7 @@ public class CertificateGenerator {
             request.put("priority", 1);
             request.put("data", new HashMap<String, Object>(){{
                 put("type", 1);
-                put("action", new HashMap<String, Object>() {{
+                put("actionData", new HashMap<String, Object>() {{
                     put("actionType", "certificateUpdate");
                     put("title", courseName);
                     put("description", feedMessage);

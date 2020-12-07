@@ -49,11 +49,12 @@ public class MVCProcessorService implements ISamzaService {
 			throws Exception {
 		Object index = message.get("index");
 		Boolean shouldindex = BooleanUtils.toBoolean(null == index ? "true" : index.toString());
+		String identifier = (String) ((Map<String, Object>) message.get("object")).get("id");
 		if (!BooleanUtils.isFalse(shouldindex)) {
 			LOGGER.debug("Indexing event into ES");
 			try {
 				processMessage(message);
-				LOGGER.debug("Composite record added/updated");
+				LOGGER.debug("Record Added/Updated into mvc index for " + identifier);
 				metrics.incSuccessCounter();
 			} catch (PlatformException ex) {
 				LOGGER.error("Error while processing message:", message, ex);
@@ -78,23 +79,17 @@ public class MVCProcessorService implements ISamzaService {
 	public void processMessage(Map<String, Object> message) throws Exception {
 		if (message != null && message.get("eventData") != null) {
 			Map<String, Object> eventData = (Map<String, Object>) message.get("eventData");
-			String nodeType =  eventData.get("nodeType") != null ? (String) eventData.get("nodeType") : CompositeSearchConstants.NODE_TYPE_DATA;
-			String uniqueId = (String) ((Map<String, Object>) message.get("object")).get("id");
-			switch (nodeType) {
-				case CompositeSearchConstants.NODE_TYPE_SET:
-				case CompositeSearchConstants.NODE_TYPE_DATA: {
-					String action = eventData.get("action").toString();
-					if(action.equalsIgnoreCase("update-es-index")) {
-						eventData = ContentUtil.getContentMetaData(eventData,uniqueId);
-					}
-					LOGGER.info("MVCProcessorService :: processMessage  ::: CAlling cassandra insertion ");
-					cassandraManager.insertIntoCassandra(eventData,uniqueId);
-					LOGGER.info("MVCProcessorService :: processMessage  ::: CAlling elasticsearch insertion ");
-					mvcIndexer.upsertDocument(uniqueId,eventData);
-					break;
+			String action = eventData.get("action").toString();
+			String objectId = (String) ((Map<String, Object>) message.get("object")).get("id");
+			if(!action.equalsIgnoreCase("update-content-rating")) {
+				if (action.equalsIgnoreCase("update-es-index")) {
+					eventData = ContentUtil.getContentMetaData(eventData, objectId);
 				}
-				default: break;
+				LOGGER.info("MVCProcessorService :: processMessage  ::: Calling cassandra insertion for " + objectId);
+				cassandraManager.insertIntoCassandra(eventData, objectId);
 			}
+			LOGGER.info("MVCProcessorService :: processMessage  ::: Calling elasticsearch insertion for " + objectId);
+			mvcIndexer.upsertDocument(objectId, eventData);
 		}
 	}
 
