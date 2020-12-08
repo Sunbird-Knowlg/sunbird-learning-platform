@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-batch-updater</artifactId>
-			<version>0.0.63</version>
+			<version>0.0.64</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
