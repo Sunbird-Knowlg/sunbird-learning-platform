@@ -202,6 +202,7 @@ public class CertificateGenerator {
                 if(CollectionUtils.isNotEmpty(updatedCerts)) {
                     Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
                         put(CourseCertificateParams.issued_certificates.name(), updatedCerts);
+                        put(CourseCertificateParams.certstatus.name(), 2);
                     }};
                     Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
                         put(CourseCertificateParams.userId.name(), userId);
