@@ -30,8 +30,7 @@ public class SunbirdCassandraUtil {
             else
                 updateQuery.and(QueryBuilder.eq(entry.getKey(), entry.getValue()));
         });
-        
-        
+
         session.execute(updateQuery);
     }
 
