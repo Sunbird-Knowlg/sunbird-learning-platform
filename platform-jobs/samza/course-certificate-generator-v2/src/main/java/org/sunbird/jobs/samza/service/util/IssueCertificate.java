@@ -338,7 +338,6 @@ public class IssueCertificate {
             }
         } else {
             LOGGER.info("IssueCertificate:generateCertificatesForEnrollment: NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);
-            throw new ClientException("ERR_GENERATE_CERTIFICATE", "NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);
         }
     }
 
