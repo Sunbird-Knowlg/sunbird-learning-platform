@@ -60,16 +60,17 @@ public class MVCProcessorESIndexer extends AbstractESIndexer {
 		proocessNestedProps(jsonIndexDocument);
 		String jsonAsString = mapper.writeValueAsString(jsonIndexDocument);
 		switch (action) {
-			case "update-es-index":
+			case "update-es-index": {
 				// Insert a new doc
 				ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.MVC_SEARCH_INDEX,
 						uniqueId, jsonAsString);
 				break;
-			case "update-content-rating" :
+			}
+			case "update-content-rating" : {
 				String resp = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.MVC_SEARCH_INDEX,
 						uniqueId);
-				if (resp.contains(uniqueId)) {
-					LOGGER.info("ES Document Found With Identifier " + uniqueId +" | Updating Content Rating.");
+				if (null != resp && resp.contains(uniqueId)) {
+					LOGGER.info("ES Document Found With Identifier " + uniqueId + " | Updating Content Rating.");
 					Map<String, Object> metadata = (Map<String, Object>) jsonIndexDocument.get("metadata");
 					String finalJsonindexasString = mapper.writeValueAsString(metadata);
 					CompletableFuture.runAsync(() -> {
@@ -77,8 +78,10 @@ public class MVCProcessorESIndexer extends AbstractESIndexer {
 								uniqueId, finalJsonindexasString);
 
 					});
-				}
-			case "update-ml-contenttextvector":
+				} else
+					LOGGER.info("ES Document Not Found With Identifier " + uniqueId + " | Skipped Updating Content Rating.");
+			}
+			case "update-ml-contenttextvector": {
 				List<List<Double>> ml_contentTextVectorList;
 				Set<Double> ml_contentTextVector = null;
 				ml_contentTextVectorList = jsonIndexDocument.get("ml_contentTextVector") != null ? (List<List<Double>>) jsonIndexDocument.get("ml_contentTextVector") : null;
@@ -88,13 +91,16 @@ public class MVCProcessorESIndexer extends AbstractESIndexer {
 				}
 				jsonIndexDocument.put("ml_contentTextVector", ml_contentTextVector);
 				jsonAsString = mapper.writeValueAsString(jsonIndexDocument);
-			case "update-ml-keywords":
+			}
+			case "update-ml-keywords": {
 				// Update a doc
 				ElasticSearchUtil.updateDocument(CompositeSearchConstants.MVC_SEARCH_INDEX,
 						uniqueId, jsonAsString);
 
 				break;
+			}
 			default:
+				LOGGER.info("No Action Matched. Skipped Processing Event For " + uniqueId);
 		}
 
 	}

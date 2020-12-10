@@ -95,14 +95,14 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>auto-creator</artifactId>
-			<version>0.0.29</version>
+			<version>0.0.30</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>mvc-processor-indexer</artifactId>
-			<version>1.3.3</version>
+			<version>1.3.4</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
