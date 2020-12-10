@@ -44,7 +44,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/content/v3") 
-public class ContentV3Controller extends BaseController {
+public class ContentV3Controller extends BaseController  {
 
 	@Autowired
 	private IContentManager contentManager;
