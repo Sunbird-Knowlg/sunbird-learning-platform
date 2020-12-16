@@ -119,6 +119,14 @@ activity-aggregate-updater:
     activity {
       module.aggs.enabled = true
       input.dedup.enabled = true
+      filter.processed.enrolments = true
+      collection.status.cache.expiry = 3600
+    }
+
+    service {
+      search {
+        basePath = "{{ kp_search_service_base_url }}"
+      }
     }
 
 
