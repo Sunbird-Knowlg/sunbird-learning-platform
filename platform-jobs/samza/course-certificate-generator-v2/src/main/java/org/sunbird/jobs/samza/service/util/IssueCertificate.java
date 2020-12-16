@@ -93,7 +93,6 @@ public class IssueCertificate {
             LOGGER.info("IssueCertificate:fetchUsersAndIssueCertificates: userIds " + userIds);
             for (String key : templates.keySet()) {
                 Map<String, String> template = templates.get(key);
-                //String certName = template.getOrDefault("name", "");
                 String criteriaString = template.get("criteria");
                 if (StringUtils.isNotBlank(criteriaString)) {
                     Map<String, Object> criteria = mapper.readValue(criteriaString, new TypeReference<Map<String, Object>>() {
@@ -118,6 +117,10 @@ public class IssueCertificate {
                                 }).orElse(Arrays.asList());
 
                         generateCertificatesForEnrollment(usersToIssue, batchId, courseId, reIssue, template, collector);
+
+                        List<String> criteriaNotMatchedList = userIds.stream().filter(u -> !usersToIssue.contains(u)).collect(Collectors.toList());
+                        // certstatus = 3 means - the criteria didn't match.
+                        updateEnrolmentCertStatus(criteriaNotMatchedList, courseId, batchId, 3);
                     } else {
                         LOGGER.info("IssueCertificate:fetchUsersAndIssueCertificates: Certificate template has empty/invalid criteria: " + criteria);
                         throw new ClientException("ERR_INVALID_CERTIFICATE_TEMPLATE", "Certificate template has empty/invalid criteria: " + criteria);
@@ -130,6 +133,20 @@ public class IssueCertificate {
         } catch (Exception e) {
             LOGGER.error("IssueCertificate:fetchUsersAndIssueCertificates: Error while fetching user and generate certificates", e);
             throw new ServerException("ERR_GENERATE_CERTIFICATE", "Error while fetching user and generate certificates : " + e);
+        }
+    }
+
+    private void updateEnrolmentCertStatus(List<String> userIds, String courseId, String batchId, Integer certStatus) {
+        for (String userId: userIds) {
+            Map<String, Object> dataToUpdate = new HashMap<String, Object>() {{
+                put(CourseCertificateParams.certstatus.name(), certStatus);
+            }};
+            Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
+                put(CourseCertificateParams.userId.name(), userId);
+                put(CourseCertificateParams.courseId.name(), courseId);
+                put(CourseCertificateParams.batchId.name(), batchId);
+            }};
+            SunbirdCassandraUtil.update(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToUpdate, dataToSelect);
         }
     }
 
@@ -321,7 +338,6 @@ public class IssueCertificate {
             }
         } else {
             LOGGER.info("IssueCertificate:generateCertificatesForEnrollment: NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);
-            throw new ClientException("ERR_GENERATE_CERTIFICATE", "NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);
         }
     }
 
