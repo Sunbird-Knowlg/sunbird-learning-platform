@@ -731,6 +731,7 @@ public abstract class BaseContentManager extends BaseManager {
 	}
 
 	protected boolean isCollection(Node node) {
+        TelemetryManager.log("BaseContentManager::isCollection:: The Object type of node is: node.getObjectType ");
 		return equalsIgnoreCase(ContentAPIParams.Collection.name(), node.getObjectType());
 	}
 
