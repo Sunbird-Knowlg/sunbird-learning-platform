@@ -67,12 +67,6 @@
 			</exclusions>
 
 		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>search-actors</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<type>jar</type>
-		</dependency>
 	</dependencies>
 
 	<build>
