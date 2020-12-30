@@ -36,23 +36,23 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 public class PublishFinalizeUtil extends BaseFinalizer{
 	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
 	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
-	private static final List<String> contentFrameworkMetafields = Arrays.asList("organisationBoardIds", "organisationSubjectIds", 
-			"organisationMediumids", "organisationTopicsIds", "organisationGradeLevelIds", "targetBoardIds", "targetSubjectIds", 
+	private static final List<String> contentFrameworkMetafields = Arrays.asList("boardIds", "subjectIds",
+			"mediumIds", "topicsIds", "gradeLevelIds", "targetBoardIds", "targetSubjectIds",
 			"targetMediumIds", "targetTopicIds", "targetGradeLevelIds");
 	private static final Map<String, Map<String, List<String>>> frameworkCategoryFieldsMap = new HashMap<String, Map<String, List<String>>>(){{
 		put("id", new HashMap<String, List<String>>() {{
-			put("se_boardIds", Arrays.asList("organisationBoardIds", "targetBoardIds"));
-			put("se_subjectIds", Arrays.asList("organisationSubjectIds", "targetSubjectIds"));
-			put("se_mediumIds", Arrays.asList("organisationMediumids", "targetMediumIds"));
-			put("se_topicIds", Arrays.asList("organisationTopicsIds", "targetTopicIds"));
-			put("se_gradeLevelIds", Arrays.asList("organisationGradeLevelIds", "targetGradeLevelIds"));
+			put("se_boardIds", Arrays.asList("boardIds", "targetBoardIds"));
+			put("se_subjectIds", Arrays.asList("subjectIds", "targetSubjectIds"));
+			put("se_mediumIds", Arrays.asList("mediumIds", "targetMediumIds"));
+			put("se_topicIds", Arrays.asList("topicsIds", "targetTopicIds"));
+			put("se_gradeLevelIds", Arrays.asList("gradeLevelIds", "targetGradeLevelIds"));
 		}});
 		put("name", new HashMap<String, List<String>>() {{
-			put("se_boards", Arrays.asList("organisationBoardIds", "targetBoardIds"));
-			put("se_subjects", Arrays.asList("organisationSubjectIds", "targetSubjectIds"));
-			put("se_mediums", Arrays.asList("organisationMediumids", "targetMediumIds"));
-			put("se_topics", Arrays.asList("organisationTopicsIds", "targetTopicIds"));
-			put("se_gradeLevels", Arrays.asList("organisationGradeLevelIds", "targetGradeLevelIds"));
+			put("se_boards", Arrays.asList("boardIds", "targetBoardIds"));
+			put("se_subjects", Arrays.asList("subjectIds", "targetSubjectIds"));
+			put("se_mediums", Arrays.asList("mediumIds", "targetMediumIds"));
+			put("se_topics", Arrays.asList("topicsIds", "targetTopicIds"));
+			put("se_gradeLevels", Arrays.asList("gradeLevelIds", "targetGradeLevelIds"));
 		}});
 	}};
 	
@@ -167,11 +167,11 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	public Map<String, List<String>> enrichFrameworkMetadata(Node node){
 		String[] defaultArray = {};
 		Map<String, List<String>> frameworkMetadata = new HashMap<String, List<String>>();
-		List<String> organisationFrameworkIds = StringUtils.isNotBlank((String)node.getMetadata().get("organisationFrameworkId")) ? 
-				Arrays.asList((String)node.getMetadata().get("organisationFrameworkId")) : new ArrayList<String>();
-		List<String> targetFrameworkIds =  Arrays.asList((String[])node.getMetadata().getOrDefault("targetFrameworkIds", defaultArray));
+		List<String> organisationFrameworkIds = StringUtils.isNotBlank((String)node.getMetadata().get("framework")) ?
+				Arrays.asList((String)node.getMetadata().get("framework")) : new ArrayList<String>();
+		List<String> targetFrameworkIds =  Arrays.asList((String[])node.getMetadata().getOrDefault("targetFWIds", defaultArray));
 		
-		frameworkMetadata.put("se_frameworkIds", mergeIds(organisationFrameworkIds, targetFrameworkIds));
+		frameworkMetadata.put("se_FWIds", mergeIds(organisationFrameworkIds, targetFrameworkIds));
 		enrichFrameworkCategoryMetadata(frameworkMetadata, node);
 		
 		return frameworkMetadata;
