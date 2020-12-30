@@ -186,7 +186,7 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil(controllerUtil);
 		Map<String, List<String>> frameworkMetadata = publishFinalizeUtil.enrichFrameworkMetadata(contentNode);
 		
-		Assert.isTrue(((List<String>)frameworkMetadata.get("se_frameworkIds")).containsAll(Arrays.asList("ncf", "tpd")));
+		Assert.isTrue(((List<String>)frameworkMetadata.get("se_FWIds")).containsAll(Arrays.asList("ncf", "tpd")));
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_boardIds")).containsAll(Arrays.asList("ncf_board_cbse", "tpd_board_cbse")));
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_subjectIds")).containsAll(Arrays.asList("ncf_subject_math", "tpd_subject_math")));
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_mediumIds")).containsAll(Arrays.asList("ncf_medium_english", "tpd_medium_english")));
