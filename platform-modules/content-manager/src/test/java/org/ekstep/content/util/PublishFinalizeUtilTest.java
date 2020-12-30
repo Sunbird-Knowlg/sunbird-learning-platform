@@ -91,22 +91,22 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		Map<String, Object> contentNodeMap = new HashMap<>();
 		contentNodeMap.put("identifier", "do_11292666508456755211");
 		contentNodeMap.put("objectType", "Content");
-		contentNodeMap.put("organisationFrameworkId", "ncf");
+		contentNodeMap.put("framework", "ncf");
 		
 		String[] organisationBoardIds = {"ncf_board_cbse"};
-		contentNodeMap.put("organisationBoardIds", organisationBoardIds);
+		contentNodeMap.put("boardIds", organisationBoardIds);
 		
 		String[] organisationGradeLevelIds = {"ncf_gradelevel_grade1"};
-		contentNodeMap.put("organisationGradeLevelIds", organisationGradeLevelIds);
+		contentNodeMap.put("gradeLevelIds", organisationGradeLevelIds);
 		
 		String[] organisationSubjectIds = {"ncf_subject_math"};
-		contentNodeMap.put("organisationSubjectIds", organisationSubjectIds);
+		contentNodeMap.put("subjectIds", organisationSubjectIds);
 		
 		String[] organisationMediumids = {"ncf_medium_english"};
-		contentNodeMap.put("organisationMediumids", organisationMediumids);
+		contentNodeMap.put("mediumIds", organisationMediumids);
 		
 		String[] targetFrameworkIds = {"tpd"};
-		contentNodeMap.put("targetFrameworkIds", targetFrameworkIds);
+		contentNodeMap.put("targetFWIds", targetFrameworkIds);
 		
 		String[] targetBoardIds = {"tpd_board_cbse"};
 		contentNodeMap.put("targetBoardIds", targetBoardIds);
@@ -185,7 +185,6 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		Node contentNode = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
 		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil(controllerUtil);
 		Map<String, List<String>> frameworkMetadata = publishFinalizeUtil.enrichFrameworkMetadata(contentNode);
-		
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_FWIds")).containsAll(Arrays.asList("ncf", "tpd")));
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_boardIds")).containsAll(Arrays.asList("ncf_board_cbse", "tpd_board_cbse")));
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_subjectIds")).containsAll(Arrays.asList("ncf_subject_math", "tpd_subject_math")));
