@@ -3468,20 +3468,8 @@
                 },
                 {
                     "required": false,
-                    "dataType": "Text",
-                    "propertyName": "organisationFrameworkId",
-                    "title": "Organisation Framework Id",
-                    "description": "Maximum attempts for content",
-                    "category": "general",
-                    "displayProperty": "Editable",
-                    "range": null,
-                    "defaultValue": "",
-                    "renderingHints": "{ 'inputType': 'text', 'order': 8 }",
-                    "indexed": true
-                },			{
-                    "required": false,
                     "dataType": "List",
-                    "propertyName": "organisationBoardIds",
+                    "propertyName": "boardIds",
                     "title": "Organisation Board Level Ids",
                     "description": "Organisation Board Level Ids",
                     "category": "general",
@@ -3494,7 +3482,7 @@
                 {
                     "required": false,
                     "dataType": "List",
-                    "propertyName": "organisationGradeLevelIds",
+                    "propertyName": "gradeLevelIds",
                     "title": "Organisation Grade Level Ids",
                     "description": "Organisation Board Level Ids",
                     "category": "general",
@@ -3507,7 +3495,7 @@
                 {
                     "required": false,
                     "dataType": "List",
-                    "propertyName": "organisationSubjectIds",
+                    "propertyName": "subjectIds",
                     "title": "Organisation Board Level Ids",
                     "description": "Organisation Subject Level Ids",
                     "category": "general",
@@ -3520,7 +3508,7 @@
                 {
                     "required": false,
                     "dataType": "List",
-                    "propertyName": "organisationMediumIds",
+                    "propertyName": "mediumIds",
                     "title": "Organisation Medium Level Ids",
                     "description": "Organisation Board Level Ids",
                     "category": "general",
@@ -3533,7 +3521,7 @@
                 {
                     "required": false,
                     "dataType": "List",
-                    "propertyName": "organisationTopicsIds",
+                    "propertyName": "topicsIds",
                     "title": "Organisation Topic Level Ids",
                     "description": "Organisation Board Level Ids",
                     "category": "general",
@@ -3546,7 +3534,7 @@
                 {
                     "required": false,
                     "dataType": "List",
-                    "propertyName": "targetFrameworkIds",
+                    "propertyName": "targetFWIds",
                     "title": "Target Framework Ids",
                     "description": "Target Framework Ids",
                     "category": "general",
