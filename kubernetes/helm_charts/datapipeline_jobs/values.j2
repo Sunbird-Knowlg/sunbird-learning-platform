@@ -179,13 +179,9 @@ post-publish-processor:
       keyspace = "{{ middleware_course_keyspace }}"
       batchTable = "course_batch"
     }
-    content {
-      search {
-        basePath = "{{ kp_search_service_base_url }}"
-      }
-    }
-    lms {
-      basePath = "{{ lms_service_base_url }}"
+    service {
+      search.basePath = "{{ kp_search_service_base_url }}"
+      lms.basePath = "{{ lms_service_base_url }}"
     }
 
   flink-conf: |+
