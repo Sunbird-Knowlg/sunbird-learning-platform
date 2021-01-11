@@ -196,7 +196,7 @@ questionset-publish:
   questionset-publish: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = {{ env_name }}.learning.job.request
+      input.topic = {{ env_name }}.assessment.publish.request
       post_publish.topic = {{ env_name }}.content.postpublish.request
       groupId = {{ env_name }}-questionset-publish-group
     }
