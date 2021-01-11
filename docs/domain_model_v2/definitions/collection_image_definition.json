@@ -3078,124 +3078,11 @@
                     "renderingHints": "{ 'inputType': 'table',  'order': 15 }",
                     "indexed": true,
                     "draft": false
-                }
-            ],
-            "inRelations": [
-                {
-                    "relationName": "hasSequenceMember",
-                    "objectTypes": [
-                        "Content",
-                        "ContentImage",
-                        "Collection",
-                        "CollectionImage"
-                    ],
-                    "title": "collections",
-                    "description": "Which all collections is this content part of",
-                    "required": false
                 },
                 {
-                    "relationName": "associatedTo",
-                    "objectTypes": [
-                        "Content",
-                        "Collection"
-                    ],
-                    "title": "usedByContent",
-                    "description": "Other content using this content",
-                    "required": false,
-                    "renderingHints": "{ 'order': 26 }"
-                }
-            ],
-            "outRelations": [
-                {
-                    "relationName": "associatedTo",
-                    "objectTypes": [
-                        "Concept"
-                    ],
-                    "title": "concepts",
-                    "description": "Micro-concepts associated with this content",
-                    "required": false,
-                    "renderingHints": "{ 'order': 26 }"
-                },
-                {
-                    "relationName": "associatedTo",
-                    "objectTypes": [
-                        "AssessmentItem"
-                    ],
-                    "title": "questions",
-                    "description": "Assessment items associated with this content",
-                    "required": false,
-                    "renderingHints": "{ 'order': 26 }"
-                },
-                {
-                    "relationName": "associatedTo",
-                    "objectTypes": [
-                        "ItemSet"
-                    ],
-                    "title": "itemSets",
-                    "description": "Item Sets associated with this content",
-                    "required": false,
-                    "renderingHints": "{ 'order': 26 }"
-                },
-                {
-                    "relationName": "associatedTo",
-                    "objectTypes": [
-                        "Method"
-                    ],
-                    "title": "methods",
-                    "description": "Teaching methods used in this content",
-                    "required": false,
-                    "renderingHints": "{ 'order': 26 }"
-                },
-                {
-                    "relationName": "associatedTo",
-                    "objectTypes": [
-                        "Content",
-                        "Collection"
-                    ],
-                    "title": "usesContent",
-                    "description": "Screenshots and other media (assets) used by this content",
-                    "required": false,
-                    "renderingHints": "{ 'order': 26 }"
-                },
-                {
-                    "relationName": "hasSequenceMember",
-                    "objectTypes": [
-                        "Content",
-                        "ContentImage",
-                        "Collection",
-                        "CollectionImage"
-                    ],
-                    "title": "children",
-                    "description": "Child content items (in sorted order) in case of collections like Textbooks",
-                    "required": false,
-                    "renderingHints": "{ 'order': 26 }"
-                },
-                {
-                    "relationName": "preRequisite",
-                    "objectTypes": [
-                        "Library"
-                    ],
-                    "title": "libraries",
-                    "description": "Pre-requisite libraries for this content",
-                    "required": false,
-                    "renderingHints": "{ 'order': 26 }"
-                },
-                {
-                    "required": false,
-                    "dataType": "Text",
-                    "propertyName": "organisationFrameworkId",
-                    "title": "Organisation Framework Id",
-                    "description": "Maximum attempts for content",
-                    "category": "general",
-                    "displayProperty": "Editable",
-                    "range": null,
-                    "defaultValue": "",
-                    "renderingHints": "{ 'inputType': 'text', 'order': 8 }",
-                    "indexed": true
-                },			{
                     "required": false,
                     "dataType": "List",
-                    "propertyName": "organisationBoardIds",
+                    "propertyName": "boardIds",
                     "title": "Organisation Board Level Ids",
                     "description": "Organisation Board Level Ids",
                     "category": "general",
@@ -3208,7 +3095,7 @@
                 {
                     "required": false,
                     "dataType": "List",
-                    "propertyName": "organisationGradeLevelIds",
+                    "propertyName": "gradeLevelIds",
                     "title": "Organisation Grade Level Ids",
                     "description": "Organisation Board Level Ids",
                     "category": "general",
@@ -3221,7 +3108,7 @@
                 {
                     "required": false,
                     "dataType": "List",
-                    "propertyName": "organisationSubjectIds",
+                    "propertyName": "subjectIds",
                     "title": "Organisation Board Level Ids",
                     "description": "Organisation Subject Level Ids",
                     "category": "general",
@@ -3234,7 +3121,7 @@
                 {
                     "required": false,
                     "dataType": "List",
-                    "propertyName": "organisationMediumIds",
+                    "propertyName": "mediumIds",
                     "title": "Organisation Medium Level Ids",
                     "description": "Organisation Board Level Ids",
                     "category": "general",
@@ -3247,7 +3134,7 @@
                 {
                     "required": false,
                     "dataType": "List",
-                    "propertyName": "organisationTopicsIds",
+                    "propertyName": "topicsIds",
                     "title": "Organisation Topic Level Ids",
                     "description": "Organisation Board Level Ids",
                     "category": "general",
@@ -3260,7 +3147,7 @@
                 {
                     "required": false,
                     "dataType": "List",
-                    "propertyName": "targetFrameworkIds",
+                    "propertyName": "targetFWIds",
                     "title": "Target Framework Ids",
                     "description": "Target Framework Ids",
                     "category": "general",
@@ -3338,7 +3225,7 @@
                 {
                     "required": false,
                     "dataType": "List",
-                    "propertyName": "se_frameworkIds",
+                    "propertyName": "se_FWIds",
                     "title": "Target Framework Ids",
                     "description": "Target Framework Ids",
                     "category": "general",
@@ -3477,6 +3364,107 @@
                     "defaultValue": "",
                     "renderingHints": "{ 'inputType': 'text', 'order': 8 }",
                     "indexed": true
+                }
+            ],
+            "inRelations": [
+                {
+                    "relationName": "hasSequenceMember",
+                    "objectTypes": [
+                        "Content",
+                        "ContentImage",
+                        "Collection",
+                        "CollectionImage"
+                    ],
+                    "title": "collections",
+                    "description": "Which all collections is this content part of",
+                    "required": false
+                },
+                {
+                    "relationName": "associatedTo",
+                    "objectTypes": [
+                        "Content",
+                        "Collection"
+                    ],
+                    "title": "usedByContent",
+                    "description": "Other content using this content",
+                    "required": false,
+                    "renderingHints": "{ 'order': 26 }"
+                }
+            ],
+            "outRelations": [
+                {
+                    "relationName": "associatedTo",
+                    "objectTypes": [
+                        "Concept"
+                    ],
+                    "title": "concepts",
+                    "description": "Micro-concepts associated with this content",
+                    "required": false,
+                    "renderingHints": "{ 'order': 26 }"
+                },
+                {
+                    "relationName": "associatedTo",
+                    "objectTypes": [
+                        "AssessmentItem"
+                    ],
+                    "title": "questions",
+                    "description": "Assessment items associated with this content",
+                    "required": false,
+                    "renderingHints": "{ 'order': 26 }"
+                },
+                {
+                    "relationName": "associatedTo",
+                    "objectTypes": [
+                        "ItemSet"
+                    ],
+                    "title": "itemSets",
+                    "description": "Item Sets associated with this content",
+                    "required": false,
+                    "renderingHints": "{ 'order': 26 }"
+                },
+                {
+                    "relationName": "associatedTo",
+                    "objectTypes": [
+                        "Method"
+                    ],
+                    "title": "methods",
+                    "description": "Teaching methods used in this content",
+                    "required": false,
+                    "renderingHints": "{ 'order': 26 }"
+                },
+                {
+                    "relationName": "associatedTo",
+                    "objectTypes": [
+                        "Content",
+                        "Collection"
+                    ],
+                    "title": "usesContent",
+                    "description": "Screenshots and other media (assets) used by this content",
+                    "required": false,
+                    "renderingHints": "{ 'order': 26 }"
+                },
+                {
+                    "relationName": "hasSequenceMember",
+                    "objectTypes": [
+                        "Content",
+                        "ContentImage",
+                        "Collection",
+                        "CollectionImage"
+                    ],
+                    "title": "children",
+                    "description": "Child content items (in sorted order) in case of collections like Textbooks",
+                    "required": false,
+                    "renderingHints": "{ 'order': 26 }"
+                },
+                {
+                    "relationName": "preRequisite",
+                    "objectTypes": [
+                        "Library"
+                    ],
+                    "title": "libraries",
+                    "description": "Pre-requisite libraries for this content",
+                    "required": false,
+                    "renderingHints": "{ 'order': 26 }"
                 }
             ],
             "systemTags": [
