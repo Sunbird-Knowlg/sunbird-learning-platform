@@ -21,6 +21,7 @@ hierarchy_keyspace_name: "{{instance}}_hierarchy_store"
 orchestrator_keyspace_name: "{{instance}}_script_store"
 dialcode_keyspace_name: "{{instance}}_dialcode_store"
 category_keyspace_name: "{{instance}}_category_store"
+assessment_keyspace_name: "{{instance}}_question_store"
 
 
 dp_cassandra_connection: "{{ groups['dp-cassandra'][0] }}:9042"

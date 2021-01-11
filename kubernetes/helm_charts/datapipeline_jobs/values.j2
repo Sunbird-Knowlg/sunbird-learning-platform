@@ -206,11 +206,11 @@ questionset-publish:
       router.parallelism = 1
     }
     question {
-      keyspace = "dev_question_store"
+      keyspace = "{{ assessment_keyspace_name }}"
       table = "question_data"
     }
     questionset {
-      keyspace = "dev_hierarchy_store"
+      keyspace = "{{ hierarchy_keyspace_name }}"
       table = "questionset_hierarchy"
     }
 
