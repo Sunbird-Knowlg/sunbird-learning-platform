@@ -67,13 +67,9 @@ post_publish_processor_parallelism: 1
 post_publish_event_router_parallelism: 1
 
 
-###  Certificate Job related Vars
-certificate_generator_consumer_parallelism: 1
-certificate_generator_parallelism: 1
-
-###  Post Certificate Processor Job related Vars
-post_certificate_processor_consumer_parallelism: 1
-post_certificate_processor_parallelism: 1
+###  Collection Generator Job related Vars
+collection-certificate-generator_consumer_parallelism: 1
+collection-certificate-generator_parallelism: 1
 middleware_user_enrollment_table: "user_enrolments"
 middleware_course_batch_table: "course_batch"
 
