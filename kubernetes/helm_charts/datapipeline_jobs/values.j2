@@ -202,8 +202,8 @@ collection-certificate-generator:
       groupId = {{ env_name }}-generator-certificate-group
     }
     task {
-      consumer.parallelism = {{ collection_certificate-generator_consumer_parallelism }}
-      parallelism = {{ collection_certificate-generator_parallelism }}
+      consumer.parallelism = {{ collection_certificate_generator_consumer_parallelism }}
+      parallelism = {{ collection_certificate_generator_parallelism }}
     }
     cert-reg {
       basePath = "{{ cert_reg_service_base_url }}"
