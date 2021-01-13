@@ -180,8 +180,9 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		
 		frameworkMetadata.put("se_FWIds", mergeIds(organisationFrameworkIds, targetFrameworkIds));
 		enrichFrameworkCategoryMetadata(frameworkMetadata, node);
-		
+		System.out.println("frameworkMetadata Before:: " + frameworkMetadata.toString());
 		revalidateFrameworkCategoryMetadata(frameworkMetadata, node);
+		System.out.println("frameworkMetadata After:: " + frameworkMetadata.toString());
 		return frameworkMetadata;
 	}
 	protected void enrichFrameworkCategoryMetadata(Map<String, List<String>> frameworkMetadata, Node node) {
@@ -205,11 +206,21 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	}
 	
 	protected void revalidateFrameworkCategoryMetadata(Map<String, List<String>> frameworkMetadata, Node node) {
+		System.out.println("frameworkMetadata :: " + frameworkMetadata.toString());
+		System.out.println("node :: " + node.getMetadata().toString());
 		frameworkCategorySearchMetadataMapping.keySet().forEach(category -> {
+			System.out.println("category :: " + category);
 			Object data = node.getMetadata().get(frameworkCategorySearchMetadataMapping.get(category));
-			if(!frameworkMetadata.containsKey(category) && data != null) 
+			System.out.println("frameworkCategorySearchMetadataMapping.get(category) :: " + frameworkCategorySearchMetadataMapping.get(category));
+			System.out.println("data :: " + data);
+			if(!frameworkMetadata.containsKey(category) && data != null) {
+				
 				frameworkMetadata.put(category, data instanceof String ? Arrays.asList((String)data) : (List<String>)data);
+				System.out.println("frameworkMetadata ::::::: " + frameworkMetadata);
+			}
+			System.out.println("frameworkMetadata ::::::: " + frameworkMetadata);
 		});
+		System.out.println("frameworkMetadata :*****: " + frameworkMetadata.toString());
 	}
 	protected List<String> mergeIds(List<String> orgList, List<String> targetList){
 		Set<String> mergedList = new HashSet<String>();
