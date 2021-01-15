@@ -40,13 +40,13 @@
   become: yes
   systemd: name=logstash state=started
 
-# we should move this task to neo4j provision.
-# - name: make sure neo4j unique key constraint enabled
-#   shell: echo '{{item}}' | {{ neo4j_home }}/bin/cypher-shell
-#   with_items:
-#     - CREATE CONSTRAINT ON (domain:domain) ASSERT domain.IL_UNIQUE_ID IS UNIQUE;
-#     - CREATE INDEX ON :domain(IL_FUNC_OBJECT_TYPE);
-#     - CREATE INDEX ON :domain(IL_SYS_NODE_TYPE);
+- name: make sure neo4j unique key constraint enabled
+  shell: echo '{{item}}' | {{ neo4j_home }}/bin/cypher-shell
+  with_items:
+    - CREATE CONSTRAINT ON (domain:domain) ASSERT domain.IL_UNIQUE_ID IS UNIQUE;
+    - CREATE INDEX ON :domain(IL_FUNC_OBJECT_TYPE);
+    - CREATE INDEX ON :domain(IL_SYS_NODE_TYPE);
+  ignore_errors: true
 
 - name: Start the monit
   service: name=monit state=started
