@@ -13,18 +13,6 @@ CREATE TABLE IF NOT EXISTS {{ content_keyspace_name }}.content_data (
   PRIMARY KEY (content_id)
 );
 
-CREATE KEYSPACE IF NOT EXISTS {{ orchestrator_keyspace_name }} WITH replication = {
-  'class': 'SimpleStrategy',
-  'replication_factor': '1'
-};
-
-CREATE TABLE IF NOT EXISTS {{ orchestrator_keyspace_name }}.script_data (
-  name text,
-  type text,
-  reqmap text,
-  PRIMARY KEY (name)
-);
-
 CREATE TABLE IF NOT EXISTS {{ content_keyspace_name }}.question_data (
   question_id text, 
   last_updated_on timestamp,
@@ -61,11 +49,6 @@ ALTER KEYSPACE {{ content_keyspace_name }} WITH replication = {
 };
 
 ALTER KEYSPACE {{ hierarchy_keyspace_name }} WITH replication = {
-  'class': 'NetworkTopologyStrategy',
-  'datacenter1' : 2
-};
-
-ALTER KEYSPACE {{ orchestrator_keyspace_name }} WITH replication = {
   'class': 'NetworkTopologyStrategy',
   'datacenter1' : 2
 };
