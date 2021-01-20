@@ -180,9 +180,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		
 		frameworkMetadata.put("se_FWIds", mergeIds(organisationFrameworkIds, targetFrameworkIds));
 		enrichFrameworkCategoryMetadata(frameworkMetadata, node);
-		System.out.println("frameworkMetadata Before:: " + frameworkMetadata.toString());
 		revalidateFrameworkCategoryMetadata(frameworkMetadata, node);
-		System.out.println("frameworkMetadata After:: " + frameworkMetadata.toString());
 		return frameworkMetadata;
 	}
 	protected void enrichFrameworkCategoryMetadata(Map<String, List<String>> frameworkMetadata, Node node) {
