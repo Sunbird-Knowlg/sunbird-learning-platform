@@ -206,30 +206,12 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	}
 	
 	protected void revalidateFrameworkCategoryMetadata(Map<String, List<String>> frameworkMetadata, Node node) {
-		System.out.println("frameworkMetadata :: " + frameworkMetadata.toString());
-		System.out.println("node :: " + node.getMetadata().toString());
 		frameworkCategorySearchMetadataMapping.keySet().forEach(category -> {
-			System.out.println("category :: " + category);
 			Object data = node.getMetadata().get(frameworkCategorySearchMetadataMapping.get(category));
-			System.out.println("frameworkCategorySearchMetadataMapping.get(category) :: " + frameworkCategorySearchMetadataMapping.get(category));
-			System.out.println("data :: " + data);
-			if(null == frameworkMetadata.getOrDefault(category, null) && data != null) {
-				if(data instanceof String) {
-					System.out.println("Arrays.asList((String)data) :: " + Arrays.asList((String)data));
-					frameworkMetadata.put(category, Arrays.asList((String)data));
-					System.out.println("frameworkMetadata.get(category):*: " + frameworkMetadata.get(category));
-				}else {
-					System.out.println("(List<String>)data :: " + Arrays.asList((String[])data));
-					frameworkMetadata.put(category, Arrays.asList((String[])data));
-					System.out.println("frameworkMetadata.get(category):**: " + frameworkMetadata.get(category));
-				}
-				
-				//frameworkMetadata.put(category, data instanceof String ? Arrays.asList((String)data) : (List<String>)data);
-				System.out.println("frameworkMetadata ::::::: " + frameworkMetadata);
-			}
-			System.out.println("frameworkMetadata ::::::: " + frameworkMetadata);
+			if(null == frameworkMetadata.getOrDefault(category, null) && data != null) 
+				frameworkMetadata.put(category, data instanceof String ? Arrays.asList((String)data) : Arrays.asList((String[])data));
 		});
-		System.out.println("frameworkMetadata :*****: " + frameworkMetadata.toString());
+		System.out.println("**frameworkMetadata** : " + frameworkMetadata.toString());
 	}
 	protected List<String> mergeIds(List<String> orgList, List<String> targetList){
 		Set<String> mergedList = new HashSet<String>();
