@@ -209,7 +209,8 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		contentNodeMap.put("objectType", "Content");
 		contentNodeMap.put("framework", "ncf");
 		contentNodeMap.put("name", "Abc");
-		contentNodeMap.put("subject", Arrays.asList("English"));
+		String[] sub = {"English"};
+		contentNodeMap.put("subject", sub);
 		Node node = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
 		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil(controllerUtil);
 		publishFinalizeUtil.revalidateFrameworkCategoryMetadata(frameworkMetadata, node);
