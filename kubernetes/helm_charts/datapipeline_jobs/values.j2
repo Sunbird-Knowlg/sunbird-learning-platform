@@ -329,6 +329,26 @@ video-stream-generator:
     lp {
       url="{{content_service_base_url}}"
     }
+    azure {
+      location = "centralindia"
+      login {
+        endpoint="https://login.microsoftonline.com"
+      }
+      api {
+        endpoint="https://management.azure.com"
+        version = "2018-07-01"
+      }
+      transform {
+        default = "media_transform_default"
+        hls = "media_transform_hls"
+      }
+      stream {
+        base_url = "https://sunbirdspikemedia-inct.streaming.media.azure.net"
+        endpoint_name = "default"
+        protocol = "Hls"
+        policy_name = "Predefined_ClearStreamingOnly"
+      }
+    }
     azure_tenant="{{ azure_tenant }}"
     azure_subscription_id="{{ azure_subscription_id }}"
     azure_account_name="{{ azure_account_name }}"
