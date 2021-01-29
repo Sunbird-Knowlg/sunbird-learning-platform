@@ -271,9 +271,6 @@ public class IssueCertificate {
                     putAll(enrollment);
                 }};
                 LOGGER.info("IssueCertificate:getUserFromEnrolmentCriteria: userIds " + userIds);
-                if(CollectionUtils.isNotEmpty(userIds)) {
-                    dataToFetch.put(CourseCertificateParams.userId.name(), userIds);
-                }
                 ResultSet resultSet = SunbirdCassandraUtil.read(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToFetch);
                 Iterator<Row> rowIterator = resultSet.iterator();
                 while (rowIterator.hasNext()) {

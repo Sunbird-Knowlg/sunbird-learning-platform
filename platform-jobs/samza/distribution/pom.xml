@@ -81,7 +81,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-certificate-generator-v2</artifactId>
-			<version>0.0.16</version>
+			<version>0.0.17</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
