@@ -268,7 +268,6 @@ public class IssueCertificate {
                     put(CourseCertificateParams.batchId.name(), batchId);
                     put(CourseCertificateParams.courseId.name(), courseId);
                     put(CourseCertificateParams.userId.name(), userIds);
-                    putAll(enrollment);
                 }};
                 LOGGER.info("IssueCertificate:getUserFromEnrolmentCriteria: userIds " + userIds);
                 ResultSet resultSet = SunbirdCassandraUtil.read(cassandraSession, KEYSPACE, USER_COURSES_TABLE, dataToFetch);
@@ -277,19 +276,21 @@ public class IssueCertificate {
                     Row row = rowIterator.next();
                     //TODO: Added code for validating issued_certificates and certificates with respect to template url. 
                     // Need to be removed while depricating course-certificate-generator v1 job
-                    List<Map<String, String>> certificates=null;
-                    if(StringUtils.isNotBlank(templateUrl) && StringUtils.endsWith(templateUrl, ".svg")) {
-                    	certificates = row.getList("issued_certificates", TypeTokens.mapOf(String.class, String.class));
-                    }else if(StringUtils.isNotBlank(templateUrl) && !StringUtils.endsWith(templateUrl, ".svg")) {
-                    	certificates = row.getList("certificates", TypeTokens.mapOf(String.class, String.class));
-                    }
-                    boolean isCertIssued = CollectionUtils.isNotEmpty(certificates) && 
-                            (CollectionUtils.isNotEmpty(certificates.stream().filter(map -> 
-                            StringUtils.equalsIgnoreCase(certName, (String)map.getOrDefault("name", ""))).collect(Collectors.toList())));
-                    
-                    
-                    if (row.getBool("active") && (!isCertIssued || reIssue)) {
-                        enrolledUsers.add(row.getString("userid"));
+                    if((Integer) enrollment.getOrDefault("status", 2) == row.getInt("status")) {
+                        List<Map<String, String>> certificates=null;
+                        if(StringUtils.isNotBlank(templateUrl) && StringUtils.endsWith(templateUrl, ".svg")) {
+                            certificates = row.getList("issued_certificates", TypeTokens.mapOf(String.class, String.class));
+                        }else if(StringUtils.isNotBlank(templateUrl) && !StringUtils.endsWith(templateUrl, ".svg")) {
+                            certificates = row.getList("certificates", TypeTokens.mapOf(String.class, String.class));
+                        }
+                        boolean isCertIssued = CollectionUtils.isNotEmpty(certificates) &&
+                                (CollectionUtils.isNotEmpty(certificates.stream().filter(map ->
+                                        StringUtils.equalsIgnoreCase(certName, (String)map.getOrDefault("name", ""))).collect(Collectors.toList())));
+
+
+                        if (row.getBool("active") && (!isCertIssued || reIssue)) {
+                            enrolledUsers.add(row.getString("userid"));
+                        }
                     }
                 }
             }
