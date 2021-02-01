@@ -127,6 +127,16 @@ public class GoogleDriveUtil {
 					throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), errMsg);
 				break;
 			}
+			case "audio/mp3" : {
+				if(!StringUtils.equalsIgnoreCase("audio/mpeg", fileMimeType))
+					throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), errMsg);
+				break;
+			}
+			case "application/vnd.ekstep.html-archive" : {
+				if(!StringUtils.equalsIgnoreCase("application/x-zip-compressed", fileMimeType))
+					throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), errMsg);
+				break;
+			}
 			default: {
 				if(!StringUtils.equalsIgnoreCase(mimeType, fileMimeType))
 					throw new ServerException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), errMsg);
