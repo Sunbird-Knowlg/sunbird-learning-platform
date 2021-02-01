@@ -135,3 +135,4 @@ flink_job_names:
 
 ### Global vars
 middleware_course_keyspace: "sunbird_courses"
+cloud_store: azure
