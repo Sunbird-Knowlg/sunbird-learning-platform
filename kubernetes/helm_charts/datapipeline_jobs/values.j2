@@ -213,11 +213,11 @@ questionset-publish:
       keyspace = "{{ hierarchy_keyspace_name }}"
       table = "questionset_hierarchy"
     }
-    print_service.base_url = {{ kp_print_service_base_url }}
-    cloud_storage_type={{ cloud_store }}
-    azure_storage_key={{sunbird_public_storage_account_name}}
-    azure_storage_secret={{sunbird_public_storage_account_key}}
-    azure_storage_container={{azure_public_container}}
+    print_service.base_url = "http://11.2.6.6/print"
+    cloud_storage_type="{{ cloud_store }}"
+    azure_storage_key="{{ sunbird_public_storage_account_name }}"
+    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
+    azure_storage_container="{{ azure_public_container }}"
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['questionset-publish'].jobmanager_memory }}
