@@ -128,8 +128,8 @@ flink_job_names:
   questionset-publish:
     job_class_name: 'org.sunbird.job.task.QuestionSetPublishStreamTask'
     replica: 1
-    jobmanager_memory: 1024m
-    taskmanager_memory: 1024m
+    jobmanager_memory: 2048m
+    taskmanager_memory: 2048m
     taskslots: 1
     cpu_requests: 0.3
 
