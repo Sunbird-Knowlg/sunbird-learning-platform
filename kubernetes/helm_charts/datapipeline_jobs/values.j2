@@ -318,7 +318,7 @@ video-stream-generator:
       }
     }
     lms-cassandra {
-      keyspace = "{{ env_name }}platform_db"
+      keyspace = "{{ env_name }}_platform_db"
       table = "job_request"
       host = {{ dp_cassandra_connection_ip }}
       port = "9042"
