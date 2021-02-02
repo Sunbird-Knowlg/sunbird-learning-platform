@@ -326,9 +326,7 @@ video-stream-generator:
     threshold.batch.read.interval = {{ activity_agg_batch_interval }}
     threshold.batch.read.size = {{ activity_agg_batch_read_size }}
     threshold.batch.write.size = {{ activity_agg_batch_write_size }}
-    lp {
-      url="{{content_service_base_url}}"
-    }
+    lp.url="{{lp_url}}"
     azure {
       location = "centralindia"
       login {
