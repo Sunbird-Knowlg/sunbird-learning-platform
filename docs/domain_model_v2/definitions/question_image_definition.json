@@ -50,6 +50,7 @@
           "range": [
             "application/vnd.sunbird.question"
           ],
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
           "indexed": true,
           "draft": false
@@ -193,7 +194,8 @@
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
-        },        {
+        },
+        {
           "required": false,
           "dataType": "Text",
           "propertyName": "owner",
@@ -706,7 +708,7 @@
           "title": "Array of partner IDs",
           "description": "Array of partner IDs associated with the Question",
           "category": "General",
-          "dataType": "Text",
+          "dataType": "Date",
           "required": false,
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -798,7 +800,6 @@
           "renderingHints": "{'order': 21}",
           "indexed": true
         },
-
         {
           "propertyName": "publishError",
           "title": "Publish Error",
@@ -1010,7 +1011,7 @@
           "draft": false
         },
         {
-          "showTimer": "showTimer",
+          "propertyName": "showTimer",
           "title": "showTimer",
           "description": "Show Timer of the question. e.g: Draft, Live",
           "category": "Lifecycle",
@@ -1026,7 +1027,7 @@
           "indexed": true
         },
         {
-          "showTimer": "showFeedback",
+          "propertyName": "showFeedback",
           "title": "Show Feedback",
           "description": "Show Feedback associated with the Question",
           "category": "Lifecycle",
@@ -1042,7 +1043,7 @@
           "indexed": true
         },
         {
-          "showTimer": "showSolutions",
+          "propertyName": "showSolutions",
           "title": "Show Solutions",
           "description": "Show Solutions of the question. e.g: Draft, Live",
           "category": "Lifecycle",
@@ -1166,7 +1167,7 @@
           "draft": false
         },
         {
-          "showTimer": "allowAnonymousAccess",
+          "propertyName": "allowAnonymousAccess",
           "title": "allowAnonymousAccess",
           "description": "allowAnonymousAccess associated with the Question",
           "category": "Lifecycle",
@@ -1269,6 +1270,8 @@
       "outRelations": [
       ],
       "systemTags": [
+        {
+        }
       ],
       "metadata": {
       }
