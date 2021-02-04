@@ -1,5 +1,6 @@
 package org.sunbird.jobs.samza.service.util;
 
+import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class IssueCertificate {
 
@@ -100,11 +102,12 @@ public class IssueCertificate {
                     });
                     if (MapUtils.isNotEmpty(criteria) && CollectionUtils.isNotEmpty(CollectionUtils.intersection(criteria.keySet(), certFilterKeys))) {
                         List<String> enrollmentList = getUserFromEnrolmentCriteria((Map<String, Object>) criteria.get("enrollment"), batchId, courseId, userIds, template, reIssue);
-                        List<String> assessmentList = getUsersFromAssessmentCriteria((Map<String, Object>) criteria.get("assessment"), batchId, courseId, userIds);
+                        List<String> assessmentList = getUsersFromAssessmentCriteria((Map<String, Object>) criteria.get("assessment"), batchId, courseId, enrollmentList);
+                        
                         List<String> userList = getUsersFromUserCriteria((Map<String, Object>) criteria.get("user"), new ArrayList<String>() {{
                             addAll(enrollmentList);
                             addAll(assessmentList);
-                        }});
+                        }}.stream().distinct().collect(Collectors.toList()));
                         List<String> templateFilterKeys = (List<String>) CollectionUtils.intersection(criteria.keySet(), certFilterKeys);
                         Map<String, List<String>> usersMap = new HashMap<String, List<String>>();
                         usersMap.put("enrollment", enrollmentList);
@@ -174,10 +177,10 @@ public class IssueCertificate {
         return filteredUsers;
     }
 
-    private List<String> getUsersFromAssessmentCriteria(Map<String, Object> assessmentCriteria, String batchId, String courseId, List<String> userIds) {
+    private List<String> getUsersFromAssessmentCriteria(Map<String, Object> assessmentCriteria, String batchId, String courseId, List<String> enrolledUsers) {
         List<String> assessedUsers = new ArrayList<>();
-        if(MapUtils.isNotEmpty(assessmentCriteria)) {
-            Map<String, Double> userScores = fetchAssessedUsersFromDB(batchId, courseId);
+        if(MapUtils.isNotEmpty(assessmentCriteria) && CollectionUtils.isNotEmpty(enrolledUsers)) {
+            Map<String, Double> userScores = fetchAssessedUsersFromDB(batchId, courseId, enrolledUsers);
             Map<String, Object> criteria = getAssessmentOperation(assessmentCriteria);
             if(MapUtils.isNotEmpty(userScores)){
                 for(String user: userScores.keySet()) {
@@ -189,12 +192,10 @@ public class IssueCertificate {
                 LOGGER.info("No assessment score for batchID: " + batchId + " and courseId: " + courseId);
             }
         }
-        if(CollectionUtils.isNotEmpty(userIds)){
-            return (List<String>) CollectionUtils.intersection(assessedUsers, userIds);
-        } else{
+        if(MapUtils.isNotEmpty(assessmentCriteria) && CollectionUtils.isEmpty(assessedUsers)) {
             LOGGER.info("No users satisfy assessment criteria for batchID: " + batchId + " and courseID: " + courseId);
-            return assessedUsers;
         }
+        return assessedUsers;
     }
 
     private boolean isValidAssessUser(Double actualScore, Map<String, Object> criteria) {
@@ -228,12 +229,12 @@ public class IssueCertificate {
         }
     }
 
-    private Map<String, Double> fetchAssessedUsersFromDB(String batchId, String courseId) {
-        String query = "SELECT user_id, max(total_score) as score, total_max_score FROM " + KEYSPACE +"." + ASSESSMENT_AGGREGATOR_TABLE +
-                " where course_id='" +courseId + "' AND batch_id='" + batchId + "' " +
-                "GROUP BY course_id,batch_id,user_id,content_id ORDER BY batch_id,user_id,content_id;";
-        LOGGER.info("IssueCertificate : fetchAssessedUsersFromDB :: query " + query);
-        ResultSet resultSet = SunbirdCassandraUtil.execute(cassandraSession, query);
+    private Map<String, Double> fetchAssessedUsersFromDB(String batchId, String courseId, List<String> userIds) {
+
+        PreparedStatement statement = cassandraSession.prepare("SELECT user_id, max(total_score) as score, total_max_score FROM " + KEYSPACE + "." + ASSESSMENT_AGGREGATOR_TABLE +
+                " where course_id=? AND batch_id=? AND user_id in ? " +
+                "GROUP BY user_id,course_id,batch_id,content_id");
+        ResultSet resultSet = cassandraSession.execute(statement.bind(courseId, batchId, userIds));
         Iterator<Row> rows = resultSet.iterator();
         Map<String, Map<String, Double>> userScore = new HashMap<>();
         while(rows.hasNext()) {
@@ -262,10 +263,11 @@ public class IssueCertificate {
         String templateUrl = (String)template.getOrDefault("url", CertificateGenerator.getCertTemplate((String)template.getOrDefault("identifier", "")));
         template.put("url", templateUrl);
         try {
-            if(MapUtils.isNotEmpty(enrollment)){
+            if(MapUtils.isNotEmpty(enrollment) && CollectionUtils.isNotEmpty(userIds)){
                 Map<String, Object> dataToFetch = new HashMap<String, Object>() {{
                     put(CourseCertificateParams.batchId.name(), batchId);
                     put(CourseCertificateParams.courseId.name(), courseId);
+                    put(CourseCertificateParams.userId.name(), userIds);
                     putAll(enrollment);
                 }};
                 LOGGER.info("IssueCertificate:getUserFromEnrolmentCriteria: userIds " + userIds);
