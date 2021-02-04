@@ -1,7 +1,7 @@
 {
   "definitionNodes": [
     {
-      "objectType": "Question",
+      "objectType": "QuestionImage",
       "properties": [
         {
           "propertyName": "name",
@@ -1206,17 +1206,17 @@
           "indexed": true
         },
         {
-        "required": false,
-        "dataType": "JSON",
-        "propertyName": "completionCriteria",
-        "title": "completionCriteria",
-        "description": "completionCriteria",
-        "category": "General",
-        "displayProperty": "Editable",
-        "defaultValue": "",
-        "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
-        "indexed": true,
-        "draft": false
+          "required": false,
+          "dataType": "JSON",
+          "propertyName": "completionCriteria",
+          "title": "completionCriteria",
+          "description": "completionCriteria",
+          "category": "General",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+          "indexed": true,
+          "draft": false
         },
         {
           "propertyName": "collaborators",

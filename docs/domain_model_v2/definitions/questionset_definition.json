@@ -6,7 +6,7 @@
         {
           "propertyName": "name",
           "title": "Name",
-          "description": "Name of the Question",
+          "description": "Name associated with the QuestionSet",
           "category": "General",
           "dataType": "Text",
           "required": true,
@@ -18,7 +18,7 @@
         {
           "propertyName": "code",
           "title": "Code",
-          "description": "Unique code for the Question",
+          "description": "Unique code associated with the QuestionSet",
           "category": "General",
           "dataType": "Text",
           "required": true,
@@ -30,7 +30,7 @@
         {
           "propertyName": "description",
           "title": "Description",
-          "description": "description for the Question",
+          "description": "description associated with the QuestionSet",
           "category": "General",
           "dataType": "Text",
           "required": false,
@@ -55,11 +55,11 @@
           "draft": false
         },
         {
-          "required": false,
+          "required": true,
           "dataType": "Select",
           "propertyName": "primaryCategory",
           "title": "Primary Category",
-          "description": "Primary Category",
+          "description": "Primary Category associated with the QuestionSet",
           "category": "General",
           "displayProperty": "Editable",
           "range": [
@@ -77,7 +77,7 @@
           "dataType": "List",
           "propertyName": "additionalCategories",
           "title": "Additional Categories",
-          "description": "Additional Categories",
+          "description": "Additional Categories associated with the QuestionSet",
           "category": "General",
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -106,7 +106,7 @@
           "dataType": "Text",
           "propertyName": "copyright",
           "title": "Copyright",
-          "description": "Copyright",
+          "description": "Copyright associated with the QuestionSet",
           "category": "Ownership",
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -119,7 +119,7 @@
           "dataType": "Select",
           "propertyName": "license",
           "title": "License",
-          "description": "License",
+          "description": "License associated with the QuestionSet",
           "range": [
             "CC BY-NC-SA 4.0",
             "CC BY-NC 4.0",
@@ -139,10 +139,10 @@
         {
           "propertyName": "lockKey",
           "title": "LockKey",
-          "description": "lockKey",
+          "description": "lockKey associated with the QuestionSet",
           "category": "General",
           "dataType": "Text",
-          "required": true,
+          "required": false,
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{'inputType': 'text', 'order': 1}",
@@ -153,7 +153,7 @@
           "dataType": "List",
           "propertyName": "assets",
           "title": "Assets",
-          "description": "R1.15-List of Asset ids used in ecml content",
+          "description": "assets associated with the QuestionSet",
           "category": "General",
           "displayProperty": "Editable",
           "range": null,
@@ -168,13 +168,13 @@
           "dataType": "List",
           "propertyName": "audience",
           "title": "Audience",
-          "description": "The target audience of the Question",
+          "description": "The target audience of the Question Set",
           "category": "General",
           "displayProperty": "Editable",
           "range": [
             "Student",
             "Teacher",
-            "Administrator"
+            "Admin"
           ],
           "defaultValue": "Student",
           "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
@@ -211,7 +211,7 @@
           "dataType": "List",
           "propertyName": "attributions",
           "title": "Owner",
-          "description": "Attributions/Credits",
+          "description": "Attributions/Credits associated with the QuestionSet",
           "category": "Ownership",
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -222,7 +222,7 @@
         {
           "propertyName": "consumerId",
           "title": "consumerId",
-          "description": "R1.15",
+          "description": "associated with the QuestionSet",
           "category": "General",
           "dataType": "Text",
           "required": false,
@@ -232,11 +232,11 @@
           "indexed": true
         },
         {
-          "required": true,
+          "required": false,
           "dataType": "Select",
           "propertyName": "contentEncoding",
           "title": "Content-Encoding",
-          "description": "Content Encoding",
+          "description": "Content Encoding associated with the QuestionSet",
           "category": "Technical",
           "displayProperty": "Editable",
           "range": [
@@ -249,11 +249,11 @@
           "draft": false
         },
         {
-          "required": true,
+          "required": false,
           "dataType": "Select",
           "propertyName": "contentDisposition",
           "title": "Content-Disposition",
-          "description": "Content Disposition",
+          "description": "Content Disposition associated with the QuestionSet",
           "category": "Technical",
           "displayProperty": "Editable",
           "range": [
@@ -312,7 +312,7 @@
           "description": "It is the integer value being used by Client (Genie) for the Compatibility information of Content.",
           "category": "Technical",
           "displayProperty": "Editable",
-          "defaultValue": "1",
+          "defaultValue": 4,
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
@@ -320,9 +320,9 @@
         {
           "propertyName": "childNodes",
           "title": "childNodes",
-          "description": "childNodes",
+          "description": "childNodes associated with the QuestionSet",
           "category": "General",
-          "dataType": "Multi-Select",
+          "dataType": "List",
           "required": false,
           "displayProperty": "Editable",
           "renderingHints": "{'inputType': 'text', 'order': 5}",
@@ -333,7 +333,7 @@
           "title": "depth",
           "description": "depth",
           "category": "General",
-          "dataType": "Multi-Select",
+          "dataType": "Number",
           "required": false,
           "displayProperty": "Editable",
           "renderingHints": "{'inputType': 'text', 'order': 5}",
@@ -343,8 +343,41 @@
           "propertyName": "downloadUrl",
           "title": "downloadUrl",
           "description": "downloadUrl",
-          "category": "downloadUrl",
+          "category": "General",
           "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "renderingHints": "{'inputType': 'text', 'order': 5}",
+          "indexed": true
+        },
+        {
+          "propertyName": "previewUrl",
+          "title": "previewUrl",
+          "description": "previewUrl",
+          "category": "General",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "renderingHints": "{'inputType': 'text', 'order': 5}",
+          "indexed": true
+        },
+        {
+          "propertyName": "pdfUrl",
+          "title": "pdfUrl",
+          "description": "pdfUrl",
+          "category": "General",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "renderingHints": "{'inputType': 'text', 'order': 5}",
+          "indexed": true
+        },
+        {
+          "propertyName": "variants",
+          "title": "Variants",
+          "description": "Variants associated with Question Set",
+          "category": "General",
+          "dataType": "JSON",
           "required": false,
           "displayProperty": "Editable",
           "renderingHints": "{'inputType': 'text', 'order': 5}",
@@ -375,7 +408,7 @@
         {
           "propertyName": "status",
           "title": "Status",
-          "description": "Status of the question. e.g: Draft, Live",
+          "description": "Status of the question set. e.g: Draft, Live",
           "category": "Lifecycle",
           "dataType": "Select",
           "range": [
@@ -393,7 +426,7 @@
         {
           "propertyName": "prevState",
           "title": "Previous State",
-          "description": "R1.15",
+          "description": "previous status associated with Question Set",
           "category": "General",
           "dataType": "Text",
           "required": false,
@@ -417,7 +450,7 @@
         {
           "propertyName": "keywords",
           "title": "Keywords",
-          "description": "Keywords",
+          "description": "Keywords associated with Question Set",
           "category": "General",
           "dataType": "List",
           "required": false,
@@ -430,7 +463,7 @@
           "required": false,
           "dataType": "Number",
           "propertyName": "pkgVersion",
-          "title": "Package Version",
+          "title": "Package Version ",
           "description": "Version number of the package file",
           "category": "Technical",
           "displayProperty": "Editable",
@@ -447,7 +480,7 @@
           "description": "Semantic version number of the package file",
           "category": "Technical",
           "displayProperty": "Editable",
-          "defaultValue": "",
+          "defaultValue": 1,
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
@@ -457,7 +490,7 @@
           "dataType": "Text",
           "propertyName": "versionKey",
           "title": "Data Version Key",
-          "description": "Version number data in Content Node",
+          "description": "Version number data associated with Question Set",
           "category": "Technical",
           "displayProperty": "Readonly",
           "defaultValue": "",
@@ -468,7 +501,7 @@
         {
           "propertyName": "language",
           "title": "Language",
-          "description": "Language",
+          "description": "Languages associated with Question Set",
           "category": "General",
           "dataType": "Multi-Select",
           "required": false,
@@ -515,7 +548,7 @@
         {
           "propertyName": "framework",
           "title": "Framework",
-          "description": "Framework Id of Content",
+          "description": "Framework Id of Question Set",
           "category": "General",
           "dataType": "Text",
           "required": false,
@@ -523,19 +556,6 @@
           "defaultValue": "",
           "renderingHints": "{'inputType': 'text', 'order': 4}",
           "indexed": true
-        },
-        {
-          "required": false,
-          "dataType": "Term",
-          "propertyName": "board",
-          "title": "Curriculum (Board)",
-          "description": "Education Board (Like MP Board, NCERT, etc)",
-          "category": "Pedagogy",
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
-          "indexed": true,
-          "draft": false
         },
         {
           "required": false,
@@ -556,6 +576,19 @@
           "propertyName": "medium",
           "title": "Medium",
           "description": "Medium of instruction. e.g: English, Hindi etc",
+          "category": "Pedagogy",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Term",
+          "propertyName": "board",
+          "title": "Curriculum (Board)",
+          "description": "Education Board (Like MP Board, NCERT, etc)",
           "category": "Pedagogy",
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -761,7 +794,7 @@
           "title": "Array of partner IDs",
           "description": "Array of partner IDs",
           "category": "General",
-          "dataType": "List",
+          "dataType": "String",
           "required": false,
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -769,21 +802,9 @@
           "indexed": true
         },
         {
-          "propertyName": "lastUpdatedBy",
-          "title": "Last Updated By",
-          "description": "Name of User who modified the content at last",
-          "category": "Lifecycle",
-          "dataType": "Text",
-          "required": false,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{'order': 21}",
-          "indexed": true
-        },
-        {
           "propertyName": "lastUpdatedOn",
           "title": "Last Updated On",
-          "description": "date on which content got modified at last",
+          "description": "date on associated with Question Set got modified at last",
           "category": "Lifecycle",
           "dataType": "Date",
           "required": false,
@@ -793,9 +814,9 @@
           "indexed": true
         },
         {
-          "propertyName": "lastSubmittedBy",
-          "title": "Submitted for Review By",
-          "description": "Name of the User Who submitted the content for Review",
+          "propertyName": "lastUpdatedBy",
+          "title": "Last Updated By",
+          "description": "Name of User who modified the associated with Question Set at last",
           "category": "Lifecycle",
           "dataType": "Text",
           "required": false,
@@ -817,27 +838,15 @@
           "indexed": true
         },
         {
-          "propertyName": "lastPublishedBy",
-          "title": "Published By",
-          "description": "Name of the User who Published Content",
+          "propertyName": "lastSubmittedBy",
+          "title": "Submitted for Review By",
+          "description": "Name of the User Who submitted the content for Review",
           "category": "Lifecycle",
           "dataType": "Text",
           "required": false,
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{'order': 21}",
-          "indexed": true
-        },
-        {
-          "propertyName": "lastPublishedOn",
-          "title": "Published On",
-          "description": "Date on which content got Published",
-          "category": "Lifecycle",
-          "dataType": "Date",
-          "required": false,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{'order': 22}",
           "indexed": true
         },
         {
@@ -854,9 +863,33 @@
           "draft": false
         },
         {
+          "propertyName": "lastPublishedOn",
+          "title": "Published On",
+          "description": "Date on which content got Published",
+          "category": "Lifecycle",
+          "dataType": "Date",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 22}",
+          "indexed": true
+        },
+        {
+          "propertyName": "lastPublishedBy",
+          "title": "Published By",
+          "description": "Name of the User who Published Content",
+          "category": "Lifecycle",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 21}",
+          "indexed": true
+        },
+        {
           "propertyName": "publishError",
           "title": "Publish Error",
-          "description": "R1.15",
+          "description": "Publish Error associated with Question Set",
           "category": "General",
           "dataType": "Text",
           "required": false,
@@ -868,7 +901,7 @@
         {
           "propertyName": "reviewError",
           "title": "reviewError",
-          "description": "R1.15",
+          "description": "Review Error associated with Question Set",
           "category": "General",
           "dataType": "Text",
           "required": false,
@@ -880,7 +913,7 @@
         {
           "showTimer": "dailySummaryReportEnabled",
           "title": "dailySummaryReportEnabled",
-          "description": "dailySummaryReportEnabled of the question. e.g: Draft, Live",
+          "description": "dailySummaryReportEnabled of the Question Set.",
           "category": "Lifecycle",
           "dataType": "Select",
           "range": [
@@ -889,14 +922,14 @@
           ],
           "required": false,
           "displayProperty": "Editable",
-          "defaultValue": "No",
+          "defaultValue": "",
           "renderingHints": "{'inputType': 'select', 'order': 9}",
           "indexed": true
         },
         {
           "showTimer": "allowAnonymousAccess",
           "title": "allowAnonymousAccess",
-          "description": "allowAnonymousAccess of the question. e.g: Draft, Live",
+          "description": "allowAnonymousAccess of the question set. ",
           "category": "Lifecycle",
           "dataType": "Select",
           "range": [
@@ -905,14 +938,14 @@
           ],
           "required": false,
           "displayProperty": "Editable",
-          "defaultValue": "No",
+          "defaultValue": "Yes",
           "renderingHints": "{'inputType': 'select', 'order': 9}",
           "indexed": true
         },
         {
           "propertyName": "termsAndConditions",
           "title": "termsAndConditions",
-          "description": "termsAndConditions.15",
+          "description": "termsAndConditions associated with Question Set",
           "category": "General",
           "dataType": "Text",
           "required": false,
@@ -924,7 +957,7 @@
         {
           "propertyName": "expectedDuration",
           "title": "expectedDuration",
-          "description": ".expectedDuration",
+          "description": "ExpectedDuration associated with Question Set",
           "category": "General",
           "dataType": "Number",
           "required": false,
@@ -936,7 +969,7 @@
         {
           "propertyName": "completionCriteria",
           "title": "completionCriteria",
-          "description": "R1.15",
+          "description": "Completion Criteria associated with Question Set",
           "category": "General",
           "dataType": "JSON",
           "required": false,
@@ -948,7 +981,7 @@
         {
           "propertyName": "collaborators",
           "title": "collaborators",
-          "description": "R1.15",
+          "description": "Collaboratiors associated with Question Set",
           "category": "General",
           "dataType": "List",
           "required": false,
@@ -960,7 +993,7 @@
         {
           "propertyName": "semanticVersion",
           "title": "semanticVersion",
-          "description": "semanticVersion.15",
+          "description": "SemanticVersion associated with Question Set",
           "category": "General",
           "dataType": "Text",
           "required": false,
@@ -972,7 +1005,7 @@
         {
           "propertyName": "schemaVersion",
           "title": "schemaVersion",
-          "description": "schemaVersion.15",
+          "description": "schemaVersion associated with Question Set",
           "category": "General",
           "dataType": "Text",
           "required": false,
@@ -984,7 +1017,7 @@
         {
           "propertyName": "maxScore",
           "title": "maxScore",
-          "description": ".maxScore",
+          "description": "maxScore associated with Question Set",
           "category": "General",
           "dataType": "Number",
           "required": false,
@@ -994,9 +1027,9 @@
           "indexed": true
         },
         {
-          "showTimer": "allowAnonymousAccess",
-          "title": "allowAnonymousAccess",
-          "description": "allowAnonymousAccess of the question. e.g: Draft, Live",
+          "showTimer": "setType",
+          "title": "Set Type",
+          "description": "Set Type associated with Question Set",
           "category": "Lifecycle",
           "dataType": "Select",
           "range": [
@@ -1012,7 +1045,7 @@
         {
           "propertyName": "setCriteria",
           "title": "setCriteria",
-          "description": "R1.15",
+          "description": "Set Criteria associated with Question Set",
           "category": "General",
           "dataType": "JSON",
           "required": false,
@@ -1024,7 +1057,47 @@
         {
           "propertyName": "feedback",
           "title": "feedback",
-          "description": "R1.15",
+          "description": "Feedback associated with Question Set",
+          "category": "General",
+          "dataType": "JSON",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true
+        },
+        {
+          "propertyName": "scoringMode",
+          "title": "Scoring Mode",
+          "description": "Scoring Mode associated with Question Set",
+          "category": "General",
+          "dataType": "Select",
+          "range": [
+            "system",
+            "none"
+          ],
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'select', 'order': 9}",
+          "indexed": true
+        },
+        {
+          "propertyName": "qumlVersion",
+          "title": "Quml Version",
+          "description": "Quml Version associated with Question Set",
+          "category": "General",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true
+        },
+        {
+          "propertyName": "timeLimits",
+          "title": "Time Limits",
+          "description": "Time Limits associated with Question Set",
           "category": "General",
           "dataType": "JSON",
           "required": false,
@@ -1036,7 +1109,7 @@
         {
           "propertyName": "showTimer",
           "title": "showTimer",
-          "description": "showTimer of the question. e.g: Draft, Live",
+          "description": "showTimer associated with Question Set",
           "category": "Lifecycle",
           "dataType": "Select",
           "range": [
@@ -1052,7 +1125,7 @@
         {
           "propertyName": "showHints",
           "title": "showHints",
-          "description": "showHints of the question. e.g: Draft, Live",
+          "description": "Show Hints associated with Question Set",
           "category": "Lifecycle",
           "dataType": "Select",
           "range": [
@@ -1068,7 +1141,7 @@
         {
           "propertyName": "showFeedback",
           "title": "showFeedback",
-          "description": "showFeedback of the question. e.g: Draft, Live",
+          "description": "Show Feedback associated with Question Set",
           "category": "Lifecycle",
           "dataType": "Select",
           "range": [
@@ -1084,7 +1157,7 @@
         {
           "propertyName": "showSolutions",
           "title": "showSolutions",
-          "description": "allowAnonymousAccess of the question. e.g: Draft, Live",
+          "description": "Show Solutions associated with Question Set",
           "category": "Lifecycle",
           "dataType": "Select",
           "range": [
@@ -1100,7 +1173,7 @@
         {
           "propertyName": "bloomsLevel",
           "title": "bloomsLevel",
-          "description": "allowAnonymousAccess of the question. e.g: Draft, Live",
+          "description": "Cognitive Process involved to answer the questionset.",
           "category": "Lifecycle",
           "dataType": "Select",
           "range": [
@@ -1118,8 +1191,8 @@
         },
         {
           "propertyName": "navigationMode",
-          "title": "allowAnonymousAccess",
-          "description": "allowAnonymousAccess of the question. e.g: Draft, Live",
+          "title": "navigationMode",
+          "description": "navigationMode of the questionset.",
           "category": "Lifecycle",
           "dataType": "Select",
           "range": [
@@ -1135,7 +1208,7 @@
         {
           "propertyName": "allowSkip",
           "title": "allowSkip",
-          "description": "allowSkip of the question. e.g: Draft, Live",
+          "description": "allowSkip of the questionset.",
           "category": "Lifecycle",
           "dataType": "Select",
           "range": [
@@ -1151,8 +1224,8 @@
         {
           "propertyName": "outcomeProcessing",
           "title": "outcomeProcessing",
-          "description": "outcomeProcessing of the question. e.g: Draft, Live",
-          "category": "Lifecycle",
+          "description": "outcomeProcessing of the questionset.",
+          "category": "General",
           "dataType": "JSON",
           "required": false,
           "displayProperty": "Editable",
@@ -1162,7 +1235,7 @@
         {
           "propertyName": "requiresSubmit",
           "title": "requiresSubmit",
-          "description": "requiresSubmit of the question. e.g: Draft, Live",
+          "description": "requiresSubmit of the questionset",
           "category": "Lifecycle",
           "dataType": "Select",
           "range": [
@@ -1171,7 +1244,7 @@
           ],
           "required": false,
           "displayProperty": "Editable",
-          "defaultValue": "Yes",
+          "defaultValue": "No",
           "renderingHints": "{'inputType': 'select', 'order': 9}",
           "indexed": true
         },
@@ -1195,7 +1268,7 @@
         {
           "propertyName": "shuffle",
           "title": "shuffle",
-          "description": "shuffle of the question. e.g: Draft, Live",
+          "description": "shuffle of the questionset. ",
           "category": "Lifecycle",
           "dataType": "Select",
           "range": [
@@ -1210,9 +1283,9 @@
         },
         {
           "propertyName": "totalQuestions",
-          "title": "requiresSubmit",
-          "description": "requiresSubmit of the question. e.g: Draft, Live",
-          "category": "Lifecycle",
+          "title": "Total Questions",
+          "description": "TotalQuestions of the questionset",
+          "category": "General",
           "dataType": "Number",
           "required": false,
           "displayProperty": "Editable",
@@ -1221,9 +1294,9 @@
         },
         {
           "propertyName": "maxQuestions",
-          "title": "maxQuestions",
-          "description": "maxQuestions of the question. e.g: Draft, Live",
-          "category": "Lifecycle",
+          "title": "Max Questions",
+          "description": "MaxQuestions of the questionset.",
+          "category": "General",
           "dataType": "Number",
           "required": false,
           "displayProperty": "Editable",
@@ -1233,7 +1306,7 @@
         {
           "propertyName": "containsUserData",
           "title": "containsUserData",
-          "description": "requiresSubmit of the question. e.g: Draft, Live",
+          "description": "requiresSubmit of the questionset.",
           "category": "Lifecycle",
           "dataType": "Select",
           "range": [
