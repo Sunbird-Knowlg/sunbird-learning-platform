@@ -166,7 +166,7 @@
         {
           "required": false,
           "dataType": "List",
-          "propertyName": "audience",
+          "propertyName": "Multi-Select",
           "title": "Audience",
           "description": "The target audience of the Question Set",
           "category": "General",
