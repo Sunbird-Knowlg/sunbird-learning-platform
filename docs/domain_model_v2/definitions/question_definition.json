@@ -706,7 +706,7 @@
           "title": "Array of partner IDs",
           "description": "Array of partner IDs associated with the Question",
           "category": "General",
-          "dataType": "List",
+          "dataType": "Text",
           "required": false,
           "displayProperty": "Editable",
           "defaultValue": "",
