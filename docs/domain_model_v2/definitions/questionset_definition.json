@@ -50,6 +50,7 @@
           "range": [
             "application/vnd.sunbird.questionset"
           ],
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
           "indexed": true,
           "draft": false
@@ -794,7 +795,7 @@
           "title": "Array of partner IDs",
           "description": "Array of partner IDs",
           "category": "General",
-          "dataType": "String",
+          "dataType": "Text",
           "required": false,
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -911,7 +912,7 @@
           "indexed": true
         },
         {
-          "showTimer": "dailySummaryReportEnabled",
+          "propertyName": "dailySummaryReportEnabled",
           "title": "dailySummaryReportEnabled",
           "description": "dailySummaryReportEnabled of the Question Set.",
           "category": "Lifecycle",
@@ -927,7 +928,7 @@
           "indexed": true
         },
         {
-          "showTimer": "allowAnonymousAccess",
+          "propertyName": "allowAnonymousAccess",
           "title": "allowAnonymousAccess",
           "description": "allowAnonymousAccess of the question set. ",
           "category": "Lifecycle",
@@ -1027,7 +1028,7 @@
           "indexed": true
         },
         {
-          "showTimer": "setType",
+          "propertyName": "setType",
           "title": "Set Type",
           "description": "Set Type associated with Question Set",
           "category": "Lifecycle",
