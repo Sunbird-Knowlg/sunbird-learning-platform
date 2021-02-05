@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.content.entity.Manifest;
@@ -196,6 +197,24 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_subjects")).containsAll(Arrays.asList("Math", "Mathematics")));
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_mediums")).containsAll(Arrays.asList("English", "English Medium")));
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_gradeLevels")).containsAll(Arrays.asList("Class 1")));
+	}
+	
+	@Test
+	public void testRevalidateFrameworkCategoryMetadata() throws Exception {
+		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
+		ControllerUtil controllerUtil = PowerMockito.spy(new ControllerUtil());
+		Map<String, List<String>> frameworkMetadata = new HashMap<String, List<String>>();
+		Map<String, Object> contentNodeMap = new HashMap<>();
+		contentNodeMap.put("identifier", "do_11292666508456755211");
+		contentNodeMap.put("objectType", "Content");
+		contentNodeMap.put("framework", "ncf");
+		contentNodeMap.put("name", "Abc");
+		String[] sub = {"English"};
+		contentNodeMap.put("subject", sub);
+		Node node = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
+		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil(controllerUtil);
+		publishFinalizeUtil.revalidateFrameworkCategoryMetadata(frameworkMetadata, node);
+		Assert.isTrue(MapUtils.isNotEmpty(frameworkMetadata));
 	}
 	
 	@Test
