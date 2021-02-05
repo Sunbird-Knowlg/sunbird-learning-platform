@@ -977,7 +977,7 @@
           "title": "qumlVersion",
           "description": "qumlVersion of the Question",
           "category": "General",
-          "dataType": "Text",
+          "dataType": "Number",
           "required": false,
           "displayProperty": "Editable",
           "defaultValue": "",

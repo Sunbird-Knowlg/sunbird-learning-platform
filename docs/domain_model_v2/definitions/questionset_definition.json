@@ -1088,7 +1088,7 @@
           "title": "Quml Version",
           "description": "Quml Version associated with Question Set",
           "category": "General",
-          "dataType": "Text",
+          "dataType": "Number",
           "required": false,
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -1269,16 +1269,12 @@
         {
           "propertyName": "shuffle",
           "title": "shuffle",
-          "description": "shuffle of the questionset. ",
-          "category": "Lifecycle",
-          "dataType": "Select",
-          "range": [
-            "Yes",
-            "No"
-          ],
+          "description": "shuffle of the questionset.",
+          "category": "General",
+          "dataType": "Boolean",
           "required": false,
           "displayProperty": "Editable",
-          "defaultValue": "Yes",
+          "defaultValue": true,
           "renderingHints": "{'inputType': 'select', 'order': 9}",
           "indexed": true
         },
