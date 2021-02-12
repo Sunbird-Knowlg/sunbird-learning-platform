@@ -55,6 +55,13 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			put("se_gradeLevels", Arrays.asList("gradeLevelIds", "targetGradeLevelIds"));
 		}});
 	}};
+	private static final Map<String, String> frameworkCategorySearchMetadataMapping = new HashMap<String, String>(){{
+		put("se_boards", "board");
+		put("se_subjects", "subject");
+		put("se_mediums", "medium");
+		put("se_topics", "topic");
+		put("se_gradeLevels", "gradeLevel");
+	}};
 	
 	private ContentStore contentStore = new ContentStore();
 	ControllerUtil controllerUtil = new ControllerUtil();
@@ -173,9 +180,8 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		
 		frameworkMetadata.put("se_FWIds", mergeIds(organisationFrameworkIds, targetFrameworkIds));
 		enrichFrameworkCategoryMetadata(frameworkMetadata, node);
-		
+		revalidateFrameworkCategoryMetadata(frameworkMetadata, node);
 		return frameworkMetadata;
-		
 	}
 	protected void enrichFrameworkCategoryMetadata(Map<String, List<String>> frameworkMetadata, Node node) {
 		String[] defaultArray = {};
@@ -195,6 +201,15 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			frameworkMetadata.put(category, mergeIds(orgData, targetData));
 		});
 		
+	}
+	
+	protected void revalidateFrameworkCategoryMetadata(Map<String, List<String>> frameworkMetadata, Node node) {
+		frameworkCategorySearchMetadataMapping.keySet().forEach(category -> {
+			Object data = node.getMetadata().get(frameworkCategorySearchMetadataMapping.get(category));
+			if(null == frameworkMetadata.getOrDefault(category, null) && data != null) 
+				frameworkMetadata.put(category, data instanceof String ? Arrays.asList((String)data) : Arrays.asList((String[])data));
+		});
+		System.out.println("**frameworkMetadata** : " + frameworkMetadata.toString());
 	}
 	protected List<String> mergeIds(List<String> orgList, List<String> targetList){
 		Set<String> mergedList = new HashSet<String>();
