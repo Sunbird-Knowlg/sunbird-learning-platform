@@ -28,7 +28,7 @@ core_cassandra_connection: "{{groups['core-cassandra']|join(':9042,')}}:9042"
 core_cassandra_connection_ip: "{{ groups['core-cassandra'][0] }}"
 
 
-dial_service_generate_url: "{{ekstep_domain_name}}/api/dialcode/v3/generate"
+dial_service_generate_url: "{{kp_dial_service_base_url}}/dialcode/v3/generate"
 search_service_endpoint: "{{ekstep_domain_name}}/api/search/v2/search"
 
 
