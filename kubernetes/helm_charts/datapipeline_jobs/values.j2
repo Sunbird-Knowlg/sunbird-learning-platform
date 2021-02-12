@@ -213,7 +213,7 @@ questionset-publish:
       keyspace = "{{ hierarchy_keyspace_name }}"
       table = "questionset_hierarchy"
     }
-    print_service.base_url = "http://11.2.6.6/print"
+    print_service.base_url = "{{ kp_print_service_base_url }}"
     cloud_storage_type="{{ cloud_store }}"
     azure_storage_key="{{ sunbird_public_storage_account_name }}"
     azure_storage_secret="{{ sunbird_public_storage_account_key }}"
