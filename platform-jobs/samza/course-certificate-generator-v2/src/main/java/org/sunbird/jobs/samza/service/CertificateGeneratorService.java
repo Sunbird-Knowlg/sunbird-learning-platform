@@ -20,7 +20,6 @@ import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.service.util.CertificateGenerator;
-import org.sunbird.jobs.samza.service.util.IssueCertificate;
 import org.sunbird.jobs.samza.util.CassandraConnector;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
 import org.sunbird.jobs.samza.util.RedisConnect;
@@ -36,7 +35,6 @@ public class CertificateGeneratorService implements ISamzaService {
     private Config config = null;
     private static int MAXITERTIONCOUNT = 2;
     private CertificateGenerator certificateGenerator =null;
-    private IssueCertificate issueCertificate = null;
     private Jedis redisConnect = null;
     private Session cassandraSession = null;
     private SystemStream certificateAuditEventStream = null;
@@ -55,7 +53,6 @@ public class CertificateGeneratorService implements ISamzaService {
         certificateFailedSystemStream = new SystemStream("kafka", config.get("output.certificate.failed.events.topic.name"));
         certificateAuditEventStream = new SystemStream("kafka", config.get("telemetry_raw_topic"));
         certificateGenerator = new CertificateGenerator(redisConnect, cassandraSession, certificateAuditEventStream);
-        issueCertificate = new IssueCertificate(cassandraSession);
     }
 
     /**
@@ -83,17 +80,10 @@ public class CertificateGeneratorService implements ISamzaService {
             String objectId = (String) object.get(CourseCertificateParams.id.name());
             if (StringUtils.isNotBlank(objectId)) {
                 String action = (String) edata.get("action");
-                switch (action) {
-                    case "generate-course-certificate" :
-                        LOGGER.info("Certificate generation process started ");
-                        certificateGenerator.generate(edata, collector);
-                        LOGGER.info("Certificate is generated");
-                        break;
-                    case "issue-certificate":
-                        LOGGER.info("Certificate issue process started ");
-                        issueCertificate.issue(edata, collector);
-                        LOGGER.info("Pushed certificate generation event");
-                        break;
+                if(StringUtils.isNotBlank(action) && StringUtils.equalsIgnoreCase("generate-course-certificate", action)) {
+                    LOGGER.info("Certificate generation process started ");
+                    certificateGenerator.generate(edata, collector);
+                    LOGGER.info("Certificate is generated");
                 }
             }
         } catch(ClientException e) {
