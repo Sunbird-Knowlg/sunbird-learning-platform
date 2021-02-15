@@ -36,6 +36,7 @@
 		<module>course-certificate-generator-v2</module>
         <module>auto-creator</module>
 		<module>mvc-processor-indexer</module>
+		<module>certificate-pre-processor</module>
     </modules>
 
 	<build>
