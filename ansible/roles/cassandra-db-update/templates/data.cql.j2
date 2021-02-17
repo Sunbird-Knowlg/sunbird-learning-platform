@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS {{ content_keyspace_name }}.content_data (
   oldBody blob,
   stageIcons blob,
   screenshots blob,
+  externallink text
   PRIMARY KEY (content_id)
 );
 
@@ -17,6 +18,9 @@ CREATE TABLE IF NOT EXISTS {{ content_keyspace_name }}.question_data (
   question_id text, 
   last_updated_on timestamp,
   body blob,
+  editorState blob,
+  question blob,
+  solutions blob
   PRIMARY KEY (question_id)
 );
 
@@ -37,11 +41,6 @@ CREATE TABLE IF NOT EXISTS {{ hierarchy_keyspace_name }}.framework_hierarchy (
   PRIMARY KEY (identifier)
 );
 
-ALTER TABLE {{ content_keyspace_name }}.question_data ADD (editorState blob, question blob, solutions blob);
-
-ALTER TABLE {{ content_keyspace_name }}.content_data ADD (externallink text);
-
-
 {% if groups['cassandra-node-2'] is defined %}
 ALTER KEYSPACE {{ content_keyspace_name }} WITH replication = {
   'class': 'NetworkTopologyStrategy',
@@ -57,10 +56,10 @@ ALTER TABLE {{ content_keyspace_name }}.content_data ADD (externallink text);
 {% endif %}
 
 
-CREATE TRIGGER content_data_trigger ON {{ content_keyspace_name }}.content_data USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
-CREATE TRIGGER question_data_trigger ON {{ content_keyspace_name }}.question_data USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
-CREATE TRIGGER framework_hierarchy_trigger ON {{ hierarchy_keyspace_name }}.framework_hierarchy USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
-CREATE TRIGGER content_hierarchy_trigger ON {{ hierarchy_keyspace_name }}.content_hierarchy USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
+CREATE TRIGGER IF NOT EXISTS content_data_trigger ON {{ content_keyspace_name }}.content_data USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
+CREATE TRIGGER IF NOT EXISTS question_data_trigger ON {{ content_keyspace_name }}.question_data USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
+CREATE TRIGGER IF NOT EXISTS framework_hierarchy_trigger ON {{ hierarchy_keyspace_name }}.framework_hierarchy USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
+CREATE TRIGGER IF NOT EXISTS content_hierarchy_trigger ON {{ hierarchy_keyspace_name }}.content_hierarchy USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
 
 
 CREATE KEYSPACE IF NOT EXISTS {{ category_keyspace_name }} WITH replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': '2'}  AND durable_writes = true;
