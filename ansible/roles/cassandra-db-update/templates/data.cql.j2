@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS {{ content_keyspace_name }}.content_data (
   oldBody blob,
   stageIcons blob,
   screenshots blob,
-  externallink text
+  externallink text,
   PRIMARY KEY (content_id)
 );
 
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS {{ content_keyspace_name }}.question_data (
   body blob,
   editorState blob,
   question blob,
-  solutions blob
+  solutions blob,
   PRIMARY KEY (question_id)
 );
 
