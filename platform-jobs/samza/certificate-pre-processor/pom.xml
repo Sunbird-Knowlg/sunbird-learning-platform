@@ -9,9 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>course-certificate-generator-v2</artifactId>
-    <version>0.0.22</version>
-    
+    <artifactId>certificate-pre-processor</artifactId>
+    <version>0.0.1</version>
+
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -146,4 +146,6 @@
             </plugin>
         </plugins>
     </build>
+
+
 </project>

@@ -20,11 +20,14 @@ import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
+import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class IssueCertificate {
 
@@ -43,6 +45,12 @@ public class IssueCertificate {
     private static final String COURSE_BATCH_TABLE = "course_batch";
     private static final String USER_COURSES_TABLE = "user_enrolments";
     private static final String ASSESSMENT_AGGREGATOR_TABLE = "assessment_aggregator";
+    private static final String KP_CONTENT_SERVICE_BASE_URL = Platform.config.hasPath("kp.content_service.base_url")
+            ? Platform.config.getString("kp.content_service.base_url"): "http://localhost:9000";
+    private static final String ASSET_READ_URL = Platform.config.hasPath("asset.read.url")
+            ? Platform.config.getString("asset.read.url"): "/asset/v4/read/";
+    
+    
     protected static ObjectMapper mapper = new ObjectMapper();
 
     private static final String KEYSPACE = Platform.config.hasPath("courses.keyspace.name")
@@ -52,7 +60,7 @@ public class IssueCertificate {
     private static final List<String> certFilterKeys = Arrays.asList("enrollment", "assessment", "user");
     private static JobLogger LOGGER = new JobLogger(IssueCertificate.class);
     private Session cassandraSession = null;
-    
+
     public IssueCertificate(Session cassandraSession) {
         this.cassandraSession = cassandraSession;
     }
@@ -103,7 +111,7 @@ public class IssueCertificate {
                     if (MapUtils.isNotEmpty(criteria) && CollectionUtils.isNotEmpty(CollectionUtils.intersection(criteria.keySet(), certFilterKeys))) {
                         List<String> enrollmentList = getUserFromEnrolmentCriteria((Map<String, Object>) criteria.get("enrollment"), batchId, courseId, userIds, template, reIssue);
                         List<String> assessmentList = getUsersFromAssessmentCriteria((Map<String, Object>) criteria.get("assessment"), batchId, courseId, enrollmentList);
-                        
+
                         List<String> userList = getUsersFromUserCriteria((Map<String, Object>) criteria.get("user"), new ArrayList<String>() {{
                             addAll(enrollmentList);
                             addAll(assessmentList);
@@ -260,7 +268,7 @@ public class IssueCertificate {
     public List<String> getUserFromEnrolmentCriteria(Map<String, Object> enrollment, String batchId, String courseId, List<String> userIds, Map<String, String> template, Boolean reIssue) {
         List<String> enrolledUsers = new ArrayList<>();
         String certName = template.getOrDefault("name", "");
-        String templateUrl = (String)template.getOrDefault("url", CertificateGenerator.getCertTemplate((String)template.getOrDefault("identifier", "")));
+        String templateUrl = (String)template.getOrDefault("url", getCertTemplate((String)template.getOrDefault("identifier", "")));
         template.put("url", templateUrl);
         try {
             if(MapUtils.isNotEmpty(enrollment) && CollectionUtils.isNotEmpty(userIds)){
@@ -317,7 +325,7 @@ public class IssueCertificate {
             LOGGER.info(template.get("name") + " - " + "certificate will be issuing to : "+ usersToIssue);
             for(String userId: usersToIssue) {
                 Map<String, Object> event = prepareCertificateEvent(batchId, courseId, userId, reIssue, certTemplate);
-                collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", topic), event));
+                collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", topic), userId.getBytes(), event));
             }
         } else {
             LOGGER.info("IssueCertificate:generateCertificatesForEnrollment: NO users satisfied the criteria for batchId: " + batchId + " and courseId: " + courseId);
@@ -353,5 +361,36 @@ public class IssueCertificate {
                 put("type", "CourseCertificateGeneration");
             }});
         }};
+    }
+
+    /**
+     * Get Certificate Template
+     * @param id
+     * @return
+     */
+    protected static String getCertTemplate(String id) {
+        try {
+            if(StringUtils.isNotBlank(id)) {
+                Map<String, Object> certTemplate = new HashMap<>();
+                String assetStr = RedisStoreUtil.get(id);
+                if(StringUtils.isNotBlank(assetStr)) {
+                    certTemplate = mapper.readValue(assetStr, Map.class);
+                    return (String) certTemplate.getOrDefault("artifactUrl", "");
+                }
+                String url = KP_CONTENT_SERVICE_BASE_URL + ASSET_READ_URL + id;
+                HttpResponse<String> httpResponse = Unirest.get(url).header("Content-Type", "application/json").asString();
+                if(200 == httpResponse.getStatus()) {
+                    Response response = mapper.readValue(httpResponse.getBody(), Response.class);
+                    certTemplate = (Map<String, Object>) response.getResult().getOrDefault("content", new HashMap<>());
+                    if(MapUtils.isNotEmpty(certTemplate)) {
+                        RedisStoreUtil.save(id, mapper.writeValueAsString(certTemplate), 600);
+                    }
+                    return (String) certTemplate.getOrDefault("artifactUrl", "");
+                }
+            }
+        } catch(Exception e) {
+            LOGGER.error("Error while fetching the certificate template : " , e);
+        }
+        return null;
     }
 }
