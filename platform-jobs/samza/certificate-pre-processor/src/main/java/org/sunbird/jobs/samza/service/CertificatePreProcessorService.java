@@ -1,9 +1,5 @@
 package org.sunbird.jobs.samza.service;
 
-/**
- * @author Pradyumna
- */
-
 import com.datastax.driver.core.Session;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +15,7 @@ import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
-import org.sunbird.jobs.samza.service.util.CertificateGenerator;
+import org.sunbird.jobs.samza.service.util.IssueCertificate;
 import org.sunbird.jobs.samza.util.CassandraConnector;
 import org.sunbird.jobs.samza.util.CourseCertificateParams;
 import org.sunbird.jobs.samza.util.RedisConnect;
@@ -27,15 +23,14 @@ import redis.clients.jedis.Jedis;
 
 import java.util.Map;
 
-public class CertificateGeneratorService implements ISamzaService {
+public class CertificatePreProcessorService implements ISamzaService {
 
-    private static JobLogger LOGGER = new JobLogger(CertificateGeneratorService.class);
+    private static JobLogger LOGGER = new JobLogger(CertificatePreProcessorService.class);
     private SystemStream systemStream;
     private SystemStream certificateFailedSystemStream;
     private Config config = null;
-    private static int MAXITERTIONCOUNT = 2;
-    private CertificateGenerator certificateGenerator =null;
-    private Jedis redisConnect = null;
+    private int maxIterationCount = 2;
+    private IssueCertificate issueCertificate = null;
     private Session cassandraSession = null;
     private SystemStream certificateAuditEventStream = null;
     /**
@@ -47,12 +42,12 @@ public class CertificateGeneratorService implements ISamzaService {
         this.config = config;
         JSONUtils.loadProperties(config);
         LOGGER.info("Service config initialized");
-        redisConnect = new RedisConnect(config).getConnection();
         cassandraSession = new CassandraConnector(config).getSession();
         systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
         certificateFailedSystemStream = new SystemStream("kafka", config.get("output.certificate.failed.events.topic.name"));
         certificateAuditEventStream = new SystemStream("kafka", config.get("telemetry_raw_topic"));
-        certificateGenerator = new CertificateGenerator(redisConnect, cassandraSession, certificateAuditEventStream);
+        maxIterationCount = Platform.config.hasPath("max.iteration.count.samza.job")? Platform.config.getInt("max.iteration.count.samza.job"): 2;
+        issueCertificate = new IssueCertificate(cassandraSession);
     }
 
     /**
@@ -79,11 +74,11 @@ public class CertificateGeneratorService implements ISamzaService {
         try {
             String objectId = (String) object.get(CourseCertificateParams.id.name());
             if (StringUtils.isNotBlank(objectId)) {
-                String action = (String) edata.get("action");
-                if(StringUtils.isNotBlank(action) && StringUtils.equalsIgnoreCase("generate-course-certificate", action)) {
-                    LOGGER.info("Certificate generation process started ");
-                    certificateGenerator.generate(edata, collector);
-                    LOGGER.info("Certificate is generated");
+                String action = (String) edata.getOrDefault("action", "");
+                if(StringUtils.isNotBlank(action) && StringUtils.equalsIgnoreCase("issue-certificate", action)) {
+                    LOGGER.info("Certificate issue process started ");
+                    issueCertificate.issue(edata, collector);
+                    LOGGER.info("Pushed certificate generation event");
                 }
             }
         } catch(ClientException e) {
@@ -104,17 +99,10 @@ public class CertificateGeneratorService implements ISamzaService {
     private boolean validEdata(Map<String, Object> edata) {
         if(MapUtils.isNotEmpty(edata)){
             Integer iteration = (Integer) edata.get(CourseCertificateParams.iteration.name());
-            if ((iteration <= getMaxIterations())) {
+            if ((iteration <= maxIterationCount)) {
                 return true;
             }
         }
         return false;
-    }
-
-    protected int getMaxIterations() {
-        if (Platform.config.hasPath("max.iteration.count.samza.job"))
-            return Platform.config.getInt("max.iteration.count.samza.job");
-        else
-            return MAXITERTIONCOUNT;
     }
 }
