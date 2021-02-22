@@ -13,6 +13,8 @@
   with_items:
     - "data.cql"
     - "dialcode.cql"
+  delegate_to: "{{ groups['cassandra'][0] }}"
+  run_once: true
 
   
 - name: run cql 
@@ -21,3 +23,5 @@
   with_items:
     - "data.cql"
     - "dialcode.cql"
+  delegate_to: "{{ groups['cassandra'][0] }}"
+  run_once: true
