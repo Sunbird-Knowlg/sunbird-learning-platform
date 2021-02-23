@@ -241,13 +241,7 @@ video-stream-generator:
       consumer.parallelism = {{ vide_stream_generator_consumer_parallelism }}
       parallelism = {{ vide_stream_generator_parallelism }}
     }
-    redis {
-      database {
-        relationCache.id = 10
-        collectionCache.id = 5
-      }
-    }
-    lms-cassandra {
+    dp-cassandra {
       keyspace = "{{ env_name }}_platform_db"
       table = "job_request"
       host = {{ dp_cassandra_connection_ip }}
@@ -256,7 +250,7 @@ video-stream-generator:
     threshold.batch.read.interval = {{ activity_agg_batch_interval }}
     threshold.batch.read.size = {{ activity_agg_batch_read_size }}
     threshold.batch.write.size = {{ activity_agg_batch_write_size }}
-    lp.url="{{lp_url}}"
+    service.learning.basePath="{{lp_url}}"
     azure {
       location = "centralindia"
       login {
