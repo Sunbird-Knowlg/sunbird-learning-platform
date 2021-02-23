@@ -95,6 +95,7 @@ public class QRCodeImageGeneratorService implements ISamzaService {
             List<File> generatedImages = QRCodeImageGeneratorUtil.createQRImages(qrGenRequest, appConfig, container, path);
 
             if(!StringUtils.isBlank(processId)) {
+                LOGGER.info("QRCodeImageGeneratorService:processMessage: Generating zip for QR codes with processId " + processId);
                 if(StringUtils.isBlank(zipFileName)) {
                     zipFileName = processId;
                 }
@@ -103,6 +104,8 @@ public class QRCodeImageGeneratorService implements ISamzaService {
 
                 String zipDownloadUrl = CloudStorageUtil.uploadFile(container, path, zipFile, false);
                 QRCodeCassandraConnector.updateDownloadZIPUrl(processId, zipDownloadUrl);
+            } else {
+                LOGGER.info("QRCodeImageGeneratorService:processMessage: Skipping zip creation due to missing processId.");
             }
             LOGGER.info("QRCodeImageGeneratorService:processMessage: Message processed successfully at "+System.currentTimeMillis());
         } catch (Exception e) {
