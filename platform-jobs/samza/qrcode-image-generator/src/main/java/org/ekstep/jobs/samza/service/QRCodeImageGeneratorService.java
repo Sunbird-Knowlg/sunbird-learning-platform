@@ -90,20 +90,20 @@ public class QRCodeImageGeneratorService implements ISamzaService {
             String path = storage.get(QRCodeImageGeneratorParams.path.name());
             String zipFileName = storage.get(QRCodeImageGeneratorParams.fileName.name());
             String processId = (String) message.get(QRCodeImageGeneratorParams.processId.name());
-            if(StringUtils.isBlank(zipFileName)) {
-                zipFileName = processId;
-            }
-
 
             QRCodeGenerationRequest qrGenRequest = getQRCodeGenerationRequest(config, dataList, textList, fileNameList);
             List<File> generatedImages = QRCodeImageGeneratorUtil.createQRImages(qrGenRequest, appConfig, container, path);
 
-            availableImages.addAll(generatedImages);
-            zipFile = ZipEditorUtil.zipFiles(availableImages, zipFileName, tempFilePath);
+            if(!StringUtils.isBlank(processId)) {
+                if(StringUtils.isBlank(zipFileName)) {
+                    zipFileName = processId;
+                }
+                availableImages.addAll(generatedImages);
+                zipFile = ZipEditorUtil.zipFiles(availableImages, zipFileName, tempFilePath);
 
-            String zipDownloadUrl = CloudStorageUtil.uploadFile(container, path, zipFile, false);
-            QRCodeCassandraConnector.updateDownloadZIPUrl(processId, zipDownloadUrl);
-
+                String zipDownloadUrl = CloudStorageUtil.uploadFile(container, path, zipFile, false);
+                QRCodeCassandraConnector.updateDownloadZIPUrl(processId, zipDownloadUrl);
+            }
             LOGGER.info("QRCodeImageGeneratorService:processMessage: Message processed successfully at "+System.currentTimeMillis());
         } catch (Exception e) {
             QRCodeCassandraConnector.updateFailure((String) message.get(QRCodeImageGeneratorParams.processId.name()),
