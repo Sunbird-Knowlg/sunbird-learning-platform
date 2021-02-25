@@ -227,3 +227,62 @@ questionset-publish:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
+
+video-stream-generator:
+  video-stream-generator: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.content.postpublish.request"
+      groupId = "{{ env_name }}-video-stream-generator-group"
+    }
+    task {
+      window.shards = {{ activity_agg_window_shards }}
+      timer.duration = 60
+      consumer.parallelism = {{ vide_stream_generator_consumer_parallelism }}
+      parallelism = {{ vide_stream_generator_parallelism }}
+    }
+    dp-cassandra {
+      keyspace = "{{ env_name }}_platform_db"
+      table = "job_request"
+      host = {{ dp_cassandra_connection_ip }}
+      port = "9042"
+    }
+    threshold.batch.read.interval = {{ activity_agg_batch_interval }}
+    threshold.batch.read.size = {{ activity_agg_batch_read_size }}
+    threshold.batch.write.size = {{ activity_agg_batch_write_size }}
+    service.learning.basePath="{{lp_url}}"
+    azure {
+      location = "centralindia"
+      login {
+        endpoint="https://login.microsoftonline.com"
+      }
+      api {
+        endpoint="https://management.azure.com"
+        version = "2018-07-01"
+      }
+      transform {
+        default = "media_transform_default"
+        hls = "media_transform_hls"
+      }
+      stream {
+        base_url = "https://sunbirdspikemedia-inct.streaming.media.azure.net"
+        endpoint_name = "default"
+        protocol = "Hls"
+        policy_name = "Predefined_ClearStreamingOnly"
+      }
+    }
+    azure_tenant="{{ azure_tenant }}"
+    azure_subscription_id="{{ azure_subscription_id }}"
+    azure_account_name="{{ azure_account_name }}"
+    azure_resource_group_name="{{ azure_resource_group_name }}"
+    azure_token_client_key="{{ azure_token_client_key }}"
+    azure_token_client_secret="{{ azure_token_client_secret }}"
+
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['video-stream-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
