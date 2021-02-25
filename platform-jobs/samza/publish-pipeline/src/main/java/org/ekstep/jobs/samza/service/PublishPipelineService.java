@@ -288,17 +288,6 @@ public class PublishPipelineService implements ISamzaService {
         }
         collector.send(new OutgoingMessageEnvelope(postPublishStream, postPublishEvent));
 
-        // TODO: delete below block after flink generic implementation.
-        if (StringUtils.isNotBlank(mimeType) && StringUtils.equals(mimeType, "application/vnd.ekstep.content-collection")) {
-            Map<String, Object> linkDialcodeEvent = generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), "link-dialcode");
-
-            if (MapUtils.isEmpty(linkDialcodeEvent)) {
-                TelemetryManager.error("Post Publish event is not generated properly. #postPublishJob : " + linkDialcodeEvent);
-                throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
-            }
-            collector.send(new OutgoingMessageEnvelope(postPublishStream, linkDialcodeEvent));
-            LOGGER.info("OLD format Event - link-dialcode - sent to post publish event topic");
-        }
         LOGGER.info("All Events sent to post publish event topic");
 	}
 
@@ -349,6 +338,9 @@ public class PublishPipelineService implements ISamzaService {
         edata.put("createdBy", metadata.get("createdBy"));
         edata.put("createdFor", metadata.get("createdFor"));
         edata.put("trackable", metadata.get("trackable"));
+        if (metadata.get("artifactUrl") != null) {
+        	edata.put("artifactUrl", metadata.get("artifactUrl"));
+		}
 
 		// generate event structure
 		long unixTime = System.currentTimeMillis();

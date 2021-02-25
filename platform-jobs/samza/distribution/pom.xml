@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>qrcode-image-generator</artifactId>
-			<version>0.0.27</version>
+			<version>0.0.28</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -53,7 +53,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
-            <version>0.0.370</version>
+            <version>0.0.371</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -61,13 +61,6 @@
 			<groupId>org.ekstep</groupId>
 			<artifactId>course-batch-updater</artifactId>
 			<version>0.0.64</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>post-publish-processor</artifactId>
-			<version>0.0.32</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
