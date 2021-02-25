@@ -255,7 +255,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 				notPublishedList.add(resource.getIdentifier());
 			}
 		}
-		Boolean childPublishEnabled = Platform.config.getBoolean("child.publish.enable");
+		Boolean childPublishEnabled = Platform.config.getBoolean("collection.only_published_children");
 		if(!childPublishEnabled && CollectionUtils.isNotEmpty(notPublishedList)){
 			TelemetryManager.error("Collection: " + collectionId + " has unpublished resources:: " + notPublishedList);
 			throw new ClientException("ERR_COLLECTION_WITH_UNPUBLISHED_RESOURCE", "Collection: " + collectionId + " has unpublished resources:: " + notPublishedList);
