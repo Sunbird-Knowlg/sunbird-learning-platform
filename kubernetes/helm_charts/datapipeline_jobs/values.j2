@@ -169,6 +169,7 @@ post-publish-processor:
       input.topic = {{ env_name }}.content.postpublish.request
       groupId = {{ env_name }}-post-publish-processor-group
       publish.topic = {{ env_name }}.learning.job.request
+      qrimage.topic = {{ env_name }}.qrimage.request
     }
     task {
       consumer.parallelism = {{ post_publish_processor_consumer_parallesim }}
@@ -179,9 +180,15 @@ post-publish-processor:
       keyspace = "{{ middleware_course_keyspace }}"
       batchTable = "course_batch"
     }
+    dialcode-cassandra {
+      keyspace = "dialcodes"
+      imageTable = "dialcode_images"
+    }
     service {
       search.basePath = "{{ kp_search_service_base_url }}"
       lms.basePath = "{{ lms_service_base_url }}"
+      learning_service.basePath = "{{ kp_learning_service_base_url }}"
+      dial.basePath = "https://{{domain_name}}/dial/"
     }
 
   flink-conf: |+
