@@ -119,6 +119,8 @@ activity-aggregate-updater:
     activity {
       module.aggs.enabled = true
       input.dedup.enabled = true
+      filter.processed.enrolments = {{ activity_agg_enrolment_filter_processe_enabled }}
+      collection.status.cache.expiry = {{ activity_agg_collection_status_cache_expiry_time }}
     }
 
 
