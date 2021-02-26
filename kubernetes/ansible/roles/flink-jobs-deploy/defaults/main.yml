@@ -54,6 +54,9 @@ activity_agg_dedup_index: 13
 activity_agg_dedup_expiry: 604800
 activity_module_aggs_enabled: true
 activity_input_dedup_enabled: true
+activity_agg_enrolment_filter_processe_enabled: true
+activity_agg_collection_status_cache_expiry_time: 3600
+
 
 ### Relation Cache Updater Job related Vars
 extractor_consumer_parallelism: 1
