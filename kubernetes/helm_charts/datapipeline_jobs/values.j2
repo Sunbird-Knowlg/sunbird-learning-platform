@@ -172,7 +172,7 @@ post-publish-processor:
       qrimage.topic = {{ env_name }}.qrimage.request
     }
     task {
-      consumer.parallelism = {{ post_publish_processor_consumer_parallesim }}
+      consumer.parallelism = {{ post_publish_processor_consumer_parallelism }}
       router.parallelism = {{ post_publish_event_router_parallelism }}
       shallow_copy.parallelism = {{ post_publish_shallow_copy_parallelism }}
       link_dialcode.parallelism = {{ post_publish_link_dialcode_parallelism }}

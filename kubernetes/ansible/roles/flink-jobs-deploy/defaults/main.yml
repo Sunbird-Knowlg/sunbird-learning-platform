@@ -62,10 +62,11 @@ relation_cache_updater_parallelism: 1
 middleware_content_hierarchy_table: "content_hierarchy"
 
 ### Post Publish Processor Job related Vars
-post_publish_processor_consumer_parallesim: 1
-post_publish_processor_parallelism: 1
+post_publish_processor_consumer_parallelism: 1
 post_publish_event_router_parallelism: 1
-
+post_publish_shallow_copy_parallelism: 1
+post_publish_link_dialcode_parallelism: 1
+post_publish_batch_create_parallelism: 1
 
 ###  Certificate Job related Vars
 certificate_generator_consumer_parallelism: 1
