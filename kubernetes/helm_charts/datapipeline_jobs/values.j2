@@ -319,6 +319,7 @@ composite-search-indexer:
     dailcodemetrics.index.name = "dialcodemetrics"
     restrict.metadata.objectTypes = []
     nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials"]
+    schema.supported_version = {"itemset": "2.0"}
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['composite-search-indexer'].jobmanager_memory }}
