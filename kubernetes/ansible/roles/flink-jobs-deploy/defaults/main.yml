@@ -155,3 +155,11 @@ flink_job_names:
 ### Global vars
 middleware_course_keyspace: "sunbird_courses"
 cloud_store: azure
+
+
+### Composite Search Indexer Related Vars
+composite_search_indexer_consumer_parallelism: 1
+composite_search_event_router_parallelism: 1
+composite_search_indexer_parallelism: 1
+dialcode_external_indexer_parallelism: 1
+dialcode_metric_indexer_parallelism: 1

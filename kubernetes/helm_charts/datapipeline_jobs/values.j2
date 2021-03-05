@@ -295,3 +295,35 @@ video-stream-generator:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+
+
+
+composite-search-indexer:
+  composite-search-indexer: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.learning.graph.events"
+      error.topic = "{{ env_name }}.learning.events.failed"
+      groupId = "{{ env_name }}-composite-search-indexer-group"
+    }
+    task {
+      consumer.parallelism = {{ composite_search_indexer_consumer_parallelism }}
+      router.parallelism = {{ composite_search_event_router_parallelism }}
+      composite_search.parallelism = {{ composite_search_indexer_parallelism }}
+      dialcode_external.parallelism = {{ dialcode_external_indexer_parallelism }}
+      dialcode_metric.parallelism = {{ dialcode_metric_indexer_parallelism }}
+    }
+    schema.base_path = {{ kp_schema_base_path }}
+    compositesearch.index.name = "compositesearch"
+    dialcode.index.name = "dialcode"
+    dailcodemetrics.index.name = "dialcodemetrics"
+    restrict.metadata.objectTypes = []
+    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials"]
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['composite-search-indexer'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['composite-search-indexer'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['composite-search-indexer'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
