@@ -98,6 +98,7 @@ dp_redis_host: "{{ groups['dp-redis'][0] }}"
 dedup_redis_host: "{{ dp_redis_host }}"
 kp_redis_host: "{{ groups['redisall'][0] }}"
 neo4j_route_path: "bolt://{{ groups['learning-neo4j-node1'][0] }}:7687"
+search_es_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
 
 ### Global vars
 flink_namespace: "flink-kp-{{ instance }}"

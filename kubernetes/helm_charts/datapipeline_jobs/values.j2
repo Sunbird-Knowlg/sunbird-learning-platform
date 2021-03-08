@@ -74,6 +74,15 @@ base_config: |
       routePath = "{{ neo4j_route_path }}"
       graph = "domain"
     }
+    elastic {
+      search {
+        es_conn_info = "{{ search_es_host }}"
+      }
+    }
+    schema {
+      base_path = {{ kp_schema_base_path }}
+      supported_version = {"itemset": "2.0"}
+    }
 
 activity-aggregate-updater:
   activity-aggregate-updater: |+
@@ -313,13 +322,12 @@ composite-search-indexer:
       dialcode_external.parallelism = {{ dialcode_external_indexer_parallelism }}
       dialcode_metric.parallelism = {{ dialcode_metric_indexer_parallelism }}
     }
-    schema.base_path = {{ kp_schema_base_path }}
     compositesearch.index.name = "compositesearch"
     dialcode.index.name = "dialcode"
     dailcodemetrics.index.name = "dialcodemetrics"
     restrict.metadata.objectTypes = []
     nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials"]
-    schema.supported_version = {"itemset": "2.0"}
+    schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_ms }}
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['composite-search-indexer'].jobmanager_memory }}
