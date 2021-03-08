@@ -13,6 +13,7 @@
   with_items:
     - "data.cql"
     - "dialcode.cql"
+  run_once: true
 
   
 - name: run cql 
@@ -21,3 +22,4 @@
   with_items:
     - "data.cql"
     - "dialcode.cql"
+  run_once: true
