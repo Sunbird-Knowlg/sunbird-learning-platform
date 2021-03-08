@@ -29,7 +29,6 @@
 		<module>asset-enrichment</module>
 		<module>qrcode-image-generator</module>
 		<module>distribution</module>
-        <module>course-batch-updater</module>
         <module>qr-image-generator</module>
 		<module>merge-user-courses</module>
 		<module>course-certificate-generator-v2</module>
