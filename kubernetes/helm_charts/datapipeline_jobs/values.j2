@@ -74,10 +74,8 @@ base_config: |
       routePath = "{{ neo4j_route_path }}"
       graph = "domain"
     }
-    elastic {
-      search {
-        es_conn_info = "{{ search_es_host }}"
-      }
+    es {
+        basePath = "{{ search_es_host }}"
     }
     schema {
       base_path = {{ kp_schema_base_path }}
