@@ -164,10 +164,10 @@ middleware_course_keyspace: "sunbird_courses"
 cloud_store: azure
 
 
-### Composite Search Indexer Related Vars
-composite_search_indexer_consumer_parallelism: 1
-composite_search_event_router_parallelism: 1
+### Search Indexer Related Vars
+search_indexer_consumer_parallelism: 1
+transaction_event_router_parallelism: 1
 composite_search_indexer_parallelism: 1
 dialcode_external_indexer_parallelism: 1
 dialcode_metric_indexer_parallelism: 1
-schema_definition_cache_expiry_in_ms: 600000
+schema_definition_cache_expiry_in_sec: 14400
