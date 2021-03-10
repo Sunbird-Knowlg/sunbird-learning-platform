@@ -78,8 +78,8 @@ base_config: |
         basePath = "{{ search_es_host }}"
     }
     schema {
-      base_path = {{ kp_schema_base_path }}
-      supported_version = {"itemset": "2.0"}
+      basePath = {{ kp_schema_base_path }}
+      supportedVersion = {"itemset": "2.0"}
     }
 
 activity-aggregate-updater:
@@ -316,9 +316,9 @@ search-indexer:
     task {
       consumer.parallelism = {{ search_indexer_consumer_parallelism }}
       router.parallelism = {{ transaction_event_router_parallelism }}
-      composite_search.parallelism = {{ composite_search_indexer_parallelism }}
-      dialcode_external.parallelism = {{ dialcode_external_indexer_parallelism }}
-      dialcode_metric.parallelism = {{ dialcode_metric_indexer_parallelism }}
+      compositeSearch.parallelism = {{ composite_search_indexer_parallelism }}
+      dialcodeIndexer.parallelism = {{ dialcode_external_indexer_parallelism }}
+      dialcodemetricsIndexer.parallelism = {{ dialcode_metric_indexer_parallelism }}
     }
     compositesearch.index.name = "compositesearch"
     dialcode.index.name = "dialcode"
