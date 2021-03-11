@@ -297,3 +297,40 @@ video-stream-generator:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+
+
+audit-event-generator:
+  audit-event-generator: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.learning.graph.events"
+      output.topic = "{{ env_name }}.telemetry.raw"
+      groupId = "sunbirddev-audit-event-generator-group"
+      output.metrics_topic = "{{ env_name }}.pipeline_metrics"
+    }
+
+    task {
+      consumer.parallelism = {{ audit_event_generator_consumer_parallelism }}
+      parallelism = {{ audit_event_generator_parallelism }}
+      producer.parallelism = {{ audit_event_generator_producer_parallelism }}
+    }
+
+    schema {
+      basePath = "https://sunbirddev.blob.core.windows.net/sunbird-content-dev/schemas/local"
+    }
+
+    redis {
+      database {
+        relationCache.id = 10
+        collectionCache.id = 5
+      }
+    }
+
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['audit-event-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['audit-event-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['audit-event-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1

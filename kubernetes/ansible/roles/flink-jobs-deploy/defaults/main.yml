@@ -100,6 +100,11 @@ dp_cassandra_connection_ip: "{{ groups['dp-cassandra'][0] }}"
 vide_stream_generator_consumer_parallelism: 1
 vide_stream_generator_parallelism: 1
 
+### Audit event generator related vars
+audit_event_generator_consumer_parallelism: 1
+audit_event_generator_parallelism: 1
+audit_event_generator_producer_parallelism: 1
+
 ### taskmanager related vars
 healthcheck: true
 taskmanager_liveness:
@@ -149,6 +154,13 @@ flink_job_names:
     cpu_requests: 0.3
   video-stream-generator:
     job_class_name: 'org.sunbird.job.task.VideoStreamGeneratorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  audit-event-generator:
+    job_class_name: 'org.sunbird.job.task.AuditEventGeneratorStreamTask'
     replica: 1
     jobmanager_memory: 1024m
     taskmanager_memory: 1024m
