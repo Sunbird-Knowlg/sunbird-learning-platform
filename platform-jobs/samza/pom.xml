@@ -24,7 +24,6 @@
 		<module>course-common</module>
 		<module>audit-history-indexer</module>
 	    <module>audit-event-generator</module>
-		<module>composite-search-indexer</module>
 		<module>publish-pipeline</module>
 		<module>asset-enrichment</module>
 		<module>qrcode-image-generator</module>
