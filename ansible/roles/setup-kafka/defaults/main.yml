@@ -120,6 +120,9 @@ processing_kafka_topics:
   - name: assessment.publish.request
     num_of_partitions: 1
     replication_factor: 1
+  - name: batch.enrolment.sync.request
+    num_of_partitions: 1
+    replication_factor: 1
 
 processing_kafka_overriden_topics:
   - name: telemetry.raw
@@ -180,6 +183,9 @@ processing_kafka_overriden_topics:
     retention_time: 1209600000
     replication_factor: 1
   - name: post.certificate.process.request
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: batch.enrolment.sync.request
     retention_time: 1209600000
     replication_factor: 1
   # Error/Failed Topics
