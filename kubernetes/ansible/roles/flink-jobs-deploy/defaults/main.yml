@@ -90,12 +90,13 @@ middleware_user_enrolments_table: "user_enrolments"
 middleware_assessment_aggregator_table: "assessment_aggregator"
 
 ### Video stream generator related vars
+### IMPORTANT: The media-service configuration values should be updated in respective environment.
 azure_tenant: "{{ media_service_azure_tenant | default('') }}"
 azure_subscription_id: "{{ media_service_azure_subscription_id | default('') }}"
 azure_account_name: "{{ media_service_azure_account_name | default('') }}"
 azure_resource_group_name: "{{ media_service_azure_resource_group_name | default('') }}"
 azure_token_client_key: "{{ media_service_azure_token_client_key | default('') }}"
-azure_token_client_secret: "{{ media_service_azure_token_client_secret | default('') }}"
+azure_token_client_secret: "{{ media_service_azure_token_client_secret | default('') }}"The 
 dp_cassandra_connection_ip: "{{ groups['dp-cassandra'][0] }}"
 vide_stream_generator_consumer_parallelism: 1
 vide_stream_generator_parallelism: 1
