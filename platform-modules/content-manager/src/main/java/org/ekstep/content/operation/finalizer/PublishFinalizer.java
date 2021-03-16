@@ -114,7 +114,11 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final Boolean CONTENT_UPLOAD_CONTEXT_DRIVEN = Platform.config.hasPath("content.upload.context.driven") ? Platform.config.getBoolean("content.upload.context.driven") : true;
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
-	private HierarchyStore hierarchyStore = new HierarchyStore();
+	private static final List<String> EXPANDABLE_OBJECTS = Platform.config.hasPath("hierarchy.expandable_objects") ? Arrays.asList(Platform.config.getString("hierarchy.expandable_objects").split(",")) : Arrays.asList("Collection", "QuestionSet");
+	private static Map<String, HierarchyStore> hierarchyStoreFactory = null;
+	private static final List<String> EXCLUDE_LEAFNODE_OBJECTS = Platform.config.hasPath("compute_leafnode.exclude_objects") ? Arrays.asList(Platform.config.getString("compute_leafnode.exclude_objects").split(",")) : Arrays.asList("Collection","Question");
+	private static final List<String> INCLUDE_LEAFNODE_OBJECTS = Platform.config.hasPath("compute_leafnode.include_objects") ? Arrays.asList(Platform.config.getString("compute_leafnode.include_objects").split(",")) : Arrays.asList("QuestionSet");
+	private static final List<String> INCLUDE_CHILDNODE_OBJECTS = Platform.config.hasPath("compute_childnode.include_objects") ? Arrays.asList(Platform.config.getString("compute_childnode.include_objects").split(",")) : Arrays.asList("Collection");
 	private ControllerUtil util = new ControllerUtil();
 	private ItemsetPublishManager itemsetPublishManager = new ItemsetPublishManager(util);
 	private PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil();
@@ -125,13 +129,13 @@ public class PublishFinalizer extends BaseFinalizer {
 	public void setItemsetPublishManager(ItemsetPublishManager itemsetPublishManager) {
 		this.itemsetPublishManager = itemsetPublishManager;
 	}
-	
-	public void setPublishFinalizeUtil(PublishFinalizeUtil publishFinalizeUtil) {
-		this.publishFinalizeUtil = publishFinalizeUtil;
+
+	public void setHierarchyStoreFactory(Map<String, HierarchyStore> hierarchyStoreFactory) {
+		PublishFinalizer.hierarchyStoreFactory = hierarchyStoreFactory;
 	}
 
-	public void setHierarchyStore(HierarchyStore hierarchyStore) {
-		this.hierarchyStore = hierarchyStore;
+	public void setPublishFinalizeUtil(PublishFinalizeUtil publishFinalizeUtil) {
+		this.publishFinalizeUtil = publishFinalizeUtil;
 	}
 
 	public void setControllerUtil(ControllerUtil controllerUtil) {
@@ -317,10 +321,9 @@ public class PublishFinalizer extends BaseFinalizer {
 		List<Map<String, Object>> children = null;
 		if (StringUtils.equalsIgnoreCase(((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),COLLECTION_MIMETYPE)) {
 			Map<String,Object> collectionHierarchy = isContentShallowCopy ?
-					getHierarchy((String)((Map<String, Object>)node.getMetadata()).get("origin"), false) :
-					getHierarchy(node.getIdentifier(), true);
+					getHierarchy((String)((Map<String, Object>)node.getMetadata()).get("origin"), false, node.getObjectType()) :
+					getHierarchy(node.getIdentifier(), true, node.getObjectType());
 			LOGGER.debug("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
-
 			if(MapUtils.isNotEmpty(collectionHierarchy)) {
 				children = (List<Map<String,Object>>)collectionHierarchy.get("children");
 				if(!isContentShallowCopy) {
@@ -329,6 +332,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					if(!collectionResourceChildNodes.isEmpty()) {
 						List<String> collectionChildNodes = getList(node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name()));
 						collectionChildNodes.addAll(collectionResourceChildNodes);
+						node.getMetadata().put(ContentWorkflowPipelineParams.childNodes.name(), collectionChildNodes);
 					}
 				}
 			}
@@ -336,6 +340,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			LOGGER.info("Collection processing started for content: " + node.getIdentifier());
 			processCollection(node, children);
 			LOGGER.info("Collection processing done for content: " + node.getIdentifier());
+			LOGGER.info("Collection data after processing for : " + node.getIdentifier() + " | Metadata : "+node.getMetadata());
+			LOGGER.info("Collection children data after processing : "+children);
 		}
 		LOGGER.debug("Ecar processing started for content: " + node.getIdentifier());
 		processForEcar(node, children);
@@ -451,31 +457,28 @@ public class PublishFinalizer extends BaseFinalizer {
 								StringUtils.equalsIgnoreCase((String) child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE))
 							enrichChildren((List<Map<String, Object>>) child.get(ContentWorkflowPipelineParams.children.name()), collectionResourceChildNodes, node);
 						if (StringUtils.equalsIgnoreCase((String) child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
-								StringUtils.equalsIgnoreCase((String) child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
-							Map<String, Object> collectionHierarchy = getHierarchy((String) child.get(ContentWorkflowPipelineParams.identifier.name()), false);
+								EXPANDABLE_OBJECTS.contains((String)child.get("objectType"))) {
+							Map<String, Object> collectionHierarchy = getHierarchy((String) child.get(ContentWorkflowPipelineParams.identifier.name()), false, (String) child.get(ContentWorkflowPipelineParams.objectType.name()));
 							LOGGER.debug("Collection hierarchy for childNode : " + child.get(ContentWorkflowPipelineParams.identifier.name()) + " : " + collectionHierarchy);
 							if (MapUtils.isNotEmpty(collectionHierarchy)) {
 								collectionHierarchy.put(ContentWorkflowPipelineParams.index.name(), child.get(ContentWorkflowPipelineParams.index.name()));
 								collectionHierarchy.put(ContentWorkflowPipelineParams.parent.name(), child.get(ContentWorkflowPipelineParams.parent.name()));
 								List<String> childNodes = getList(collectionHierarchy.get(ContentWorkflowPipelineParams.childNodes.name()));
-								if (!CollectionUtils.isEmpty(childNodes))
+								if (!CollectionUtils.isEmpty(childNodes) && INCLUDE_CHILDNODE_OBJECTS.contains((String) child.get("objectType")))
 									collectionResourceChildNodes.addAll(childNodes);
-								if (!MapUtils.isEmpty(collectionHierarchy)) {
-									children.remove(child);
-									children.add(collectionHierarchy);
-								}
+								children.remove(child);
+								children.add(collectionHierarchy);
 							}
 						}
 						if (StringUtils.equalsIgnoreCase((String) child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
-								!StringUtils.equalsIgnoreCase((String) child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
+								!EXPANDABLE_OBJECTS.contains((String)child.get("objectType"))) {
 							Response readResponse = getDataNode(TAXONOMY_ID, (String) child.get(ContentWorkflowPipelineParams.identifier.name()));
 							children.remove(child);
 							List<String> childNodes = getList(node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name()));
 							if (!checkError(readResponse)) {
 								Node resNode = (Node) readResponse.get(GraphDACParams.node.name());
 								if (PUBLISHED_STATUS_LIST.contains(resNode.getMetadata().get(ContentWorkflowPipelineParams.status.name()))) {
-									DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
-
+									DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, resNode.getObjectType());
 									String nodeString = mapper.writeValueAsString(ConvertGraphNode.convertGraphNode(resNode, TAXONOMY_ID, definition, null));
 									Map<String, Object> resourceNode = mapper.readValue(nodeString, Map.class);
 									resourceNode.put("index", child.get(ContentWorkflowPipelineParams.index.name()));
@@ -500,7 +503,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	private void getUnitFromLiveContent(List<String> unitNodes){
-		Map<String, Object> liveContentHierarchy = getHierarchy(contentId, false);
+		Map<String, Object> liveContentHierarchy = getHierarchy(contentId, false, "Collection");
 		if(MapUtils.isNotEmpty(liveContentHierarchy)) {
 			List<Map<String, Object>> children = (List<Map<String, Object>>)liveContentHierarchy.get("children");
 			getUnitFromLiveContent(unitNodes, children);
@@ -689,7 +692,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	
 	private void publishHierarchy(Node node, List<Map<String,Object>> childrenList) {
 		Map<String, Object> hierarchy = getContentMap(node, childrenList);
-		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
+		getHierarchyStore(node.getObjectType()).saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
 	}
 
 	private Map<String, Object> getContentMap(Node node, List<Map<String,Object>> childrenList) {
@@ -701,17 +704,17 @@ public class PublishFinalizer extends BaseFinalizer {
 		return collectionHierarchy;
 	}
 	
-	private Map<String, Object> getHierarchy(String nodeId, boolean needImageHierarchy) {
+	private Map<String, Object> getHierarchy(String nodeId, boolean needImageHierarchy, String objType) {
 		if(needImageHierarchy){
 			String identifier = StringUtils.endsWith(nodeId, ".img") ? nodeId : nodeId + ".img";
-			Map<String, Object> hierarchy = hierarchyStore.getHierarchy(identifier);
+			Map<String, Object> hierarchy = getHierarchyStore(objType).getHierarchy(identifier);
 			if(MapUtils.isEmpty(hierarchy)) {
-				return hierarchyStore.getHierarchy(nodeId);
+				return getHierarchyStore(objType).getHierarchy(nodeId);
 			} else {
 				return hierarchy;
 			}
 		} else {
-			return hierarchyStore.getHierarchy(nodeId.replaceAll(".img", ""));
+			return getHierarchyStore(objType).getHierarchy(nodeId.replaceAll(".img", ""));
 		}
 	}
 	
@@ -757,7 +760,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		List<Map<String,Object>> children = (List<Map<String,Object>>) data.get("children");
 		if(CollectionUtils.isNotEmpty(children)) {
 			for(Map<String,Object> child : children ){
-				if(!StringUtils.equals((String)child.get(ContentAPIParams.mimeType.name()), COLLECTION_MIMETYPE)
+				if(!EXPANDABLE_OBJECTS.contains((String) child.get("objectType"))
 						&& StringUtils.equals((String) child.get(ContentAPIParams.visibility.name()),"Default")) {
 					if(null != child.get(ContentAPIParams.totalCompressedSize.name())) {
 						totalCompressed += ((Number) child.get(ContentAPIParams.totalCompressedSize.name())).doubleValue();
@@ -1016,10 +1019,11 @@ public class PublishFinalizer extends BaseFinalizer {
             updateRootChildrenList(node, children);
 			getNodeMap(children, nodes, nodeIds, definition);
 		}
-		
+
+		List<Node> filteredNodes = nodes.stream().filter(n -> !StringUtils.equals("Question", n.getObjectType())).collect(toList());
 		List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
 		List<String> childrenIds = new ArrayList<String>();
-		getContentBundleData(node.getGraphId(), nodes, contents, childrenIds);
+		getContentBundleData(node.getGraphId(), filteredNodes, contents, childrenIds);
 
 		// Cloning contents to spineContent
 		Cloner cloner = new Cloner();
@@ -1109,9 +1113,7 @@ public class PublishFinalizer extends BaseFinalizer {
                 }
 			}
 		}
-
 		enrichCollection(node, children);
-
 		addResourceToCollection(node, children);
 
 	}
@@ -1199,14 +1201,12 @@ public class PublishFinalizer extends BaseFinalizer {
 			updateLeafNodeIds(node, content);
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
-			List<String> childNodes = getChildNode(content);
 			
 			getTypeCount(content, "mimeType", mimeTypeMap);
 			getTypeCount(content, "contentType", contentTypeMap);
 			
 			content.put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
 			content.put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
-			content.put(ContentAPIParams.childNodes.name(), childNodes);
 			
 			node.getMetadata().put(ContentAPIParams.toc_url.name(), generateTOC(node, content));
 			try {
@@ -1217,7 +1217,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			} catch (Exception e) {
 				LOGGER.error("Error while stringifying mimeTypeCount or contentTypesCount.", e);
 			}
-			node.getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
 		}
 	}
 
@@ -1294,13 +1293,15 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (null != children && !children.isEmpty()) {
 			for (Object child : children) {
 				Map<String, Object> childMap = (Map<String, Object>) child;
-				String typeValue = childMap.get(type).toString();
-				if (typeMap.containsKey(typeValue)) {
-					int count = (int) typeMap.get(typeValue);
-					count++;
-					typeMap.put(typeValue, count);
-				} else {
-					typeMap.put(typeValue, 1);
+				String typeValue = (String) childMap.get(type);
+				if (null != typeValue) {
+					if (typeMap.containsKey(typeValue)) {
+						int count = (int) typeMap.get(typeValue);
+						count++;
+						typeMap.put(typeValue, count);
+					} else {
+						typeMap.put(typeValue, 1);
+					}
 				}
 				if (childMap.containsKey("children")) {
 					getTypeCount(childMap, type, typeMap);
@@ -1384,18 +1385,18 @@ public class PublishFinalizer extends BaseFinalizer {
 		return list;
 	}
 
-    private void getLeafNodesIds(Map<String, Object> data, Set<String> leafNodeIds) {
-        List<Map<String,Object>> children = (List<Map<String,Object>>)data.get("children");
-        if(CollectionUtils.isNotEmpty(children)) {
-            for(Map<String, Object> child : children) {
-                getLeafNodesIds(child, leafNodeIds);
-            }
-        } else {
-            if (!StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) data.get(ContentAPIParams.mimeType.name()))) {
-                leafNodeIds.add((String) data.get(ContentAPIParams.identifier.name()));
-            }
-        }
-    }
+	private void getLeafNodesIds(Map<String, Object> data, Set<String> leafNodeIds) {
+		if (INCLUDE_LEAFNODE_OBJECTS.contains(data.get(ContentAPIParams.objectType.name())))
+			leafNodeIds.add((String) data.get(ContentAPIParams.identifier.name()));
+		List<Map<String, Object>> children = (List<Map<String, Object>>) data.get("children");
+		if (CollectionUtils.isNotEmpty(children)) {
+			for (Map<String, Object> child : children) {
+				getLeafNodesIds(child, leafNodeIds);
+			}
+		} else if (!EXCLUDE_LEAFNODE_OBJECTS.contains((String) data.get("objectType"))) {
+			leafNodeIds.add((String) data.get(ContentAPIParams.identifier.name()));
+		}
+	}
     
     protected String getItemsetPreviewUrl(Node node) throws Exception {
     	
@@ -1461,5 +1462,28 @@ public class PublishFinalizer extends BaseFinalizer {
 		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes::updatedPrimaryCategory " + updatedPrimaryCategory);
 		 input.put("contentType", updatedContentType);
 		input.put("primaryCategory", updatedPrimaryCategory);
+	}
+
+	private Map<String, String> getExpandableObjectConfig() {
+		Map<String, String> expandableObjects = new HashMap<String, String>();
+		EXPANDABLE_OBJECTS.forEach(obj -> {
+			if (StringUtils.equals("Collection", obj))
+				expandableObjects.put(obj, "content_hierarchy");
+			else
+				expandableObjects.put(obj, obj.toLowerCase() + "_hierarchy");
+		});
+		return expandableObjects;
+	}
+
+	private HierarchyStore getHierarchyStore(String objectType) {
+		String keyspace = Platform.config.hasPath("hierarchy.keyspace.name") ? Platform.config.getString("hierarchy.keyspace.name") : "hierarchy_store";
+		if (null == hierarchyStoreFactory)
+			hierarchyStoreFactory = new HashMap<String, HierarchyStore>();
+		if (hierarchyStoreFactory.containsKey(objectType))
+			return hierarchyStoreFactory.get(objectType);
+		else {
+			hierarchyStoreFactory.put(objectType, new HierarchyStore(keyspace, getExpandableObjectConfig().get(objectType), objectType, false));
+			return hierarchyStoreFactory.get(objectType);
+		}
 	}
 }
