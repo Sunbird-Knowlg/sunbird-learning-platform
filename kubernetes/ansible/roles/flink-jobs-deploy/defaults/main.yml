@@ -154,7 +154,23 @@ flink_job_names:
     taskmanager_memory: 1024m
     taskslots: 1
     cpu_requests: 0.3
+  search-indexer:
+    job_class_name: 'org.sunbird.job.task.SearchIndexerStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
 
 ### Global vars
 middleware_course_keyspace: "sunbird_courses"
 cloud_store: azure
+
+
+### Search Indexer Related Vars
+search_indexer_consumer_parallelism: 1
+transaction_event_router_parallelism: 1
+composite_search_indexer_parallelism: 1
+dialcode_external_indexer_parallelism: 1
+dialcode_metric_indexer_parallelism: 1
+schema_definition_cache_expiry_in_sec: 14400
