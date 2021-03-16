@@ -75,19 +75,17 @@ post_publish_batch_create_parallelism: 1
 certificate_generator_consumer_parallelism: 1
 certificate_generator_parallelism: 1
 
-###  Post Certificate Processor Job related Vars
-post_certificate_processor_consumer_parallelism: 1
-post_certificate_processor_parallelism: 1
-middleware_user_enrollment_table: "user_enrolments"
-middleware_course_batch_table: "course_batch"
-
-
-### Certificate Pre Processor Job related Vars
-certificate_pre_processor_consumer_parallelism: 1
-certificate_pre_processor_parallelism: 1
+### Certificate Pre & Post Processor Job related Vars
 middleware_course_batch_table: "course_batch"
 middleware_user_enrolments_table: "user_enrolments"
 middleware_assessment_aggregator_table: "assessment_aggregator"
+
+certificate_pre_processor_consumer_parallelism: 1
+certificate_pre_processor_parallelism: 1
+
+post_certificate_processor_consumer_parallelism: 1
+post_certificate_processor_parallelism: 1
+
 
 ### Video stream generator related vars
 ### IMPORTANT: The media-service configuration values should be updated in respective environment.
@@ -101,19 +99,6 @@ dp_cassandra_connection_ip: "{{ groups['dp-cassandra'][0] }}"
 vide_stream_generator_consumer_parallelism: 1
 vide_stream_generator_parallelism: 1
 
-### taskmanager related vars
-healthcheck: true
-taskmanager_liveness:
-  livenessProbe:
-    tcpSocket:
-      port: 6122
-    initialDelaySeconds: 30
-    periodSeconds: 60
-
-taskmanager_prom_port: 9251
-taskmanager_rpc_port: 6122
-taskmanager_heap_memory: 1024
-producer_max_request_size: 1572864
 
 ### to be removed
 job_classname: ""
