@@ -2,14 +2,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.ekstep</groupId>
+		<groupId>org.sunbird</groupId>
 		<artifactId>samza</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>samza-common</artifactId>
 	<dependencies>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>unit-tests</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>test</scope>
@@ -72,7 +72,7 @@
 			<version>1.3.1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>platform-telemetry</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
@@ -82,7 +82,7 @@
 			<version>19.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>learning-actors</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<exclusions>

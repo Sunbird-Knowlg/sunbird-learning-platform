@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.ekstep</groupId>
+        <groupId>org.sunbird</groupId>
         <artifactId>samza</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
@@ -10,28 +10,28 @@
     <name>Distribution</name>
     <dependencies>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>audit-history-indexer</artifactId>
 			<version>0.0.82</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>audit-event-generator</artifactId>
 			<version>0.0.55</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>qrcode-image-generator</artifactId>
 			<version>0.0.28</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>asset-enrichment</artifactId>
 			<version>0.0.104</version>
 			<type>tar.gz</type>
@@ -44,42 +44,42 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>publish-pipeline</artifactId>
             <version>0.0.371</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>merge-user-courses</artifactId>
 			<version>0.0.16</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>course-certificate-generator-v2</artifactId>
 			<version>0.0.22</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>auto-creator</artifactId>
 			<version>0.0.30</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>mvc-processor-indexer</artifactId>
 			<version>1.3.4</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>certificate-pre-processor</artifactId>
 			<version>0.0.1</version>
 			<type>tar.gz</type>

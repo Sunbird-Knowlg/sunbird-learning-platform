@@ -3,16 +3,16 @@ package controllers
 import java.util
 
 import org.apache.commons.lang3.StringUtils
-import org.ekstep.common.dto.{HeaderParam, Request, RequestParams}
-import org.ekstep.telemetry.logger.TelemetryManager
+import org.sunbird.common.dto.{HeaderParam, Request, RequestParams}
+import org.sunbird.telemetry.logger.TelemetryManager
 import play.api.mvc._
 import java.lang.reflect.{ParameterizedType, Type}
 
 import com.fasterxml.jackson.core.`type`.TypeReference
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
-import org.ekstep.common.Platform
-import org.ekstep.common.exception.ResponseCode
-import org.ekstep.telemetry.TelemetryParams
+import org.sunbird.common.Platform
+import org.sunbird.common.exception.ResponseCode
+import org.sunbird.telemetry.TelemetryParams
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,7 +41,7 @@ class BaseController(protected val cc: ControllerComponents)(implicit exec: Exec
         // $COVERAGE-ON$
     }
 
-    protected def getResult(response: Future[org.ekstep.common.dto.Response]) = {
+    protected def getResult(response: Future[org.sunbird.common.dto.Response]) = {
         response.map(x => {
             val xStr = mapper.writeValueAsString(x)
             x.getResponseCode match {

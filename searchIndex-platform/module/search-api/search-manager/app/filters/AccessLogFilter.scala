@@ -2,7 +2,7 @@ package filters
 
 import akka.util.ByteString
 import javax.inject.Inject
-import org.ekstep.telemetry.util.TelemetryAccessEventUtil
+import org.sunbird.telemetry.util.TelemetryAccessEventUtil
 import play.api.Logging
 import play.api.libs.streams.Accumulator
 import play.api.mvc.{EssentialAction, EssentialFilter, RequestHeader, Result}

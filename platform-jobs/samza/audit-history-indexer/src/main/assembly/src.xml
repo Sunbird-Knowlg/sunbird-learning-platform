@@ -55,7 +55,7 @@
 			<outputDirectory>lib</outputDirectory>
 			<includes>
 				<include>org.apache.samza:samza-api</include>
-				<include>org.ekstep:audit-history-indexer</include>
+				<include>org.sunbird:audit-history-indexer</include>
 				<include>org.apache.samza:samza-core_2.11</include>
 				<include>org.apache.samza:samza-kafka_2.11</include>
 				<include>org.apache.samza:samza-yarn_2.11</include>

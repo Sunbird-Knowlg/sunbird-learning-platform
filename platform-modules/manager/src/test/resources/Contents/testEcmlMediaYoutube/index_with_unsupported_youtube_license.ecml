@@ -27,11 +27,11 @@
         <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
       </config>
     </audio>
-    <org.ekstep.video y="7.9" x="10.97" w="78.4" h="79.51" rotate="0" z-index="2" id="0c049488-17ac-4d65-a50b-b3dbd93d1b91">
+    <org.sunbird.video y="7.9" x="10.97" w="78.4" h="79.51" rotate="0" z-index="2" id="0c049488-17ac-4d65-a50b-b3dbd93d1b91">
       <config>
         <![CDATA[{"autoplay":true,"controls":false,"muted":false,"visible":true,"url":"https://www.youtube.com/watch?v=owr198WQpM8"}]]>
       </config>
-    </org.ekstep.video>
+    </org.sunbird.video>
   </stage>
   <stage x="0" y="0" w="100" h="100" id="12003661-b526-4aab-9360-7387285dbe39" rotate="">
     <config>
@@ -42,11 +42,11 @@
     <manifest>
       <media assetId="8309bd78-b5db-4896-9177-a5603a987bde"/>
     </manifest>
-    <org.ekstep.video y="7.9" x="10.97" w="78.4" h="79.51" rotate="0" z-index="0" id="8309bd78-b5db-4896-9177-a5603a987bde">
+    <org.sunbird.video y="7.9" x="10.97" w="78.4" h="79.51" rotate="0" z-index="0" id="8309bd78-b5db-4896-9177-a5603a987bde">
       <config>
         <![CDATA[{"autoplay":true,"controls":false,"muted":false,"visible":true,"url":"https://drive.google.com/uc?export=download&id=1gY3Q06CqkW2DEW81p9TA87DUD4qWHSCO"}]]>
       </config>
-    </org.ekstep.video>
+    </org.sunbird.video>
   </stage>
   <stage x="0" y="0" w="100" h="100" id="c0b59a70-66a7-48d6-9aac-7721d133a2da" rotate="">
     <config>
@@ -194,7 +194,7 @@
       <media id="0c049488-17ac-4d65-a50b-b3dbd93d1b91" src="https://www.youtube.com/watch?v=gffirQukQvs" assetId="0c049488-17ac-4d65-a50b-b3dbd93d1b91" type="youtube"/>
     </manifest>
   <plugin-manifest>
-    <plugin id="org.ekstep.navigation" ver="1.0" type="plugin" depends=""/>
-    <plugin id="org.ekstep.video" ver="1.2" type="widget" depends=""/>
+    <plugin id="org.sunbird.navigation" ver="1.0" type="plugin" depends=""/>
+    <plugin id="org.sunbird.video" ver="1.2" type="widget" depends=""/>
   </plugin-manifest>
 </theme>

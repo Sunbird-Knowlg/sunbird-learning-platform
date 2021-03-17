@@ -19,7 +19,7 @@
 
 	<import resource="classpath*:mw-spring/*-context.xml" />
 
-	<context:component-scan base-package="org.ekstep" />
+	<context:component-scan base-package="org.sunbird" />
 	<mvc:annotation-driven />
 	<context:annotation-config />
 	

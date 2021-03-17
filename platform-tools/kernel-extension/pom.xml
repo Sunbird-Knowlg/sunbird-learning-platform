@@ -3,11 +3,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.ekstep.kernel.extension</groupId>
+    <groupId>org.sunbird.kernel.extension</groupId>
     <artifactId>neo4j-extensions</artifactId>
     <version>1.0</version>
     <packaging>pom</packaging>
-    <name>EkStep Neo4j Kernel Extensions</name>
+    <name>Sunbird Neo4j Kernel Extensions</name>
 
 	<modules>
 		<module>transaction-event-handler</module>
