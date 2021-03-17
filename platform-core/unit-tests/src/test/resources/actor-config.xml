@@ -2,22 +2,22 @@
 	<init system="TestActorSystem">
 		<init-routers>
 			<init-router name="RequestRouter" count="4"
-				class="org.ekstep.graph.engine.router.RequestRouter"></init-router>
+				class="org.sunbird.graph.engine.router.RequestRouter"></init-router>
 			<init-router name="TclExecutor" count="8"
-				class="org.ekstep.orchestrator.interpreter.actor.TclExecutorActor"></init-router>
+				class="org.sunbird.orchestrator.interpreter.actor.TclExecutorActor"></init-router>
 		</init-routers>
 	</init>
 	<graph-managers>
-		<manager classes="org.ekstep.graph.engine.mgr.impl.GraphMgrImpl">
+		<manager classes="org.sunbird.graph.engine.mgr.impl.GraphMgrImpl">
 			<graph id="*" count="4"></graph>
 		</manager>
-		<manager classes="org.ekstep.graph.engine.mgr.impl.NodeManagerImpl">
+		<manager classes="org.sunbird.graph.engine.mgr.impl.NodeManagerImpl">
 			<graph id="*" count="4"></graph>
 		</manager>
-		<manager classes="org.ekstep.graph.engine.mgr.impl.CollectionManagerImpl">
+		<manager classes="org.sunbird.graph.engine.mgr.impl.CollectionManagerImpl">
 			<graph id="*" count="4"></graph>
 		</manager>
-		<manager classes="org.ekstep.graph.engine.mgr.impl.SearchManagerImpl">
+		<manager classes="org.sunbird.graph.engine.mgr.impl.SearchManagerImpl">
 			<graph id="*" count="4"></graph>
 		</manager>
 	</graph-managers>

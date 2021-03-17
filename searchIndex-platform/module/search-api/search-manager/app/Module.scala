@@ -1,7 +1,7 @@
 import com.google.inject.AbstractModule
-import org.ekstep.search.actor.{DefinitionSyncScheduler, HealthCheckManager, SearchManager}
+import org.sunbird.search.actor.{DefinitionSyncScheduler, HealthCheckManager, SearchManager}
 import play.libs.akka.AkkaGuiceSupport
-import org.ekstep.telemetry.TelemetryGenerator
+import org.sunbird.telemetry.TelemetryGenerator
 
 class Module extends AbstractModule with AkkaGuiceSupport {
 

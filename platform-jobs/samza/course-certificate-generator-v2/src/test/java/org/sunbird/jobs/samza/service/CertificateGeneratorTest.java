@@ -4,7 +4,7 @@ import com.datastax.driver.core.Session;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
-import org.ekstep.common.Platform;
+import org.sunbird.common.Platform;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

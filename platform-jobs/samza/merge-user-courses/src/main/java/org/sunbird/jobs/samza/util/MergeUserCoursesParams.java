@@ -1,6 +1,6 @@
 package org.sunbird.jobs.samza.util;
 
-import org.ekstep.graph.dac.util.RelationType;
+import org.sunbird.graph.dac.util.RelationType;
 
 public enum MergeUserCoursesParams {
     userId, batchId, contentId, courseId, status, edata, id, identifier, action, fromAccountId,

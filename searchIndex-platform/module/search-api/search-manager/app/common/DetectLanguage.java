@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.Platform;
+import org.sunbird.common.Platform;
 
 /**
  * @author pradyumna

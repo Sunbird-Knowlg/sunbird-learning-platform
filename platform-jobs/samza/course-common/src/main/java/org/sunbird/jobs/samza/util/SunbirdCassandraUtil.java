@@ -10,7 +10,7 @@ import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.Delete;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.ekstep.cassandra.connector.util.CassandraConnector;
+import org.sunbird.cassandra.connector.util.CassandraConnector;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -2,8 +2,8 @@ package org.sunbird.jobs.samza.task;
 
 import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.TaskCoordinator;
-import org.ekstep.jobs.samza.service.ISamzaService;
-import org.ekstep.jobs.samza.util.JobLogger;
+import org.sunbird.jobs.samza.service.ISamzaService;
+import org.sunbird.jobs.samza.util.JobLogger;
 import org.sunbird.jobs.samza.service.CertificatePreProcessorService;
 
 import java.util.Arrays;
