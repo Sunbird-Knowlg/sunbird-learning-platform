@@ -236,3 +236,53 @@ questionset-publish:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
+enrolment-reconciliation:
+  enrolment-reconciliation: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.batch.enrolment.sync.request
+      output.audit.topic = {{ env_name }}.telemetry.raw
+      output.failed.topic = {{ env_name }}.activity.agg.failed
+      output.certissue.topic = {{ env_name }}.issue.certificate.request
+      groupId = {{ env_name }}-enrolment-reconciliation-group
+    }
+    task {
+      restart-strategy.attempts = {{ restart_attempts }} # max 3 restart attempts
+      restart-strategy.delay = 240000 # in milli-seconds # on max restarts (3) within 4 min the job will fail.
+      consumer.parallelism = {{ enrolment_reconciliation_consumer_parallelism }}
+      enrolment.reconciliation.parallelism = {{ enrolment_reconciliation_parallelism }}
+      enrolment.complete.parallelism = {{ enrolment_complete_parallelism }}
+    }
+    lms-cassandra {
+      keyspace = "{{ middleware_course_keyspace }}"
+      consumption.table = "{{ middleware_consumption_table }}"
+      user_activity_agg.table = "{{ middleware_user_activity_agg_table }}"
+      user_enrolments.table = "user_enrolments"
+    }
+    redis {
+      database {
+        relationCache.id = 10
+      }
+    }
+    dedup-redis {
+      host = {{ dedup_redis_host }}
+      port = 6379
+      database.index = {{ enrolment_reconciliation_dedup_index }}
+      database.expiry = {{ enrolment_reconciliation_dedup_expiry }}
+    }
+    threshold.batch.write.size = {{ enrolment_reconciliation_batch_write_size }}
+    activity {
+      module.aggs.enabled = true
+      input.dedup.enabled = true
+      filter.processed.enrolments = {{ enrolment_reconciliation_filter_processe_enabled }}
+      collection.status.cache.expiry = {{ enrolment_reconciliation_collection_status_cache_expiry_time }}
+    }
+
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['enrolment-reconciliation'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['enrolment-reconciliation'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['enrolment-reconciliation'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
