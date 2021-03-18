@@ -107,6 +107,8 @@ public class PublishInitializer extends BaseInitializer {
 			finalizeParamMap.put(ContentWorkflowPipelineParams.ecmlType.name(),
 					getECMLType((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name())));
 			finalizeParamMap.put(ContentWorkflowPipelineParams.isCompressionApplied.name(), isCompressRequired);
+			if(parameterMap.containsKey("disableAkka"))
+				finalizeParamMap.put("disableAkka", (Boolean)parameterMap.get("disableAkka"));
 			response = finalize.finalyze(ContentWorkflowPipelineParams.publish.name(), finalizeParamMap);
 		}
 		return response;
