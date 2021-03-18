@@ -36,6 +36,8 @@ import org.sunbird.content.util.GraphUtil;
 import org.sunbird.content.util.PublishFinalizeUtil;
 import org.sunbird.content.util.SyncMessageGenerator;
 import org.sunbird.graph.cache.util.RedisStoreUtil;
+import org.sunbird.graph.common.enums.GraphHeaderParams;
+import org.sunbird.graph.engine.mgr.impl.NodeManager;
 import org.sunbird.graph.dac.enums.GraphDACParams;
 import org.sunbird.graph.dac.enums.RelationTypes;
 import org.sunbird.graph.dac.enums.SystemProperties;
@@ -50,6 +52,7 @@ import org.sunbird.learning.contentstore.VideoStreamingJobRequest;
 import org.sunbird.learning.hierarchy.store.HierarchyStore;
 import org.sunbird.learning.util.CloudStore;
 import org.sunbird.learning.util.ControllerUtil;
+import org.sunbird.learning.contentstore.ContentStore;
 import org.sunbird.searchindex.elasticsearch.ElasticSearchUtil;
 import org.sunbird.searchindex.util.CompositeSearchConstants;
 import org.sunbird.taxonomy.enums.TaxonomyAPIParams;
@@ -80,6 +83,8 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	private VideoStreamingJobRequest streamJobRequest = new VideoStreamingJobRequest();
 	
+	private NodeManager nodeManager = new NodeManager();
+	
 	private static final String TAXONOMY_ID = "domain";
 	
 	/** The Constant IDX_S3_KEY. */
@@ -95,6 +100,9 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	/** The ContentId. */
 	protected String contentId;
+	
+	/** Disabbling Akka Actor call **/
+	protected Boolean disableAkka = false;
 	
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 	private static final String ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive";
@@ -180,6 +188,18 @@ public class PublishFinalizer extends BaseFinalizer {
 		this.contentId = contentId;
 	}
 	
+	public PublishFinalizer(String basePath, String contentId, Boolean disableAkka) {
+		if (!isValidBasePath(basePath))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
+					ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM + " | [Path does not Exist.]");
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
+					ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM + " | [Invalid Content Id.]");
+		this.basePath = basePath;
+		this.contentId = contentId;
+		this.disableAkka = disableAkka;
+	}
+	
 	/**
 	 * finalize()
 	 *
@@ -205,6 +225,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
+		
+		LOGGER.info("PublishFinalizer:finalize:: Publish execution for content: " + node.getIdentifier());
 		
 		boolean isContentShallowCopy = false;
 		isContentShallowCopy = isContentShallowCopy(node);
@@ -373,11 +395,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		Response response = migrateContentImageObjectData(contentId, newNode);
 
 		// delete image node..
-		Request request = getRequest(TAXONOMY_ID, GraphEngineManagers.NODE_MANAGER,
-				"deleteDataNode");
-		request.put(ContentWorkflowPipelineParams.node_id.name(), contentId + ".img");
-
-		getResponse(request);
+		deleteDataNode(contentId + ".img");
 		
 		List<String> streamableMimeType = Platform.config.hasPath("stream.mime.type") ?
 				Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Collections.emptyList();
@@ -387,7 +405,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					String.valueOf(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name())));
 		}
 
-		Node publishedNode = util.getNode(ContentWorkflowPipelineParams.domain.name(), newNode.getIdentifier());
+		Node publishedNode = getNode(newNode.getIdentifier());
 
 		if (StringUtils.equalsIgnoreCase((String) newNode.getMetadata().get("mimeType"),
 				COLLECTION_MIMETYPE)) {
@@ -398,6 +416,87 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 
 		return response;
+	}
+	
+	private Node getNode(String identifier) {
+		return (disableAkka) ? getNodeObject(identifier) : util.getNode(TAXONOMY_ID, identifier);
+	}
+
+	private Node getNodeObject(String identifier) {
+		Request request = new Request();
+        request.getContext().put(GraphHeaderParams.graph_id.name(), TAXONOMY_ID);
+        request.put(GraphDACParams.node_id.name(), identifier);
+		Response response = nodeManager.getDataNode(request);
+		if (checkError(response)) {
+            if (StringUtils.endsWith(identifier, ".img"))
+                return null;
+            else 
+            	throw new ClientException(response.getParams().getErr(), response.getParams().getErrmsg());
+        }
+        return (Node) response.get(GraphDACParams.node.name());
+
+	}
+
+	private void deleteDataNode(String identifier) {
+		Request request = new Request();
+		if(disableAkka) {
+			request.getContext().put(GraphHeaderParams.graph_id.name(), TAXONOMY_ID);
+			request.put(GraphDACParams.node_id.name(), identifier);
+			try {
+				nodeManager.deleteDataNode(request);
+			}catch (Exception e) {
+				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage() + ". Please Try Again After Sometime!");
+			}
+		}else{
+			request = getRequest(TAXONOMY_ID, GraphEngineManagers.NODE_MANAGER, "deleteDataNode");
+			request.put(ContentWorkflowPipelineParams.node_id.name(), identifier);
+			getResponse(request);
+		}
+	}
+	
+	private DefinitionDTO getDefinition(String objectType) {
+		return (disableAkka) ? getNodeDefinition(objectType) : util.getDefinition(TAXONOMY_ID, objectType);
+	}
+
+	private DefinitionDTO getNodeDefinition(String objectType) {
+		try {
+			Request request = new Request();
+	        request.getContext().put(GraphHeaderParams.graph_id.name(), TAXONOMY_ID);
+			request.put(GraphDACParams.object_type.name(), objectType);
+			return nodeManager.getNodeDefinition(request);
+		}catch (Exception e) {
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage() + ". Please Try Again After Sometime!");
+		}
+	}
+
+	private Response updateDataNode(Node node, boolean skipValidation) {
+		try {
+			Request request = new Request();
+	        request.getContext().put(GraphHeaderParams.graph_id.name(), TAXONOMY_ID);
+			request.put(GraphDACParams.node_id.name(), node.getIdentifier());
+			request.put(GraphDACParams.node.name(), node);
+			request.put(GraphDACParams.skip_validations.name(), skipValidation);
+			return nodeManager.updateDataNode(request);
+		}catch (Exception e) {
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage() + ". Please Try Again After Sometime!");
+		}
+	}
+
+	private Response getDataNode(String identifier) {
+		try {
+			Request request = new Request();
+	        request.getContext().put(GraphHeaderParams.graph_id.name(), TAXONOMY_ID);
+			request.put(GraphDACParams.node_id.name(), contentId);
+			return nodeManager.getDataNode(request);
+		}catch (Exception e) {
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage() + ". Please Try Again After Sometime!");
+		}
+	}
+	
+	private Response updatedContentBodyData(String contentId, String body) {
+		ContentStore contentStore = new ContentStore();
+		contentStore.updateContentBody(contentId, body);
+		return getSuccessResponse();
 	}
 	
 	protected void contextDrivenContentUpload(Node node) {
@@ -415,7 +514,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	private Map<String, Object> getOriginData(Node node) {
-		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, node.getObjectType());
+		DefinitionDTO definition = getDefinition(node.getObjectType());
 		Map<String, Object> nodeMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
 		return (Map<String, Object>) nodeMap.getOrDefault("originData", new HashMap<String, Object>());
 	}
@@ -423,7 +522,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	private void updateOriginPkgVersion(Node node) {
 		String originId = (String) node.getMetadata().getOrDefault("origin", "");
 		Map<String, Object> originData = getOriginData(node);
-		Node originNode = util.getNode(TAXONOMY_ID, originId);
+		Node originNode = getNode(originId);
 		if (null != originNode) {
 			Double originPkgVer = (Double) originNode.getMetadata().getOrDefault(ContentWorkflowPipelineParams.pkgVersion.name(), 0.0);
 			if (originPkgVer!=0.0) {
@@ -474,7 +573,7 @@ public class PublishFinalizer extends BaseFinalizer {
 							if (!checkError(readResponse)) {
 								Node resNode = (Node) readResponse.get(GraphDACParams.node.name());
 								if (PUBLISHED_STATUS_LIST.contains(resNode.getMetadata().get(ContentWorkflowPipelineParams.status.name()))) {
-									DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
+									DefinitionDTO definition = getDefinition(ContentWorkflowPipelineParams.Content.name());
 
 									String nodeString = mapper.writeValueAsString(ConvertGraphNode.convertGraphNode(resNode, TAXONOMY_ID, definition, null));
 									Map<String, Object> resourceNode = mapper.readValue(nodeString, Map.class);
@@ -518,7 +617,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	private void syncNodes(List<Map<String, Object>> children, List<String> unitNodes) {
-		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Collection.name());
+		DefinitionDTO definition = getDefinition(ContentWorkflowPipelineParams.Collection.name());
 		if (null == definition) {
 			LOGGER.error("Content definition is null.");
 		}
@@ -693,7 +792,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	private Map<String, Object> getContentMap(Node node, List<Map<String,Object>> childrenList) {
-		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, node.getObjectType());
+		DefinitionDTO definition = getDefinition(node.getObjectType());
 		Map<String, Object> collectionHierarchy  = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
 		collectionHierarchy.put("children", childrenList);
 		collectionHierarchy.put("identifier", node.getIdentifier());
@@ -777,12 +876,19 @@ public class PublishFinalizer extends BaseFinalizer {
 	 */
 	private String preUpdateNode(String identifier) {
 		
+		LOGGER.info("PublishFinalizer:preUpdateNode:: Pre Publish Update initiated for original node: " + identifier);
+		
 		identifier = identifier.replace(".img", "");
-		Response response = getDataNode(TAXONOMY_ID, identifier);
+		Response response = null;
+		response = (disableAkka) ? getDataNode(identifier):getDataNode(TAXONOMY_ID, identifier);
+		
 		if (!checkError(response)) {
 			Node node = (Node) response.get(GraphDACParams.node.name());
-			Response updateResp = updateNode(node, true);
-			if (!checkError(updateResp)) {
+			Response updateResp = (disableAkka) ? updateDataNode(node, true) : updateNode(node, true);
+
+			LOGGER.info("PublishFinalizer:preUpdateNode:: Pre Publish Update finished for original node: " + identifier);
+
+			if (null != updateResp && !checkError(updateResp)) {
 				return (String) updateResp.get(GraphDACParams.versionKey.name());
 			} else {
 				throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
@@ -871,7 +977,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	private void removeExtraProperties(Node imgNode) {
-		Response originalResponse = getDataNode(TAXONOMY_ID, imgNode.getIdentifier());
+		Response originalResponse = (disableAkka) ? getDataNode(imgNode.getIdentifier()) : getDataNode(TAXONOMY_ID, imgNode.getIdentifier());
 		
 		if (checkError(originalResponse))
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
@@ -909,7 +1015,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			if (StringUtils.equalsIgnoreCase(ECML_MIMETYPE, mimeType)) {
 				String imageBody = getContentBody(contentImageId);
 				if (StringUtils.isNotBlank(imageBody)) {
-					response = updateContentBody(contentId, imageBody);
+					response = (disableAkka) ? updatedContentBodyData(contentId, imageBody) : updateContentBody(contentId, imageBody);
 					if (checkError(response)) {
 						LOGGER.error("Content Body Update Failed During Publish. Error Code :" + response.getParams().getErr() + " | Error Message : " + response.getParams().getErrmsg() + " | Result : " + response.getResult());
 						throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
@@ -925,7 +1031,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			}
 
 			LOGGER.info("Migrating the Content Object Metadata. | [Content Id: " + contentId + "]");
-			response = updateNode(contentImage);
+			response = (disableAkka) ? updateDataNode(contentImage, false) : updateNode(contentImage);
 			
 			if (checkError(response)) {
 				LOGGER.error(response.getParams().getErrmsg() + " :: " + response.getParams().getErr() + " :: " + response.getResult());
@@ -1004,7 +1110,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		nodes.add(node);
 		
 		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get("mimeType"),COLLECTION_MIMETYPE)) {
-			DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, node.getObjectType());
+			DefinitionDTO definition = getDefinition(node.getObjectType());
 			updateHierarchyMetadata(children, node);
 
 			List<String> nodeIds = new ArrayList<>();

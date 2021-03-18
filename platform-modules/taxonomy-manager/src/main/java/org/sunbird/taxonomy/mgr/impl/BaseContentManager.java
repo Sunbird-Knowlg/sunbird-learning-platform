@@ -24,9 +24,11 @@ import org.sunbird.common.mgr.ConvertGraphNode;
 import org.sunbird.common.mgr.ConvertToGraphNode;
 import org.sunbird.common.util.YouTubeUrlUtil;
 import org.sunbird.graph.cache.util.RedisStoreUtil;
+import org.sunbird.graph.common.enums.GraphHeaderParams;
 import org.sunbird.graph.dac.enums.GraphDACParams;
 import org.sunbird.graph.dac.enums.SystemNodeTypes;
 import org.sunbird.graph.dac.model.Node;
+import org.sunbird.graph.engine.mgr.impl.NodeManager;
 import org.sunbird.graph.engine.router.GraphEngineManagers;
 import org.sunbird.graph.model.node.DefinitionDTO;
 import org.sunbird.graph.model.node.MetadataDefinition;
@@ -85,6 +87,8 @@ public abstract class BaseContentManager extends BaseManager {
 	protected static final String TAXONOMY_ID = "domain";
 
 	protected static ObjectMapper objectMapper = new ObjectMapper();
+	
+	protected static NodeManager nodeManager = new NodeManager();
 	
 	protected static final String DIALCODE_GENERATE_URI = Platform.config.hasPath("dialcode.api.generate.url")
 			? Platform.config.getString("dialcode.api.generate.url") : "http://localhost:8080/learning-service/v3/dialcode/generate";
@@ -476,17 +480,28 @@ public abstract class BaseContentManager extends BaseManager {
         return externalProps;
     }
 
-    protected Node getNodeForOperation(String contentId, String operation) {
+    protected Node getNodeForOperation(String contentId, String operation){
+        return getNodeForOperation(contentId, operation, false);
+    }
+
+    private Response getNode(String identifier) {
+    	Request request = new Request();
+        request.getContext().put(GraphHeaderParams.graph_id.name(), TAXONOMY_ID);
+        request.put(GraphDACParams.node_id.name(), identifier);
+    	return nodeManager.getDataNode(request);
+    }
+
+    protected Node getNodeForOperation(String contentId, String operation, Boolean disableAkka) {
     	Node node = new Node();
 
         TelemetryManager.log("Fetching the Content Node. | [Content ID: " + contentId + "]");
         String contentImageId = getImageId(contentId);
-        Response response = getDataNode(TAXONOMY_ID, contentImageId);
+        Response response = (disableAkka) ? getNode(contentImageId) : getDataNode(TAXONOMY_ID, contentImageId);
         if (checkError(response)) {
             TelemetryManager.log("Unable to Fetch Content Image Node for Content Id: " + contentId);
 
             TelemetryManager.log("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
-            response = getDataNode(TAXONOMY_ID, contentId);
+            response = (disableAkka) ? getNode(contentId) : getDataNode(TAXONOMY_ID, contentId);
 
             TelemetryManager.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
             if (checkError(response))

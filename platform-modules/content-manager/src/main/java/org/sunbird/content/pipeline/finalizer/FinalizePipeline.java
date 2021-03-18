@@ -78,7 +78,8 @@ public class FinalizePipeline extends BasePipeline {
 
 					case "publish":
 					case "PUBLISH": {
-						PublishFinalizer publishFinalizer = new PublishFinalizer(basePath, contentId);
+						PublishFinalizer publishFinalizer = (parameterMap.containsKey("disableAkka")) ? 
+								new PublishFinalizer(basePath, contentId, (Boolean)parameterMap.get("disableAkka")) : new PublishFinalizer(basePath, contentId);
 						response = publishFinalizer.finalize(parameterMap);
 					}
 					break;
