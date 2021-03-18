@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ ItemsetPublishManager.class, HttpRestUtil.class, CloudStore.class, PublishFinalizeUtil.class})
-@PowerMockIgnore({ "javax.management.*", "sun.security.ssl.*", "javax.net.ssl.*", "javax.crypto.*" })
+@PowerMockIgnore({ "javax.management.*", "sun.security.ssl.*", "javax.net.ssl.*", "javax.crypto.*","jdk.internal.reflect.*" })
 public class PublishFinalizerTest extends GraphEngineTestSetup {
 
 	ObjectMapper mapper = new ObjectMapper();
@@ -159,12 +159,13 @@ public class PublishFinalizerTest extends GraphEngineTestSetup {
 			put("identifier", "do_11292666508456755211");
 			put("children", new ArrayList<Map<String, Object>>());
 		}}).when(hierarchyStore).getHierarchy(Mockito.anyString());
-		publishFinalizer.setHierarchyStore(hierarchyStore);
-
-
-		Method method = PublishFinalizer.class.getDeclaredMethod("getHierarchy", String.class, Boolean.TYPE);
+		Map<String, HierarchyStore> map = new HashMap<String, HierarchyStore>(){{
+			put("Collection", hierarchyStore);
+		}};
+		publishFinalizer.setHierarchyStoreFactory(map);
+		Method method = PublishFinalizer.class.getDeclaredMethod("getHierarchy", String.class, Boolean.TYPE, String.class);
 		method.setAccessible(true);
-		Map<String, Object> response = (Map<String, Object>)method.invoke(publishFinalizer, "do_11292666508456755211", true);
+		Map<String, Object> response = (Map<String, Object>)method.invoke(publishFinalizer, "do_11292666508456755211", true, "Collection");
 		Assert.assertNotNull(response);
 	}
 	
@@ -381,14 +382,14 @@ public class PublishFinalizerTest extends GraphEngineTestSetup {
 	public void testgetNodeForSyncing() throws Exception {
 		PublishFinalizeUtil publishFinalizeUtil = PowerMockito.mock(PublishFinalizeUtil.class);//PowerMockito.spy(new PublishFinalizeUtil());
 		PowerMockito.doNothing().when(publishFinalizeUtil).replaceArtifactUrl(Mockito.anyObject());
-		String contentNodeString = "{\"name\": \"Test_Object\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"identifier\":\"do_11292666508456755211\",\"objectType\":\"Content\",\"primaryCategory\": \"Digital Textbook\",\"artifactBasePath\":\"program/app\",\"artifactUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/program/app/content/do_112999482416209920112/artifact/1.pdf\",\"cloudStorageKey\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\",\"s3Key\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\"}";
+		String contentNodeString = "{\"name\": \"Test_Object\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"identifier\":\"do_11292666508456755211\",\"objectType\":\"Collection\",\"primaryCategory\": \"Digital Textbook\",\"artifactBasePath\":\"program/app\",\"artifactUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/program/app/content/do_112999482416209920112/artifact/1.pdf\",\"cloudStorageKey\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\",\"s3Key\":\"program/app/content/do_112999482416209920112/artifact/1.pdf\"}";
 		Map<String, Object> contentNodeMap = mapper.readValue(contentNodeString, HashMap.class);
 		PublishFinalizer publishFinalizer = new PublishFinalizer("/tmp", "do_11292666508456755211");
 		Method method = PublishFinalizer.class.getDeclaredMethod("getNodeForSyncing", List.class, List.class, List.class, DefinitionDTO.class);
 		method.setAccessible(true);
 		Node node = new Node();
 		node.setMetadata(contentNodeMap);
-		node.setObjectType("Content");
+		node.setObjectType("Collection");
 		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
 		method.invoke(publishFinalizer, new ArrayList<Map<String, Object>>() {{
 			add(new HashMap<String, Object>(){{
