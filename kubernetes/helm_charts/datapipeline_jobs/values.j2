@@ -264,16 +264,9 @@ enrolment-reconciliation:
         relationCache.id = 10
       }
     }
-    dedup-redis {
-      host = {{ dedup_redis_host }}
-      port = 6379
-      database.index = {{ enrolment_reconciliation_dedup_index }}
-      database.expiry = {{ enrolment_reconciliation_dedup_expiry }}
-    }
     threshold.batch.write.size = {{ enrolment_reconciliation_batch_write_size }}
     activity {
       module.aggs.enabled = true
-      input.dedup.enabled = true
       filter.processed.enrolments = {{ enrolment_reconciliation_filter_processe_enabled }}
       collection.status.cache.expiry = {{ enrolment_reconciliation_collection_status_cache_expiry_time }}
     }

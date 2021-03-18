@@ -92,8 +92,6 @@ middleware_assessment_aggregator_table: "assessment_aggregator"
 enrolment_reconciliation_consumer_parallelism: 1
 enrolment_reconciliation_parallelism: 1
 enrolment_reconciliation_batch_write_size: 10
-enrolment_reconciliation_dedup_index: 13
-enrolment_reconciliation_dedup_expiry: 604800
 enrolment_reconciliation_filter_processe_enabled: true
 enrolment_reconciliation_collection_status_cache_expiry_time: 3600
 
