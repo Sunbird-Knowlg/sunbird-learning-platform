@@ -455,18 +455,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	private DefinitionDTO getDefinition(String objectType) {
-		return (disableAkka) ? getNodeDefinition(objectType) : util.getDefinition(TAXONOMY_ID, objectType);
-	}
-
-	private DefinitionDTO getNodeDefinition(String objectType) {
-		try {
-			Request request = new Request();
-	        request.getContext().put(GraphHeaderParams.graph_id.name(), TAXONOMY_ID);
-			request.put(GraphDACParams.object_type.name(), objectType);
-			return nodeManager.getNodeDefinition(request);
-		}catch (Exception e) {
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage() + ". Please Try Again After Sometime!");
-		}
+		return util.getDefinition(TAXONOMY_ID, objectType, disableAkka);
 	}
 
 	private Response updateDataNode(Node node, boolean skipValidation) {
@@ -567,7 +556,7 @@ public class PublishFinalizer extends BaseFinalizer {
 						}
 						if (StringUtils.equalsIgnoreCase((String) child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
 								!StringUtils.equalsIgnoreCase((String) child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
-							Response readResponse = getDataNode(TAXONOMY_ID, (String) child.get(ContentWorkflowPipelineParams.identifier.name()));
+							Response readResponse = (disableAkka) ? getDataNode((String) child.get(ContentWorkflowPipelineParams.identifier.name())) : getDataNode(TAXONOMY_ID, (String) child.get(ContentWorkflowPipelineParams.identifier.name()));
 							children.remove(child);
 							List<String> childNodes = getList(node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name()));
 							if (!checkError(readResponse)) {
@@ -641,7 +630,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				if (CollectionUtils.isNotEmpty(nodeBatch)) {
 					
 					errors = new HashMap<>();
-					Map<String, Object> messages = SyncMessageGenerator.getMessages(nodeBatch, ContentWorkflowPipelineParams.Collection.name(), relationMap, errors);
+					Map<String, Object> messages = SyncMessageGenerator.getMessages(nodeBatch, ContentWorkflowPipelineParams.Collection.name(), relationMap, errors, disableAkka);
 					if (!errors.isEmpty())
 						LOGGER.error("Error! while forming ES document data from nodes, below nodes are ignored: " + errors);
 					if(MapUtils.isNotEmpty(messages)) {
@@ -1129,7 +1118,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		List<Map<String, Object>> onlineContents = cloner.deepClone(contents);
 
 		LOGGER.info("Initialising the ECAR variant Map For Content Id: " + node.getIdentifier());
-		ContentBundle contentBundle = new ContentBundle();
+		ContentBundle contentBundle = new ContentBundle(disableAkka);
 		// ECARs Generation - START
 		node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), new HashMap<String, Object>());
 		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {

@@ -38,17 +38,12 @@ import org.sunbird.graph.dac.mgr.impl.Neo4JBoltSearchMgrImpl;
 import org.sunbird.graph.dac.model.Node;
 import org.sunbird.graph.dac.model.Relation;
 import org.sunbird.graph.exception.GraphEngineErrorCodes;
-import org.sunbird.graph.exception.GraphRelationErrorCodes;
-import org.sunbird.graph.model.Graph;
 import org.sunbird.graph.model.cache.CategoryCache;
 import org.sunbird.graph.model.cache.DefinitionCache;
-import org.sunbird.graph.model.node.DataNode;
 import org.sunbird.graph.model.node.DefinitionDTO;
 import org.sunbird.graph.model.node.MetadataDefinition;
 import org.sunbird.telemetry.logger.TelemetryManager;
 
-import akka.actor.ActorRef;
-import scala.concurrent.ExecutionContext;
 
 public class NodeManager {
 	
