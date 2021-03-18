@@ -46,8 +46,6 @@ public class ReviewFinalizer extends BaseFinalizer {
 	private static String action = "publish";
 	private static List<String> validResourceStatus = Arrays.asList("Live", "Unlisted");
 	private ControllerUtil controllerUtil;
-	private static String learningJobRequestTopic = Platform.config.getString("kafka.topics.instruction");
-	private static String learningJobInstructionTopic = Platform.config.getString("kafka.topics.instruction.event");
 	private static List<String> learningJobInstructionMimeType = Platform.config.hasPath("job.request.event.mimetype") ? 
 			Platform.config.getStringList("job.request.event.mimetype") :
 				new ArrayList<String>();
@@ -158,6 +156,8 @@ public class ReviewFinalizer extends BaseFinalizer {
 		
 		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), contentId, publishType);
 		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+		String learningJobRequestTopic = Platform.config.getString("kafka.topics.instruction");
+		String learningJobInstructionTopic = Platform.config.getString("kafka.topics.instruction.event");
 		
 		if(StringUtils.isBlank(beJobRequestEvent)) {
 			TelemetryManager.error("Instruction event is not generated properly. # beJobRequestEvent : " + beJobRequestEvent);
