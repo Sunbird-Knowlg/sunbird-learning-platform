@@ -52,7 +52,6 @@ public class NodeManager {
 
 	public DefinitionDTO getNodeDefinition(Request request) {
         String objectType = (String) request.get(GraphDACParams.object_type.name());
-        System.out.println("NodeManager:getNodeDefinition:: " + objectType);
         if (!validateRequired(objectType)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_MISSING_REQ_PARAMS.name(),
                     "GetNodeDefinition: Required parameters are missing...");
@@ -60,9 +59,7 @@ public class NodeManager {
             String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
             try {
                 DefinitionDTO definition = DefinitionCache.getDefinitionNode(graphId, objectType);
-                System.out.println("NodeManager:getNodeDefinition:definition:id:: " + definition.getIdentifier());
-                System.out.println("NodeManager:getNodeDefinition:definition:properties:: " + definition.getProperties());
-    			if (null != definition)
+        		if (null != definition)
     				return definition; 
     			else {
     				throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
@@ -103,7 +100,6 @@ public class NodeManager {
 	}
 
 	public Response updateDataNode(Request request) {
-		//final ActorRef parent = getSender();
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String nodeId = (String) request.get(GraphDACParams.node_id.name());
 		final Node dataNode = (Node) request.get(GraphDACParams.node.name());
@@ -113,36 +109,28 @@ public class NodeManager {
 			throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_MISSING_REQ_PARAMS.name(),
 					"Required parameters are missing...");
 		} else {
-			System.out.println("***** Inside NodeManager:updateDataNode *****");
 			dataNode.setIdentifier(nodeId);
 
 			Response response = searchMgr.getNodeByUniqueId(request);
-			System.out.println("***** Inside NodeManager:updateDataNode:response: " + response.getResponseCode());
 			Node dbNode = null;
 			if(checkError(response))
 				return response;
 			dbNode = (Node) response.get(GraphDACParams.node.name());
 
 
-			//final DataNode datanode = new DataNode(this, graphId, node);
 			final List<String> messages = new ArrayList<String>();
-			final List<Relation> addRels = new ArrayList<Relation>();
-			final List<Relation> delRels = new ArrayList<Relation>();
 			final List<Node> dbNodes = new ArrayList<Node>();
 			String date = DateUtils.formatCurrentDate();
 
 
-			System.out.println("***** Inside NodeManager:updateDataNode:dbNode: " + dbNode.getIdentifier());
 			if (null != dbNode && StringUtils.equals(SystemNodeTypes.DATA_NODE.name(), dbNode.getNodeType())) {
 				if (null == dataNode.getMetadata()) {
 					dataNode.setMetadata(new HashMap<String, Object>());
 				}
 				Map<String, Object> dbMetadata = dbNode.getMetadata();
 				if (null != dbMetadata && !dbMetadata.isEmpty()) {
-					System.out.println("***** Inside NodeManager:updateDataNode:dbMetadata: " + dbMetadata);
 					dbMetadata.remove(GraphDACParams.versionKey.name());
 					dbMetadata.remove(GraphDACParams.lastUpdatedBy.name());
-					// add lastStatusChangedOn if status got changed
 					String currentStatus = (String) dataNode.getMetadata().get(GraphDACParams.status.name());
 					String previousStatus = (String) dbMetadata.get(GraphDACParams.status.name());
 					if (StringUtils.isNotBlank(currentStatus) && !StringUtils.equalsIgnoreCase(currentStatus, previousStatus)) {
@@ -154,10 +142,8 @@ public class NodeManager {
 							dataNode.getMetadata().put(entry.getKey(), entry.getValue());
 					}
 				}
-				//getRelationsDelta(addRels, delRels, dbNode, dataNode);
 				dbNodes.add(dbNode);
 			}
-			System.out.println("***** Inside NodeManager:updateDataNode:dbNodes: " + dbNodes.size());
 			if (!dbNodes.isEmpty()) {
 				// validate the node
 				if (null == skipValidations || !skipValidations) {
@@ -172,12 +158,9 @@ public class NodeManager {
 						}
 					}
 				}
-				System.out.println("***** Inside NodeManager:updateDataNode:messages: " + messages);
 				if (messages.isEmpty()) {
 					removeExternalFields(graphId, dataNode);
-					System.out.println("***** Inside NodeManager:updateDataNode:pre***** ");
 					updateResponse = updateNode(request);
-					System.out.println("***** Inside NodeManager:updateDataNode:updateResponse: " + updateResponse.getResponseCode());
 				} else {
 					return getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED.name(),
 							"Node Metadata validation failed", ResponseCode.CLIENT_ERROR,

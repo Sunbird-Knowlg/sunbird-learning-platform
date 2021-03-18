@@ -1533,9 +1533,9 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	 public void setContentAndCategoryTypes(Map<String, Object> input)  {
 		String contentType = (String)input.getOrDefault("contentType", "");
-		 String primaryCategory = (String) input.getOrDefault("primaryCategory", "");
-		 System.out.println("PublishFinzalizer::setContentAndCategoryTypes::contentType " + contentType);
-		 String updatedContentType = "";
+		String primaryCategory = (String) input.getOrDefault("primaryCategory", "");
+		System.out.println("PublishFinzalizer::setContentAndCategoryTypes::contentType " + contentType);
+		String updatedContentType = "";
 		String updatedPrimaryCategory = "";
 		if(StringUtils.isNotBlank(contentType) && StringUtils.isBlank(primaryCategory)) {
 			updatedContentType = contentType;
