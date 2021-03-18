@@ -3,13 +3,13 @@ package managers;
 import java.util.Map;
 
 import akka.actor.ActorRef;
-import org.ekstep.common.dto.Request;
-import org.ekstep.common.dto.Response;
-import org.ekstep.common.dto.ResponseParams;
-import org.ekstep.common.dto.ResponseParams.StatusType;
-import org.ekstep.compositesearch.enums.SearchActorNames;
-import org.ekstep.compositesearch.enums.SearchOperations;
-import org.ekstep.searchindex.util.ObjectDefinitionCache;
+import org.sunbird.common.dto.Request;
+import org.sunbird.common.dto.Response;
+import org.sunbird.common.dto.ResponseParams;
+import org.sunbird.common.dto.ResponseParams.StatusType;
+import org.sunbird.compositesearch.enums.SearchActorNames;
+import org.sunbird.compositesearch.enums.SearchOperations;
+import org.sunbird.searchindex.util.ObjectDefinitionCache;
 
 import scala.concurrent.Future;
 

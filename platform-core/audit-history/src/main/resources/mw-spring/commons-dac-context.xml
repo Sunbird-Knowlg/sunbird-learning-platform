@@ -9,9 +9,9 @@
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context-4.2.xsd">
        
-    <bean id="applicationContext" class="org.ekstep.util.ApplicationContextUtils" />
-	<context:component-scan base-package="org.ekstep.dac.*" />
+    <bean id="applicationContext" class="org.sunbird.util.ApplicationContextUtils" />
+	<context:component-scan base-package="org.sunbird.dac.*" />
 	<context:annotation-config />
 
-	<bean id="auditHistoryEsDao" class="org.ekstep.dac.impl.entity.dao.AuditHistoryEsDao"/>
+	<bean id="auditHistoryEsDao" class="org.sunbird.dac.impl.entity.dao.AuditHistoryEsDao"/>
 </beans>

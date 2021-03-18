@@ -11,13 +11,13 @@ import org.apache.samza.task.StreamTask;
 import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
 import org.apache.samza.task.WindowableTask;
-import org.ekstep.common.Platform;
-import org.ekstep.jobs.samza.service.ISamzaService;
-import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.jobs.samza.util.SamzaCommonParams;
-import org.ekstep.telemetry.TelemetryGenerator;
-import org.ekstep.telemetry.TelemetryParams;
-import org.ekstep.telemetry.handler.Level;
+import org.sunbird.common.Platform;
+import org.sunbird.jobs.samza.service.ISamzaService;
+import org.sunbird.jobs.samza.service.task.JobMetrics;
+import org.sunbird.jobs.samza.util.SamzaCommonParams;
+import org.sunbird.telemetry.TelemetryGenerator;
+import org.sunbird.telemetry.TelemetryParams;
+import org.sunbird.telemetry.handler.Level;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -181,7 +181,7 @@ public abstract class BaseTask implements StreamTask, InitableTask, WindowableTa
 
     private String generateEvent(String logLevel, String message, Map<String, Object> data) {
         Map<String, String> context = new HashMap<String, String>();
-        context.put(TelemetryParams.ACTOR.name(), "org.ekstep.learning.platform");
+        context.put(TelemetryParams.ACTOR.name(), "org.sunbird.learning.platform");
         context.put(TelemetryParams.ENV.name(), "content");
         context.put(TelemetryParams.CHANNEL.name(), Platform.config.getString("channel.default"));
         return TelemetryGenerator.log(context, "system", logLevel, message);

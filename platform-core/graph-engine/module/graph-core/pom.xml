@@ -2,21 +2,21 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.ekstep</groupId>
-		<artifactId>ekstep-graph-engine</artifactId>
+		<groupId>org.sunbird</groupId>
+		<artifactId>sunbird-graph-engine</artifactId>
 		<version>1.0-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>graph-core</artifactId>
 	<dependencies>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>graph-dac</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>graph-cache-mgr</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>

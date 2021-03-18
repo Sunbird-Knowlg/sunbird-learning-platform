@@ -14,7 +14,7 @@ object Pom {
 
     def dependencies(pomDir: File): Seq[ModuleID] = {
         val list = (Process("mvn dependency:list", pomDir) !!)
-        val lines = list.split("\n").filter(f => !f.contains("org.ekstep") || !f.contains("org.scalaz.stream")).collect {
+        val lines = list.split("\n").filter(f => !f.contains("org.sunbird") || !f.contains("org.scalaz.stream")).collect {
             case line if (line.startsWith(prefix)) => line.replace(prefix, "").trim
         }
         lines.map(parse).collect { case Some(dep) => dep }

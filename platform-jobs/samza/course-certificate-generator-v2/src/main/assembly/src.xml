@@ -55,7 +55,7 @@
             <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>org.apache.samza:samza-api</include>
-                <include>org.ekstep:course-certificate-generator-v2</include>
+                <include>org.sunbird:course-certificate-generator-v2</include>
                 <include>org.apache.samza:samza-core_2.11</include>
                 <include>org.apache.samza:samza-kafka_2.11</include>
                 <include>org.apache.samza:samza-yarn_2.11</include>

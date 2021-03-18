@@ -74,6 +74,15 @@ base_config: |
       routePath = "{{ neo4j_route_path }}"
       graph = "domain"
     }
+    es {
+        basePath = "{{ search_es_host }}"
+    }
+    schema {
+      basePath = "{{ kp_schema_base_path }}"
+      supportedVersion = {
+        itemset = "2.0"
+      }
+    }
 
 activity-aggregate-updater:
   activity-aggregate-updater: |+
@@ -294,6 +303,38 @@ video-stream-generator:
     jobmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].taskmanager_memory }}
     taskmanager.numberOfTaskSlots: {{ flink_job_names['video-stream-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+
+
+search-indexer:
+  search-indexer: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.learning.graph.events"
+      error.topic = "{{ env_name }}.learning.events.failed"
+      groupId = "{{ env_name }}-search-indexer-group"
+    }
+    task {
+      consumer.parallelism = {{ search_indexer_consumer_parallelism }}
+      router.parallelism = {{ transaction_event_router_parallelism }}
+      compositeSearch.parallelism = {{ composite_search_indexer_parallelism }}
+      dialcodeIndexer.parallelism = {{ dialcode_external_indexer_parallelism }}
+      dialcodemetricsIndexer.parallelism = {{ dialcode_metric_indexer_parallelism }}
+    }
+    compositesearch.index.name = "compositesearch"
+    dialcode.index.name = "dialcode"
+    dailcodemetrics.index.name = "dialcodemetrics"
+    restrict.metadata.objectTypes = []
+    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials"]
+    schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_sec }}
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['search-indexer'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['search-indexer'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['search-indexer'].taskslots }}
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
