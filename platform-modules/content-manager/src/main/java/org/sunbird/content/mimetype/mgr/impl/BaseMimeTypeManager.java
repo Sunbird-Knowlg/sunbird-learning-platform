@@ -188,10 +188,9 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 	
 	/**
 	 * This return true if at least one member matches from the checkList.
-	 * @param file
-	 * @param checkFile
-	 * @return
-	 * @throws IOException
+	 * @param file file object
+	 * @param checkFile check file.
+	 * @return boolean
 	 */
 	protected boolean hasGivenFile(File file, String checkFile) {
 		boolean isValidPackage = false;
@@ -551,6 +550,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 	 * extracts the ContentPackageZip file
 	 * 
 	 * @param file the ContentPackageFile
+     * @param basePath base path
 	 */
 	protected void extractContentPackage(File file, String basePath) {
 		try {

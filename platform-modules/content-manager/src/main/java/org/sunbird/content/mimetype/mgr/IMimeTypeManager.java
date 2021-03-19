@@ -39,11 +39,13 @@ public interface IMimeTypeManager {
 	 * Pipeline.
 	 * 
 	 *
+     * @param contentId content identifier
 	 * @param node
 	 *            the content <code>node</code> for which the content package is
 	 *            being uploaded.
 	 * @param uploadFile
 	 *            the upload <code>file</code> is the content package file.
+     * @param isAsync is async.
 	 * @return the <code>response</code> object contains the node id as
 	 *         <code>node_id</code> and the <code>artifactUrl</code> property
 	 *         i.e. the <code>URL</code> where the file is uploaded.
@@ -55,9 +57,8 @@ public interface IMimeTypeManager {
 	 * operation using file URL. Other than Preliminary validation it perform all the tasks of
 	 * Content Upload. This Method is directly backed by Content Work-flow
 	 * Pipeline.
-	 * @param contentId 
-	 * 
-	 *
+	 * @param contentId content identifier
+     *
 	 * @param node
 	 *            the content <code>node</code> for which the content package is
 	 *            being uploaded.
@@ -74,11 +75,13 @@ public interface IMimeTypeManager {
 	 * carries all the tasks needed for Content Publish Operation. This Method
 	 * is directly backed by Content Work-flow Pipeline.
 	 *
+     * @param contentId content identifier
 	 * @param node
 	 *            the content <code>node</code> for which the publish operation
 	 *            has to be performed.
+     * @param isAsync is async.
 	 * @return the <code>response</code> object contains node id as
-	 *         <code>node_id<c/ode> of the content
+	 *         <code>node_id</code> of the content
 	 *         being published and the <code>URL</code> of the <code>ECAR</code>
 	 *         file i.e. the value as <code>downloadUrl</code> property of
 	 *         content node.
@@ -91,11 +94,13 @@ public interface IMimeTypeManager {
 	 * is sent for review from the Content Author. This Method is directly
 	 * backed by Content Work-flow Pipeline.
 	 *
+     * @param contentId content identifier
 	 * @param node
 	 *            the content <code>node</code> for which the review operation
 	 *            has to be performed.
+     * @param isAsync is async.
 	 * @return the <code>response</code> object contains node id as
-	 *         <code>node_id<c/ode> of the content
+	 *          <code>node_id</code> of the content
 	 *         being reviewed and the <code>URL</code> of the <code>ECAR</code>
 	 *         file i.e. the value as <code>downloadUrl</code> property of
 	 *         content node.

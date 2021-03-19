@@ -11,8 +11,8 @@ public class ECRFConversionUtility {
 	/**
 	 * gets the ECRF object from Content
 	 * 
-	 * @param content the Content(xml)
-	 * @return ECRF
+	 * @param strContent the Content(xml)
+	 * @return Plugin
 	 */
 	public Plugin getECRF(String strContent) {
 		Plugin content = new Plugin();
@@ -24,8 +24,8 @@ public class ECRFConversionUtility {
 	/**
 	 * gets the ECRF object from Content
 	 * 
-	 * @param content the Content(Json)
-	 * @return ERCF
+	 * @param strContent the Content(Json)
+	 * @return Plugin
 	 */
 	public Plugin getEcrfFromJson(String strContent) {
 		Plugin content = new Plugin();

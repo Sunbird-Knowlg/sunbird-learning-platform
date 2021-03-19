@@ -63,7 +63,7 @@ public class UploadFinalizer extends BaseFinalizer {
 	/**
 	 * finalize()
 	 *
-	 * @param Map the parameterMap
+	 * @param parameterMap the parameterMap
 	 * 
 	 * checks if file,node,ecrfType,ecmlType
 	 * exists in the parameterMap else throws ClientException

@@ -80,7 +80,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 	/**
 	 * finalize()
 	 *
-	 * @param Map
+	 * @param parameterMap
 	 *            the parameterMap
 	 * 
 	 *            checks if Node, ecrfType,ecmlType exists in the parameterMap

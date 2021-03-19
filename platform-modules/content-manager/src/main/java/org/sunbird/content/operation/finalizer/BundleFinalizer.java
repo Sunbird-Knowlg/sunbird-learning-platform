@@ -67,7 +67,7 @@ public class BundleFinalizer extends BaseFinalizer {
 	/**
 	 * finalize()
 	 *
-	 * @param Map the parameterMap
+	 * @param parameterMap the parameterMap
 	 * 
 	 * checks if BundleMap, BundleFileName, manifestVersion 
 	 * exists in the parameterMap else throws ClientException

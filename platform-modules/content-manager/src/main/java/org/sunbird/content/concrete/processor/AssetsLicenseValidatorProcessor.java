@@ -65,7 +65,7 @@ public class AssetsLicenseValidatorProcessor extends AbstractProcessor {
     /**
      * Implementation for {@link AbstractProcessor#process(Plugin)}
      *
-     * @param plugin
+     * @param plugin the plugin
      * @return Plugin object
      */
     @Override

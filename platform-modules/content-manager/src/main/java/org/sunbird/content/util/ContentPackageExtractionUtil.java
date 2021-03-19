@@ -135,13 +135,14 @@ public class ContentPackageExtractionUtil {
 
 	/**
 	 * Extract content package.
-	 *
+	 * @param contentId content identifier
 	 * @param node
 	 *            the node
 	 * @param uploadedFile
 	 *            the uploaded file
 	 * @param extractionType
 	 *            the extraction type
+     * @param slugFile slug file
 	 */
 	public void extractContentPackage(String contentId, Node node, File uploadedFile, ExtractionType extractionType,
 			boolean slugFile) {
@@ -217,12 +218,14 @@ public class ContentPackageExtractionUtil {
 	/**
 	 * Extract package.
 	 *
+     * @param contentId  content identifier
 	 * @param node
 	 *            the node
 	 * @param basePath
 	 *            the base path
 	 * @param extractionType
 	 *            the extraction type
+     * @param slugFile slug file
 	 */
 	public void uploadExtractedPackage(String contentId, Node node, String basePath, ExtractionType extractionType,
 			boolean slugFile) {

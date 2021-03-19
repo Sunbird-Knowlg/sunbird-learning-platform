@@ -55,9 +55,6 @@ import static java.util.stream.Collectors.toList;
  */
 public class ContentBundle {
 
-	/** The logger. */
-
-	/** The mapper. */
 	private static ObjectMapper mapper = new ObjectMapper();
 	public final String TAXONOMY_ID = "domain";
 	public final ControllerUtil util = new ControllerUtil();
@@ -97,6 +94,8 @@ public class ContentBundle {
 	 *            the children
 	 * @param expiresOn
 	 *            the expires on
+     * @param packageType
+     *            the package type
 	 * @return the map
 	 */
 	@SuppressWarnings("unchecked")
@@ -202,6 +201,8 @@ public class ContentBundle {
 	 *            the version
 	 * @param downloadUrls
 	 *            the download urls
+     * @param node node
+     * @param children children
 	 * @return the string[]
 	 */
 	public String[] createContentBundle(List<Map<String, Object>> contents, String fileName, String version,

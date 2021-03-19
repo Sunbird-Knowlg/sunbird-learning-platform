@@ -43,8 +43,8 @@ public class ECRFToXMLConvertor {
 	/**
 	 * gets the ContentXML from the ContentECRF
 	 * 
-	 * @param ecrf the ContentECRF
-	 * @return ContentXML
+	 * @param ecrfObject the ContentECRF
+	 * @return String
 	 */
 	public String getContentXmlString(Plugin ecrfObject) {
 		StringBuilder xml = new StringBuilder();
@@ -65,7 +65,7 @@ public class ECRFToXMLConvertor {
 	 * gets the ContentManifestXml
 	 * 
 	 * @param manifest the Manifest
-	 * @return xml the ManifestXml
+	 * @return StringBuilder xml the ManifestXml
 	 */
 	private StringBuilder getContentManifestXml(Manifest manifest) {
 		StringBuilder xml = new StringBuilder();
@@ -83,7 +83,7 @@ public class ECRFToXMLConvertor {
 	 * gets the ContentMediasXml
 	 * 
 	 * @param medias the MediasList
-	 * @return xml the ContentMediaXml
+	 * @return StringBuilder xml the ContentMediaXml
 	 */
 	private StringBuilder getContentMediasXml(List<Media> medias) {
 		StringBuilder xml = new StringBuilder();
@@ -98,8 +98,8 @@ public class ECRFToXMLConvertor {
 	/**
 	 * gets the ContentMediaXml
 	 * 
-	 * @param medias the Media
-	 * @return xml the ContentMediaXml
+	 * @param media the Media
+	 * @return StringBuilder xml the ContentMediaXml
 	 */
 	private StringBuilder getContentMediaXml(Media media) {
 		StringBuilder xml = new StringBuilder();
@@ -117,7 +117,7 @@ public class ECRFToXMLConvertor {
 	 * gets the ContentControllersXml
 	 * 
 	 * @param controllers the ControllersList
-	 * @return xml the ContentControllerXml
+	 * @return StringBuilder xml the ContentControllerXml
 	 */
 	private StringBuilder getContentControllersXml(List<Controller> controllers) {
 		StringBuilder xml = new StringBuilder();
@@ -132,7 +132,7 @@ public class ECRFToXMLConvertor {
 	 * gets the ContentControllerXml
 	 * 
 	 * @param controller the Controller
-	 * @return xml the ContentControllerXml
+	 * @return StringBuilder xml the ContentControllerXml
 	 */
 	private StringBuilder getContentControllerXml(Controller controller) {
 		StringBuilder xml = new StringBuilder();
@@ -149,7 +149,7 @@ public class ECRFToXMLConvertor {
 	 * gets the PluginsXml
 	 * 
 	 * @param plugins the PluginsList
-	 * @return xml the pluginsXml
+	 * @return StringBuilder xml the pluginsXml
 	 */
 	private StringBuilder getPluginsXml(List<Plugin> plugins) {
 		StringBuilder xml = new StringBuilder();
@@ -164,7 +164,7 @@ public class ECRFToXMLConvertor {
 	 * gets the PluginXml
 	 * 
 	 * @param plugin the Plugin
-	 * @return xml the pluginXml
+	 * @return StringBuilder xml the pluginXml
 	 */
 	private StringBuilder getPluginXml(Plugin plugin) {
 		StringBuilder xml = new StringBuilder();
@@ -184,8 +184,8 @@ public class ECRFToXMLConvertor {
 	/**
 	 * gets the CData
 	 * 
-	 * @param CDataText the CDataText
-	 * @return xml the CData
+	 * @param cDataText the CDataText
+	 * @return StringBuilder xml the CData
 	 */
 	private StringBuilder getCData(String cDataText) {
 		StringBuilder xml = new StringBuilder();
@@ -198,7 +198,7 @@ public class ECRFToXMLConvertor {
 	 * gets the InnerText
 	 * 
 	 * @param text the Text
-	 * @return xml the InnerText
+	 * @return StringBuilder xml the InnerText
 	 */
 	private StringBuilder getInnerText(String text) {
 		StringBuilder xml = new StringBuilder();
@@ -210,8 +210,8 @@ public class ECRFToXMLConvertor {
 	/**
 	 * gets the ChildrenPlugin
 	 * 
-	 * @param ChildrenPlugin the ChildrenPlugin
-	 * @return xml the ChildrenPlugin
+	 * @param childrenPlugin the ChildrenPlugin
+	 * @return StringBuilder xml the ChildrenPlugin
 	 */
 	private StringBuilder getChildrenPlugin(List<Plugin> childrenPlugin) {
 		StringBuilder xml = new StringBuilder();
@@ -226,7 +226,7 @@ public class ECRFToXMLConvertor {
 	 * gets the EventsXml
 	 * 
 	 * @param events the Events
-	 * @return xml the EventsXml
+	 * @return StringBuilder xml the EventsXml
 	 */
 	private StringBuilder getEventsXml(List<Event> events) {
 		StringBuilder xml = new StringBuilder();
@@ -245,7 +245,7 @@ public class ECRFToXMLConvertor {
 	 * gets the EventsXml
 	 * 
 	 * @param event the Event
-	 * @return xml the EventXml
+	 * @return StringBuilder xml the EventXml
 	 */
 	private StringBuilder getEventXml(Event event) {
 		StringBuilder xml = new StringBuilder();
@@ -262,8 +262,8 @@ public class ECRFToXMLConvertor {
 	/**
 	 * gets the ElementXml
 	 * 
-	 * @param elementData the data
-	 * @return xml the ElementXml
+	 * @param data the data
+	 * @return StringBuilder xml the ElementXml
 	 */
 	private StringBuilder getElementXml(Map<String, Object> data) {
 		StringBuilder xml = new StringBuilder();
@@ -282,8 +282,8 @@ public class ECRFToXMLConvertor {
 	/**
 	 * gets the ECRFComponentEndTag
 	 * 
-	 * @param ECRFObject the Object
-	 * @return xml the ECRFComponentEndTag
+	 * @param object the Object
+	 * @return StringBuilder xml the ECRFComponentEndTag
 	 */
 	private StringBuilder getECRFComponentEndTag(ECRFObject object) {
 		StringBuilder xml = new StringBuilder();
@@ -298,8 +298,8 @@ public class ECRFToXMLConvertor {
 	/**
 	 * gets the EndTag
 	 * 
-	 * @param Object the Object
-	 * @return xml the EndTag
+	 * @param obj the Object
+	 * @return StringBuilder xml the EndTag
 	 */
 	private StringBuilder getEndTag(Object obj) {
 		String elementName = ((null == obj) ? null : obj.toString());
@@ -313,7 +313,7 @@ public class ECRFToXMLConvertor {
 	 * gets the StartTag
 	 * 
 	 * @param elementName the elementName
-	 * @return xml the StartTag
+	 * @return StringBuilder xml the StartTag
 	 */
 	private StringBuilder getStartTag(String elementName) {
 		StringBuilder xml = new StringBuilder();
@@ -325,8 +325,8 @@ public class ECRFToXMLConvertor {
 	/**
 	 * adds Quote(double_Quote)
 	 * 
-	 * @param Object the Object
-	 * @return string the QuotedString
+	 * @param obj the Object
+	 * @return StringBuilder string the QuotedString
 	 */
 	public static String addQuote(Object obj) {
 		String str = (null == obj) ? "" : obj.toString();

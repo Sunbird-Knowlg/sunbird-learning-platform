@@ -44,7 +44,7 @@ public class Media extends ECRFObject {
 	}
 	
 	/** 
-     * @param ChildrenPlugin the ChildrenPlugin to set
+     * @param childrenPlugin the ChildrenPlugin to set
      */
 	public void setChildrenPlugin(List<Plugin> childrenPlugin) {
 		this.childrenPlugin = childrenPlugin;

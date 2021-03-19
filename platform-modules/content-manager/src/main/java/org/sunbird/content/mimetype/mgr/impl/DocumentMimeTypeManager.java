@@ -131,10 +131,11 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	/**
 	 * The method uploadContentArtifact uploads the content artifacts to s3 and
 	 * set the s3 url as artifactUrl
-	 * 
-	 * @param node
-	 * @param uploadedFile
-	 * @return
+	 *
+     * @param contentId content identifier
+	 * @param node node object
+	 * @param uploadedFile uploaded file object
+	 * @return Response
 	 */
 	public Response uploadContentArtifact(String contentId, Node node, File uploadedFile) {
 		try {

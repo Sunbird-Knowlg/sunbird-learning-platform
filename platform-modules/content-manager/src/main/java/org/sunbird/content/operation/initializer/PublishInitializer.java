@@ -57,7 +57,7 @@ public class PublishInitializer extends BaseInitializer {
 	/**
 	 * initialize()
 	 *
-	 * @param Map the parameterMap
+	 * @param parameterMap the parameterMap
 	 * 
 	 * checks if nodes exists in the parameterMap else throws ClientException
 	 * validates the ContentNode based on MimeType and metadata

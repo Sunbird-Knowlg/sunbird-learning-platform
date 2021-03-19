@@ -16,8 +16,6 @@ import org.sunbird.telemetry.logger.TelemetryManager;
 public class AsyncContentOperationUtil {
 
 	private static final String tempFileLocation = "/data/contentBundle/";
-
-	/** The logger. */
 	
 
 	public static void makeAsyncOperation(ContentOperations operation, String contentId, Map<String, Object> parameterMap) {
