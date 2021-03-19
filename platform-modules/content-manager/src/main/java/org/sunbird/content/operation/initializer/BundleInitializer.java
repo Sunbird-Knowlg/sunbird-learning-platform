@@ -65,7 +65,7 @@ public class BundleInitializer extends BaseInitializer {
 	/**
 	 * initialize()
 	 *
-	 * @param Map
+	 * @param parameterMap
 	 *            the parameterMap
 	 * 
 	 *            checks if nodes, contentIdList, bundleFileName,

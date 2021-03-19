@@ -54,7 +54,7 @@ public class ReviewInitializer extends BaseInitializer {
 	/**
 	 * initialize()
 	 *
-	 * @param Map
+	 * @param parameterMap
 	 *            the parameterMap
 	 * 
 	 *            checks if nodes exists in the parameterMap else throws

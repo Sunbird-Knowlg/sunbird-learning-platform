@@ -32,7 +32,7 @@ public class InitializePipeline extends BasePipeline {
 	 * InitializePipeline()
 	 * sets the basePath and ContentId
 	 *
-	 * @param BasePath the basePath
+	 * @param basePath the basePath
 	 * @param contentId the contentId
 	 * checks if the basePath is valid else throws ClientException
 	 * checks if the ContentId is not null else throws ClientException
@@ -52,7 +52,7 @@ public class InitializePipeline extends BasePipeline {
 	 * Init() which marks the begin of the InitializePipeline
 	 *
 	 * @param operation the Operation
-	 * @param Map the parameterMap
+	 * @param parameterMap the parameterMap
 	 * checks if operation or parameterMap is empty, throws ClientException
 	 * else based on the OPERATION(upload, publish or bundle) initializes 
 	 * respective ContentOperationInitializers

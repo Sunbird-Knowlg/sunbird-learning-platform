@@ -16,19 +16,19 @@ public abstract class ECRFObject {
 		return id;
 	}
 	 /**
-     * @param setId the setId to set
+     * @param id the setId to set
      */
 	public void setId(String id) {
 		this.id = id;
 	}
 	/**
-     * @return the data(Map<String, Object>)
+     * @return Map the data
      */
 	public Map<String, Object> getData() {
 		return data;
 	}
 	/** 
-     * @param data(Map<String, Object>) the setData to set
+     * @param data the setData to set
      */
 	public void setData(Map<String, Object> data) {
 		this.data = data;

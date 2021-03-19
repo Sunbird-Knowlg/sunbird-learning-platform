@@ -77,11 +77,11 @@ public class ContentValidator {
 	/**
 	 * validates the Uploaded ContentPackage File.
 	 *
-	 * @param File
+	 * @param file
 	 *            the file
-	 * @checks MimeType(application/zip), FolderStructure(assets, data &
+	 * checks MimeType(application/zip), FolderStructure(assets, data and
 	 *         widgets), FileSize
-	 * @return true if uploaded package meets all @checks else return false
+	 * @return true if uploaded package meets all checks else return false
 	 */
 	public boolean isValidContentPackage(File file) {
 		boolean isValidContentPackage = false;
@@ -123,9 +123,9 @@ public class ContentValidator {
 	/**
 	 * Validates the Uploaded Plugin package File.
 	 *
-	 * @param File
+	 * @param file
 	 *            the file
-	 * @checks MimeType(application/zip), FolderStructure(manifest.json)
+	 * checks MimeType(application/zip), FolderStructure(manifest.json)
 	 * @return true if uploaded package meets all @checks else return false
 	 */
 	public boolean isValidPluginPackage(File file) {
@@ -163,9 +163,9 @@ public class ContentValidator {
 	/**
 	 * validates the contentNode
 	 *
-	 * @param Node
+	 * @param node
 	 *            the node
-	 * @checks metadata, MimeType, artifact url and Content body
+	 * checks metadata, MimeType, artifact url and Content body
 	 * @return true if ContentNode meets all @checks else return false
 	 */
 	@CoverageIgnore
@@ -202,7 +202,7 @@ public class ContentValidator {
 	/**
 	 * validates the Uploaded ContentPackage's MimeType
 	 *
-	 * @param File
+	 * @param file
 	 *            the file
 	 * @return true if Uploaded file's MimeType is valid('application/zip') else
 	 *         return false throws IOException if erroe occurs during file
@@ -221,7 +221,7 @@ public class ContentValidator {
 	/**
 	 * validates the Uploaded ContentPackage's file size
 	 *
-	 * @param File
+	 * @param file
 	 *            the file
 	 * @return true if Uploaded file's size is valid(within
 	 *         ContentPackageFileSizeLimit) else return false
@@ -251,7 +251,7 @@ public class ContentValidator {
 	/**
 	 * validates the Uploaded ContentPackage's folderStructure
 	 *
-	 * @param File
+	 * @param file
 	 *            the file
 	 * @return true if Uploaded file's folderStructure contains
 	 *         ('index.json'/index.ecml') else return false
@@ -280,7 +280,7 @@ public class ContentValidator {
 	/**
 	 * validates the Uploaded ContentPackage's folderStructure
 	 *
-	 * @param File
+	 * @param file
 	 *            the file
 	 * @return true if Uploaded file's folderStructure contains
 	 *         ('manifest.json') else return false
@@ -307,7 +307,7 @@ public class ContentValidator {
 	/**
 	 * validates the Uploaded ContentNode has all required fields and properties
 	 *
-	 * @param Node
+	 * @param node
 	 *            the node
 	 * @checks ContentBody and artifact-url
 	 * @return true if the ContentNode meets all @checks else return false
@@ -472,10 +472,9 @@ public class ContentValidator {
 	 * This method validates if the uploaded file belongs the node allowed file
 	 * extensions for that mimeType
 	 * 
-	 * @param fileURL
-	 * @param mimeType
-	 * @return
-	 * @throws IOException
+	 * @param fileURL file URL
+	 * @param mimeType MimeType of the content
+	 * @return boolean
 	 */
 	public Boolean isValidUrl(String fileURL, String mimeType) {
 		Boolean isValid = false;

@@ -84,6 +84,8 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * Updates the ContentNode.
 	 *
+     * @param contentId content identifier
+     *
 	 * @param node
 	 *            the node
 	 * @param url
@@ -107,6 +109,7 @@ public class BasePipeline extends BaseManager {
 	 * 
 	 * @param node
 	 *            the node
+     * @param isSkipValid variable to skip validation.
 	 * @return the response of UpdateContentNode with node_id
 	 */
 	protected Response updateNode(Node node, Boolean isSkipValid) {
@@ -153,8 +156,8 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * Cassandra call to fetch hierarchy data
 	 *
-	 * @param contentId
-	 * @return
+	 * @param contentId content identifier
+	 * @return Response
 	 */
 	public Response getCollectionHierarchy(String contentId) {
 		Request request = new Request();
@@ -171,7 +174,7 @@ public class BasePipeline extends BaseManager {
 	 * 
 	 * @param request
 	 *            the request object
-	 * @return the LearningActor response
+	 * @return Response
 	 */
 	protected Response makeLearningRequest(Request request) {
 		ActorRef router = LearningRequestRouterPool.getRequestRouter();
@@ -195,7 +198,8 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * validates BasePath
 	 * 
-	 * @param path
+	 * @param path path string
+     * @return boolean
 	 *            the Path checks if the path exists else return false
 	 */
 	protected boolean isValidBasePath(String path) {
@@ -237,8 +241,11 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * gets the AwsUploadFolder Name from the PropertiesUtil class by loading
 	 * from propertiesFile
-	 * 
-	 * @return AWS Upload FolderName
+	 *
+     * @param identifier object identifier
+     * @param folder name of the folder
+     *
+	 * @return String AWS Upload FolderName
 	 */
 	protected String getUploadFolderName(String identifier, String folder) {
 		String folderName = DEF_AWS_FOLDER_NAME;
@@ -278,7 +285,7 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * gets the NumericValue of the object
 	 * 
-	 * @param obj
+	 * @param obj object
 	 * @return Number
 	 */
 	protected Number getNumericValue(Object obj) {
@@ -292,8 +299,8 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * gets the DoubleValue of the object
 	 * 
-	 * @param obj
-	 * @return NumberDoubleVale
+	 * @param obj object
+	 * @return Double
 	 */
 	protected Double getDoubleValue(Object obj) {
 		Number n = getNumericValue(obj);
@@ -305,7 +312,7 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * gets the S3FilesSize
 	 * 
-	 * @param key
+	 * @param key key
 	 * @return fileSize(double)
 	 */
 	protected Double getCloudStorageFileSize(String key) {
@@ -327,7 +334,7 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * formats Any given Date
 	 * 
-	 * @param date
+	 * @param date date object
 	 * @return NumberDoubleVale
 	 */
 	protected static String format(Date date) {
@@ -357,8 +364,8 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * validates the XML from the ContentBody
 	 * 
-	 * @param contentBody
-	 * @return true if validation is successful else false
+	 * @param contentBody content body
+	 * @return boolean true if validation is successful else false
 	 */
 	protected boolean isValidXML(String contentBody) {
 		boolean isValid = true;
@@ -377,8 +384,8 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * validates the JSON from ContentBody
 	 * 
-	 * @param contentBody
-	 * @return true if validation is successful else false
+	 * @param contentBody content body
+	 * @return boolean true if validation is successful else false
 	 */
 	protected boolean isValidJSON(String contentBody) {
 		boolean isValid = true;
@@ -397,8 +404,8 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * gets the basePath from the ContentId
 	 * 
-	 * @param contentId
-	 * @return BasePath
+	 * @param contentId content identifier
+	 * @return String BasePath
 	 */
 	protected String getBasePath(String contentId) {
 		String path = "";
@@ -431,7 +438,11 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * gets the ContentBundleData form all Collections
 	 * 
-	 * @param graphId,
+	 * @param graphId graph identifier
+     * @param childrenIds children identifier
+     * @param ctnts contents
+     * @param nodes nodes
+     *
 	 *            listOfNodes to be bundled, contents, childrenIds and
 	 *            Status(live) call getContentBundleData() to Bundle all data
 	 *            with status as LIVE
@@ -501,6 +512,7 @@ public class BasePipeline extends BaseManager {
 	 * 
 	 * @param taxonomyId
 	 *            and ContentId
+     * @param contentIds content identifiers
 	 * @return Response of the search
 	 */
 	protected Response searchNodes(String taxonomyId, List<String> contentIds) {

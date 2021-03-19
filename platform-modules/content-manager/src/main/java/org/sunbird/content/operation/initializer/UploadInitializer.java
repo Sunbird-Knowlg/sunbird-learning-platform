@@ -70,7 +70,7 @@ public class UploadInitializer extends BaseInitializer {
 	/**
 	 * initialize()
 	 *
-	 * @param Map the parameterMap
+	 * @param parameterMap the parameterMap
 	 * 
 	 * checks if UploadFile and Node exists in the parameterMap else throws ClientException
 	 * validates the ContentPackage

@@ -62,11 +62,11 @@ public class BaseFinalizer extends BasePipeline {
 	/**
 	 * Creates Thumbline.
 	 * 
-	 * @param Node
+	 * @param node
 	 *            the ContentNode
 	 * @param basePath
 	 *            the filePath checks if node metadata contains appIcon and
-	 *            downloadFile checks if fileIsNotEmpty & fileIsFile and generates
+	 *            downloadFile checks if fileIsNotEmpty and fileIsFile and generates
 	 *            thumbline for it checks if thumbline isNotEmpty and creates
 	 *            thumbFile uploads thumbFile to s3
 	 */
@@ -268,7 +268,7 @@ public class BaseFinalizer extends BasePipeline {
 	 * 
 	 * @param ecml
 	 *            the string ECML
-	 * @param type
+	 * @param ecmlType
 	 *            the EcmlType
 	 * @param basePath
 	 *            the filePath checks if ecml string or ecmlType is empty, throws
@@ -300,7 +300,7 @@ public class BaseFinalizer extends BasePipeline {
 	 * 
 	 * @param ecrf
 	 *            the ECRF
-	 * @param type
+	 * @param ecmlType
 	 *            the EcmlType checks if ecmlType is JSON/ECML converts ECRF to ecml
 	 * @return ecml
 	 */
@@ -322,7 +322,7 @@ public class BaseFinalizer extends BasePipeline {
 	/**
 	 * Creates ZipPackage.
 	 * 
-	 * @param ZipFileName
+	 * @param zipFileName name of the zip file
 	 * @param basePath
 	 *            the filePath creates zipPackage from the filePath
 	 */

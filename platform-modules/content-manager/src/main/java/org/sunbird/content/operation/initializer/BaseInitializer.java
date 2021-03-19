@@ -20,17 +20,15 @@ import org.sunbird.telemetry.logger.TelemetryManager;
  */
 public class BaseInitializer extends BasePipeline {
 
-	/** The logger. */
-	
-
-	/**
-	 * isCompressRequired()
-	 * 
-	 * @param Node
-	 *            the node checks if contentBody and artifactUrl are not present
-	 *            in node's metadata throws ClientException return true if
-	 *            validation is successful else false
-	 */
+    /**
+     *
+     * @param node this is the input of the method.
+     * @return boolean
+     *
+     * the node checks if contentBody and artifactUrl are not present
+     * in node's metadata throws ClientException return true if
+     * validation is successful else false
+     */
 	protected boolean isCompressRequired(Node node) {
 		boolean required = false;
 		if (null != node && null != node.getMetadata()) {
@@ -56,8 +54,9 @@ public class BaseInitializer extends BasePipeline {
 	/**
 	 * gets the ECRFObject(Ekstep Common Representation Format) from
 	 * ContentBody.
-	 * 
-	 * @param ContentBody
+	 *
+     * @param contentBody this is the input of the method.
+     * @return Plugin
 	 *            the contentBody gets the EcmlType from the ContentBody, if
 	 *            type is JSON calls JSONContentParser else XMLContentParser
 	 *            return ECRFObject
@@ -79,7 +78,8 @@ public class BaseInitializer extends BasePipeline {
 	/**
 	 * gets the ECMLtype of the ContentBody.
 	 * 
-	 * @param contentBody
+	 * @param contentBody this is the input of the method.
+     * @return String
 	 *            the contentBody checks if contentBody isValidJSON else
 	 *            isValidXML else throws ClientException return EcmlType of the
 	 *            given ContentBody
