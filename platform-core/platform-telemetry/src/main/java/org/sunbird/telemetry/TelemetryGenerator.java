@@ -38,9 +38,9 @@ public class TelemetryGenerator {
 	/**
 	 * To generate api_access LOG telemetry JSON string.
 	 * 
-	 * @param context
-	 * @param params
-	 * @return
+	 * @param context context of the event
+	 * @param params params of the event
+	 * @return String event in JSON fromat
 	 */
 	public static String access(Map<String, String> context, Map<String, Object> params) {
 		Actor actor = getActor(context);
@@ -57,13 +57,13 @@ public class TelemetryGenerator {
 	/**
 	 * To generate normal LOG telemetry JSON string with all params.
 	 * 
-	 * @param context
-	 * @param type
-	 * @param level
-	 * @param message
-	 * @param pageid
-	 * @param params
-	 * @return
+	 * @param context context of the event
+	 * @param type type of the event
+	 * @param level log level of the event
+	 * @param message message of the event
+	 * @param pageid page id of the event
+	 * @param params params of the event
+	 * @return String event string in JSON format.
 	 */
 	public static String log(Map<String, String> context, String type, String level, String message, String pageid,
 			Map<String, Object> params) {
@@ -84,11 +84,11 @@ public class TelemetryGenerator {
 	/**
 	 * To generate normal LOG telemetry JSON string with required params.
 	 * 
-	 * @param context
-	 * @param type
-	 * @param level
-	 * @param message
-	 * @return
+	 * @param context context of the event
+	 * @param type type of the event
+	 * @param level log level of the event
+	 * @param message message of the event
+	 * @return String event string in JSON format.
 	 */
 	public static String log(Map<String, String> context, String type, String level, String message) {
 		return log(context, type, level, message, null, null);
@@ -97,13 +97,13 @@ public class TelemetryGenerator {
 	/**
 	 * To generate ERROR telemetry JSON string with all params.
 	 * 
-	 * @param context
-	 * @param code
-	 * @param type
-	 * @param stacktrace
-	 * @param pageid
-	 * @param object
-	 * @return
+	 * @param context context of the event
+	 * @param code code of the event
+	 * @param type type of the event
+	 * @param stacktrace stacktrace of the exception
+	 * @param pageid page id
+	 * @param object object of the event
+	 * @return String event string in JSON format.
 	 */
 	public static String error(Map<String, String> context, String code, String type, String stacktrace, String pageid,
 			Object object) {
@@ -125,26 +125,26 @@ public class TelemetryGenerator {
 	/**
 	 * To generate ERROR telemetry JSON string with required params.
 	 * 
-	 * @param context
-	 * @param code
-	 * @param type
-	 * @param stacktrace
-	 * @return
+	 * @param context context of the event
+	 * @param code code of the event
+	 * @param type type of the event
+	 * @param stacktrace stacktrace of the exception.
+	 * @return String event string in JSON format.
 	 */
 	public static String error(Map<String, String> context, String code, String type, String stacktrace) {
 		return error(context, code, type, stacktrace, null, null);
 	}
 
     /**
-     * @param context
-     * @param query
-     * @param filters
-     * @param sort
-     * @param cData
-     * @param size
-     * @param topN
-     * @param type
-     * @return
+     * @param context context of the event
+     * @param query query of the search
+     * @param filters filters for search
+     * @param sort sort value for search
+     * @param cData cData of the event
+     * @param size size of the search result
+     * @param topN top N results
+     * @param type type of the event
+     * @return String event string in JSON format
      */
     public static String search(Map<String, String> context, String query, Object filters, Object sort,
                                 List<Map<String, Object>> cData, int size, Object topN, String type) {
@@ -171,12 +171,12 @@ public class TelemetryGenerator {
     }
 
 	/**
-	 * @param context
-	 * @param props
-	 * @param state
-	 * @param prevState
-	 * @param cdata
-	 * @return
+	 * @param context context of the event
+	 * @param props props of the event
+	 * @param state state of the event
+	 * @param prevState prevState of the object in event
+	 * @param cdata cData of the event
+	 * @return String event string in JSON format
 	 */
 	public static String audit(Map<String, String> context, List<String> props, String state, String prevState,
 			List<Map<String, Object>> cdata) {
@@ -204,11 +204,11 @@ public class TelemetryGenerator {
 	}
 
 	/**
-	 * @param context
-	 * @param props
-	 * @param state
-	 * @param prevState
-	 * @return
+	 * @param context context of the event
+	 * @param props props of the event
+	 * @param state state of the event
+	 * @param prevState prevState of the event
+	 * @return String event string in JSON format.
 	 */
 	public static String audit(Map<String, String> context, List<String> props, String state, String prevState) {
 		return audit(context, props, state, prevState, null);
@@ -239,8 +239,8 @@ public class TelemetryGenerator {
 
 	/**
 	 * This Method Returns Producer Object for Telemetry Event.
-	 * @param context
-	 * @return Producer
+	 * @param context context of the event
+	 * @return Producer producer for the event
 	 */
 	private static Producer getProducer(Map<String, String> context) {
 		String appId = context.get(TelemetryParams.APP_ID.name());

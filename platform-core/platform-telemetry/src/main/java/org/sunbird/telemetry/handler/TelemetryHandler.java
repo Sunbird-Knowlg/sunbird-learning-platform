@@ -16,9 +16,16 @@ public interface TelemetryHandler {
 
 	/**
 	 * 
-	 * @param event
+	 * @param event event
+     * @param level logging level
 	 */
 	public void send(String event, Level level);
-	
+
+    /**
+     *
+     * @param event event
+     * @param level logging level
+     * @param telemetry is for telemetry
+     */
 	public void send(String event, Level level, boolean telemetry);
 }

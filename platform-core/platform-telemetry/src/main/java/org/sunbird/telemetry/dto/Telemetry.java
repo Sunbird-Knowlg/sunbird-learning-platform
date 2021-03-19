@@ -30,12 +30,12 @@ public class Telemetry {
 	private Long syncts = ets;
 
 	/**
-	 * @param eid
-	 * @param ets
-	 * @param ver
-	 * @param actor
-	 * @param context
-	 * @param edata
+	 * @param eid event id
+	 * @param ets event timestamp
+	 * @param ver version
+	 * @param actor actor of the event
+	 * @param context context of the event
+	 * @param edata edata of the event
 	 */
 	public Telemetry(String eid, long ets, String ver, Actor actor, Context context, Map<String, Object> edata) {
 		super();
@@ -49,10 +49,10 @@ public class Telemetry {
 	}
 
 	/**
-	 * @param eid
-	 * @param actor
-	 * @param context
-	 * @param edata
+	 * @param eid event id
+	 * @param actor actor of the event
+	 * @param context context of the event
+	 * @param edata edata of the event
 	 */
 	public Telemetry(String eid, Actor actor, Context context, Map<String, Object> edata) {
 		super();
@@ -63,11 +63,11 @@ public class Telemetry {
 	}
 
 	/**
-	 * @param eid
-	 * @param actor
-	 * @param context
-	 * @param edata
-	 * @param cdata
+	 * @param eid event id
+	 * @param actor actor  of the event
+	 * @param context context of the event
+	 * @param edata edata of the event
+	 * @param cdata cdata of the event
 	 */
 	public Telemetry(String eid, Actor actor, Context context, Map<String, Object> edata,
 			List<Map<String, Object>> cdata) {
@@ -80,7 +80,7 @@ public class Telemetry {
 	}
 
 	/**
-	 * @return the eid
+	 * @return the eid event id
 	 */
 	public String getEid() {
 		return eid;
@@ -95,7 +95,7 @@ public class Telemetry {
 	}
 
 	/**
-	 * @return the ets
+	 * @return long the ets
 	 */
 	public long getEts() {
 		return ets;
@@ -110,7 +110,7 @@ public class Telemetry {
 	}
 
 	/**
-	 * @return the ver
+	 * @return String the ver
 	 */
 	public String getVer() {
 		return ver;
@@ -125,7 +125,7 @@ public class Telemetry {
 	}
 
 	/**
-	 * @return the mid
+	 * @return String the mid
 	 */
 	public String getMid() {
 		return mid;
@@ -140,7 +140,7 @@ public class Telemetry {
 	}
 
 	/**
-	 * @return the actor
+	 * @return Actor the actor
 	 */
 	public Actor getActor() {
 		return actor;
@@ -155,7 +155,7 @@ public class Telemetry {
 	}
 
 	/**
-	 * @return the context
+	 * @return Context the context
 	 */
 	public Context getContext() {
 		return context;
@@ -170,7 +170,7 @@ public class Telemetry {
 	}
 
 	/**
-	 * @return the object
+	 * @return Target the object
 	 */
 	public Target getObject() {
 		return object;
@@ -185,7 +185,7 @@ public class Telemetry {
 	}
 
 	/**
-	 * @return the edata
+	 * @return Map the edata
 	 */
 	public Map<String, Object> getEdata() {
 		return edata;
@@ -200,7 +200,7 @@ public class Telemetry {
 	}
 
 	/**
-	 * @return the tags
+	 * @return List the tags
 	 */
 	public List<String> getTags() {
 		return tags;
@@ -215,14 +215,14 @@ public class Telemetry {
 	}
 
 	/**
-	 * @return cdata
+	 * @return List cdata
 	 */
 	public List<Map<String, Object>> getCdata() {
 		return cdata;
 	}
 
 	/**
-	 * @param cdata
+	 * @param cdata cdata of the event
 	 */
 	public void setCdata(List<Map<String, Object>> cdata) {
 		this.cdata = cdata;
@@ -236,7 +236,7 @@ public class Telemetry {
 	}
 
 	/**
-	 * @param syncts
+	 * @param syncts sync timestamp of the event
 	 */
 	public void setSyncts(Long syncts) {
 		this.syncts = syncts;

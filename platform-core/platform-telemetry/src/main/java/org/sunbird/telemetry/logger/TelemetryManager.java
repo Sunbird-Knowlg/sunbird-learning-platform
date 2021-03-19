@@ -20,7 +20,7 @@ import org.sunbird.telemetry.handler.TelemetryLoggingHandler;
 /**
  * This class is used to generate and handle telemetry. 
  * 
- * @author Rashmi & Mahesh
+ * @author Rashmi and Mahesh
  *
  */
 public class TelemetryManager {
@@ -32,8 +32,8 @@ public class TelemetryManager {
 	/**
 	 * To log api_access as a telemetry event.
 	 * 
-	 * @param context
-	 * @param params
+	 * @param context context of the event
+	 * @param params params of the event
 	 */
 
 	public static void access(Map<String, String> context, Map<String, Object> params) {
@@ -44,7 +44,7 @@ public class TelemetryManager {
 	/**
 	 * To log only message as a telemetry event.
 	 * 
-	 * @param message
+	 * @param message message of the event
 	 */
 	public static void log(String message) {
 		log(message, null, Level.DEBUG.name());
@@ -53,8 +53,8 @@ public class TelemetryManager {
 	/**
 	 * To log message with params as a telemetry event.
 	 * 
-	 * @param message
-	 * @param data
+	 * @param message message of the event
+	 * @param params params of the event
 	 */
 	public static void log(String message, Map<String, Object> params) {
 		log(message, params, Level.DEBUG.name());
@@ -63,7 +63,7 @@ public class TelemetryManager {
 	/**
 	 * To log only message as a telemetry event.
 	 * 
-	 * @param message
+	 * @param message message of the event
 	 */
 	public static void info(String message) {
 		log(message, null, Level.INFO.name());
@@ -72,8 +72,8 @@ public class TelemetryManager {
 	/**
 	 * To log message with params as a telemetry event.
 	 * 
-	 * @param message
-	 * @param data
+	 * @param message message of the event
+	 * @param params params of the event
 	 */
 	public static void info(String message, Map<String, Object> params) {
 		log(message, params, Level.INFO.name());
@@ -81,7 +81,7 @@ public class TelemetryManager {
 	
 	/**
 	 * 
-	 * @param message
+	 * @param message message of the event
 	 */
 	
 	public static void warn(String message) {
@@ -90,8 +90,8 @@ public class TelemetryManager {
 	
 	/**
 	 * 
-	 * @param message
-	 * @param params
+	 * @param message message of the event
+	 * @param params params of the event
 	 */
 	
 	public static void warn(String message, Map<String, Object> params) {
@@ -100,7 +100,7 @@ public class TelemetryManager {
 	
 	/**
 	 * 
-	 * @param message
+	 * @param message message of the event
 	 */
 	public static void error(String message) {
 		log(message, null, Level.ERROR.name());
@@ -108,8 +108,8 @@ public class TelemetryManager {
 	
 	/**
 	 * 
-	 * @param message
-	 * @param params
+	 * @param message message of the event
+	 * @param params params of the event
 	 */
 	public static void error(String message, Map<String, Object> params) {
 		log(message, params, Level.ERROR.name());
@@ -118,8 +118,8 @@ public class TelemetryManager {
 	/**
 	 * To log exception with message and params as a telemetry event.
 	 * 
-	 * @param message
-	 * @param e
+	 * @param message message of the event
+	 * @param e exception details in the event
 	 */
 	public static void error(String message, Throwable e) {
 		error(message, e, null);
@@ -127,9 +127,9 @@ public class TelemetryManager {
 	
 	/**
 	 * 
-	 * @param message
-	 * @param e
-	 * @param object
+	 * @param message message of the event
+	 * @param e exception details in the event
+	 * @param object object of the event
 	 */
 	public static void error(String message, Throwable e, Object object) {
 		Map<String, String> context = getContext();
@@ -156,12 +156,12 @@ public class TelemetryManager {
 	}
 
 	/**
-	 * @param query
-	 * @param filters
-	 * @param sort
-	 * @param size
-	 * @param topN
-	 * @param type
+	 * @param query query in the event.
+	 * @param filters filters of the event
+	 * @param sort sort for the search event
+	 * @param size size for the search result.
+	 * @param topN  size for the search result.
+	 * @param type type of the event
 	 */
 	public static void search(String query, Object filters, Object sort, int size, Object topN,
 			String type) {
@@ -169,13 +169,13 @@ public class TelemetryManager {
 	}
 
 	/**
-	 * @param context
-	 * @param query
-	 * @param filters
-	 * @param sort
-	 * @param size
-	 * @param topN
-	 * @param type
+	 * @param context context of the event
+	 * @param query query for the search
+	 * @param filters filters of the event
+	 * @param sort sort for the search
+	 * @param size size for the search result.
+	 * @param topN  size for the search result.
+	 * @param type type of the event
 	 */
 	public static void search(Map<String, Object> context, String query, Object filters, Object sort,
 							  int size, Object topN, String type) {
@@ -213,9 +213,9 @@ public class TelemetryManager {
 	/**
 	 * To log exception with message and params for user specified log level as a
 	 * telemetry event.
-	 * @param message
-	 * @param params
-	 * @param logLevel
+	 * @param message message of the event
+	 * @param params params of the event
+	 * @param logLevel logLevel of the event
 	 */
 	private static void log(String message, Map<String, Object> params, String logLevel) {
 		Map<String, String> context = getContext();
