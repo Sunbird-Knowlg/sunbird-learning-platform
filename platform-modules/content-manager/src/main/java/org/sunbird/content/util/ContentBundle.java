@@ -19,7 +19,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 
-import info.aduna.text.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -62,6 +61,8 @@ public class ContentBundle {
 	private static ObjectMapper mapper = new ObjectMapper();
 	public final String TAXONOMY_ID = "domain";
 	public final ControllerUtil util = new ControllerUtil();
+	
+	private boolean disableAkka = false;
 
 	/** The Constant BUNDLE_PATH. */
 	protected static final String BUNDLE_PATH = "/tmp";
@@ -79,6 +80,13 @@ public class ContentBundle {
 	private static final List<String> EXCLUDE_ECAR_METADATA_FIELDS=Arrays.asList("screenshots","posterImage");
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 
+	public ContentBundle() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public ContentBundle(boolean disableAkka) {
+		this.disableAkka = disableAkka;
+	}
 
 	/**
 	 * Creates the content manifest data.
@@ -556,7 +564,7 @@ public class ContentBundle {
 	}
 
 	public  Map<String, Object> getContentMap(Node node, List<Map<String, Object>> childrenList) {
-		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
+		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content", disableAkka);
 		Map<String, Object> collectionHierarchy = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
 		if (CollectionUtils.isNotEmpty(childrenList))
 			collectionHierarchy.put("children", childrenList);

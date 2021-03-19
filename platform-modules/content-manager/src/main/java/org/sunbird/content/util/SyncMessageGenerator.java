@@ -32,12 +32,12 @@ public class SyncMessageGenerator {
 	private static List<String> nestedFields = Arrays.asList(Platform.config.getString("content.nested.fields").split(","));
 	private static List<String> ALLOWED_ES_PROPS = Arrays.asList("IL_FUNC_OBJECT_TYPE", "IL_SYS_NODE_TYPE", "IL_UNIQUE_ID", "SYS_INTERNAL_LAST_UPDATED_ON");
 
-	public static Map<String, Object> getMessages(List<Node> nodes, String objectType,  Map<String, String> relationMap, Map<String, String> errors){
+	public static Map<String, Object> getMessages(List<Node> nodes, String objectType,  Map<String, String> relationMap, Map<String, String> errors, boolean disableAkka){
 		Map<String, Object> messages = new HashMap<>();
 		List<String> indexablePropslist = null;
 
 		if (StringUtils.isNotBlank(objectType))
-			loadDefinitionsOf(objectType);
+			loadDefinitionsOf(objectType, disableAkka);
 
 		for (Node node : nodes) {
 			//Create List of metadata which should be indexed, if objectType is enabled for metadata filtration.
@@ -180,11 +180,11 @@ public class SyncMessageGenerator {
 		return "";
 	}
 	
-	private static void loadDefinitionsOf(String objectType) {
+	private static void loadDefinitionsOf(String objectType, boolean disableAkka) {
 		if (!definitionMap.keySet().contains(objectType)) {
 			
 				try {
-					DefinitionDTO def = util.getDefinition(TAXONOMY_ID, objectType);
+					DefinitionDTO def = util.getDefinition(TAXONOMY_ID, objectType, disableAkka);
 					if (def != null) {
 						Map<String, Object> definition = mapper.convertValue(def,
 								new TypeReference<Map<String, Object>>() {

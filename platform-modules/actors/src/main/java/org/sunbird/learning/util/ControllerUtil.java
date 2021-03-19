@@ -8,14 +8,17 @@ import org.sunbird.common.Platform;
 import org.sunbird.common.dto.NodeDTO;
 import org.sunbird.common.dto.Request;
 import org.sunbird.common.dto.Response;
+import org.sunbird.common.enums.TaxonomyErrorCodes;
 import org.sunbird.common.exception.ClientException;
 import org.sunbird.common.exception.ResourceNotFoundException;
 import org.sunbird.common.exception.ResponseCode;
 import org.sunbird.common.exception.ServerException;
 import org.sunbird.common.mgr.ConvertGraphNode;
+import org.sunbird.graph.common.enums.GraphHeaderParams;
 import org.sunbird.graph.dac.enums.GraphDACParams;
 import org.sunbird.graph.dac.model.Node;
 import org.sunbird.graph.dac.model.SearchCriteria;
+import org.sunbird.graph.engine.mgr.impl.NodeManager;
 import org.sunbird.graph.engine.router.GraphEngineManagers;
 import org.sunbird.graph.model.node.DefinitionDTO;
 import org.sunbird.learning.common.enums.ContentAPIParams;
@@ -146,6 +149,25 @@ public class ControllerUtil extends BaseLearningManager {
         }
         return null;
     }
+    
+    public DefinitionDTO getDefinition(String taxonomyId, String objectType, boolean disableAkka) {
+    	DefinitionDTO definition = null;
+    	if(disableAkka) {
+    		try {
+    			Request request = new Request();
+    	        request.getContext().put(GraphHeaderParams.graph_id.name(), TAXONOMY_ID);
+    			request.put(GraphDACParams.object_type.name(), objectType);
+    			NodeManager nodeManager = new NodeManager();
+    			definition = nodeManager.getNodeDefinition(request);
+    		}catch (Exception e) {
+    			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage() + ". Please Try Again After Sometime!");
+    		}
+    	}else {
+    		definition = getDefinition(taxonomyId, objectType);
+    	}
+		return definition;
+		
+	}
 
     /**
      * Gets all the definitions
