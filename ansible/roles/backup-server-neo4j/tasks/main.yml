@@ -1,0 +1,35 @@
+- name: install
+  become: yes
+  apt: name={{item}} state=present
+  with_items: 
+             - python-dev
+             - python-pip
+             - unzip 
+
+- name: Create Paths 
+  become: yes
+  file: path={{learner_user_home}}/{{neo4j_dir}} state=directory owner="{{learner_user}}" group="{{learner_user}}"
+
+- debug:
+    msg: "System {{ neo4j_dir }}"
+
+- name: copy the neo4j cluster zip file   
+  become: yes
+  become_user: "{{learner_user}}"
+  copy: src=artifacts/{{neo4j_zip}} dest={{learner_user_home}}
+
+- name: Extract archive {{neo4j_zip}}
+  become: yes
+  become_user: "{{learner_user}}"
+  unarchive: src={{learner_user_home}}/{{neo4j_zip}} dest={{learner_user_home}}/{{neo4j_dir}} copy=no group={{learner_user}} owner={{learner_user}} creates={{ neo4j_home }}
+  
+
+- name: Change Permissions neo4j-enterprise-3.0.4 
+  become: yes
+  file: path={{ neo4j_home }} mode=0755 owner={{learner_user}} group={{learner_user}} recurse=yes
+
+
+- name: Copy the template neo4j.conf file 
+  become: yes
+  become_user: "{{learner_user}}"
+  template: src=neo4j.conf.j2 dest={{ neo4j_home }}/conf/neo4j.conf group={{learner_user}} owner={{learner_user}} mode=755 
