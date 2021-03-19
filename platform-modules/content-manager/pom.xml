@@ -8,7 +8,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<groupId>org.sunbird</groupId>
-	<version>1.0-BETA</version>
+	<version>1.0-beta</version>
 	<artifactId>content-manager</artifactId>
 	<dependencies>
 		<dependency>
