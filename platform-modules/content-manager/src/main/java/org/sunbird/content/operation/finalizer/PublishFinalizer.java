@@ -568,8 +568,7 @@ public class PublishFinalizer extends BaseFinalizer {
 							if (!checkError(readResponse)) {
 								Node resNode = (Node) readResponse.get(GraphDACParams.node.name());
 								if (PUBLISHED_STATUS_LIST.contains(resNode.getMetadata().get(ContentWorkflowPipelineParams.status.name()))) {
-									DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, resNode.getObjectType());
-
+									DefinitionDTO definition = getDefinition(resNode.getObjectType());
 									String nodeString = mapper.writeValueAsString(ConvertGraphNode.convertGraphNode(resNode, TAXONOMY_ID, definition, null));
 									Map<String, Object> resourceNode = mapper.readValue(nodeString, Map.class);
 									resourceNode.put("index", child.get(ContentWorkflowPipelineParams.index.name()));
