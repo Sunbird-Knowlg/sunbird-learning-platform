@@ -330,6 +330,7 @@ search-indexer:
     restrict.metadata.objectTypes = []
     nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials"]
     schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_sec }}
+    restrict.objectTypes = ["EventSet", "Questionnaire", "Misconception", "FrameworkType", "EventSet", "Event"]
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['search-indexer'].jobmanager_memory }}
