@@ -795,16 +795,17 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	private Map<String, Object> getHierarchy(String nodeId, boolean needImageHierarchy, String objType) {
+		String objectType = StringUtils.isBlank(objType) ? "Collection" : objType.replaceAll("Image", "");
 		if(needImageHierarchy){
 			String identifier = StringUtils.endsWith(nodeId, ".img") ? nodeId : nodeId + ".img";
-			Map<String, Object> hierarchy = getHierarchyStore(objType).getHierarchy(identifier);
+			Map<String, Object> hierarchy = getHierarchyStore(objectType).getHierarchy(identifier);
 			if(MapUtils.isEmpty(hierarchy)) {
-				return getHierarchyStore(objType).getHierarchy(nodeId);
+				return getHierarchyStore(objectType).getHierarchy(nodeId);
 			} else {
 				return hierarchy;
 			}
 		} else {
-			return getHierarchyStore(objType).getHierarchy(nodeId.replaceAll(".img", ""));
+			return getHierarchyStore(objectType).getHierarchy(nodeId.replaceAll(".img", ""));
 		}
 	}
 	
