@@ -28,7 +28,7 @@ node() {
                 stage('deploy artifact') {
                     sh """
                        unzip ${artifact}
-                       mv sunbird-dial-service-1.0-SNAPSHOT-dist.zip ansible
+                       mv sunbird-dial-service-1.1-SNAPSHOT-dist.zip ansible
                     """
 
                     ansiblePlaybook = "${currentWs}/ansible/dial-service-deploy.yml"

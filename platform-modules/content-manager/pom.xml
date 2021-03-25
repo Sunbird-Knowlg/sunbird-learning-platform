@@ -4,17 +4,17 @@
 	<parent>
 		<groupId>org.sunbird</groupId>
 		<artifactId>sunbird-modules</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<groupId>org.sunbird</groupId>
-	<version>1.0-beta</version>
+	<version>1.1-beta</version>
 	<artifactId>content-manager</artifactId>
 	<dependencies>
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>learning-actors</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
@@ -26,13 +26,13 @@
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>platform-telemetry</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>assessment-manager</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
@@ -57,7 +57,7 @@
 			<groupId>org.sunbird</groupId>
 			<artifactId>graph-engine</artifactId>
 			<type>test-jar</type>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

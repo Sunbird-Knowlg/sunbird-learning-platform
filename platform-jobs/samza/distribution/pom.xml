@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.sunbird</groupId>
         <artifactId>samza</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
     </parent>
     <artifactId>distribution</artifactId>
     <packaging>pom</packaging>
@@ -12,28 +12,28 @@
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>audit-history-indexer</artifactId>
-			<version>0.0.82</version>
+			<version>0.0.83</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>audit-event-generator</artifactId>
-			<version>0.0.55</version>
+			<version>0.0.56</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>qrcode-image-generator</artifactId>
-			<version>0.0.28</version>
+			<version>0.0.29</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>asset-enrichment</artifactId>
-			<version>0.0.104</version>
+			<version>0.0.105</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 			<exclusions>
@@ -46,42 +46,42 @@
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>publish-pipeline</artifactId>
-            <version>0.0.373</version>
+            <version>0.0.374</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>merge-user-courses</artifactId>
-			<version>0.0.16</version>
+			<version>0.0.17</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>course-certificate-generator-v2</artifactId>
-			<version>0.0.22</version>
+			<version>0.0.23</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>auto-creator</artifactId>
-			<version>0.0.30</version>
+			<version>0.0.31</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>mvc-processor-indexer</artifactId>
-			<version>1.3.4</version>
+			<version>1.3.5</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>certificate-pre-processor</artifactId>
-			<version>0.0.1</version>
+			<version>0.0.2</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

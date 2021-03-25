@@ -4,13 +4,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.sunbird</groupId>
 	<artifactId>cassandra.transaction-event-handler</artifactId>
-	<version>1.0</version>
+	<version>1.1</version>
 	<name>Sunbird - Cassandra transaction event handler</name>
 
 	<parent>
 		<groupId>org.sunbird</groupId>
 		<artifactId>cassandra-extensions</artifactId>
-		<version>1.0</version>
+		<version>1.1</version>
 	</parent>
 	<properties>
 		<scoverage.plugin.version>1.1.1</scoverage.plugin.version>

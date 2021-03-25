@@ -46,7 +46,7 @@
 - name: Copy dial artifact
   become: yes
   become_user: learning
-  copy: src=sunbird-dial-service-1.0-SNAPSHOT-dist.zip dest={{ dial_root }} mode=755 owner={{ learner_user }} group={{ learner_user }}
+  copy: src=sunbird-dial-service-1.1-SNAPSHOT-dist.zip dest={{ dial_root }} mode=755 owner={{ learner_user }} group={{ learner_user }}
 
 - name: Remove dial-service
   become: yes
@@ -56,12 +56,12 @@
 - name: Unarchive dial artifact
   become: yes
   become_user: learning
-  unarchive: src={{ dial_root }}/sunbird-dial-service-1.0-SNAPSHOT-dist.zip dest={{ dial_root }} copy=no group={{ learner_user }} owner={{ learner_user }} mode=755
+  unarchive: src={{ dial_root }}/sunbird-dial-service-1.1-SNAPSHOT-dist.zip dest={{ dial_root }} copy=no group={{ learner_user }} owner={{ learner_user }} mode=755
 
 - name: Change dial artifact
   become: yes
   become_user: learning
-  command: mv {{learner_user_home}}/platform/dial/sunbird-dial-service-1.0-SNAPSHOT {{learner_user_home}}/platform/dial/sunbird-dial-service
+  command: mv {{learner_user_home}}/platform/dial/sunbird-dial-service-1.1-SNAPSHOT {{learner_user_home}}/platform/dial/sunbird-dial-service
 
 - name: Start the dial service
   become: yes

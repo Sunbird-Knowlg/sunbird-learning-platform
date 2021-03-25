@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.sunbird</groupId>
 		<artifactId>sunbird-modules</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>sunbird-common</artifactId>
@@ -53,19 +53,19 @@
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>graph-engine</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>platform-telemetry</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>unit-tests</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
