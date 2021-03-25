@@ -543,7 +543,7 @@ public class DataNode extends AbstractNode {
 			System.out.println("value:: " + value);
 			System.out.println("propName:: " + propName);
 			System.out.println("dataType:: " + dataType);
-			System.out.println("range:: " + range.toString());
+			System.out.println("range:: " + range);
 			// TODO: the below if condition is to allow term and termlist as
 			// datatypes.
 			if (StringUtils.isNotBlank(dataType)
