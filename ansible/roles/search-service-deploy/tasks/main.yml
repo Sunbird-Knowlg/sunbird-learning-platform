@@ -43,7 +43,7 @@
 - name: Copy search artifact
   become: yes
   become_user: "{{learner_user}}"
-  copy: src=search-manager-1.0-SNAPSHOT-dist.zip dest={{ search_root }} mode=755 owner={{ learner_user }} group={{ learner_user }}
+  copy: src=search-manager-1.1-SNAPSHOT-dist.zip dest={{ search_root }} mode=755 owner={{ learner_user }} group={{ learner_user }}
 
 - name: Remove search-service
   become: yes
@@ -53,12 +53,12 @@
 - name: Unarchive search artifact
   become: yes
   become_user: "{{learner_user}}"
-  unarchive: src={{ search_root }}/search-manager-1.0-SNAPSHOT-dist.zip dest={{ search_root }} copy=no group={{ learner_user }} owner={{ learner_user }} mode=755
+  unarchive: src={{ search_root }}/search-manager-1.1-SNAPSHOT-dist.zip dest={{ search_root }} copy=no group={{ learner_user }} owner={{ learner_user }} mode=755
 
 - name: Change search artifact
   become: yes
   become_user: "{{learner_user}}"
-  command: mv {{learner_user_home}}/platform/search/search-manager-1.0-SNAPSHOT {{learner_user_home}}/platform/search/search-manager
+  command: mv {{learner_user_home}}/platform/search/search-manager-1.1-SNAPSHOT {{learner_user_home}}/platform/search/search-manager
 
 - name: Start the search service
   become: yes

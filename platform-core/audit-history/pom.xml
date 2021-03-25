@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.sunbird</groupId>
 		<artifactId>platform-core</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>audit-history</artifactId>
@@ -22,7 +22,7 @@
 	 <dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>searchindex-elasticsearch</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<type>jar</type>
 		 	<exclusions>
 				<exclusion>
@@ -55,7 +55,7 @@
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>unit-tests</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -73,7 +73,7 @@
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>graph-common</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-dbcp</groupId>

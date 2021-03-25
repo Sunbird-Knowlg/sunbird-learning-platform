@@ -8,4 +8,4 @@ platform_api_url: "http://{{ groups['learning1'][0] }}:8080/learning-service"
 instance: "{{env}}"
 instance_name:
 compositesearch_index_name: "compositesearch"
-search_artifact_name: search-manager-1.0-SNAPSHOT
+search_artifact_name: search-manager-1.1-SNAPSHOT

@@ -5,13 +5,13 @@
 
 	<groupId>org.sunbird.kernel.extension</groupId>
 	<artifactId>learning-graph-extension</artifactId>
-	<version>1.0</version>
+	<version>1.1</version>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.sunbird.kernel.extension</groupId>
 			<artifactId>transaction-event-handler</artifactId>
-			<version>1.0</version>
+			<version>1.1</version>
 			<type>jar</type>
 		</dependency>
 	</dependencies>

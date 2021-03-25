@@ -4,7 +4,7 @@ EkStep Transaction Event Handler
 
         mvn clean package
 
-2. Copy target/transaction-event-handler-1.0.jar to the plugins/ directory of your Neo4j server.
+2. Copy target/transaction-event-handler-1.1.jar to the plugins/ directory of your Neo4j server.
 
 3. Start your Neo4j Server
 
