@@ -1390,7 +1390,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (null != children && !children.isEmpty()) {
 			for (Object child : children) {
 				Map<String, Object> childMap = (Map<String, Object>) child;
-				String typeValue = childMap.get(type).toString();
+				String typeValue = (String) childMap.get(type)
 				if (null != typeValue) {
 					if (typeMap.containsKey(typeValue)) {
 						int count = (int) typeMap.get(typeValue);
