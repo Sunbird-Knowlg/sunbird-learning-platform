@@ -14,21 +14,8 @@
   fail: msg="Health check failed for learning-service"
   when: learning_process.stdout.find('"healthy":"false"') > 0
 
-- name: Check search-service health
-  become: yes
-  become_user: "{{user}}"
-  shell: "curl http://{{search_service_url}}/health"
-  register: search_process
-
-- name: Print the search-service health status to console
-  debug:
-    var: search_process
-
-- name: Failed search-service health check
-  become: yes
-  become_user: "{{user}}"
-  fail: msg="Health check failed for search-service"
-  when: search_process.stdout.find('"healthy":"false"') > 0
+### TODO: search-service is in kube cluster so, removed the validation from here.
+### We should add the valid tasks to call kube cluster.
 
 - name: Generare random UUID to create a content.
   become: yes
