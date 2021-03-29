@@ -62,41 +62,6 @@ LearningActorSystem {
           throughput = 1
       }
       deployment {
-        /SearchManager 
-        {
-          router = smallest-mailbox-pool
-          nr-of-instances = 5
-        }
-        /HealthCheckManager
-        {
-          router = smallest-mailbox-pool
-                  nr-of-instances = 5
-        }
-      }
-    }
-  }
-}
-
-LanguageActorSystem {
-  akka {
-    actor {
-      default-dispatcher {
-        type = "Dispatcher"
-        executor = "fork-join-executor"
-        fork-join-executor {
-          parallelism-min = 1
-          parallelism-factor = 2.0
-          parallelism-max = 4
-        }
-        # Throughput for default Dispatcher, set to 1 for as fair as possible
-        throughput = 1
-      }
-      deployment {
-        /SearchManager 
-        {
-          router = smallest-mailbox-pool
-          nr-of-instances = 5
-        }
         /HealthCheckManager
         {
           router = smallest-mailbox-pool
