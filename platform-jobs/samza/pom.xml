@@ -25,7 +25,6 @@
 		<module>audit-history-indexer</module>
 	    <module>audit-event-generator</module>
 		<module>publish-pipeline</module>
-		<module>asset-enrichment</module>
 		<module>qrcode-image-generator</module>
 		<module>distribution</module>
         <module>qr-image-generator</module>
