@@ -30,7 +30,7 @@ collection_fullecar_disable: true
 max_iteration_count_for_samza_job: 2
 composite_search_indexer_container_count: 1
 compositesearch_index_name: "compositesearch"
-cloud_store: azure
+cloud_store: cephs3
 hadoop_version: 2.7.2
 redis_port: 6379
 google_api_key: "123"

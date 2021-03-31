@@ -23,6 +23,6 @@ redis_port: 6379
 graphevent_kafka_url: "{{groups['processing-cluster-zookeepers']|join(':9092,')}}:9092"
 search_lms_index_host: "{{ groups['core-es']|join(':9200,')}}:9200"
 
-cloud_store: azure
+cloud_store: cephs3
 azure_public_container: 
 azure_account_name:
