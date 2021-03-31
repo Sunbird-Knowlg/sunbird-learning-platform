@@ -33,7 +33,7 @@ platform_api_url: "http://{{ groups['learning1'][0] }}:8080/learning-service"
 youtube_app_name: fetch-youtube-license
  
 
-cloud_store: azure
+cloud_store: cephs3
 azure_public_container: 
 azure_account_name: 
 
