@@ -131,39 +131,6 @@ public class BatchEnrolmentSyncManager {
 
     }
 
-    public String generateBatchEnrolUpdateKafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
-        Map<String, Object> event = new HashMap<String, Object>() {{
-            put("eid", "BE_JOB_REQUEST");
-            put("ets", System.currentTimeMillis());
-            put("mid", "LP." + System.currentTimeMillis() +"." + UUID.randomUUID());
-            put("actor", new HashMap<String, Object>(){{
-                put("type", "System");
-                put("id", "Course Batch Updater");
-            }});
-            put("context", new HashMap<String, Object>(){{
-                put("pdata", new HashMap<String, Object>(){{
-                    put("id", "org.sunbird.platform");
-                    put("ver", "1.0");
-                }});
-            }});
-            put("object", new HashMap<String, Object>(){{
-                put("type", "CourseBatchEnrolment");
-                put("id", rowMap.get("batchid") + "_" + rowMap.get("userid"));
-            }});
-            put("edata", new HashMap<String, Object>(){{
-                put("action", "batch-enrolment-update");
-                put("iteration", 1);
-                put("batchId", rowMap.get("batchid"));
-                put("userId", rowMap.get("userid"));
-                put("courseId", rowMap.get("courseid"));
-                put("contents", Arrays.asList(new HashMap(){{ put("contentId", "manual_sync"); put("status", 2);}}));
-            }});
-        }};
-
-        return mapper.writeValueAsString(event);
-
-    }
-
     private void pushDocsToES(List<Row> rows, List<String> docids, String index) throws Exception {
         List<Row> rowClone = new ArrayList<>();
         rowClone.addAll(rows);
@@ -311,46 +278,6 @@ public class BatchEnrolmentSyncManager {
         return results.all();
     }
 
-    public void syncEnrol(String userId, String batchId) throws Exception {
-
-        List<Row> rows = readEnrolment(userId, batchId);
-        if (CollectionUtils.isNotEmpty(rows)) {
-            List<Map<String, Object>> list = rows.stream().map(row -> {
-                try {
-                    Map<String, Object> jsonRow = mapper.readValue(row.getString("[json]"), Map.class);
-                    return jsonRow;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return new HashMap<String, Object>();
-            }).filter(m -> {
-                String dbBatchId = (String) m.get("batchid");
-                return (MapUtils.isNotEmpty(m) && StringUtils.equalsIgnoreCase(dbBatchId, batchId));
-            }).collect(Collectors.toList());
-            System.out.println("Number of rows to be synced : " + list.size());
-            System.out.println("-----------------------------------------");
-            System.out.println("Pushing the events to kafka");
-            pushEnrolmentSyncEventsToKafka(list);
-        } else {
-            System.out.println("No enrolments found for given user and batch.");
-        }
-    }
-
-    private void pushEnrolmentSyncEventsToKafka(List<Map<String, Object>> rows) throws Exception {
-        long startTime = System.currentTimeMillis();
-        long total = ((Number) rows.size()).longValue();
-        long current = 0;
-        for(Map<String, Object> row: rows) {
-            String enrolSyncEvent = generateBatchSyncKafkaEvent(row);
-            KafkaClient.send(enrolSyncEvent, KAFKA_TOPIC);
-            String enrolUpdateEvent = generateBatchEnrolUpdateKafkaEvent(row);
-            KafkaClient.send(enrolUpdateEvent, KAFKA_TOPIC);
-            current += 1;
-            printProgress(startTime, total, current);
-        }
-        System.out.println("");
-
-    }
 
     public List<Row> readEnrolment(String userId, String batchId) {
         Session session = CassandraConnector.getSession("platform-courses");

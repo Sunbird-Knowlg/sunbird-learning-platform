@@ -64,19 +64,6 @@ public class BatchEnrolmentSyncManagerTest extends GraphEngineTestSetup {
     }
 
     @Test
-    public void testGenerateBatchEnrolUpdateKafkaEvent() throws Exception {
-        BatchEnrolmentSyncManager mgr = PowerMockito.spy(new BatchEnrolmentSyncManager());
-        Map<String, Object> map = new HashMap<String, Object>() {{
-           put("batchid", "batch-1");
-           put("courseid", "course-1");
-           put("userid", "user-1");
-        }};
-        String event = mgr.generateBatchEnrolUpdateKafkaEvent(map);
-        System.out.println("Event: " +event);
-        Assert.assertTrue(StringUtils.isNotBlank(event));
-    }
-
-    @Test
     public void testGenerateBatchSyncKafkaEvent() throws Exception {
         BatchEnrolmentSyncManager mgr = PowerMockito.spy(new BatchEnrolmentSyncManager());
         Map<String, Object> map = new HashMap<String, Object>() {{
@@ -89,14 +76,4 @@ public class BatchEnrolmentSyncManagerTest extends GraphEngineTestSetup {
         Assert.assertTrue(StringUtils.isNotBlank(event));
     }
 
-    @Test
-    public void testSyncEnrol() throws Exception {
-        BatchEnrolmentSyncManager mgr = PowerMockito.spy(new BatchEnrolmentSyncManager());
-        PowerMockito.mockStatic(KafkaClient.class);
-        PowerMockito.doNothing().when(KafkaClient.class, "send", Mockito.anyString(), Mockito.anyString());
-        Row row = PowerMockito.mock(Row.class);
-        PowerMockito.doReturn(Arrays.asList(row)).when(mgr).readEnrolment("user-1", "batch-1");
-        PowerMockito.when(row.getString("[json]")).thenReturn("{\"batchid\":\"batch-1\",\"courseid\":\"course-1\",\"userid\":\"user-1\"}");
-        mgr.syncEnrol("user-1", "batch-1");
-    }
 }
