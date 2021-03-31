@@ -175,7 +175,8 @@
           "range": [
             "Student",
             "Teacher",
-            "Admin"
+            "Administrator",
+            "Parent"
           ],
           "defaultValue": "Student",
           "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
