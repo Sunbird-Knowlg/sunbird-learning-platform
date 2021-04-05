@@ -385,3 +385,44 @@ enrolment-reconciliation:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+
+
+asset-enrichment:
+  asset-enrichment: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.learning.job.request
+      groupId = {{ env_name }}-asset-enrichment-group
+      video_stream.topic = {{ env_name }}.content.postpublish.request
+    }
+    task {
+      consumer.parallelism = {{ asset_enrichment_consumer_parallelism }}
+      router.parallelism = {{ asset_enrichment_router_parallelism }}
+      imageEnrichment.parallelism = {{ image_enrichment_parallelism }}
+      videoEnrichment.parallelism = {{ video_enrichment_parallelism }}
+    }
+    content {
+      stream {
+        enabled = true
+        mimeType = ["video/mp4", "video/webm"]
+      }
+      youtube {
+        applicationName = "fetch-youtube-license"
+        regexPattern = ["\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)", "^([A-Za-z0-9\\-\\_]*)"]
+      }
+      upload.context.driven = true
+      max.iteration.count = 2
+    }
+    thumbnail.max {
+      sample = 5
+      size.pixel = 150
+    }
+    content_youtube_apikey="{{ youtube_api_key }}"
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['asset-enrichment'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['asset-enrichment'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['asset-enrichment'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1

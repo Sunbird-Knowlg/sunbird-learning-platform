@@ -32,19 +32,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
-			<artifactId>asset-enrichment</artifactId>
-			<version>0.0.105</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava-jdk5</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.sunbird</groupId>
 			<artifactId>publish-pipeline</artifactId>
             <version>0.0.375</version>
 			<type>tar.gz</type>

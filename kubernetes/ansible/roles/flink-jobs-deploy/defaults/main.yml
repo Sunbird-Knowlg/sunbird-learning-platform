@@ -174,3 +174,9 @@ composite_search_indexer_parallelism: 1
 dialcode_external_indexer_parallelism: 1
 dialcode_metric_indexer_parallelism: 1
 schema_definition_cache_expiry_in_sec: 14400
+
+### Asset Enrichment Related Vars
+asset_enrichment_consumer_parallelism: 1
+asset_enrichment_router_parallelism: 1
+image_enrichment_parallelism: 1
+video_enrichment_parallelism: 1
