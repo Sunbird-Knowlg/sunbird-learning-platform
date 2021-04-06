@@ -1,3 +1,5 @@
+// Scripts to return content count for specific condition 
+
 match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Content'] and n.status in ['Live', 'Unlisted'] and exists(n.board) and exists(n.subject) and exists(n.medium) and exists(n.topic) and exists(n.gradeLevel) and not exists(n.se_boards) AND not exists(n.se_subjects) and not exists(n.se_mediums) and not exists(n.se_gradeLevels) and not exists(n.se_topics) return count(n);
 
 match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Content'] and n.status in ['Live', 'Unlisted'] and exists(n.board) and exists(n.subject) and exists(n.medium) and exists(n.gradeLevel) and not exists(n.se_boards) AND not exists(n.se_subjects) and not exists(n.se_mediums) and not exists(n.se_gradeLevels) return count(n);
@@ -24,29 +26,7 @@ match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Content'] and n.status in ['Li
 
 match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Content'] and n.status in ['Live', 'Unlisted'] and exists(n.topic) and not exists(n.se_topics) return count(n);
 
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.board) and exists(n.subject) and exists(n.medium) and exists(n.topic) and exists(n.gradeLevel) and not exists(n.se_boards) AND not exists(n.se_subjects) and not exists(n.se_mediums) and not exists(n.se_gradeLevels) and not exists(n.se_topics) return count(n);
-
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.board) and exists(n.subject) and exists(n.medium) and exists(n.gradeLevel) and not exists(n.se_boards) AND not exists(n.se_subjects) and not exists(n.se_mediums) and not exists(n.se_gradeLevels) return count(n);
-
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.board) and exists(n.subject) and exists(n.gradeLevel) and not exists(n.se_boards) AND not exists(n.se_subjects) and not exists(n.se_gradeLevels) return count(n);
-
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.subject) and exists(n.medium) and exists(n.topic) and exists(n.gradeLevel) AND not exists(n.se_subjects) and not exists(n.se_mediums) and not exists(n.se_gradeLevels) and not exists(n.se_topics) return count(n);
-
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.subject) and exists(n.medium) and exists(n.gradeLevel) AND not exists(n.se_subjects) and not exists(n.se_mediums) and not exists(n.se_gradeLevels) return count(n);
-
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.subject) and exists(n.gradeLevel) AND not exists(n.se_subjects) and not exists(n.se_gradeLevels) return count(n);
-
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.medium) and exists(n.gradeLevel) AND not exists(n.se_mediums) and not exists(n.se_gradeLevels) return count(n);
-
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.board) and not exists(n.se_boards) return count(n);
-
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.subject) and not exists(n.se_subjects) return count(n);
-
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.medium) and not exists(n.se_mediums) return count(n);
-
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.gradeLevel) and not exists(n.se_gradeLevels) return count(n);
-
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.topic) and not exists(n.se_topics) return count(n);
+// Scripts to set content metadata for org and target framework based on specific condition.
 
 match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Content'] and n.status in ['Live', 'Unlisted'] and exists(n.board) and exists(n.subject) and exists(n.medium) and exists(n.topic) and exists(n.gradeLevel) and not exists(n.se_boards) AND not exists(n.se_subjects) and not exists(n.se_mediums) and not exists(n.se_gradeLevels) and not exists(n.se_topics) set n.se_boards=[n.board], n.se_subjects=n.subject, n.se_mediums=n.medium, n.se_gradeLevels=n.gradeLevel, n.se_topics=n.topic;
 
@@ -73,6 +53,36 @@ match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Content'] and n.status in ['Li
 match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Content'] and n.status in ['Live', 'Unlisted'] and exists(n.gradeLevel) and not exists(n.se_gradeLevels) set n.se_gradeLevels=n.gradeLevel;
 
 match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Content'] and n.status in ['Live', 'Unlisted'] and exists(n.topic) and not exists(n.se_topics) set n.se_topics=n.topic;
+
+
+
+// Scripts to return collection (non Course) count for specific condition 
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.board) and exists(n.subject) and exists(n.medium) and exists(n.topic) and exists(n.gradeLevel) and not exists(n.se_boards) AND not exists(n.se_subjects) and not exists(n.se_mediums) and not exists(n.se_gradeLevels) and not exists(n.se_topics) return count(n);
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.board) and exists(n.subject) and exists(n.medium) and exists(n.gradeLevel) and not exists(n.se_boards) AND not exists(n.se_subjects) and not exists(n.se_mediums) and not exists(n.se_gradeLevels) return count(n);
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.board) and exists(n.subject) and exists(n.gradeLevel) and not exists(n.se_boards) AND not exists(n.se_subjects) and not exists(n.se_gradeLevels) return count(n);
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.subject) and exists(n.medium) and exists(n.topic) and exists(n.gradeLevel) AND not exists(n.se_subjects) and not exists(n.se_mediums) and not exists(n.se_gradeLevels) and not exists(n.se_topics) return count(n);
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.subject) and exists(n.medium) and exists(n.gradeLevel) AND not exists(n.se_subjects) and not exists(n.se_mediums) and not exists(n.se_gradeLevels) return count(n);
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.subject) and exists(n.gradeLevel) AND not exists(n.se_subjects) and not exists(n.se_gradeLevels) return count(n);
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.medium) and exists(n.gradeLevel) AND not exists(n.se_mediums) and not exists(n.se_gradeLevels) return count(n);
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.board) and not exists(n.se_boards) return count(n);
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.subject) and not exists(n.se_subjects) return count(n);
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.medium) and not exists(n.se_mediums) return count(n);
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.gradeLevel) and not exists(n.se_gradeLevels) return count(n);
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.topic) and not exists(n.se_topics) return count(n);
+
+// Scripts to set collection (non Course) metadata for org and target framework based on specific condition.
 
 match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.board) and exists(n.subject) and exists(n.medium) and exists(n.topic) and exists(n.gradeLevel) and not exists(n.se_boards) AND not exists(n.se_subjects) and not exists(n.se_mediums) and not exists(n.se_gradeLevels) and not exists(n.se_topics) set n.se_boards=[n.board], n.se_subjects=n.subject, n.se_mediums=n.medium, n.se_gradeLevels=n.gradeLevel, n.se_topics=n.topic;
 
