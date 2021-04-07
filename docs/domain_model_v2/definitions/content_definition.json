@@ -3012,6 +3012,19 @@
           "draft": false
         },
         {
+            "required": false,
+            "dataType": "JSON",
+            "propertyName": "discussionForum",
+            "title": "DiscussionForum",
+            "description": "DiscussionForum",
+            "category": "General",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'textarea', 'order': 10 }",
+            "indexed": true,
+            "draft": false
+        },
+        {
           "required": true,
           "dataType": "Text",
           "propertyName": "primaryCategory",
