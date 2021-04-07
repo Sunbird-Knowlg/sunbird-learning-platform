@@ -430,3 +430,28 @@ asset-enrichment:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+
+
+audit-history-indexer:
+  audit-history-indexer: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.learning.graph.events"
+      groupId = "{{ env_name }}-audit-history-indexer-group"
+    }
+
+    task {
+      consumer.parallelism = {{ audit_history_indexer_consumer_parallelism }}
+      parallelism = {{ audit_history_indexer_parallelism }}
+      window.time = 60
+    }
+
+    timezone = "IST"
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['audit-history-indexer'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['audit-history-indexer'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['audit-history-indexer'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
