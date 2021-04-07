@@ -107,3 +107,11 @@ match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType
 match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.gradeLevel) and not exists(n.se_gradeLevels) set n.se_gradeLevels=n.gradeLevel;
 
 match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection'] and n.contentType<>'Course' and n.status in ['Live', 'Unlisted'] and exists(n.topic) and not exists(n.se_topics) set n.se_topics=n.topic;
+
+// Scripts to return collection count where objectType exists
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection', 'CollectionImage'] and exists(n.objectType) return n.objectType, count(n);
+
+// Scripts to nullify objectType value for collection objects
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection', 'CollectionImage'] and exists(n.objectType) set n.objectType=null;
