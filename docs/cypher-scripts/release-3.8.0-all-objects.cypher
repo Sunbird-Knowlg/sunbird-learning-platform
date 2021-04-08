@@ -114,4 +114,4 @@ match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection', 'CollectionImage'
 
 // Scripts to nullify objectType value for collection objects
 
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection', 'CollectionImage'] and exists(n.objectType) set n.objectType=null;
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection', 'CollectionImage'] and exists(n.objectType) remove n.objectType;
