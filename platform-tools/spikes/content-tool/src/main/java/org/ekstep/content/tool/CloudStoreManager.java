@@ -252,6 +252,8 @@ public class CloudStoreManager {
             return azureService;
         }else if(StringUtils.equalsIgnoreCase(cloudStoreType, "aws")) {
             return awsService;
+        }else if(StringUtils.equalsIgnoreCase(cloudStoreType, "cephs3")) {
+            return cephService;
         }else {
             throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while getting container name");
         }
