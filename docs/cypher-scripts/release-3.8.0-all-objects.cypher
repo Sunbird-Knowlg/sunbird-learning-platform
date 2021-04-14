@@ -123,6 +123,6 @@ match (n:domain) where n.IL_FUNC_OBJECT_TYPE='Framework' and not exists (n.syste
 match (n:domain) where n.IL_FUNC_OBJECT_TYPE='Framework' and not exists (n.systemDefault) set n.systemDefault = 'No';
 
 // Scripts to set compatibilityLevel=5 for all QuestionSet
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE='QuestionSet' and exists(n.compatibilityLevel) return n.compatibilityLevel, count(n.compatibilityLevel);
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['QuestionSet', 'QuestionSetImage'] and exists(n.compatibilityLevel) return n.compatibilityLevel, count(n.compatibilityLevel);
 
-match (n:domain) where n.IL_FUNC_OBJECT_TYPE='QuestionSet' and exists(n.compatibilityLevel) set n.compatibilityLevel=5;
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['QuestionSet', 'QuestionSetImage'] and exists(n.compatibilityLevel) set n.compatibilityLevel=5;
