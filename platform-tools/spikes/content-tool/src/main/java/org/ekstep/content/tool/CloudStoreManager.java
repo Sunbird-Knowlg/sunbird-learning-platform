@@ -22,8 +22,9 @@ public class CloudStoreManager {
 
     protected String destStorageType = Platform.config.getString("destination.storage_type");
 
-    protected BaseStorageService awsService = StorageServiceFactory.getStorageService(new StorageConfig("aws", Platform.config.getString("aws_storage_key"), Platform.config.getString("aws_storage_secret")));
-    protected BaseStorageService azureService = StorageServiceFactory.getStorageService((new StorageConfig("azure", Platform.config.getString("azure_storage_key"), Platform.config.getString("azure_storage_secret"))));
+    protected BaseStorageService awsService = StorageServiceFactory.getStorageService(new StorageConfig("aws", Platform.config.getString("aws_storage_key"), Platform.config.getString("aws_storage_secret"), Option.empty()));
+    protected BaseStorageService azureService = StorageServiceFactory.getStorageService((new StorageConfig("azure", Platform.config.getString("azure_storage_key"), Platform.config.getString("azure_storage_secret"), Option.empty())));
+    protected BaseStorageService cephService = StorageServiceFactory.getStorageService((new StorageConfig("cephs3", Platform.config.getString("cephs3_storage_key"), Platform.config.getString("cephs3_storage_secret"), Option.apply(Platform.config.getString("cephs3_storage_endpoint")))));
     private String cloudSrcBaseURL = Platform.config.getString("cloud.src.baseurl");
     private String cloudDestBaseURL = Platform.config.getString("cloud.dest.baseurl");
 
@@ -239,6 +240,8 @@ public class CloudStoreManager {
             return Platform.config.getString("azure_storage_container");
         }else if(StringUtils.equalsIgnoreCase(cloudStoreType, "aws")) {
             return Platform.config.getString("aws_storage_container");
+        }else if(StringUtils.equalsIgnoreCase(cloudStoreType, "cephs3")) {
+            return Platform.config.getString("cephs3_storage_container");
         }else {
             throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while getting container name");
         }
