@@ -93,3 +93,5 @@ CREATE TABLE IF NOT EXISTS {{ hierarchy_keyspace_name }}.questionset_hierarchy (
   hierarchy text,
   PRIMARY KEY (identifier)
 );
+
+ALTER TABLE {{ hierarchy_keyspace_name }}.questionset_hierarchy ADD instructions text;
