@@ -33,13 +33,6 @@ node() {
             sh 'mvn clean install -DskipTests -P ${profile_id} -T10'
         }
 
-        stage('Post-Build') {
-            sh """
-                        cd searchIndex-platform/module/search-api/search-manager
-                        mvn play2:dist
-                     """
-        }
-
         stage('Post_Build-Action') {
             jacoco exclusionPattern: '**/common/**,**/dto/**,**/enums/**,**/pipeline/**,**/servlet/**,**/interceptor/**,**/batch/**,**/models/**,**/model/**,**/EnrichActor*.class,**/language/controller/**,**/wordchain/**,**/importer/**,**/Base**,**/ControllerUtil**,**/Indowordnet**,**/Import**'
 
