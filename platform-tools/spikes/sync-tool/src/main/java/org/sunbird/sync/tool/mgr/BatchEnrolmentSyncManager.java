@@ -367,7 +367,7 @@ public class BatchEnrolmentSyncManager {
     }
     
     public String getDate(String columnName, String oldColumnName, Row row) {
-        if(null != row.getDate(columnName)) {
+        if(null != row.getTimestamp(columnName)) {
             return dateFormat.format(columnName);
         } else {
             return row.getString(oldColumnName);
