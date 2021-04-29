@@ -131,6 +131,9 @@ activity-aggregate-updater:
       filter.processed.enrolments = {{ activity_agg_enrolment_filter_processe_enabled | lower }}
       collection.status.cache.expiry = {{ activity_agg_collection_status_cache_expiry_time }}
     }
+    service {
+      search.basePath = "{{ kp_search_service_base_url }}"
+    }
 
 
   flink-conf: |+
