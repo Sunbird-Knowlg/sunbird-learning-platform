@@ -128,8 +128,11 @@ activity-aggregate-updater:
     activity {
       module.aggs.enabled = true
       input.dedup.enabled = true
-      filter.processed.enrolments = {{ activity_agg_enrolment_filter_processe_enabled }}
+      filter.processed.enrolments = {{ activity_agg_enrolment_filter_processe_enabled | lower }}
       collection.status.cache.expiry = {{ activity_agg_collection_status_cache_expiry_time }}
+    }
+    service {
+      search.basePath = "{{ kp_search_service_base_url }}"
     }
 
 
@@ -328,9 +331,10 @@ search-indexer:
     dialcode.index.name = "dialcode"
     dailcodemetrics.index.name = "dialcodemetrics"
     restrict.metadata.objectTypes = []
-    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials"]
+    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions"]
     schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_sec }}
     restrict.objectTypes = ["EventSet", "Questionnaire", "Misconception", "FrameworkType", "EventSetImage", "Event", "EventImage"]
+    ignored.fields=["responseDeclaration", "body","lastStatusChangedOn", "SYS_INTERNAL_LAST_UPDATED_ON", "sYS_INTERNAL_LAST_UPDATED_ON"]
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['search-indexer'].jobmanager_memory }}
@@ -382,6 +386,76 @@ enrolment-reconciliation:
     jobmanager.memory.flink.size: {{ flink_job_names['enrolment-reconciliation'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['enrolment-reconciliation'].taskmanager_memory }}
     taskmanager.numberOfTaskSlots: {{ flink_job_names['enrolment-reconciliation'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+
+asset-enrichment:
+  asset-enrichment: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.learning.job.request
+      groupId = {{ env_name }}-asset-enrichment-group
+      video_stream.topic = {{ env_name }}.content.postpublish.request
+    }
+    task {
+      consumer.parallelism = {{ asset_enrichment_consumer_parallelism }}
+      router.parallelism = {{ asset_enrichment_router_parallelism }}
+      imageEnrichment.parallelism = {{ image_enrichment_parallelism }}
+      videoEnrichment.parallelism = {{ video_enrichment_parallelism }}
+    }
+    content {
+      stream {
+        enabled = true
+        mimeType = ["video/mp4", "video/webm"]
+      }
+      youtube {
+        applicationName = "fetch-youtube-license"
+        regexPattern = ["\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)", "^([A-Za-z0-9\\-\\_]*)"]
+      }
+      upload.context.driven = true
+      max.iteration.count = 2
+    }
+    thumbnail.max {
+      sample = 5
+      size.pixel = 150
+    }
+    content_youtube_apikey="{{ youtube_api_key }}"
+    cloud_storage_type="{{ cloud_store }}"
+    azure_storage_key="{{ sunbird_public_storage_account_name }}"
+    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
+    azure_storage_container="{{ azure_public_container }}"
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['asset-enrichment'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['asset-enrichment'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['asset-enrichment'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+
+audit-history-indexer:
+  audit-history-indexer: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.learning.graph.events"
+      groupId = "{{ env_name }}-audit-history-indexer-group"
+    }
+
+    task {
+      consumer.parallelism = {{ audit_history_indexer_consumer_parallelism }}
+      parallelism = {{ audit_history_indexer_parallelism }}
+      window.time = 60
+    }
+
+    timezone = "IST"
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['audit-history-indexer'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['audit-history-indexer'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['audit-history-indexer'].taskslots }}
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1

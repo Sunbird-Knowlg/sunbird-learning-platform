@@ -95,7 +95,9 @@
           "displayProperty": "Editable",
           "range": [
             "Default",
-            "Parent"
+            "Parent",
+            "Private",
+            "Protected"
           ],
           "defaultValue": "Default",
           "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
@@ -175,7 +177,8 @@
           "range": [
             "Student",
             "Teacher",
-            "Admin"
+            "Administrator",
+            "Parent"
           ],
           "defaultValue": "Student",
           "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",

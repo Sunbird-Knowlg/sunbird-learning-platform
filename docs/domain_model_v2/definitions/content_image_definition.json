@@ -146,7 +146,9 @@
           "displayProperty": "Editable",
           "range": [
             "Default",
-            "Parent"
+            "Parent",
+            "Private",
+            "Protected"
           ],
           "defaultValue": "Default",
           "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
@@ -164,7 +166,8 @@
           "range": [
             "Student",
             "Teacher",
-            "Administrator"
+            "Administrator",
+            "Parent"
           ],
           "defaultValue": "Student",
           "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
@@ -3010,6 +3013,19 @@
           "renderingHints": "{ 'inputType': 'textarea', 'order': 10 }",
           "indexed": true,
           "draft": false
+        },
+        {
+            "required": false,
+            "dataType": "JSON",
+            "propertyName": "discussionForum",
+            "title": "DiscussionForum",
+            "description": "DiscussionForum",
+            "category": "General",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'textarea', 'order': 10 }",
+            "indexed": true,
+            "draft": false
         },
         {
           "required": true,

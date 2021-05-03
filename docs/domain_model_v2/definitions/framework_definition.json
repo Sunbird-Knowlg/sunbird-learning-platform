@@ -194,6 +194,22 @@
           "defaultValue": "",
           "indexed": true,
           "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Select",
+          "propertyName": "systemDefault",
+          "title": "System Default",
+          "description": "System Default value",
+          "category": "General",
+          "displayProperty": "Editable",
+          "range": [
+            "Yes",
+            "No"
+          ],
+          "defaultValue": "No",
+          "renderingHints": "",
+          "indexed": true
         }
       ],
       "inRelations":[
