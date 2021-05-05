@@ -198,3 +198,5 @@ video_enrichment_parallelism: 1
 ### Audit history indexer Related Vars
 audit_history_indexer_consumer_parallelism: 1
 audit_history_indexer_parallelism: 1
+
+service_monitor_enabled: true

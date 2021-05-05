@@ -5,6 +5,8 @@ repository: {{flink_repository|default('knowledge-platform-jobs')}}
 image_tag: {{ image_tag }}
 azure_account: {{ azure_account }}
 azure_secret: {{ azure_secret }}
+serviceMonitor:
+  enabled: {{ service_monitor_enabled | lower}}
 
 replicaCount: {{taskmana_replicacount|default(1)}}
 
