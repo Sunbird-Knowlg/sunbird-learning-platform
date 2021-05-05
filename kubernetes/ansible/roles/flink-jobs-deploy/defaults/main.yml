@@ -198,3 +198,9 @@ video_enrichment_parallelism: 1
 ### Audit history indexer Related Vars
 audit_history_indexer_consumer_parallelism: 1
 audit_history_indexer_parallelism: 1
+
+service_monitor_enabled: true
+
+### controlling the flink jobs log level
+flink_jobs_console_log_level: INFO
+flink_libraries_log_level: ERROR
