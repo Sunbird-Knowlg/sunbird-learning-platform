@@ -84,6 +84,7 @@ spec:
         component: {{ .Release.Name }}-jobmanager
       annotations:
         prometheus.io/scrape: 'true'
+        prometheus.io/port: "{{ .Values.jobmanager.prom_port }}"
     spec:
       volumes:
       - name: flink-config-volume
