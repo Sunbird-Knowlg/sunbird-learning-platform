@@ -128,10 +128,12 @@ activity-aggregate-updater:
     activity {
       module.aggs.enabled = true
       input.dedup.enabled = true
-      filter.processed.enrolments = {{ activity_agg_enrolment_filter_processe_enabled }}
+      filter.processed.enrolments = {{ activity_agg_enrolment_filter_processe_enabled | lower }}
       collection.status.cache.expiry = {{ activity_agg_collection_status_cache_expiry_time }}
     }
-
+    service {
+      search.basePath = "{{ kp_search_service_base_url }}"
+    }
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['activity-aggregate-updater'].jobmanager_memory }}
