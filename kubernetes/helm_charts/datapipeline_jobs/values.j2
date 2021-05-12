@@ -267,9 +267,6 @@ video-stream-generator:
       host = {{ dp_cassandra_connection_ip }}
       port = "9042"
     }
-    threshold.batch.read.interval = {{ activity_agg_batch_interval }}
-    threshold.batch.read.size = {{ activity_agg_batch_read_size }}
-    threshold.batch.write.size = {{ activity_agg_batch_write_size }}
     service.learning.basePath="{{lp_url}}"
     azure {
       location = "centralindia"
