@@ -256,7 +256,6 @@ video-stream-generator:
       groupId = "{{ env_name }}-video-stream-generator-group"
     }
     task {
-      window.shards = {{ activity_agg_window_shards }}
       timer.duration = 60
       consumer.parallelism = {{ vide_stream_generator_consumer_parallelism }}
       parallelism = {{ vide_stream_generator_parallelism }}
