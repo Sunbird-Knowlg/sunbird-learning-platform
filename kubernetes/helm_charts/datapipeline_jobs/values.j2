@@ -363,7 +363,7 @@ search-indexer:
     nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions"]
     schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_sec }}
     restrict.objectTypes = ["EventSet", "Questionnaire", "Misconception", "FrameworkType", "EventSetImage", "Event", "EventImage"]
-    ignored.fields=["responseDeclaration", "body","lastStatusChangedOn", "SYS_INTERNAL_LAST_UPDATED_ON", "sYS_INTERNAL_LAST_UPDATED_ON"]
+    ignored.fields={{ search_indexer_ignored_fields | to_json }}
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['search-indexer'].jobmanager_memory }}
