@@ -260,6 +260,7 @@ video-stream-generator:
       timer.duration = 60
       consumer.parallelism = {{ vide_stream_generator_consumer_parallelism }}
       parallelism = {{ vide_stream_generator_parallelism }}
+      max.retries = 10
     }
     dp-cassandra {
       keyspace = "{{ env_name }}_platform_db"
