@@ -98,7 +98,7 @@ azure_token_client_secret: "{{ media_service_azure_token_client_secret | default
 dp_cassandra_connection_ip: "{{ groups['dp-cassandra'][0] }}"
 vide_stream_generator_consumer_parallelism: 1
 vide_stream_generator_parallelism: 1
-vide_stream_generator_timer_duration: 10
+vide_stream_generator_timer_duration: 60
 vide_stream_generator_max_retries: 10
 
 ### Enrolment Reconciliation
