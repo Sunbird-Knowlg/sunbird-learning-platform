@@ -206,3 +206,5 @@ service_monitor_enabled: true
 ### controlling the flink jobs log level
 flink_jobs_console_log_level: INFO
 flink_libraries_log_level: ERROR
+
+search_indexer_ignored_fields: ["responseDeclaration", "body", "options", "lastStatusChangedOn", "SYS_INTERNAL_LAST_UPDATED_ON", "sYS_INTERNAL_LAST_UPDATED_ON"]
