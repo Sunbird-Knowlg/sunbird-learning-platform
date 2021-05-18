@@ -262,7 +262,7 @@ video-stream-generator:
       max.retries = {{ vide_stream_generator_max_retries }}
     }
     dp-cassandra {
-      keyspace = "{{ env_name }}_platform_db"
+      keyspace = {{ platform_keyspace_name }}
       table = "job_request"
       host = {{ dp_cassandra_connection_ip }}
       port = "9042"
