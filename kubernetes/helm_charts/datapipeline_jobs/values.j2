@@ -282,7 +282,6 @@ questionset-publish:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
-
 video-stream-generator:
   video-stream-generator: |+
     include file("/data/flink/conf/base-config.conf")
@@ -338,8 +337,6 @@ video-stream-generator:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
-
-
 
 search-indexer:
   search-indexer: |+
@@ -419,7 +416,6 @@ enrolment-reconciliation:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
-
 asset-enrichment:
   asset-enrichment: |+
     include file("/data/flink/conf/base-config.conf")
@@ -464,7 +460,6 @@ asset-enrichment:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
-
 audit-history-indexer:
   audit-history-indexer: |+
     include file("/data/flink/conf/base-config.conf")
@@ -485,6 +480,38 @@ audit-history-indexer:
     jobmanager.memory.flink.size: {{ flink_job_names['audit-history-indexer'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['audit-history-indexer'].taskmanager_memory }}
     taskmanager.numberOfTaskSlots: {{ flink_job_names['audit-history-indexer'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+auto-creator-v2:
+  auto-creator-v2: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.learning.graph.events"
+      groupId = "{{ env_name }}-auto-creator-v2-group"
+    }
+
+    task {
+      consumer.parallelism = {{ auto_creator_v2_consumer_parallelism }}
+      parallelism = {{ auto_creator_v2_parallelism }}
+      window.time = 60
+    }
+
+    question {
+      keyspace = "{{ assessment_keyspace_name }}"
+    }
+    questionset {
+      keyspace = "{{ hierarchy_keyspace_name }}"
+    }
+    service {
+      content.basePath = "{{ kp_content_service_base_url }}"
+    }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['auto-creator-v2'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['auto-creator-v2'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['auto-creator-v2'].taskslots }}
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
