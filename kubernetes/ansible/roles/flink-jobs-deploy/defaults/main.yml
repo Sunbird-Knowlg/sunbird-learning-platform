@@ -197,6 +197,7 @@ composite_search_indexer_parallelism: 1
 dialcode_external_indexer_parallelism: 1
 dialcode_metric_indexer_parallelism: 1
 schema_definition_cache_expiry_in_sec: 14400
+search_indexer_ignored_fields: ["responseDeclaration", "body", "options", "lastStatusChangedOn", "SYS_INTERNAL_LAST_UPDATED_ON", "sYS_INTERNAL_LAST_UPDATED_ON"]
 
 ### Asset Enrichment Related Vars
 asset_enrichment_consumer_parallelism: 1
@@ -208,10 +209,13 @@ video_enrichment_parallelism: 1
 audit_history_indexer_consumer_parallelism: 1
 audit_history_indexer_parallelism: 1
 
+### Auto Creator V2 Related Vars
+auto_creator_v2_consumer_parallelism: 1
+auto_creator_v2_parallelism: 1
+
 service_monitor_enabled: true
 
 ### controlling the flink jobs log level
 flink_jobs_console_log_level: INFO
 flink_libraries_log_level: ERROR
 
-search_indexer_ignored_fields: ["responseDeclaration", "body", "options", "lastStatusChangedOn", "SYS_INTERNAL_LAST_UPDATED_ON", "sYS_INTERNAL_LAST_UPDATED_ON"]

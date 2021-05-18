@@ -488,7 +488,7 @@ auto-creator-v2:
   auto-creator-v2: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = "{{ env_name }}.learning.graph.events"
+      input.topic = "{{ env_name }}.object.import.request"
       groupId = "{{ env_name }}-auto-creator-v2-group"
     }
 
