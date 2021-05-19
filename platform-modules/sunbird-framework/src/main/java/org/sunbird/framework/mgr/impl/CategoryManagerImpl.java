@@ -7,6 +7,7 @@ import org.sunbird.common.dto.Response;
 import org.sunbird.common.exception.ClientException;
 import org.sunbird.framework.enums.CategoryEnum;
 import org.sunbird.framework.mgr.ICategoryManager;
+import org.sunbird.graph.cache.util.RedisStoreUtil;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,6 +29,7 @@ public class CategoryManagerImpl extends BaseFrameworkManager implements ICatego
 		if (null == code || StringUtils.isBlank(code))
 			throw new ClientException("ERR_CATEGORY_CODE_REQUIRED", "Unique code is mandatory for category");
 		request.put("identifier", code);
+		RedisStoreUtil.delete("masterCategories");
 		return create(request, CATEGORY_OBJECT_TYPE);
 	}
 	
@@ -42,6 +44,7 @@ public class CategoryManagerImpl extends BaseFrameworkManager implements ICatego
 			throw new ClientException("ERR_INVALID_CATEGORY_OBJECT", "Invalid Request");
 		if (map.containsKey("code"))
 			throw new ClientException("ERR_CATEGORY_UPDATE", "code updation is not allowed.");
+		RedisStoreUtil.delete("masterCategories");
 		return update(categoryId, CATEGORY_OBJECT_TYPE, map);
 
 	}
@@ -55,6 +58,7 @@ public class CategoryManagerImpl extends BaseFrameworkManager implements ICatego
 
 	@Override
 	public Response retireCategory(String categoryId) {
+		RedisStoreUtil.delete("masterCategories");
 		return retire(categoryId, CATEGORY_OBJECT_TYPE);
 	}
 
