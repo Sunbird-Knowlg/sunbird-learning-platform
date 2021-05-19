@@ -95,6 +95,7 @@ azure_account_name: "{{ media_service_azure_account_name | default('') }}"
 azure_resource_group_name: "{{ media_service_azure_resource_group_name | default('') }}"
 azure_token_client_key: "{{ media_service_azure_token_client_key | default('') }}"
 azure_token_client_secret: "{{ media_service_azure_token_client_secret | default('') }}"
+azure_stream_base_url: "{{ stream_base_url | default('') }}"
 dp_cassandra_connection_ip: "{{ groups['dp-cassandra'][0] }}"
 vide_stream_generator_consumer_parallelism: 1
 vide_stream_generator_parallelism: 1

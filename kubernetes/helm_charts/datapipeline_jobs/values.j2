@@ -282,7 +282,7 @@ video-stream-generator:
         hls = "media_transform_hls"
       }
       stream {
-        base_url = "https://sunbirdspikemedia-inct.streaming.media.azure.net"
+        base_url="{{ azure_stream_base_url }}"
         endpoint_name = "default"
         protocol = "Hls"
         policy_name = "Predefined_ClearStreamingOnly"
