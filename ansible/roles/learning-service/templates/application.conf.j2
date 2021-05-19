@@ -62,41 +62,6 @@ LearningActorSystem {
           throughput = 1
       }
       deployment {
-        /SearchManager 
-        {
-          router = smallest-mailbox-pool
-          nr-of-instances = 5
-        }
-        /HealthCheckManager
-        {
-          router = smallest-mailbox-pool
-                  nr-of-instances = 5
-        }
-      }
-    }
-  }
-}
-
-LanguageActorSystem {
-  akka {
-    actor {
-      default-dispatcher {
-        type = "Dispatcher"
-        executor = "fork-join-executor"
-        fork-join-executor {
-          parallelism-min = 1
-          parallelism-factor = 2.0
-          parallelism-max = 4
-        }
-        # Throughput for default Dispatcher, set to 1 for as fair as possible
-        throughput = 1
-      }
-      deployment {
-        /SearchManager 
-        {
-          router = smallest-mailbox-pool
-          nr-of-instances = 5
-        }
         /HealthCheckManager
         {
           router = smallest-mailbox-pool
@@ -239,7 +204,6 @@ installation.id="{{ instance_name }}"
 # Configuration for DIALCode linking
 learning.content.link_dialcode_validation=true
 dialcode.api.search.url="{{ dial_service_search_url }}"
-dialcode.api.authorization="{{ dial_service_authorization }}"
 dialcode.api.generate.url="{{dial_service_generate_url}}"
 
 # Configuration for default channel ID
