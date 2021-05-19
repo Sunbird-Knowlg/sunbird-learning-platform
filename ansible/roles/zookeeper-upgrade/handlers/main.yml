@@ -1,3 +1,0 @@
----
-- name: Restart zookeeper
-  service: name=zookeeper state=restarted

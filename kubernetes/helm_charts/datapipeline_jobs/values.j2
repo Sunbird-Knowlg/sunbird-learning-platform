@@ -5,6 +5,8 @@ repository: {{flink_repository|default('knowledge-platform-jobs')}}
 image_tag: {{ image_tag }}
 azure_account: {{ azure_account }}
 azure_secret: {{ azure_secret }}
+serviceMonitor:
+  enabled: {{ service_monitor_enabled | lower}}
 
 replicaCount: {{taskmana_replicacount|default(1)}}
 
@@ -30,6 +32,36 @@ taskmanager:
 job_classname: {{ job_classname }}
 {{ taskmanager_liveness | to_nice_yaml }}
 
+log4j_console_properties: |
+  # This affects logging for both user code and Flink
+  rootLogger.level = {{ flink_jobs_console_log_level | default(INFO) }}
+  rootLogger.appenderRef.console.ref = ConsoleAppender
+
+  # Uncomment this if you want to _only_ change Flink's logging
+  #logger.flink.name = org.apache.flink
+  #logger.flink.level = {{ flink_jobs_console_log_level | default(INFO) }}
+
+  # The following lines keep the log level of common libraries/connectors on
+  # log level INFO. The root logger does not override this. You have to manually
+  # change the log levels here.
+  logger.akka.name = akka
+  logger.akka.level = {{ flink_libraries_log_level | default(INFO) }}
+  logger.kafka.name= org.apache.kafka
+  logger.kafka.level = {{ flink_libraries_log_level | default(INFO) }}
+  logger.hadoop.name = org.apache.hadoop
+  logger.hadoop.level = {{ flink_libraries_log_level | default(INFO) }}
+  logger.zookeeper.name = org.apache.zookeeper
+  logger.zookeeper.level = {{ flink_libraries_log_level | default(INFO) }}
+
+  # Log all infos to the console
+  appender.console.name = ConsoleAppender
+  appender.console.type = CONSOLE
+  appender.console.layout.type = PatternLayout
+  appender.console.layout.pattern = %d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %-60c %x - %m%n
+
+  # Suppress the irrelevant (wrong) warnings from the Netty channel handler
+  logger.netty.name = org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline
+  logger.netty.level = OFF
 
 base_config: |
   kafka {
@@ -250,7 +282,6 @@ questionset-publish:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
-
 video-stream-generator:
   video-stream-generator: |+
     include file("/data/flink/conf/base-config.conf")
@@ -259,10 +290,10 @@ video-stream-generator:
       groupId = "{{ env_name }}-video-stream-generator-group"
     }
     task {
-      window.shards = {{ activity_agg_window_shards }}
-      timer.duration = 60
+      timer.duration = {{ vide_stream_generator_timer_duration }}
       consumer.parallelism = {{ vide_stream_generator_consumer_parallelism }}
       parallelism = {{ vide_stream_generator_parallelism }}
+      max.retries = {{ vide_stream_generator_max_retries }}
     }
     dp-cassandra {
       keyspace = "{{ env_name }}_platform_db"
@@ -270,9 +301,6 @@ video-stream-generator:
       host = {{ dp_cassandra_connection_ip }}
       port = "9042"
     }
-    threshold.batch.read.interval = {{ activity_agg_batch_interval }}
-    threshold.batch.read.size = {{ activity_agg_batch_read_size }}
-    threshold.batch.write.size = {{ activity_agg_batch_write_size }}
     service.learning.basePath="{{lp_url}}"
     azure {
       location = "centralindia"
@@ -310,8 +338,6 @@ video-stream-generator:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
-
-
 search-indexer:
   search-indexer: |+
     include file("/data/flink/conf/base-config.conf")
@@ -334,7 +360,7 @@ search-indexer:
     nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions"]
     schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_sec }}
     restrict.objectTypes = ["EventSet", "Questionnaire", "Misconception", "FrameworkType", "EventSetImage", "Event", "EventImage"]
-    ignored.fields=["responseDeclaration", "body","lastStatusChangedOn", "SYS_INTERNAL_LAST_UPDATED_ON", "sYS_INTERNAL_LAST_UPDATED_ON"]
+    ignored.fields={{ search_indexer_ignored_fields | to_json }}
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['search-indexer'].jobmanager_memory }}
@@ -390,7 +416,6 @@ enrolment-reconciliation:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
-
 asset-enrichment:
   asset-enrichment: |+
     include file("/data/flink/conf/base-config.conf")
@@ -435,7 +460,6 @@ asset-enrichment:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
-
 audit-history-indexer:
   audit-history-indexer: |+
     include file("/data/flink/conf/base-config.conf")
@@ -456,6 +480,42 @@ audit-history-indexer:
     jobmanager.memory.flink.size: {{ flink_job_names['audit-history-indexer'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['audit-history-indexer'].taskmanager_memory }}
     taskmanager.numberOfTaskSlots: {{ flink_job_names['audit-history-indexer'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+auto-creator-v2:
+  auto-creator-v2: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.object.import.request"
+      groupId = "{{ env_name }}-auto-creator-v2-group"
+    }
+
+    task {
+      consumer.parallelism = {{ auto_creator_v2_consumer_parallelism }}
+      parallelism = {{ auto_creator_v2_parallelism }}
+      window.time = 60
+    }
+
+    question {
+      keyspace = "{{ assessment_keyspace_name }}"
+    }
+    questionset {
+      keyspace = "{{ hierarchy_keyspace_name }}"
+    }
+    service {
+      content.basePath = "{{ kp_content_service_base_url }}"
+    }
+    cloud_storage_type="{{ cloud_store }}"
+    azure_storage_key="{{ sunbird_public_storage_account_name }}"
+    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
+    azure_storage_container="{{ azure_public_container }}"
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['auto-creator-v2'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['auto-creator-v2'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['auto-creator-v2'].taskslots }}
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
