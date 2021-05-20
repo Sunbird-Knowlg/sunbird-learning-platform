@@ -127,6 +127,7 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		
 		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
 		DefinitionDTO termDefinition = new ControllerUtil().getDefinition("domain", "Term");
+		DefinitionDTO categoryDefinition = new ControllerUtil().getDefinition("domain", "Category");
 		
 		
 		   
@@ -180,9 +181,62 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		response.put(GraphDACParams.node_list.name(), nodeList);
 		
 		
-		ControllerUtil controllerUtil = PowerMockito.spy(new ControllerUtil());
-		PowerMockito.when(controllerUtil.getDataNodes(Mockito.anyString(), Mockito.anyList())).thenReturn(response);
+		Map<String, Object> categoryMap = new HashMap<>();
+		categoryMap.put("identifier", "board");
+		categoryMap.put("objectType", "Category");
+		categoryMap.put("code", "board");
+		categoryMap.put("orgIdFieldName", "boardIds");
+		categoryMap.put("targetIdFieldName", "targetBoardIds");
+		categoryMap.put("searchIdFieldName", "se_boardIds");
+		categoryMap.put("searchLabelFieldName", "se_boards");
+		Node boardcategory =  ConvertToGraphNode.convertToGraphNode(categoryMap, categoryDefinition, null);
 		
+		categoryMap = new HashMap<>();
+		categoryMap.put("identifier", "medium");
+		categoryMap.put("objectType", "Category");
+		categoryMap.put("code", "medium");
+		categoryMap.put("orgIdFieldName", "mediumIds");
+		categoryMap.put("targetIdFieldName", "targetMediumIds");
+		categoryMap.put("searchIdFieldName", "se_mediumIds");
+		categoryMap.put("searchLabelFieldName", "se_mediums");
+		Node mediumcategory =  ConvertToGraphNode.convertToGraphNode(categoryMap, categoryDefinition, null);
+		
+		categoryMap = new HashMap<>();
+		categoryMap.put("identifier", "subject");
+		categoryMap.put("objectType", "Category");
+		categoryMap.put("code", "subject");
+		categoryMap.put("orgIdFieldName", "subjectIds");
+		categoryMap.put("targetIdFieldName", "targetSubjectIds");
+		categoryMap.put("searchIdFieldName", "se_subjectIds");
+		categoryMap.put("searchLabelFieldName", "se_subjects");
+		Node subjectcategory =  ConvertToGraphNode.convertToGraphNode(categoryMap, categoryDefinition, null);
+		
+		categoryMap = new HashMap<>();
+		categoryMap.put("identifier", "gradeLevel");
+		categoryMap.put("objectType", "Category");
+		categoryMap.put("code", "gradeLevel");
+		categoryMap.put("orgIdFieldName", "gradeLevelIds");
+		categoryMap.put("targetIdFieldName", "targetGradeLevelIds");
+		categoryMap.put("searchIdFieldName", "se_gradeLevelIds");
+		categoryMap.put("searchLabelFieldName", "se_gradeLevels");
+		Node gradeLevelcategory =  ConvertToGraphNode.convertToGraphNode(categoryMap, categoryDefinition, null);
+		
+		categoryMap = new HashMap<>();
+		categoryMap.put("identifier", "topic");
+		categoryMap.put("objectType", "Category");
+		categoryMap.put("code", "topic");
+		categoryMap.put("orgIdFieldName", "topicIds");
+		categoryMap.put("targetIdFieldName", "targetTopicIds");
+		categoryMap.put("searchIdFieldName", "se_topicIds");
+		categoryMap.put("searchLabelFieldName", "se_topics");
+		Node topiccategory =  ConvertToGraphNode.convertToGraphNode(categoryMap, categoryDefinition, null);
+		
+		List<Node> categoryNodeList = Arrays.asList(boardcategory, mediumcategory, subjectcategory, gradeLevelcategory, topiccategory);
+		
+		ControllerUtil controllerUtil = PowerMockito.spy(new ControllerUtil());
+		PowerMockito.when(controllerUtil.getNodes(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())).thenReturn(categoryNodeList);
+		PowerMockito.when(controllerUtil.getDataNodes(Mockito.anyString(), Mockito.anyList())).thenReturn(response);
+	
 		Node contentNode = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
 		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil(controllerUtil);
 		Map<String, List<String>> frameworkMetadata = publishFinalizeUtil.enrichFrameworkMetadata(contentNode);

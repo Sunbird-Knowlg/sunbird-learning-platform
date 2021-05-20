@@ -30,6 +30,7 @@ import org.sunbird.content.entity.Plugin;
 import org.sunbird.content.operation.finalizer.BaseFinalizer;
 import org.sunbird.graph.cache.util.RedisStoreUtil;
 import org.sunbird.graph.dac.enums.GraphDACParams;
+import org.sunbird.graph.dac.enums.SystemNodeTypes;
 import org.sunbird.graph.dac.model.Node;
 import org.sunbird.learning.contentstore.ContentStore;
 import org.sunbird.learning.util.CloudStore;
@@ -43,28 +44,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class PublishFinalizeUtil extends BaseFinalizer{
 	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
 	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
-	private static final Boolean CATEGORY_CACHE_ENABLED = true;
+	private static final Boolean CATEGORY_CACHE_READ = Platform.config.hasPath("master.category.cache.read") ? Platform.config.getBoolean("master.category.cache.read") : false;
 	private static int masterCategoryCacheTtl = Platform.config.hasPath("master.category.cache.ttl") ? Platform.config.getInt("master.category.cache.ttl") : 86400;
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static final List<String> contentFrameworkMetafields = Arrays.asList("boardIds", "subjectIds",
-			"mediumIds", "topicsIds", "gradeLevelIds", "targetBoardIds", "targetSubjectIds",
-			"targetMediumIds", "targetTopicIds", "targetGradeLevelIds");
-	private static final Map<String, Map<String, List<String>>> frameworkCategoryFieldsMap = new HashMap<String, Map<String, List<String>>>(){{
-		put("id", new HashMap<String, List<String>>() {{
-			put("se_boardIds", Arrays.asList("boardIds", "targetBoardIds"));
-			put("se_subjectIds", Arrays.asList("subjectIds", "targetSubjectIds"));
-			put("se_mediumIds", Arrays.asList("mediumIds", "targetMediumIds"));
-			put("se_topicIds", Arrays.asList("topicsIds", "targetTopicIds"));
-			put("se_gradeLevelIds", Arrays.asList("gradeLevelIds", "targetGradeLevelIds"));
-		}});
-		put("name", new HashMap<String, List<String>>() {{
-			put("se_boards", Arrays.asList("boardIds", "targetBoardIds"));
-			put("se_subjects", Arrays.asList("subjectIds", "targetSubjectIds"));
-			put("se_mediums", Arrays.asList("mediumIds", "targetMediumIds"));
-			put("se_topics", Arrays.asList("topicsIds", "targetTopicIds"));
-			put("se_gradeLevels", Arrays.asList("gradeLevelIds", "targetGradeLevelIds"));
-		}});
-	}};
 	private static final Map<String, String> frameworkCategorySearchMetadataMapping = new HashMap<String, String>(){{
 		put("se_boards", "board");
 		put("se_subjects", "subject");
@@ -196,10 +178,11 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	protected void enrichFrameworkCategoryMetadata(Map<String, List<String>> frameworkMetadata, Node node) {
 		String[] defaultArray = {};
 		Map<String, Object> metaData = node.getMetadata();
-		Map<String, Map<String, List<String>>> frameworkCategoryFieldsMap = getFrameworkCategoryMap();
-		Map<String, List<String>> idMap = frameworkCategoryFieldsMap.get("id");
-		Map<String, List<String>> nameMap = frameworkCategoryFieldsMap.get("name");
-		Map<String, List<String>> frameworkMetafieldsLabel = getLabels(metaData, node.getIdentifier());
+		Map<String, Object> frameworkCategoryFieldsMap = getFrameworkCategoryMap();
+		
+		Map<String, List<String>> idMap = (Map<String, List<String>>)frameworkCategoryFieldsMap.get("id");
+		Map<String, List<String>> nameMap = (Map<String, List<String>>)frameworkCategoryFieldsMap.get("name");
+		Map<String, List<String>> frameworkMetafieldsLabel = getLabels(metaData, node.getIdentifier(), (List<String>)frameworkCategoryFieldsMap.get("contentFrameworkMetafields"));
 		
 		idMap.keySet().forEach(category -> {
 			List<String> orgData = Arrays.asList((String[])metaData.getOrDefault(idMap.get(category).get(0), defaultArray));
@@ -214,28 +197,38 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		
 	}
 	
-	private Map<String, Map<String, List<String>>> getFrameworkCategoryMap() {
+	private Map<String, Object> getFrameworkCategoryMap() {
 		
-		String masterCategoryData =  "";
+		String masterCategoryCacheData =  null;
 		List<Map<String, String>> masterCategory = null;
-		if(CATEGORY_CACHE_ENABLED) 
-			masterCategoryData =  RedisStoreUtil.get("masterCategories");
+		if(CATEGORY_CACHE_READ) 
+			masterCategoryCacheData =  RedisStoreUtil.get("masterCategories");
 		
-        if (StringUtils.isNotBlank(masterCategoryData)) {
+        if (StringUtils.isNotBlank(masterCategoryCacheData)) 
             try {
-            	masterCategory = mapper.readValue(masterCategoryData, new TypeReference<List<Map<String, String>>>() {
-                });
+            	masterCategory = mapper.readValue(masterCategoryCacheData, new TypeReference<List<Map<String, String>>>() {});
             } catch (Exception e) {
                 TelemetryManager.error("Error Occurred While Parsing master category data. Error is: ", e);
                 throw new ServerException("ERR_MASTER_CATEGORY_DATA_PARSE", "Something Went Wrong While Processing the Master Category Data. ", e);
             }
-            
-        }else {
+        else 
         	try {
-        		List<Node> categoryNodes = controllerUtil.getNodes("domain", "Category", 0, 50);
-        		masterCategory = new ArrayList<Map<String, String>>();
-				if(CollectionUtils.isNotEmpty(categoryNodes)) {
-					for(Node node: categoryNodes) 
+        			masterCategory = fetchMasterCategory();
+        			if(CATEGORY_CACHE_READ)
+        				RedisStoreUtil.save("masterCategories", mapper.writeValueAsString(masterCategory), masterCategoryCacheTtl);
+			}catch (JsonProcessingException e) {
+				TelemetryManager.error("Error while parsnig master category data to list of object.", e);
+                throw new ServerException("ERR_WHILE_PARSHING_DATA", "Error while parsnig master category data to list of object.", e);
+			}
+        return getFrameworkCategoryFieldsMap(masterCategory);
+	}
+	private List<Map<String, String>> fetchMasterCategory() {
+		List<Map<String, String>> masterCategory = new ArrayList<Map<String, String>>();
+		try {
+			List<Node> categoryNodes = controllerUtil.getNodes("domain", "Category", 0, 50);
+			if(CollectionUtils.isNotEmpty(categoryNodes)) {
+				categoryNodes.forEach(node -> {
+					if(!SystemNodeTypes.DEFINITION_NODE.name().equals(node.getNodeType())){
 						masterCategory.add(new HashMap<String, String>() {{
 							put("code", (String)node.getMetadata().get("code"));
 							put("orgIdFieldName", (String)node.getMetadata().get("orgIdFieldName"));
@@ -243,32 +236,35 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 							put("searchIdFieldName", (String)node.getMetadata().get("searchIdFieldName"));
 							put("searchLabelFieldName", (String)node.getMetadata().get("searchLabelFieldName"));
 						}});
-					RedisStoreUtil.save("masterCategories", mapper.writeValueAsString(masterCategory), masterCategoryCacheTtl);
-				}else {
-					throw new ServerException("ERR_FETCHING_MASTER_CATEGORY_DATA", "No object found with objectType: Category.");
-				}
-			}catch(ResourceNotFoundException e) {
-				TelemetryManager.error("Error while fetching neo4j records for objectType: Category", e);
-                throw new ServerException("ERR_FETCHING_CATEGORY_DATA", "Error while fetching neo4j records for objectType: Category.", e);
-			}catch (JsonProcessingException e) {
-				TelemetryManager.error("Error while parsnig master category data to list of object.", e);
-                throw new ServerException("ERR_WHILE_PARSHING_DATA", "Error while parsnig master category data to list of object.", e);
+					}
+				});
+				if(CollectionUtils.isEmpty(masterCategory))
+					throw new ServerException("ERR_EMPTY_MASTER_CATEGORY_DATA", "Master category list can not be empty.");
+			}else {
+				throw new ServerException("ERR_FETCHING_MASTER_CATEGORY_DATA", "No object found with objectType: Category.");
 			}
-        }
-		return getFrameworkCategoryFieldsMap(masterCategory);
+		}catch(ResourceNotFoundException e) {
+			TelemetryManager.error("Error while fetching neo4j records for objectType: Category", e);
+            throw new ServerException("ERR_FETCHING_CATEGORY_DATA", "Error while fetching neo4j records for objectType: Category.", e);
+		}
+		return masterCategory;
 	}
-	private Map<String, Map<String, List<String>>> getFrameworkCategoryFieldsMap(List<Map<String, String>> masterCategory) {
-		Map<String, Map<String, List<String>>> frameworkCategoryFieldsMap = new HashMap<String, Map<String, List<String>>>();
+	private Map<String, Object> getFrameworkCategoryFieldsMap(List<Map<String, String>> masterCategory) {
+		Map<String, Object> frameworkCategoryFieldsMap = new HashMap<String, Object>();
 		if(CollectionUtils.isNotEmpty(masterCategory))
 		{
 			Map<String, List<String>> searchableCategoryId = new HashMap<String, List<String>>();
 			Map<String, List<String>> searchableCategoryLabel = new HashMap<String, List<String>>();
-			for(Map<String, String> category: masterCategory) {
+			List<String> contentFrameworkMetafields = new ArrayList<String>();
+			masterCategory.forEach(category -> {
 				searchableCategoryId.put(category.get("searchIdFieldName"), Arrays.asList(category.get("orgIdFieldName"), category.get("targetIdFieldName")));
 				searchableCategoryLabel.put(category.get("searchLabelFieldName"), Arrays.asList(category.get("orgIdFieldName"), category.get("targetIdFieldName")));
-			}
+				contentFrameworkMetafields.addAll(Arrays.asList(category.get("orgIdFieldName"), category.get("targetIdFieldName")));
+			});
+			
 			frameworkCategoryFieldsMap.put("id", searchableCategoryId);
 			frameworkCategoryFieldsMap.put("name", searchableCategoryLabel);
+			frameworkCategoryFieldsMap.put("contentFrameworkMetafields", contentFrameworkMetafields);
 		}
 		return frameworkCategoryFieldsMap;
 	}
@@ -287,7 +283,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		mergedList.addAll(targetList);
 		return CollectionUtils.isEmpty(mergedList)? null : new ArrayList<String>(mergedList);
 	}
-	protected Map<String, List<String>> getLabels(Map<String, Object> metadata, String identifier){
+	protected Map<String, List<String>> getLabels(Map<String, Object> metadata, String identifier, List<String> contentFrameworkMetafields){
 		Map<String, List<String>> frameworkMetadata = new HashMap<String, List<String>>();
 		List<String> ids = new ArrayList<String>();
 		String[] defaultArray = {};

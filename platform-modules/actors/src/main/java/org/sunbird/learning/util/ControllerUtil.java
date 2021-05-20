@@ -399,7 +399,7 @@ public class ControllerUtil extends BaseLearningManager {
         req.put(GraphDACParams.get_tags.name(), true);
         Response listRes = getResponse(req);
         if (checkError(listRes))
-            throw new ResourceNotFoundException("NODES_NOT_FOUND", "Nodes not found: " + graphId);
+            return null;
         else {
             List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
             return nodes;
