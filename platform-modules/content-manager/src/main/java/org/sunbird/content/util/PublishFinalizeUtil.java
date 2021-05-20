@@ -45,7 +45,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
 	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
 	private static final Boolean CATEGORY_CACHE_READ = Platform.config.hasPath("master.category.cache.read") ? Platform.config.getBoolean("master.category.cache.read") : false;
-	private static int masterCategoryCacheTtl = Platform.config.hasPath("master.category.cache.ttl") ? Platform.config.getInt("master.category.cache.ttl") : 86400;
+	private static final int masterCategoryCacheTtl = Platform.config.hasPath("master.category.cache.ttl") ? Platform.config.getInt("master.category.cache.ttl") : 86400;
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static final Map<String, String> frameworkCategorySearchMetadataMapping = new HashMap<String, String>(){{
 		put("se_boards", "board");
