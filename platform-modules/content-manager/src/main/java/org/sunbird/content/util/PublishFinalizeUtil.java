@@ -45,7 +45,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
 	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
 	private static final Boolean CATEGORY_CACHE_READ = Platform.config.hasPath("master.category.cache.read") ? Platform.config.getBoolean("master.category.cache.read") : false;
-	private static final int masterCategoryCacheTtl = Platform.config.hasPath("master.category.cache.ttl") ? Platform.config.getInt("master.category.cache.ttl") : 86400;
+	private static final int CATEGORY_CACHE_TTL = Platform.config.hasPath("master.category.cache.ttl") ? Platform.config.getInt("master.category.cache.ttl") : 86400;
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static final Map<String, String> frameworkCategorySearchMetadataMapping = new HashMap<String, String>(){{
 		put("se_boards", "board");
@@ -215,7 +215,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
         	try {
         			masterCategory = fetchMasterCategory();
         			if(CATEGORY_CACHE_READ)
-        				RedisStoreUtil.save("masterCategories", mapper.writeValueAsString(masterCategory), masterCategoryCacheTtl);
+        				RedisStoreUtil.save("masterCategories", mapper.writeValueAsString(masterCategory), CATEGORY_CACHE_TTL);
 			}catch (JsonProcessingException e) {
 				TelemetryManager.error("Error while parsnig master category data to list of object.", e);
                 throw new ServerException("ERR_WHILE_PARSHING_DATA", "Error while parsnig master category data to list of object.", e);
