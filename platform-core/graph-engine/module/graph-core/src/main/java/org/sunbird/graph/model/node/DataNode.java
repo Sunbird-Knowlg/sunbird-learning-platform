@@ -540,10 +540,6 @@ public class DataNode extends AbstractNode {
 			String propName = def.getPropertyName();
 			String dataType = def.getDataType();
 			List<Object> range = def.getRange();
-			System.out.println("value:: " + value);
-			System.out.println("propName:: " + propName);
-			System.out.println("dataType:: " + dataType);
-			System.out.println("range:: " + range);
 			// TODO: the below if condition is to allow term and termlist as
 			// datatypes.
 			if (StringUtils.isNotBlank(dataType)
@@ -653,7 +649,6 @@ public class DataNode extends AbstractNode {
 		boolean found = false;
 		for (Object rangeVal : range) {
 			if (rangeVal instanceof String) {
-				System.out.println("value:: " + value + "  ***  rangeVal:: " + rangeVal);
 				if (StringUtils.equalsIgnoreCase((String) value, (String) rangeVal)) {
 					found = true;
 					break;

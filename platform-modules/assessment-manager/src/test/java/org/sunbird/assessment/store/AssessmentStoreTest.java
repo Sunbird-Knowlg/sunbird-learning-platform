@@ -66,7 +66,6 @@ public class AssessmentStoreTest extends CommonTestSetup{
 		try {
 			String questId = "A126";
 			data = assessmentStore.read(questId);
-			System.out.println("data:::::::::" + data);
 			assertTrue(StringUtils.isNotBlank(data));
 		} catch (Exception e) {
 			e.printStackTrace();

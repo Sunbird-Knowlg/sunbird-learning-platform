@@ -10,3 +10,5 @@ data:
 {{ .Values.base_config | indent 4 }}
 {{- $name := .Release.Name }}
 {{ index .Values $name | toYaml | indent 2 }}
+  log4j_console_properties: |+
+{{ .Values.log4j_console_properties | indent 4 }}

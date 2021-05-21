@@ -146,7 +146,9 @@
           "displayProperty": "Editable",
           "range": [
             "Default",
-            "Parent"
+            "Parent",
+            "Private",
+            "Protected"
           ],
           "defaultValue": "Default",
           "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
