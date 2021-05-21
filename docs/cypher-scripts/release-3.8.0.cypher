@@ -115,3 +115,14 @@ match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection', 'CollectionImage'
 // Scripts to nullify objectType value for collection objects
 
 match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['Collection', 'CollectionImage'] and exists(n.objectType) remove n.objectType;
+
+//Script to update framework with default systemDefault value as No
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE='Framework' and not exists (n.systemDefault) return count(n);
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE='Framework' and not exists (n.systemDefault) set n.systemDefault = 'No';
+
+// Scripts to set compatibilityLevel=5 for all QuestionSet
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['QuestionSet', 'QuestionSetImage'] and exists(n.compatibilityLevel) return n.IL_FUNC_OBJECT_TYPE, n.compatibilityLevel, count(n.compatibilityLevel);
+
+match (n:domain) where n.IL_FUNC_OBJECT_TYPE in ['QuestionSet', 'QuestionSetImage'] and exists(n.compatibilityLevel) set n.compatibilityLevel=5;

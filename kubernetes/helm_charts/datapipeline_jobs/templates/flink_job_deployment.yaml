@@ -84,6 +84,7 @@ spec:
         component: {{ .Release.Name }}-jobmanager
       annotations:
         prometheus.io/scrape: 'true'
+        prometheus.io/port: "{{ .Values.jobmanager.prom_port }}"
     spec:
       volumes:
       - name: flink-config-volume
@@ -96,6 +97,8 @@ spec:
             path: base-config.conf
           - key: {{ .Release.Name }}
             path: {{ .Release.Name }}.conf
+          - key: log4j_console_properties
+            path: log4j-console.properties
       restartPolicy: OnFailure
       imagePullSecrets:
       - name: {{ .Values.imagepullsecrets }}
@@ -137,6 +140,9 @@ spec:
         - name: flink-config-volume
           mountPath: /data/flink/conf/{{ .Release.Name }}.conf
           subPath: {{ .Release.Name }}.conf
+        - name: flink-config-volume
+          mountPath: /opt/flink/conf/log4j-console.properties
+          subPath: log4j-console.properties
 
 ---
 apiVersion: apps/v1
@@ -163,6 +169,8 @@ spec:
           items:
           - key: flink-conf
             path: flink-conf.yaml
+          - key: log4j_console_properties
+            path: log4j-console.properties
       imagePullSecrets:
       - name: {{ .Values.imagepullsecrets }}
       containers:
@@ -193,3 +201,6 @@ spec:
         - name: flink-config-volume
           mountPath: /opt/flink/conf/flink-conf.yaml
           subPath: flink-conf.yaml
+        - name: flink-config-volume
+          mountPath: /opt/flink/conf/log4j-console.properties
+          subPath: log4j-console.properties

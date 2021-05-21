@@ -23,12 +23,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -41,6 +43,7 @@ public class BatchEnrolmentSyncManager {
     
     private static ObjectMapper mapper = new ObjectMapper();
     private static int batchSize = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size"): 50;
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     Map<String, String> esIndexObjecTypeMap = new HashMap<String, String>() {{
         put("course-batch", "course-batch");
         put("user-courses", "user-courses");
@@ -53,6 +56,10 @@ public class BatchEnrolmentSyncManager {
     private static final String KAFKA_TOPIC = Platform.config.hasPath("courses.topic")? Platform.config.getString("courses.topic"): "local.coursebatch.job.request";
 
     private static final String keyspace = Platform.config.hasPath("courses.keyspace.name") ? Platform.config.getString("courses.keyspace.name"): "sunbird_courses";
+    
+    static {
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Kolkata"));
+    }
     
     public void sync(String objectType, String offset, String limit, String resetProgress, String[] batchIds, String[] courseIds) throws Exception {
         if(objectType.equalsIgnoreCase("batch-detail-update")){
@@ -255,9 +262,9 @@ public class BatchEnrolmentSyncManager {
                     put("batchId", row.getString("batchid"));
                     put("name", row.getString("name"));
                     put("status", row.getInt("status"));
-                    put("startDate", row.getString("startdate"));
-                    put("endDate", row.getString("enddate"));
-                    put("enrollmentEndDate", row.getString("enrollmentenddate"));
+                    put("startDate", getDate("start_date", "startdate", row));
+                    put("endDate", getDate("end_date", "enddate", row));
+                    put("enrollmentEndDate", getDate("enrollment_enddate", "enrollmentenddate", row));
                     put("enrollmentType", row.getString("enrollmenttype"));
                     put("createdFor", row.getList("createdfor", String.class));
                 }};
@@ -311,51 +318,12 @@ public class BatchEnrolmentSyncManager {
         return results.all();
     }
 
-    public void syncEnrol(String userId, String batchId) throws Exception {
-
-        List<Row> rows = readEnrolment(userId, batchId);
-        if (CollectionUtils.isNotEmpty(rows)) {
-            List<Map<String, Object>> list = rows.stream().map(row -> {
-                try {
-                    Map<String, Object> jsonRow = mapper.readValue(row.getString("[json]"), Map.class);
-                    return jsonRow;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return new HashMap<String, Object>();
-            }).filter(m -> {
-                String dbBatchId = (String) m.get("batchid");
-                return (MapUtils.isNotEmpty(m) && StringUtils.equalsIgnoreCase(dbBatchId, batchId));
-            }).collect(Collectors.toList());
-            System.out.println("Number of rows to be synced : " + list.size());
-            System.out.println("-----------------------------------------");
-            System.out.println("Pushing the events to kafka");
-            pushEnrolmentSyncEventsToKafka(list);
+    public String getDate(String columnName, String oldColumnName, Row row) {
+        if(null != row.getTimestamp(columnName)) {
+            return dateFormat.format(row.getTimestamp(columnName));
         } else {
-            System.out.println("No enrolments found for given user and batch.");
+            return row.getString(oldColumnName);
         }
-    }
-
-    private void pushEnrolmentSyncEventsToKafka(List<Map<String, Object>> rows) throws Exception {
-        long startTime = System.currentTimeMillis();
-        long total = ((Number) rows.size()).longValue();
-        long current = 0;
-        for(Map<String, Object> row: rows) {
-            String enrolSyncEvent = generateBatchSyncKafkaEvent(row);
-            KafkaClient.send(enrolSyncEvent, KAFKA_TOPIC);
-            String enrolUpdateEvent = generateBatchEnrolUpdateKafkaEvent(row);
-            KafkaClient.send(enrolUpdateEvent, KAFKA_TOPIC);
-            current += 1;
-            printProgress(startTime, total, current);
-        }
-        System.out.println("");
-
-    }
-
-    public List<Row> readEnrolment(String userId, String batchId) {
-        Session session = CassandraConnector.getSession("platform-courses");
-        Select.Where selectQuery = QueryBuilder.select().json().all().from(keyspace, "user_enrolments").where(QueryBuilder.eq("userid", userId));
-        ResultSet results = session.execute(selectQuery);
-        return results.all();
+        
     }
 }
