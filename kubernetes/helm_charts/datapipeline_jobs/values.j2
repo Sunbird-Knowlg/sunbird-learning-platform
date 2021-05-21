@@ -261,11 +261,9 @@ video-stream-generator:
       parallelism = {{ vide_stream_generator_parallelism }}
       max.retries = {{ vide_stream_generator_max_retries }}
     }
-    dp-cassandra {
+    lms-cassandra {
       keyspace = {{ platform_keyspace_name }}
       table = "job_request"
-      host = {{ core_cassandra_connection_ip }}
-      port = "9042"
     }
     service.learning.basePath="{{lp_url}}"
     azure {
