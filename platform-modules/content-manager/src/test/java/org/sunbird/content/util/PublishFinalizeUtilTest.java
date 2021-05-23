@@ -12,6 +12,7 @@ import org.sunbird.content.entity.Manifest;
 import org.sunbird.content.entity.Media;
 import org.sunbird.content.entity.Plugin;
 import org.sunbird.graph.dac.enums.GraphDACParams;
+import org.sunbird.graph.dac.enums.SystemNodeTypes;
 import org.sunbird.graph.dac.model.Node;
 import org.sunbird.graph.engine.common.GraphEngineTestSetup;
 import org.sunbird.graph.model.node.DefinitionDTO;
@@ -87,158 +88,58 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 	}
 	
 	@Test
-	public void testEnrichFrameworkMetadata() throws Exception {
+	public void TestEnrichFrameworkMetadata() throws Exception {
 		
+		ControllerUtil controllerUtil = new ControllerUtil();
+		
+		DefinitionDTO categoryDefinition = controllerUtil.getDefinition("domain", "Category");
+		DefinitionDTO termDefinition = controllerUtil.getDefinition("domain", "Term");
+		DefinitionDTO contentDefinition = controllerUtil.getDefinition("domain", "Content");
+		
+		Node termOrgCbse =  getTermMap("ncf_board_cbse", "CBSE", termDefinition);
+		Node termOrgGradeLevel =  getTermMap("ncf_gradelevel_grade1", "Class 1", termDefinition);
+		Node termOrgSubject =  getTermMap("ncf_subject_math", "Math", termDefinition);
+		Node terOrgMedium =  getTermMap("ncf_medium_english", "English", termDefinition);
+		Node termTarCbse =  getTermMap("tpd_board_cbse", "CBSE Board", termDefinition);
+		Node termTarGradeLevel =  getTermMap("tpd_gradelevel_class1", "Class 1", termDefinition);
+		Node termTarSubject =  getTermMap("tpd_subject_math", "Mathematics", termDefinition);
+		Node terTarMedium =  getTermMap("tpd_medium_english", "English Medium", termDefinition);
+		Node terTarTopic =  getTermMap("tpd_medium_abc", "Abc", termDefinition);
+		
+		List<Node> nodeList = Arrays.asList(termOrgCbse, termOrgGradeLevel, termOrgSubject, terOrgMedium, termTarCbse, termTarGradeLevel, termTarSubject, terTarMedium, terTarTopic);
+		Response response = new Response();
+		response.put(GraphDACParams.node_list.name(), nodeList);
+		
+		Node boardcategory =  getMasterCategory("board", "boardIds", "targetBoardIds", "se_boardIds", "se_boards", categoryDefinition);
+		Node mediumcategory =  getMasterCategory("medium", "mediumIds", "targetMediumIds", "se_mediumIds", "se_mediums", categoryDefinition);
+		Node subjectcategory =  getMasterCategory("subject", "subjectIds", "targetSubjectIds", "se_subjectIds", "se_subjects", categoryDefinition);
+		Node gradeLevelcategory =  getMasterCategory("gradeLevel", "gradeLevelIds", "targetGradeLevelIds", "se_gradeLevelIds", "se_gradeLevels", categoryDefinition);
+		Node topiccategory =  getMasterCategory("topic", "topicIds", "targetTopicIds", "se_topicIds", "se_topics", categoryDefinition);
+		
+		List<Node> categoryNodeList = Arrays.asList(boardcategory, mediumcategory, subjectcategory, gradeLevelcategory, topiccategory);
+		
+		ControllerUtil mockControllerUtil = PowerMockito.spy(new ControllerUtil());
+		PowerMockito.when(mockControllerUtil.getNodes(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())).thenReturn(categoryNodeList);
+		PowerMockito.when(mockControllerUtil.getDataNodes(Mockito.anyString(), Mockito.anyList())).thenReturn(response);
+	
 		Map<String, Object> contentNodeMap = new HashMap<>();
 		contentNodeMap.put("identifier", "do_11292666508456755211");
 		contentNodeMap.put("objectType", "Content");
 		contentNodeMap.put("framework", "ncf");
 		
-		String[] organisationBoardIds = {"ncf_board_cbse"};
-		contentNodeMap.put("boardIds", organisationBoardIds);
+		enrichContentMapWithFrameworkCategoryData(contentNodeMap, "boardIds", "ncf_board_cbse");
+		enrichContentMapWithFrameworkCategoryData(contentNodeMap, "gradeLevelIds", "ncf_gradelevel_grade1");
+		enrichContentMapWithFrameworkCategoryData(contentNodeMap, "subjectIds", "ncf_subject_math");
+		enrichContentMapWithFrameworkCategoryData(contentNodeMap, "mediumIds", "ncf_medium_english");
+		enrichContentMapWithFrameworkCategoryData(contentNodeMap, "targetFWIds", "tpd");
+		enrichContentMapWithFrameworkCategoryData(contentNodeMap, "targetBoardIds", "tpd_board_cbse");
+		enrichContentMapWithFrameworkCategoryData(contentNodeMap, "targetGradeLevelIds", "tpd_gradelevel_class1");
+		enrichContentMapWithFrameworkCategoryData(contentNodeMap, "targetSubjectIds", "tpd_subject_math");
+		enrichContentMapWithFrameworkCategoryData(contentNodeMap, "targetMediumIds", "tpd_medium_english");
+		enrichContentMapWithFrameworkCategoryData(contentNodeMap, "targetTopicIds", "tpd_medium_abc");
 		
-		String[] organisationGradeLevelIds = {"ncf_gradelevel_grade1"};
-		contentNodeMap.put("gradeLevelIds", organisationGradeLevelIds);
-		
-		String[] organisationSubjectIds = {"ncf_subject_math"};
-		contentNodeMap.put("subjectIds", organisationSubjectIds);
-		
-		String[] organisationMediumids = {"ncf_medium_english"};
-		contentNodeMap.put("mediumIds", organisationMediumids);
-		
-		String[] targetFrameworkIds = {"tpd"};
-		contentNodeMap.put("targetFWIds", targetFrameworkIds);
-		
-		String[] targetBoardIds = {"tpd_board_cbse"};
-		contentNodeMap.put("targetBoardIds", targetBoardIds);
-		
-		String[] targetGradeLevelIds = {"tpd_gradelevel_class1"};
-		contentNodeMap.put("targetGradeLevelIds", targetGradeLevelIds);
-		
-		String[] targetSubjectIds = {"tpd_subject_math"};
-		contentNodeMap.put("targetSubjectIds", targetSubjectIds);
-		
-		String[] targetMediumIds = {"tpd_medium_english"};
-		contentNodeMap.put("targetMediumIds", targetMediumIds);
-		
-		String[] targetTopicIds = {"tpd_medium_abc"};
-		contentNodeMap.put("targetTopicIds", targetTopicIds);
-		
-		
-		DefinitionDTO contentDefinition = new ControllerUtil().getDefinition("domain", "Content");
-		DefinitionDTO termDefinition = new ControllerUtil().getDefinition("domain", "Term");
-		DefinitionDTO categoryDefinition = new ControllerUtil().getDefinition("domain", "Category");
-		
-		
-		   
-		Response response = new Response();
-		Map<String, Object> termMap = new HashMap<>();
-		termMap.put("identifier", "ncf_board_cbse");
-		termMap.put("name", "CBSE");
-		Node termOrgCbse =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
-		
-		termMap = new HashMap<>();
-		termMap.put("identifier", "ncf_gradelevel_grade1");
-		termMap.put("name", "Class 1");
-		Node termOrgGradeLevel =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
-		
-		termMap = new HashMap<>();
-		termMap.put("identifier", "ncf_subject_math");
-		termMap.put("name", "Math");
-		Node termOrgSubject =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
-		
-		termMap = new HashMap<>();
-		termMap.put("identifier", "ncf_medium_english");
-		termMap.put("name", "English");
-		Node terOrgMedium =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
-		
-		termMap = new HashMap<>();
-		termMap.put("identifier", "tpd_board_cbse");
-		termMap.put("name", "CBSE Board");
-		Node termTarCbse =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
-		
-		termMap = new HashMap<>();
-		termMap.put("identifier", "tpd_gradelevel_class1");
-		termMap.put("name", "Class 1");
-		Node termTarGradeLevel =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
-		
-		termMap = new HashMap<>();
-		termMap.put("identifier", "tpd_subject_math");
-		termMap.put("name", "Mathematics");
-		Node termTarSubject =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
-		
-		termMap = new HashMap<>();
-		termMap.put("identifier", "tpd_medium_english");
-		termMap.put("name", "English Medium");
-		Node terTarMedium =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
-		
-		termMap = new HashMap<>();
-		termMap.put("identifier", "tpd_medium_abc");
-		termMap.put("name", "Abc");
-		Node terTarTopic =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
-		
-		List<Node> nodeList = Arrays.asList(termOrgCbse, termOrgGradeLevel, termOrgSubject, terOrgMedium, termTarCbse, termTarGradeLevel, termTarSubject, terTarMedium, terTarTopic);
-		response.put(GraphDACParams.node_list.name(), nodeList);
-		
-		
-		Map<String, Object> categoryMap = new HashMap<>();
-		categoryMap.put("identifier", "board");
-		categoryMap.put("objectType", "Category");
-		categoryMap.put("code", "board");
-		categoryMap.put("orgIdFieldName", "boardIds");
-		categoryMap.put("targetIdFieldName", "targetBoardIds");
-		categoryMap.put("searchIdFieldName", "se_boardIds");
-		categoryMap.put("searchLabelFieldName", "se_boards");
-		Node boardcategory =  ConvertToGraphNode.convertToGraphNode(categoryMap, categoryDefinition, null);
-		
-		categoryMap = new HashMap<>();
-		categoryMap.put("identifier", "medium");
-		categoryMap.put("objectType", "Category");
-		categoryMap.put("code", "medium");
-		categoryMap.put("orgIdFieldName", "mediumIds");
-		categoryMap.put("targetIdFieldName", "targetMediumIds");
-		categoryMap.put("searchIdFieldName", "se_mediumIds");
-		categoryMap.put("searchLabelFieldName", "se_mediums");
-		Node mediumcategory =  ConvertToGraphNode.convertToGraphNode(categoryMap, categoryDefinition, null);
-		
-		categoryMap = new HashMap<>();
-		categoryMap.put("identifier", "subject");
-		categoryMap.put("objectType", "Category");
-		categoryMap.put("code", "subject");
-		categoryMap.put("orgIdFieldName", "subjectIds");
-		categoryMap.put("targetIdFieldName", "targetSubjectIds");
-		categoryMap.put("searchIdFieldName", "se_subjectIds");
-		categoryMap.put("searchLabelFieldName", "se_subjects");
-		Node subjectcategory =  ConvertToGraphNode.convertToGraphNode(categoryMap, categoryDefinition, null);
-		
-		categoryMap = new HashMap<>();
-		categoryMap.put("identifier", "gradeLevel");
-		categoryMap.put("objectType", "Category");
-		categoryMap.put("code", "gradeLevel");
-		categoryMap.put("orgIdFieldName", "gradeLevelIds");
-		categoryMap.put("targetIdFieldName", "targetGradeLevelIds");
-		categoryMap.put("searchIdFieldName", "se_gradeLevelIds");
-		categoryMap.put("searchLabelFieldName", "se_gradeLevels");
-		Node gradeLevelcategory =  ConvertToGraphNode.convertToGraphNode(categoryMap, categoryDefinition, null);
-		
-		categoryMap = new HashMap<>();
-		categoryMap.put("identifier", "topic");
-		categoryMap.put("objectType", "Category");
-		categoryMap.put("code", "topic");
-		categoryMap.put("orgIdFieldName", "topicIds");
-		categoryMap.put("targetIdFieldName", "targetTopicIds");
-		categoryMap.put("searchIdFieldName", "se_topicIds");
-		categoryMap.put("searchLabelFieldName", "se_topics");
-		Node topiccategory =  ConvertToGraphNode.convertToGraphNode(categoryMap, categoryDefinition, null);
-		
-		List<Node> categoryNodeList = Arrays.asList(boardcategory, mediumcategory, subjectcategory, gradeLevelcategory, topiccategory);
-		
-		ControllerUtil controllerUtil = PowerMockito.spy(new ControllerUtil());
-		PowerMockito.when(controllerUtil.getNodes(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())).thenReturn(categoryNodeList);
-		PowerMockito.when(controllerUtil.getDataNodes(Mockito.anyString(), Mockito.anyList())).thenReturn(response);
-	
 		Node contentNode = ConvertToGraphNode.convertToGraphNode(contentNodeMap, contentDefinition, null);
-		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil(controllerUtil);
+		PublishFinalizeUtil publishFinalizeUtil = new PublishFinalizeUtil(mockControllerUtil);
 		Map<String, List<String>> frameworkMetadata = publishFinalizeUtil.enrichFrameworkMetadata(contentNode);
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_FWIds")).containsAll(Arrays.asList("ncf", "tpd")));
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_boardIds")).containsAll(Arrays.asList("ncf_board_cbse", "tpd_board_cbse")));
@@ -251,6 +152,32 @@ public class PublishFinalizeUtilTest extends GraphEngineTestSetup{
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_subjects")).containsAll(Arrays.asList("Math", "Mathematics")));
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_mediums")).containsAll(Arrays.asList("English", "English Medium")));
 		Assert.isTrue(((List<String>)frameworkMetadata.get("se_gradeLevels")).containsAll(Arrays.asList("Class 1")));
+	}
+	
+	private void enrichContentMapWithFrameworkCategoryData(Map<String, Object> contentNodeMap, String fieldName, String topicId) {
+		String[] targetTopicIds = {topicId};
+		contentNodeMap.put(fieldName, targetTopicIds);
+	}
+	
+	private Node getTermMap(String identifier, String name, DefinitionDTO termDefinition) throws Exception {
+		Map<String, Object> termMap = new HashMap<>();
+		termMap.put("identifier", identifier);
+		termMap.put("name", name);
+		Node termNode =  ConvertToGraphNode.convertToGraphNode(termMap, termDefinition, null);
+		return termNode;
+	}
+	private Node getMasterCategory(String code, String orgIdFieldName, String targetIdFieldName, String searchIdFieldName, String searchLabelFieldName, DefinitionDTO categoryDefinition) throws Exception {
+		Map<String, Object> categoryMap = new HashMap<>();
+		categoryMap.put("identifier", code);
+		categoryMap.put("objectType", "Category");
+		categoryMap.put("code", code);
+		categoryMap.put("orgIdFieldName", orgIdFieldName);
+		categoryMap.put("targetIdFieldName", targetIdFieldName);
+		categoryMap.put("searchIdFieldName", searchIdFieldName);
+		categoryMap.put("searchLabelFieldName", searchLabelFieldName);
+		Node categoryNode =  ConvertToGraphNode.convertToGraphNode(categoryMap, categoryDefinition, null);
+		categoryNode.setNodeType(SystemNodeTypes.DATA_NODE.name());
+		return categoryNode;
 	}
 	
 	@Test

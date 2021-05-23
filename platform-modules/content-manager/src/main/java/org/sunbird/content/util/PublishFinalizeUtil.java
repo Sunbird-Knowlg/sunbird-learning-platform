@@ -182,7 +182,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		
 		Map<String, List<String>> idMap = (Map<String, List<String>>)frameworkCategoryFieldsMap.get("id");
 		Map<String, List<String>> nameMap = (Map<String, List<String>>)frameworkCategoryFieldsMap.get("name");
-		Map<String, List<String>> frameworkMetafieldsLabel = getLabels(metaData, node.getIdentifier(), (List<String>)frameworkCategoryFieldsMap.get("contentFrameworkMetafields"));
+		Map<String, List<String>> frameworkMetaFieldsLabel = getLabels(metaData, node.getIdentifier(), (List<String>)frameworkCategoryFieldsMap.get("contentFrameworkMetaFields"));
 		
 		idMap.keySet().forEach(category -> {
 			List<String> orgData = Arrays.asList((String[])metaData.getOrDefault(idMap.get(category).get(0), defaultArray));
@@ -190,8 +190,8 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			frameworkMetadata.put(category, mergeIds(orgData, targetData));
 		});
 		nameMap.keySet().forEach(category -> {
-			List<String> orgData = (List<String>)frameworkMetafieldsLabel.getOrDefault(nameMap.get(category).get(0), new ArrayList<String>());
-			List<String> targetData = (List<String>)frameworkMetafieldsLabel.getOrDefault(nameMap.get(category).get(1), new ArrayList<String>());
+			List<String> orgData = (List<String>)frameworkMetaFieldsLabel.getOrDefault(nameMap.get(category).get(0), new ArrayList<String>());
+			List<String> targetData = (List<String>)frameworkMetaFieldsLabel.getOrDefault(nameMap.get(category).get(1), new ArrayList<String>());
 			frameworkMetadata.put(category, mergeIds(orgData, targetData));
 		});
 		
@@ -228,7 +228,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			List<Node> categoryNodes = controllerUtil.getNodes("domain", "Category", 0, 50);
 			if(CollectionUtils.isNotEmpty(categoryNodes)) {
 				categoryNodes.forEach(node -> {
-					if(!SystemNodeTypes.DEFINITION_NODE.name().equals(node.getNodeType())){
+					if(SystemNodeTypes.DATA_NODE.name().equals(node.getNodeType())){
 						masterCategory.add(new HashMap<String, String>() {{
 							put("code", (String)node.getMetadata().get("code"));
 							put("orgIdFieldName", (String)node.getMetadata().get("orgIdFieldName"));
@@ -255,16 +255,16 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 		{
 			Map<String, List<String>> searchableCategoryId = new HashMap<String, List<String>>();
 			Map<String, List<String>> searchableCategoryLabel = new HashMap<String, List<String>>();
-			List<String> contentFrameworkMetafields = new ArrayList<String>();
+			List<String> contentFrameworkMetaFields = new ArrayList<String>();
 			masterCategory.forEach(category -> {
 				searchableCategoryId.put(category.get("searchIdFieldName"), Arrays.asList(category.get("orgIdFieldName"), category.get("targetIdFieldName")));
 				searchableCategoryLabel.put(category.get("searchLabelFieldName"), Arrays.asList(category.get("orgIdFieldName"), category.get("targetIdFieldName")));
-				contentFrameworkMetafields.addAll(Arrays.asList(category.get("orgIdFieldName"), category.get("targetIdFieldName")));
+				contentFrameworkMetaFields.addAll(Arrays.asList(category.get("orgIdFieldName"), category.get("targetIdFieldName")));
 			});
 			
 			frameworkCategoryFieldsMap.put("id", searchableCategoryId);
 			frameworkCategoryFieldsMap.put("name", searchableCategoryLabel);
-			frameworkCategoryFieldsMap.put("contentFrameworkMetafields", contentFrameworkMetafields);
+			frameworkCategoryFieldsMap.put("contentFrameworkMetaFields", contentFrameworkMetaFields);
 		}
 		return frameworkCategoryFieldsMap;
 	}
