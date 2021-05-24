@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Slug;
 import org.ekstep.telemetry.logger.TelemetryManager;
@@ -24,6 +25,19 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 public class HttpDownloadUtility {
 
 	private static final int BUFFER_SIZE = 4096;
+	public static File download(String artifactUrl, boolean extractFile) throws Exception {
+		if(StringUtils.isNotBlank(artifactUrl)){
+			String localPath = "tmp/" + artifactUrl.trim() + File.separator;
+			String[] fileUrl = artifactUrl.split("/");
+			String filename = fileUrl[fileUrl.length - 1];
+
+			File file = new File(localPath + filename);
+			FileUtils.copyURLToFile(new URL(artifactUrl), file);
+			return file;
+		}
+		return null;
+
+	}
 
 	/**
 	 * Downloads a file from a URL
@@ -34,11 +48,11 @@ public class HttpDownloadUtility {
 	 *            path of the directory to save the file
 	 */
 	public static File downloadFile(String fileURL, String saveDir) {
-		HttpURLConnection httpConn = null;
-		InputStream inputStream = null;
-		FileOutputStream outputStream = null;
+		//HttpURLConnection httpConn = null;
+		//InputStream inputStream = null;
+		//FileOutputStream outputStream = null;
 		try {
-			URL url = new URL(fileURL);
+/*			URL url = new URL(fileURL);
 			httpConn = (HttpURLConnection) url.openConnection();
 			int responseCode = httpConn.getResponseCode();
 			TelemetryManager.log("Response Code: " + responseCode);
@@ -83,16 +97,18 @@ public class HttpDownloadUtility {
 				inputStream.close();
 				File file = new File(saveFilePath);
 				file = Slug.createSlugFile(file);
-				TelemetryManager.log("Sluggified File Name: " + file.getAbsolutePath());
+				TelemetryManager.log("Sluggified File Name: " + file.getAbsolutePath());*/
 
-				return file;
-			} else {
+			System.out.println("http utility called.........");
+			return download(fileURL, false);
+
+/*			} else {
 				TelemetryManager.log("No file to download. Server replied HTTP code: " + responseCode);
-			}
+			}*/
 		} catch (Exception e) {
 			e.printStackTrace();
 			TelemetryManager.error("Error! While Downloading File:"+ e.getMessage(), e);
-		} finally {
+		} /*finally {
 			if (null != httpConn)
 				httpConn.disconnect();
 			if (null != inputStream)
@@ -107,7 +123,7 @@ public class HttpDownloadUtility {
 				} catch (IOException e) {
 					TelemetryManager.error("Error! While Closing the Output Stream: "+ e.getMessage(), e);
 				}
-		}
+		}*/
 
 		TelemetryManager.warn("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'. File url: "+ fileURL);
 		return null;
