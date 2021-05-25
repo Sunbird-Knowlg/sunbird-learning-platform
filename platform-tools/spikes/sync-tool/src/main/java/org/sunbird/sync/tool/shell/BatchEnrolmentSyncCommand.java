@@ -36,5 +36,4 @@ public class BatchEnrolmentSyncCommand implements CommandMarker {
         batchEnrolmentSyncManager.sync(objectType, offset, limit, resetProgress, batchIds, courseIds);
         System.out.println("-----------------------------------------");
     }
-    
 }

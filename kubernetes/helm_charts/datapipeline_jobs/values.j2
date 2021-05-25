@@ -290,16 +290,14 @@ video-stream-generator:
       groupId = "{{ env_name }}-video-stream-generator-group"
     }
     task {
-      timer.duration = {{ vide_stream_generator_timer_duration }}
-      consumer.parallelism = {{ vide_stream_generator_consumer_parallelism }}
-      parallelism = {{ vide_stream_generator_parallelism }}
-      max.retries = {{ vide_stream_generator_max_retries }}
+      timer.duration = {{ video_stream_generator_timer_duration }}
+      consumer.parallelism = {{ video_stream_generator_consumer_parallelism }}
+      parallelism = {{ video_stream_generator_parallelism }}
+      max.retries = {{ video_stream_generator_max_retries }}
     }
-    dp-cassandra {
-      keyspace = "{{ env_name }}_platform_db"
+    lms-cassandra {
+      keyspace = {{ platform_keyspace_name }}
       table = "job_request"
-      host = {{ dp_cassandra_connection_ip }}
-      port = "9042"
     }
     service.learning.basePath="{{lp_url}}"
     azure {
@@ -316,18 +314,18 @@ video-stream-generator:
         hls = "media_transform_hls"
       }
       stream {
-        base_url = "https://sunbirdspikemedia-inct.streaming.media.azure.net"
+        base_url="{{ video_stream_generator_azure_stream_base_url }}"
         endpoint_name = "default"
         protocol = "Hls"
         policy_name = "Predefined_ClearStreamingOnly"
       }
     }
-    azure_tenant="{{ azure_tenant }}"
-    azure_subscription_id="{{ azure_subscription_id }}"
-    azure_account_name="{{ azure_account_name }}"
-    azure_resource_group_name="{{ azure_resource_group_name }}"
-    azure_token_client_key="{{ azure_token_client_key }}"
-    azure_token_client_secret="{{ azure_token_client_secret }}"
+    azure_tenant="{{ video_stream_generator_azure_tenant }}"
+    azure_subscription_id="{{ video_stream_generator_azure_subscription_id }}"
+    azure_account_name="{{ video_stream_generator_azure_account_name }}"
+    azure_resource_group_name="{{ video_stream_generator_azure_resource_group_name }}"
+    azure_token_client_key="{{ video_stream_generator_azure_token_client_key }}"
+    azure_token_client_secret="{{ video_stream_generator_azure_token_client_secret }}"
 
 
   flink-conf: |+
@@ -359,7 +357,7 @@ search-indexer:
     restrict.metadata.objectTypes = []
     nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions"]
     schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_sec }}
-    restrict.objectTypes = ["EventSet", "Questionnaire", "Misconception", "FrameworkType", "EventSetImage", "Event", "EventImage"]
+    restrict.objectTypes = ["EventSet", "EventSetImage", "Event", "EventImage", "Questionnaire", "Misconception", "FrameworkType", "Concept", "Misconception", "Language", "Reference", "Dimension", "Method", "Library", "Domain", "Api"]
     ignored.fields={{ search_indexer_ignored_fields | to_json }}
 
   flink-conf: |+

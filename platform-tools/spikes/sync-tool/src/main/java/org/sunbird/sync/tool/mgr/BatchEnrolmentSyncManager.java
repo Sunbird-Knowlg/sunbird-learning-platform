@@ -285,7 +285,6 @@ public class BatchEnrolmentSyncManager {
         return results.all();
     }
 
-
     public List<Row> readEnrolment(String userId, String batchId) {
         Session session = CassandraConnector.getSession("platform-courses");
         Select.Where selectQuery = QueryBuilder.select().json().all().from(keyspace, "user_enrolments").where(QueryBuilder.eq("userid", userId));
@@ -295,7 +294,7 @@ public class BatchEnrolmentSyncManager {
     
     public String getDate(String columnName, String oldColumnName, Row row) {
         if(null != row.getTimestamp(columnName)) {
-            return dateFormat.format(columnName);
+            return dateFormat.format(row.getTimestamp(columnName));
         } else {
             return row.getString(oldColumnName);
         }
