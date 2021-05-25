@@ -64,19 +64,6 @@ public class BatchEnrolmentSyncManagerTest extends GraphEngineTestSetup {
     }
 
     @Test
-    public void testGenerateBatchEnrolUpdateKafkaEvent() throws Exception {
-        BatchEnrolmentSyncManager mgr = PowerMockito.spy(new BatchEnrolmentSyncManager());
-        Map<String, Object> map = new HashMap<String, Object>() {{
-           put("batchid", "batch-1");
-           put("courseid", "course-1");
-           put("userid", "user-1");
-        }};
-        String event = mgr.generateBatchEnrolUpdateKafkaEvent(map);
-        System.out.println("Event: " +event);
-        Assert.assertTrue(StringUtils.isNotBlank(event));
-    }
-
-    @Test
     public void testGenerateBatchSyncKafkaEvent() throws Exception {
         BatchEnrolmentSyncManager mgr = PowerMockito.spy(new BatchEnrolmentSyncManager());
         Map<String, Object> map = new HashMap<String, Object>() {{

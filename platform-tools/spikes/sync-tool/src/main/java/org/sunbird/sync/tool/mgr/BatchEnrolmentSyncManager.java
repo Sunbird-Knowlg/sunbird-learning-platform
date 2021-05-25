@@ -138,39 +138,6 @@ public class BatchEnrolmentSyncManager {
 
     }
 
-    public String generateBatchEnrolUpdateKafkaEvent(Map<String, Object> rowMap) throws JsonProcessingException {
-        Map<String, Object> event = new HashMap<String, Object>() {{
-            put("eid", "BE_JOB_REQUEST");
-            put("ets", System.currentTimeMillis());
-            put("mid", "LP." + System.currentTimeMillis() +"." + UUID.randomUUID());
-            put("actor", new HashMap<String, Object>(){{
-                put("type", "System");
-                put("id", "Course Batch Updater");
-            }});
-            put("context", new HashMap<String, Object>(){{
-                put("pdata", new HashMap<String, Object>(){{
-                    put("id", "org.sunbird.platform");
-                    put("ver", "1.0");
-                }});
-            }});
-            put("object", new HashMap<String, Object>(){{
-                put("type", "CourseBatchEnrolment");
-                put("id", rowMap.get("batchid") + "_" + rowMap.get("userid"));
-            }});
-            put("edata", new HashMap<String, Object>(){{
-                put("action", "batch-enrolment-update");
-                put("iteration", 1);
-                put("batchId", rowMap.get("batchid"));
-                put("userId", rowMap.get("userid"));
-                put("courseId", rowMap.get("courseid"));
-                put("contents", Arrays.asList(new HashMap(){{ put("contentId", "manual_sync"); put("status", 2);}}));
-            }});
-        }};
-
-        return mapper.writeValueAsString(event);
-
-    }
-
     private void pushDocsToES(List<Row> rows, List<String> docids, String index) throws Exception {
         List<Row> rowClone = new ArrayList<>();
         rowClone.addAll(rows);
@@ -318,6 +285,13 @@ public class BatchEnrolmentSyncManager {
         return results.all();
     }
 
+    public List<Row> readEnrolment(String userId, String batchId) {
+        Session session = CassandraConnector.getSession("platform-courses");
+        Select.Where selectQuery = QueryBuilder.select().json().all().from(keyspace, "user_enrolments").where(QueryBuilder.eq("userid", userId));
+        ResultSet results = session.execute(selectQuery);
+        return results.all();
+    }
+    
     public String getDate(String columnName, String oldColumnName, Row row) {
         if(null != row.getTimestamp(columnName)) {
             return dateFormat.format(row.getTimestamp(columnName));
