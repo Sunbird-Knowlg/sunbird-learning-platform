@@ -64,7 +64,6 @@ search_es_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
 search_lms_es_host: "{{ groups['core-es']|join(':9200,')}}:9200"
 
 graph_passport_key: "{{ lp_vault_graph_passport_key }}"
-dial_service_authorization: "{{ lp_vault_dial_service_authorization }}"
 youtube_api_key: "{{ lp_vault_youtube_api_key }}"
 
 ## es backup
@@ -102,7 +101,6 @@ content_service_base_url: "http://{{private_ingressgateway_ip}}/content"
 kp_content_service_base_url: "http://{{private_ingressgateway_ip}}/content"
 cert_service_base_url: "http://{{private_ingressgateway_ip}}/cert"
 certificate_base_path: "https://{{domain_name}}/certs"
-enc_service_base_url: "http://{{private_ingressgateway_ip}}/enc"
 cert_domain_url:  "{{proto}}://{{domain_name}}"
 cert_container_name: "{{instance}}-e-credentials"
 cert_cloud_storage_type: "azure"
