@@ -291,10 +291,10 @@ video-stream-generator:
       groupId = "{{ env_name }}-video-stream-generator-group"
     }
     task {
-      timer.duration = {{ vide_stream_generator_timer_duration }}
-      consumer.parallelism = {{ vide_stream_generator_consumer_parallelism }}
-      parallelism = {{ vide_stream_generator_parallelism }}
-      max.retries = {{ vide_stream_generator_max_retries }}
+      timer.duration = {{ video_stream_generator_timer_duration }}
+      consumer.parallelism = {{ video_stream_generator_consumer_parallelism }}
+      parallelism = {{ video_stream_generator_parallelism }}
+      max.retries = {{ video_stream_generator_max_retries }}
     }
     lms-cassandra {
       keyspace = {{ platform_keyspace_name }}
@@ -315,18 +315,18 @@ video-stream-generator:
         hls = "media_transform_hls"
       }
       stream {
-        base_url="{{ vide_stream_generator_azure_stream_base_url }}"
+        base_url="{{ video_stream_generator_azure_stream_base_url }}"
         endpoint_name = "default"
         protocol = "Hls"
         policy_name = "Predefined_ClearStreamingOnly"
       }
     }
-    azure_tenant="{{ vide_stream_generator_azure_tenant }}"
-    azure_subscription_id="{{ vide_stream_generator_azure_subscription_id }}"
-    azure_account_name="{{ vide_stream_generator_azure_account_name }}"
-    azure_resource_group_name="{{ vide_stream_generator_azure_resource_group_name }}"
-    azure_token_client_key="{{ vide_stream_generator_azure_token_client_key }}"
-    azure_token_client_secret="{{ vide_stream_generator_azure_token_client_secret }}"
+    azure_tenant="{{ video_stream_generator_azure_tenant }}"
+    azure_subscription_id="{{ video_stream_generator_azure_subscription_id }}"
+    azure_account_name="{{ video_stream_generator_azure_account_name }}"
+    azure_resource_group_name="{{ video_stream_generator_azure_resource_group_name }}"
+    azure_token_client_key="{{ video_stream_generator_azure_token_client_key }}"
+    azure_token_client_secret="{{ video_stream_generator_azure_token_client_secret }}"
 
 
   flink-conf: |+
