@@ -208,9 +208,9 @@ public class ProcessTransactionData {
 		Map<String, Object> map = new HashMap<String, Object>();
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe : nodeProp) {
 			if (nodeId == pe.entity().getId()) {
-				if (!compareValues(pe.previouslyCommitedValue(), pe.value())) {
+				if (!compareValues(pe.previouslyCommittedValue(), pe.value())) {
 					Map<String, Object> valueMap = new HashMap<String, Object>();
-					valueMap.put("ov", pe.previouslyCommitedValue()); // old
+					valueMap.put("ov", pe.previouslyCommittedValue()); // old
 																		// value
 					valueMap.put("nv", pe.value()); // new value
 					map.put((String) pe.key(), valueMap);
@@ -228,7 +228,7 @@ public class ProcessTransactionData {
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe : nodeProp) {
 			if (nodeId == pe.entity().getId()) {
 				Map<String, Object> valueMap = new HashMap<String, Object>();
-				valueMap.put("ov", pe.previouslyCommitedValue()); // old value
+				valueMap.put("ov", pe.previouslyCommittedValue()); // old value
 				valueMap.put("nv", null); // new value
 				map.put((String) pe.key(), valueMap);
 			}
@@ -473,8 +473,8 @@ public class ProcessTransactionData {
 		Map<String, Object> map = new HashMap<String, Object>();
 		for (org.neo4j.graphdb.event.PropertyEntry<Relationship> pe : relProp) {
 			if (relId == pe.entity().getId()) {
-				if (pe.previouslyCommitedValue() != null) {
-					map.put((String) pe.key(), pe.previouslyCommitedValue());
+				if (pe.previouslyCommittedValue() != null) {
+					map.put((String) pe.key(), pe.previouslyCommittedValue());
 				}
 			}
 		}
@@ -561,7 +561,7 @@ public class ProcessTransactionData {
 	private Map<String, Object> setMessageData(GraphDatabaseService graphDb, Long nodeId, String userId,
 			String requestId, String operationType, Map<String, Object> transactionData) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		Node node = graphDb.getNodeById(nodeId);
+		Node node = null;//graphDb.getNodeById(nodeId);
 		map.put(GraphDACParams.requestId.name(), requestId);
 		if (StringUtils.isEmpty(userId)) {
 			if (node.hasProperty("lastUpdatedBy"))
