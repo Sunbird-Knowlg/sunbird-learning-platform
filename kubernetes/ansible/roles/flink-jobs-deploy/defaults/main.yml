@@ -182,7 +182,7 @@ flink_job_names:
     cpu_requests: 0.3
 
   collection-cert-pre-processor:
-    job_class_name: 'org.sunbird.job.cert.task.CollectionCertPreProcessorTask'
+    job_class_name: 'org.sunbird.job.collectioncert.task.CollectionCertPreProcessorTask'
     replica: 1
     jobmanager_memory: 1024m
     taskmanager_memory: 1024m
