@@ -75,17 +75,6 @@ post_publish_batch_create_parallelism: 1
 certificate_generator_consumer_parallelism: 1
 certificate_generator_parallelism: 1
 
-### Certificate Pre & Post Processor Job related Vars
-middleware_course_batch_table: "course_batch"
-middleware_user_enrolments_table: "user_enrolments"
-middleware_assessment_aggregator_table: "assessment_aggregator"
-
-certificate_pre_processor_consumer_parallelism: 1
-certificate_pre_processor_parallelism: 1
-
-post_certificate_processor_consumer_parallelism: 1
-post_certificate_processor_parallelism: 1
-
 
 ### Video stream generator related vars
 ### IMPORTANT: The media-service configuration values should be updated in respective environment.
@@ -107,6 +96,13 @@ enrolment_reconciliation_parallelism: 1
 enrolment_reconciliation_batch_write_size: 10
 enrolment_reconciliation_filter_processe_enabled: true
 enrolment_reconciliation_collection_status_cache_expiry_time: 3600
+
+### Collection Cert Pre Processor
+collection_cert_pre_processor_consumer_parallelism: 1
+generate_certificate_parallelism: 1
+middleware_course_batch_table: "course_batch"
+middleware_user_enrolments_table: "user_enrolments"
+middleware_assessment_aggregator_table: "assessment_aggregator"
 
 
 ### to be removed
@@ -179,6 +175,14 @@ flink_job_names:
     cpu_requests: 0.3
   auto-creator-v2:
     job_class_name: 'org.sunbird.job.task.AutoCreatorV2StreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+
+  collection-cert-pre-processor:
+    job_class_name: 'org.sunbird.job.collectioncert.task.CollectionCertPreProcessorTask'
     replica: 1
     jobmanager_memory: 1024m
     taskmanager_memory: 1024m
