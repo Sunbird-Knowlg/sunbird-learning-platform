@@ -555,4 +555,42 @@ collection-cert-pre-processor:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+    
+collection-certificate-generator:
+  collection-certificate-generator: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.generate.certificate.request
+      output.audit.topic = {{ env_name }}.telemetry.raw
+      groupId = {{ env_name }}-certificate-generator-group
+    }
+    task {
+      restart-strategy.attempts = {{ restart_attempts }} # max 3 restart attempts
+      restart-strategy.delay = 240000 # in milli-seconds # on max restarts (3) within 4 min the job will fail.
+      consumer.parallelism = {{ collection_certificate_generator_consumer_parallelism }}
+      parallelism = {{ collection_certificate_generator_parallelism }}
+    }
+    lms-cassandra {
+      keyspace = "{{ middleware_course_keyspace }}"
+      user_enrolments.table = "{{ middleware_user_enrolments_table }}"
+      course_batch.table = "{{ middleware_course_batch_table }}"
+    }
+    cert_domain_url = "{{ cert_domain_url }}"
+    cert_container_name = "{{ cert_container_name }}"
+    cert_cloud_storage_type = "{{ cert_cloud_storage_type }}"
+    cert_azure_storage_secret = "{{ cert_azure_storage_secret }}"
+    cert_azure_storage_key = "{{ cert_azure_storage_key }}"
+    service {
+      certreg.basePath = "{{ cert_reg_service_base_url }}"
+      learner.basePath = "{{ learner_service_base_url }}"
+      enc.basePath = "{{ enc_service_base_url }}"
+    }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['collection-certificate-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['collection-certificate-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['collection-certificate-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
 
