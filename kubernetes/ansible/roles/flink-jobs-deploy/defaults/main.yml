@@ -104,6 +104,10 @@ middleware_course_batch_table: "course_batch"
 middleware_user_enrolments_table: "user_enrolments"
 middleware_assessment_aggregator_table: "assessment_aggregator"
 
+###  Collection Generator Job related Vars
+collection_certificate_generator_consumer_parallelism: 1
+collection_certificate_generator_parallelism: 1
+
 
 ### to be removed
 job_classname: ""
@@ -180,9 +184,15 @@ flink_job_names:
     taskmanager_memory: 1024m
     taskslots: 1
     cpu_requests: 0.3
-
   collection-cert-pre-processor:
     job_class_name: 'org.sunbird.job.collectioncert.task.CollectionCertPreProcessorTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  collection-certificate-generator:
+    job_class_name: 'org.sunbird.job.certgen.task.CertificateGeneratorStreamTask'
     replica: 1
     jobmanager_memory: 1024m
     taskmanager_memory: 1024m
