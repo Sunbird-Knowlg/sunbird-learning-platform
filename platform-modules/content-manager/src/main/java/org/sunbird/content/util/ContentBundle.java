@@ -26,6 +26,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sunbird.common.Platform;
 import org.sunbird.common.Slug;
 import org.sunbird.common.exception.ClientException;
@@ -76,7 +78,7 @@ public class ContentBundle {
 	
 	private static final List<String> EXCLUDE_ECAR_METADATA_FIELDS=Arrays.asList("screenshots","posterImage");
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
-
+	public static final Logger LOGGER = LoggerFactory.getLogger(ContentBundle.class);
 	public ContentBundle() {
 		// TODO Auto-generated constructor stub
 	}
@@ -318,6 +320,7 @@ public class ContentBundle {
 			convertStringToMapInMetadata(contents, ContentWorkflowPipelineParams.originData.name());
 
 			// Convert to JSON String
+			LOGGER.info("** contents ** " + contents);
 			String manifestJSON = header + mapper.writeValueAsString(contents) + "}}";
 
 			FileUtils.writeStringToFile(manifestFileName, manifestJSON);
