@@ -28,10 +28,8 @@
 		<module>distribution</module>
         <module>qr-image-generator</module>
 		<module>merge-user-courses</module>
-		<module>course-certificate-generator-v2</module>
         <module>auto-creator</module>
 		<module>mvc-processor-indexer</module>
-		<module>certificate-pre-processor</module>
     </modules>
 
 	<build>
