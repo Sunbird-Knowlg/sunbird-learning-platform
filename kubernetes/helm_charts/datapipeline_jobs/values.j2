@@ -274,6 +274,8 @@ questionset-publish:
     azure_storage_secret="{{ sunbird_public_storage_account_key }}"
     azure_storage_container="{{ azure_public_container }}"
 
+    master.category.validation.enabled = true
+
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['questionset-publish'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['questionset-publish'].taskmanager_memory }}
