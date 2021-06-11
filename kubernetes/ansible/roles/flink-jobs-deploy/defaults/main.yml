@@ -196,6 +196,8 @@ asset_enrichment_consumer_parallelism: 1
 asset_enrichment_router_parallelism: 1
 image_enrichment_parallelism: 1
 video_enrichment_parallelism: 1
+asset_enrichment_checkpointing_interval: 300000
+asset_enrichment_checkpointing_pause_interval: 180000
 
 ### Audit history indexer Related Vars
 audit_history_indexer_consumer_parallelism: 1
