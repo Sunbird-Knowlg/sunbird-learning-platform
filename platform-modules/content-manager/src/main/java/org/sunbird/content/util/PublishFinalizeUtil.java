@@ -48,7 +48,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
 	private static final Boolean CATEGORY_CACHE_READ = Platform.config.hasPath("master.category.cache.read") ? Platform.config.getBoolean("master.category.cache.read") : false;
 	private static final int CATEGORY_CACHE_TTL = Platform.config.hasPath("master.category.cache.ttl") ? Platform.config.getInt("master.category.cache.ttl") : 86400;
-	private static final Boolean CATEGORY_VALIDATION_ENABLED = Platform.config.hasPath("master.category.validation.enabled") ? Platform.config.getBoolean("master.category.validation.enabled") : true;
+	private static final String CATEGORY_VALIDATION_ENABLED = Platform.config.hasPath("master.category.validation.enabled") ? Platform.config.getString("master.category.validation.enabled") : "Yes";
 	private static ObjectMapper mapper = new ObjectMapper();
 	public static final Logger LOGGER = LoggerFactory.getLogger(PublishFinalizeUtil.class);
 	private static final List<String> masterCategoryMandatoryFields = Arrays.asList("code", "orgIdFieldName", "targetIdFieldName", "searchIdFieldName", "searchLabelFieldName");
@@ -183,7 +183,7 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	protected void enrichFrameworkCategoryMetadata(Map<String, List<String>> frameworkMetadata, Node node) {
 		String[] defaultArray = {};
 		Map<String, Object> metaData = node.getMetadata();
-		Map<String, Object> frameworkCategoryFieldsMap = (CATEGORY_VALIDATION_ENABLED) ? getFrameworkCategoryMap() : new HashMap<String, Object>();
+		Map<String, Object> frameworkCategoryFieldsMap = (StringUtils.equalsIgnoreCase(CATEGORY_VALIDATION_ENABLED, "Yes")) ? getFrameworkCategoryMap() : new HashMap<String, Object>();
 		
 		Map<String, List<String>> idMap = (Map<String, List<String>>)frameworkCategoryFieldsMap.getOrDefault("id", new HashMap<String, List<String>>());
 		Map<String, List<String>> nameMap = (Map<String, List<String>>)frameworkCategoryFieldsMap.getOrDefault("name", new HashMap<String, List<String>>());
