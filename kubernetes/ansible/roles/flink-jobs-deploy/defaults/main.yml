@@ -233,4 +233,4 @@ service_monitor_enabled: true
 flink_jobs_console_log_level: INFO
 flink_libraries_log_level: ERROR
 
-master_category_validation_enabled: true
+master_category_validation_enabled: "Yes"
