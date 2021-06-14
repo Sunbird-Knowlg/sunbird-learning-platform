@@ -11,6 +11,7 @@ node() {
             stage('Checkout') {
                 tag_name = env.JOB_NAME.split("/")[-1]
                 module = env.JOB_NAME.split("/")[-3]
+                envDir = env.JOB_NAME.split("/")[-4]
                 pre_checks()
                 cleanWs()
                 def scmVars = checkout scm
@@ -23,7 +24,7 @@ node() {
         
 //        stage Build learning.
            println ANSI_BOLD + ANSI_GREEN + "Triggering KnowledgePlatform build.." + ANSI_NORMAL
-           lpbuild = build job: "AutoBuild/SBStaging/$module/Learning", parameters: [string(name: 'github_release_tag', value: "$tag_name")]
+           lpbuild = build job: "AutoBuild/$envDir/$module/Learning", parameters: [string(name: 'github_release_tag', value: "$tag_name")]
 
           if (lpbuild.currentResult == "SUCCESS") {
 //        stage Build
