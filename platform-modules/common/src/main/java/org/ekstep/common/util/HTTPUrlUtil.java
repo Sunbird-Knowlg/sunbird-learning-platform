@@ -17,10 +17,10 @@ public class HTTPUrlUtil {
 	private static long sizeLimit = 50000000;
 	
 	public static Map<String, Object> getMetadata(String fileUrl){
-		URLConnection conn = null;
-		Map<String, Object> metadata = new HashMap<>();
+/*		URLConnection conn = null;
+		Map<String, Object> metadata = new HashMap<>();*/
 	    try {
-	    	URL url = new URL(fileUrl);
+/*	    	URL url = new URL(fileUrl);
 	        conn = (HttpURLConnection)url.openConnection();
 	        if(conn instanceof HttpURLConnection) {
 	            ((HttpURLConnection)conn).setRequestMethod("HEAD");
@@ -28,7 +28,9 @@ public class HTTPUrlUtil {
 	        conn.getInputStream();
 	        metadata.put("size", conn.getContentLengthLong());
 	        metadata.put("type", conn.getContentType());
-	        return metadata;
+	        return metadata;*/
+			return CommonCloudStore.getMetadata(fileUrl);
+
 	    } catch(UnknownHostException e) {
 	    		throw new ClientException("ERR_UNKNOWN_HOST", "Invalid url."); 
 	    	} catch(FileNotFoundException e) {
@@ -36,11 +38,12 @@ public class HTTPUrlUtil {
 	    } catch (Exception e) {
 	    		throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
 					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
-	    } finally {
+	    } /*finally {
 	        if(conn instanceof HttpURLConnection) {
 	            ((HttpURLConnection)conn).disconnect();
 	        }
-	    }
+	    }*/
+
 	}
 	
 	public static boolean isValidSize(long size) {

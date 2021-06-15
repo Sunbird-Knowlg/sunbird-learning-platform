@@ -24,6 +24,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.optimizr.ThumbnailGenerator;
+import org.ekstep.common.util.CommonCloudStore;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.ZipUtility;
@@ -213,7 +214,8 @@ public class BaseFinalizer extends BasePipeline {
 		ObjectMapper mapper = new ObjectMapper();
 		File stageIcon = null;
 		try {
-			if (stageIconFile.contains("http")) {
+/*			if (stageIconFile.contains("http")) {
+
 				stageIconFile = StringUtils.removeEnd(stageIconFile, "?format=base64");
 				stageIconId = stageIconFile.substring((stageIconFile.indexOf("/stage") + 7), stageIconFile.length());
 
@@ -243,7 +245,9 @@ public class BaseFinalizer extends BasePipeline {
 				}
 			} else {
 				stageIcon = downloadStageIconFiles(basePath, stageIconFile, stageIconId);
-			}
+			}*/
+			stageIcon = CommonCloudStore.download(stageIconFile, basePath);
+
 
 			if (stageIcon.exists()) {
 				TelemetryManager.log("Thumbnail created for Content Id: " + node.getIdentifier());

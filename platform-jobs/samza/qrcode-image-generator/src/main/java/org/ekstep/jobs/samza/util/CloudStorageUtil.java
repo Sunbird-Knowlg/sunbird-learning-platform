@@ -3,6 +3,7 @@ package org.ekstep.jobs.samza.util;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.util.CommonCloudStore;
 import org.sunbird.cloud.storage.BaseStorageService;
 import org.sunbird.cloud.storage.factory.StorageConfig;
 import org.sunbird.cloud.storage.factory.StorageServiceFactory;
@@ -49,14 +50,15 @@ public class CloudStorageUtil {
     }
 
     public static void downloadFile(String downloadUrl, File fileToSave) throws IOException {
-        URL url = new URL(downloadUrl);
+/*        URL url = new URL(downloadUrl);
         ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
         FileOutputStream fileOutputStream = new FileOutputStream(fileToSave);
         FileChannel fileChannel = fileOutputStream.getChannel();
         fileOutputStream.getChannel().transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
         fileChannel.close();
         fileOutputStream.close();
-        readableByteChannel.close();
+        readableByteChannel.close();*/
+        CommonCloudStore.download(downloadUrl, fileToSave.getPath());
     }
 
 }
