@@ -50,14 +50,6 @@ public class CloudStorageUtil {
     }
 
     public static void downloadFile(String downloadUrl, File fileToSave) throws IOException {
-/*        URL url = new URL(downloadUrl);
-        ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
-        FileOutputStream fileOutputStream = new FileOutputStream(fileToSave);
-        FileChannel fileChannel = fileOutputStream.getChannel();
-        fileOutputStream.getChannel().transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
-        fileChannel.close();
-        fileOutputStream.close();
-        readableByteChannel.close();*/
         CommonCloudStore.download(downloadUrl, fileToSave.getPath());
     }
 

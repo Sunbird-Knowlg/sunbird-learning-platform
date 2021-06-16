@@ -63,7 +63,7 @@ public class CommonCloudStore {
 
     public static File download(String artifactUrl, String pathToSave) throws IOException {
 
-        String localPath = (pathToSave!=null && !pathToSave.isEmpty())? pathToSave : "tmp/" + artifactUrl.trim() + File.separator;
+        String localPath = (pathToSave!=null && !pathToSave.isEmpty())? pathToSave + File.separator : "tmp/" + artifactUrl.trim() + File.separator;
         String filePath = null;
         String[] fileUrl = artifactUrl.split("/");
         String container = fileUrl[3];

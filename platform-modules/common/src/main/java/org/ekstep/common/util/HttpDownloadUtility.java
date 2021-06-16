@@ -36,10 +36,7 @@ public class HttpDownloadUtility {
 	public static File downloadFile(String fileURL, String saveDir) {
 
 		try {
-
-			System.out.println("http utility called.........");
 			return CommonCloudStore.download(fileURL, saveDir);
-
 
 		} catch (Exception e) {
 			e.printStackTrace();
