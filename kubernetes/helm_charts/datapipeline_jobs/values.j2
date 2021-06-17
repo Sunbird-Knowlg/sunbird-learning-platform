@@ -525,8 +525,7 @@ audit-event-generator:
     kafka {
       input.topic = "{{ env_name }}.learning.graph.events"
       output.topic = "{{ env_name }}.telemetry.raw"
-      groupId = "sunbirddev-audit-event-generator-group"
-      output.metrics_topic = "{{ env_name }}.pipeline_metrics"
+      groupId = "{{ env_name }}-audit-event-generator-group"
     }
 
     task {
@@ -539,12 +538,7 @@ audit-event-generator:
       basePath = "{{ kp_schema_base_path }}"
     }
 
-    redis {
-      database {
-        relationCache.id = 10
-        collectionCache.id = 5
-      }
-    }
+    channel.default = "{{ audit_event_generator_default_channel }}"
 
 
   flink-conf: |+

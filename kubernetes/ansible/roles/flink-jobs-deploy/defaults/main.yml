@@ -112,6 +112,7 @@ enrolment_reconciliation_collection_status_cache_expiry_time: 3600
 audit_event_generator_consumer_parallelism: 1
 audit_event_generator_parallelism: 1
 audit_event_generator_producer_parallelism: 1
+audit_event_generator_default_channel: "{{ default_channel | default('org.sunbird') }}"
 
 ### to be removed
 job_classname: ""
