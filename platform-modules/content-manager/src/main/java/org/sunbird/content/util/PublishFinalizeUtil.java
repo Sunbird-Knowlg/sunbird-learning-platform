@@ -15,6 +15,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sunbird.common.Platform;
 import org.sunbird.common.Slug;
 import org.sunbird.common.dto.Response;
@@ -46,7 +48,10 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
 	private static final Boolean CATEGORY_CACHE_READ = Platform.config.hasPath("master.category.cache.read") ? Platform.config.getBoolean("master.category.cache.read") : false;
 	private static final int CATEGORY_CACHE_TTL = Platform.config.hasPath("master.category.cache.ttl") ? Platform.config.getInt("master.category.cache.ttl") : 86400;
+	private static final String CATEGORY_VALIDATION_ENABLED = Platform.config.hasPath("master.category.validation.enabled") ? Platform.config.getString("master.category.validation.enabled") : "Yes";
 	private static ObjectMapper mapper = new ObjectMapper();
+	public static final Logger LOGGER = LoggerFactory.getLogger(PublishFinalizeUtil.class);
+	private static final List<String> masterCategoryMandatoryFields = Arrays.asList("code", "orgIdFieldName", "targetIdFieldName", "searchIdFieldName", "searchLabelFieldName");
 	private static final Map<String, String> frameworkCategorySearchMetadataMapping = new HashMap<String, String>(){{
 		put("se_boards", "board");
 		put("se_subjects", "subject");
@@ -178,11 +183,11 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 	protected void enrichFrameworkCategoryMetadata(Map<String, List<String>> frameworkMetadata, Node node) {
 		String[] defaultArray = {};
 		Map<String, Object> metaData = node.getMetadata();
-		Map<String, Object> frameworkCategoryFieldsMap = getFrameworkCategoryMap();
+		Map<String, Object> frameworkCategoryFieldsMap = (StringUtils.equalsIgnoreCase(CATEGORY_VALIDATION_ENABLED, "Yes")) ? getFrameworkCategoryMap() : new HashMap<String, Object>();
 		
-		Map<String, List<String>> idMap = (Map<String, List<String>>)frameworkCategoryFieldsMap.get("id");
-		Map<String, List<String>> nameMap = (Map<String, List<String>>)frameworkCategoryFieldsMap.get("name");
-		Map<String, List<String>> frameworkMetaFieldsLabel = getLabels(metaData, node.getIdentifier(), (List<String>)frameworkCategoryFieldsMap.get("contentFrameworkMetaFields"));
+		Map<String, List<String>> idMap = (Map<String, List<String>>)frameworkCategoryFieldsMap.getOrDefault("id", new HashMap<String, List<String>>());
+		Map<String, List<String>> nameMap = (Map<String, List<String>>)frameworkCategoryFieldsMap.getOrDefault("name", new HashMap<String, List<String>>());
+		Map<String, List<String>> frameworkMetaFieldsLabel = getLabels(metaData, node.getIdentifier(), (List<String>)frameworkCategoryFieldsMap.getOrDefault("contentFrameworkMetaFields", new ArrayList<String>()));
 		
 		idMap.keySet().forEach(category -> {
 			List<String> orgData = Arrays.asList((String[])metaData.getOrDefault(idMap.get(category).get(0), defaultArray));
@@ -228,7 +233,8 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 			List<Node> categoryNodes = controllerUtil.getNodes("domain", "Category", 0, 50);
 			if(CollectionUtils.isNotEmpty(categoryNodes)) {
 				categoryNodes.forEach(node -> {
-					if(SystemNodeTypes.DATA_NODE.name().equals(node.getNodeType())){
+					if(SystemNodeTypes.DATA_NODE.name().equals(node.getNodeType()) && 
+							node.getMetadata().keySet().containsAll(masterCategoryMandatoryFields)){
 						masterCategory.add(new HashMap<String, String>() {{
 							put("code", (String)node.getMetadata().get("code"));
 							put("orgIdFieldName", (String)node.getMetadata().get("orgIdFieldName"));
@@ -238,14 +244,17 @@ public class PublishFinalizeUtil extends BaseFinalizer{
 						}});
 					}
 				});
-				if(CollectionUtils.isEmpty(masterCategory))
+				if(CollectionUtils.isEmpty(masterCategory)) {
+					LOGGER.info("PublishFinalizeUtil:fetchMasterCategory: Master category list is empty.");
 					throw new ServerException("ERR_EMPTY_MASTER_CATEGORY_DATA", "Master category list can not be empty.");
+				}
 			}else {
+				LOGGER.info("PublishFinalizeUtil:fetchMasterCategory: No Master category objbect found.");
 				throw new ServerException("ERR_FETCHING_MASTER_CATEGORY_DATA", "No object found with objectType: Category.");
 			}
 		}catch(ResourceNotFoundException e) {
-			TelemetryManager.error("Error while fetching neo4j records for objectType: Category", e);
-            throw new ServerException("ERR_FETCHING_CATEGORY_DATA", "Error while fetching neo4j records for objectType: Category.", e);
+			LOGGER.error("Error while fetching neo4j records for objectType: Category", e);
+	        throw new ServerException("ERR_FETCHING_CATEGORY_DATA", "Error while fetching neo4j records for objectType: Category.", e);
 		}
 		return masterCategory;
 	}
