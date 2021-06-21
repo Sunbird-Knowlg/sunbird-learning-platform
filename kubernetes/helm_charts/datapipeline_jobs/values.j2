@@ -520,7 +520,6 @@ auto-creator-v2:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
-
 audit-event-generator:
   audit-event-generator: |+
     include file("/data/flink/conf/base-config.conf")
@@ -550,7 +549,6 @@ audit-event-generator:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
-
 
 collection-cert-pre-processor:
   collection-cert-pre-processor: |+
@@ -589,8 +587,7 @@ collection-cert-pre-processor:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
-
-
+    
 collection-certificate-generator:
   collection-certificate-generator: |+
     include file("/data/flink/conf/base-config.conf")
