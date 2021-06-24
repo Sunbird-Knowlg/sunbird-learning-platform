@@ -520,6 +520,36 @@ auto-creator-v2:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
+audit-event-generator:
+  audit-event-generator: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.learning.graph.events"
+      output.topic = "{{ env_name }}.telemetry.raw"
+      groupId = "{{ env_name }}-audit-event-generator-group"
+    }
+
+    task {
+      consumer.parallelism = {{ audit_event_generator_consumer_parallelism }}
+      parallelism = {{ audit_event_generator_parallelism }}
+      producer.parallelism = {{ audit_event_generator_producer_parallelism }}
+    }
+
+    schema {
+      basePath = "{{ kp_schema_base_path }}"
+    }
+
+    channel.default = "{{ audit_event_generator_default_channel }}"
+
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['audit-event-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['audit-event-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['audit-event-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
 collection-cert-pre-processor:
   collection-cert-pre-processor: |+
     include file("/data/flink/conf/base-config.conf")

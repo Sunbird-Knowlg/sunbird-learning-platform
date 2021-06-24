@@ -97,6 +97,12 @@ enrolment_reconciliation_batch_write_size: 10
 enrolment_reconciliation_filter_processe_enabled: true
 enrolment_reconciliation_collection_status_cache_expiry_time: 3600
 
+### Audit event generator related vars
+audit_event_generator_consumer_parallelism: 1
+audit_event_generator_parallelism: 1
+audit_event_generator_producer_parallelism: 1
+audit_event_generator_default_channel: "{{ default_channel | default('org.sunbird') }}"
+
 ### Collection Cert Pre Processor
 collection_cert_pre_processor_consumer_parallelism: 1
 generate_certificate_parallelism: 1
@@ -179,6 +185,13 @@ flink_job_names:
     cpu_requests: 0.3
   auto-creator-v2:
     job_class_name: 'org.sunbird.job.task.AutoCreatorV2StreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  audit-event-generator:
+    job_class_name: 'org.sunbird.job.auditevent.task.AuditEventGeneratorStreamTask'
     replica: 1
     jobmanager_memory: 1024m
     taskmanager_memory: 1024m
