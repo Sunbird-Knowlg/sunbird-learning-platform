@@ -76,7 +76,6 @@ public class ContentUtil {
 		Integer delayUpload = StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.h5p-archive") ? 6 * API_CALL_DELAY : API_CALL_DELAY;
 		List<Map<String, Object>> collection = (List<Map<String, Object>>) edata.getOrDefault(AutoCreatorParams.collection.name(), new ArrayList<HashMap<String, Object>>());
 		Map<String, Object> textbookInfo = (Map<String, Object>) edata.getOrDefault(AutoCreatorParams.textbookInfo.name(), new HashMap<String, Object>());
-		String newIdentifier = (String) edata.get(AutoCreatorParams.identifier.name());
 		LOGGER.info("ContentUtil :: process :: started processing for: " + identifier + " | Channel : " + channelId + " | Metadata : " + metadata+ " | collection :"+collection +" | textbookInfo : "+textbookInfo);
 		String contentStage = "";
 		String internalId = "";
@@ -110,7 +109,7 @@ public class ContentUtil {
 		try {
 			switch (contentStage) {
 				case "create": {
-					Map<String, Object> result = create(channelId, identifier, newIdentifier, repository, createMetadata);
+					Map<String, Object> result = create(channelId, identifier, identifier, repository, createMetadata);
 					internalId = (String) result.get(AutoCreatorParams.identifier.name());
 					if (StringUtils.isNotBlank(internalId)) {
 						isCreated = true;
