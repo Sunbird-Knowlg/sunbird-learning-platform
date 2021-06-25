@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>auto-creator</artifactId>
-			<version>0.0.31</version>
+			<version>0.0.32</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
