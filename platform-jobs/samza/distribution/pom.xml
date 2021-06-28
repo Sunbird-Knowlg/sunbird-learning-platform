@@ -11,13 +11,6 @@
     <dependencies>
 		<dependency>
 			<groupId>org.sunbird</groupId>
-			<artifactId>audit-event-generator</artifactId>
-			<version>0.0.56</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.sunbird</groupId>
 			<artifactId>qrcode-image-generator</artifactId>
 			<version>0.0.29</version>
 			<type>tar.gz</type>
