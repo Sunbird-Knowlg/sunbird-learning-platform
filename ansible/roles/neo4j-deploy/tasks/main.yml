@@ -41,7 +41,7 @@
   systemd: name=logstash state=started
 
 - name: make sure neo4j unique key constraint enabled
-  shell: echo '{{item}}' | {{ neo4j_home }}/bin/cypher-shell
+  shell: echo '{{item}}' | {{ neo4j_home }}/bin/neo4j-shell
   with_items:
     - CREATE CONSTRAINT ON (domain:domain) ASSERT domain.IL_UNIQUE_ID IS UNIQUE;
     - CREATE INDEX ON :domain(IL_FUNC_OBJECT_TYPE);
