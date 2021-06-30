@@ -266,6 +266,7 @@ public class ContentUtil {
 		if(StringUtils.isNotBlank(newIdentifier))
 			metaFields.put(AutoCreatorParams.identifier.name(), newIdentifier);
 		else {
+            metaFields.put(AutoCreatorParams.identifier.name(), identifier);
 			metaFields.put(AutoCreatorParams.origin.name(), identifier);
 			metaFields.put(AutoCreatorParams.originData.name(), new HashMap<String, Object>(){{
 				put(AutoCreatorParams.identifier.name(), identifier);
