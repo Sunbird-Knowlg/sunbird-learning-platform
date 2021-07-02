@@ -1,9 +1,10 @@
-- import_playbook: artifacts-download.yml
-  vars:
-    download_neo4j: true
-    artifact: "{{ neo4j_zip }}"
-    artifact_path: "{{ playbook_dir }}/artifacts/{{ artifact }}"
-  when: download_neo4j
+- hosts: local
+  gather_facts: false
+  tasks:
+  - name: Downloading neo4j
+    get_url:
+      url: "https://neo4j.com/artifact.php?name={{ neo4j_zip }}"
+      dest: "{{ playbook_dir }}/artifacts/{{ neo4j_zip }}"
 
 - hosts: learning-neo4j-cluster
   vars_files:
