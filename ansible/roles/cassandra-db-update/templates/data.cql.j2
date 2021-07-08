@@ -91,10 +91,9 @@ CREATE TABLE IF NOT EXISTS {{ question_keyspace_name }}.question_data (
 CREATE TABLE IF NOT EXISTS {{ hierarchy_keyspace_name }}.questionset_hierarchy (
   identifier text,
   hierarchy text,
+  instructions text,
   PRIMARY KEY (identifier)
 );
-
-ALTER TABLE {{ hierarchy_keyspace_name }}.questionset_hierarchy ADD instructions text;
 
 CREATE KEYSPACE IF NOT EXISTS {{ platform_keyspace_name }} WITH replication = {
   'class': 'SimpleStrategy',
