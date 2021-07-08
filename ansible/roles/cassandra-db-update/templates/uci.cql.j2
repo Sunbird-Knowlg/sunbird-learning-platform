@@ -1,0 +1,4 @@
+CREATE KEYSPACE IF NOT EXISTS {{ uci_keyspace_name }} WITH replication = {
+  'class': 'SimpleStrategy',
+  'replication_factor': '1'
+};
