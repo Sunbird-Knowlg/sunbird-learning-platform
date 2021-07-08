@@ -13,6 +13,7 @@
   with_items:
     - "data.cql"
     - "dialcode.cql"
+    - "uci.cql"
   run_once: true
 
   
@@ -22,4 +23,5 @@
   with_items:
     - "data.cql"
     - "dialcode.cql"
+    - "uci.cql"
   run_once: true

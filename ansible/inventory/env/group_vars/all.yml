@@ -23,6 +23,7 @@ category_keyspace_name: "{{instance}}_category_store"
 assessment_keyspace_name: "{{instance}}_question_store"
 question_keyspace_name: "{{instance}}_question_store"
 platform_keyspace_name: "{{instance}}_platform_db"
+uci_keyspace_name: "{{instance}}_uci_store"
 
 
 dp_cassandra_connection: "{{ groups['dp-cassandra'][0] }}:9042"
