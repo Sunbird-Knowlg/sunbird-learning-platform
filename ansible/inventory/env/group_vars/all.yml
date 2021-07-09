@@ -9,6 +9,7 @@ secrets_path: '{{inventory_dir}}/group_vars/common.yml'
 env_name: "{{ env }}"
 instance_name: "{{ env }}"
 instance: "{{ env }}"
+cert_env_prefix : "{{ instance }}"
 
 learner_user: learning
 learner_group: learning
@@ -103,7 +104,7 @@ cert_service_base_url: "http://{{private_ingressgateway_ip}}/cert"
 enc_service_base_url: "http://{{private_ingressgateway_ip}}/enc"
 certificate_base_path: "https://{{domain_name}}/certs"
 cert_domain_url:  "{{proto}}://{{domain_name}}"
-cert_container_name: "{{instance}}-e-credentials"
+cert_container_name: "{{cert_env_prefix}}-e-credentials"
 cert_cloud_storage_type: "azure"
 cert_azure_storage_secret: "{{sunbird_private_storage_account_key}}"
 cert_azure_storage_key: "{{sunbird_private_storage_account_name}}"
