@@ -9,7 +9,7 @@ secrets_path: '{{inventory_dir}}/group_vars/common.yml'
 env_name: "{{ env }}"
 instance_name: "{{ env }}"
 instance: "{{ env }}"
-cert_env_prefix : "{{ env }}"
+cert_env_prefix : "{{ instance }}"
 
 learner_user: learning
 learner_group: learning
