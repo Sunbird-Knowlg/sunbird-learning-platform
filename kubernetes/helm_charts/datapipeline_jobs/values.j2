@@ -654,13 +654,15 @@ content-publish:
       }
     }
 
-    print_service.base_url = "{{ kp_print_service_base_url }}"
     cloud_storage_type="{{ cloud_store }}"
     azure_storage_key="{{ sunbird_public_storage_account_name }}"
     azure_storage_secret="{{ sunbird_public_storage_account_key }}"
     azure_storage_container="{{ azure_public_container }}"
 
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
+    service {
+      print.basePath = "{{ kp_print_service_base_url }}"
+    }
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['content-publish'].jobmanager_memory }}
