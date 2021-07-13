@@ -163,6 +163,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 			TelemetryManager.error("Instruction event is not generated properly. # beJobRequestEvent : " + beJobRequestEvent);
 			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
 		}
+
 		if(learningJobInstructionMimeType.contains((String)node.getMetadata().get("mimeType")))
 			pushEvent(beJobRequestEvent, learningJobInstructionTopic);
 		else
@@ -201,6 +202,8 @@ public class ReviewFinalizer extends BaseFinalizer {
 		instructionEventMetadata.put("pkgVersion", metadata.get("pkgVersion"));
 		instructionEventMetadata.put("mimeType", metadata.get("mimeType"));
 		instructionEventMetadata.put("lastPublishedBy", metadata.get("lastPublishedBy"));
+		instructionEventMetadata.put("identifier", metadata.get("identifier"));
+		instructionEventMetadata.put("objectType", metadata.get("objectType"));
 
 		edata.put("action", action);
 		edata.put("metadata", instructionEventMetadata);
