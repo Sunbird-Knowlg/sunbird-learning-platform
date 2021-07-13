@@ -202,8 +202,9 @@ public class ReviewFinalizer extends BaseFinalizer {
 		instructionEventMetadata.put("pkgVersion", metadata.get("pkgVersion"));
 		instructionEventMetadata.put("mimeType", metadata.get("mimeType"));
 		instructionEventMetadata.put("lastPublishedBy", metadata.get("lastPublishedBy"));
-		instructionEventMetadata.put("identifier", metadata.get("identifier"));
-		instructionEventMetadata.put("objectType", metadata.get("objectType"));
+		instructionEventMetadata.put("identifier", contentId);
+		if(metadata.containsKey("objectType") && StringUtils.isNotBlank((String) metadata.get("objectType")))
+			instructionEventMetadata.put("objectType", metadata.get("objectType"));
 
 		edata.put("action", action);
 		edata.put("metadata", instructionEventMetadata);
