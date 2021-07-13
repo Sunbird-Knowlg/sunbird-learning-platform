@@ -93,7 +93,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 	 * @return the response
 	 */
 	public Response finalize(Map<String, Object> parameterMap) {
-		TelemetryManager.log("Parameter Map: ", parameterMap);
+		TelemetryManager.info("Parameter Map: ", parameterMap);
 		Response response;
 		if (null == parameterMap)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -163,7 +163,6 @@ public class ReviewFinalizer extends BaseFinalizer {
 			TelemetryManager.error("Instruction event is not generated properly. # beJobRequestEvent : " + beJobRequestEvent);
 			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
 		}
-
 		if(learningJobInstructionMimeType.contains((String)node.getMetadata().get("mimeType")))
 			pushEvent(beJobRequestEvent, learningJobInstructionTopic);
 		else
@@ -204,7 +203,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 		instructionEventMetadata.put("lastPublishedBy", metadata.get("lastPublishedBy"));
 		instructionEventMetadata.put("identifier", contentId);
 		if(metadata.containsKey("objectType") && StringUtils.isNotBlank((String) metadata.get("objectType")))
-			instructionEventMetadata.put("objectType", metadata.get("objectType"));
+			instructionEventMetadata.put("objectType", ((String) metadata.get("objectType")).replaceAll("Image", ""));
 
 		edata.put("action", action);
 		edata.put("metadata", instructionEventMetadata);
