@@ -425,6 +425,9 @@ asset-enrichment:
       video_stream.topic = {{ env_name }}.content.postpublish.request
     }
     task {
+      checkpointing.timeout = 900000
+      checkpointing.interval = {{ asset_enrichment_checkpointing_interval }}
+      checkpointing.pause.between.seconds = {{ asset_enrichment_checkpointing_pause_interval }}
       consumer.parallelism = {{ asset_enrichment_consumer_parallelism }}
       router.parallelism = {{ asset_enrichment_router_parallelism }}
       imageEnrichment.parallelism = {{ image_enrichment_parallelism }}
