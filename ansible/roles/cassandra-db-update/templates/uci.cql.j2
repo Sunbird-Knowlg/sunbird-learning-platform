@@ -2,3 +2,27 @@ CREATE KEYSPACE IF NOT EXISTS {{ uci_keyspace_name }} WITH replication = {
   'class': 'SimpleStrategy',
   'replication_factor': '1'
 };
+
+CREATE TABLE IF NOT EXISTS {{ uci_keyspace_name }}.XMessage (
+  id bigint,
+  userId text,
+  fromId text,
+  channel text,
+  provider text,
+  timestamp timestamp,
+  messageState text,
+  xMessage text,
+  app text,
+  auxData text,
+  messageId text,
+  replyId text,
+  causeId text,
+  PRIMARY KEY ((userId), timestamp)) 
+  WITH CLUSTERING ORDER BY (timestamp DESC);
+
+{% if groups['cassandra-node-2'] is defined %}
+ALTER KEYSPACE {{ uci_keyspace_name }} WITH replication = {
+  'class': 'NetworkTopologyStrategy',
+  'datacenter1' : 2
+};
+{% endif %}
