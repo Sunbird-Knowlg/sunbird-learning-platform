@@ -642,6 +642,11 @@ content-publish:
       parallelism = 1
       router.parallelism = 1
     }
+    redis {
+      database {
+        contentCache.id = 0
+      }
+    }
     content {
       keyspace = "{{ content_keyspace_name }}"
       table = "content_data"
@@ -655,6 +660,7 @@ content-publish:
         enabled = true
         mimeType = ["video/mp4", "video/webm"]
       }
+      artifact.size.for_online= {{ content_artifact_size_for_online }}
     }
 
     cloud_storage_type="{{ cloud_store }}"
