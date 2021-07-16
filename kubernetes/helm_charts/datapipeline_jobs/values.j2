@@ -657,7 +657,7 @@ content-publish:
       objectType = ["Content", "ContentImage"]
       mimeType = ["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm"]
       stream {
-        enabled = true
+        enabled = {{ content_stream_enabled }}
         mimeType = ["video/mp4", "video/webm"]
       }
       artifact.size.for_online= {{ content_artifact_size_for_online }}
