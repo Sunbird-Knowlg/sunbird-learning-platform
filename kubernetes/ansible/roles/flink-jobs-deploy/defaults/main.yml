@@ -87,7 +87,7 @@ video_stream_generator_azure_token_client_secret: "{{ media_service_azure_token_
 video_stream_generator_azure_stream_base_url: "{{ stream_base_url | default('') }}"
 video_stream_generator_consumer_parallelism: 1
 video_stream_generator_parallelism: 1
-video_stream_generator_timer_duration: 60
+video_stream_generator_timer_duration: 600
 video_stream_generator_max_retries: 10
 
 ### Enrolment Reconciliation
