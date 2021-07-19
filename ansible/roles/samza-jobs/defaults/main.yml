@@ -47,3 +47,4 @@ content_streaming_enabled: false
 mvc_search_indexer_container_count: 1
 auto_creator_artifact_allowed_sources: ""
 auto_creator_gservice_acct_cred: ""
+certificate_pre_processor_container_count: 1

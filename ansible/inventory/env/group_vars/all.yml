@@ -21,21 +21,21 @@ hierarchy_keyspace_name: "{{instance}}_hierarchy_store"
 dialcode_keyspace_name: "{{instance}}_dialcode_store"
 category_keyspace_name: "{{instance}}_category_store"
 assessment_keyspace_name: "{{instance}}_question_store"
+question_keyspace_name: "{{instance}}_question_store"
 
 
 dp_cassandra_connection: "{{ groups['dp-cassandra'][0] }}:9042"
 core_cassandra_connection: "{{groups['core-cassandra']|join(':9042,')}}:9042"
 core_cassandra_connection_ip: "{{ groups['core-cassandra'][0] }}"
 
-
-dial_service_generate_url: "{{ekstep_domain_name}}/api/dialcode/v3/generate"
+dial_service_generate_url: "http://{{private_ingressgateway_ip}}/dial/dialcode/v3/generate"
 search_service_endpoint: "{{ekstep_domain_name}}/api/search/v2/search"
 
 
 ## learning service variables
 plugin_media_base_url: "{{proto}}://{{domain_name}}"  # Plugin should be doanloaded from sunbird. Commenting the ekstep url : "{{ekstep_domain_name}}"
 content_media_base_url: "{{proto}}://{{domain_name}}"      # content_media_base_url
-dial_service_search_url: "{{ekstep_domain_name}}/api/dialcode/v3/search"   # dial_service_search_url
+dial_service_search_url: "http://{{private_ingressgateway_ip}}/dial/dialcode/v3/search"   # dial_service_search_url
 resourcemanager: "{{ groups['yarn-master'][0] }}"
 yarn_slaves: "{{ groups['yarn-slave']}}"
 __yarn_host__: "{{ groups['yarn-master'][0] }}"

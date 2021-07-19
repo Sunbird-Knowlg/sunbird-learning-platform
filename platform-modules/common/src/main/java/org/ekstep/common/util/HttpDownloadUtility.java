@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Slug;
 import org.ekstep.telemetry.logger.TelemetryManager;
@@ -22,8 +23,6 @@ import org.ekstep.telemetry.logger.TelemetryManager;
  *
  */
 public class HttpDownloadUtility {
-
-	private static final int BUFFER_SIZE = 4096;
 
 	/**
 	 * Downloads a file from a URL

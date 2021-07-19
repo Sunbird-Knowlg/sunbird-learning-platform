@@ -90,7 +90,10 @@ public class PublishPipelineService implements ISamzaService {
 			return;
 		}
 		Map<String, Object> edata = (Map<String, Object>) message.get(PublishPipelineParams.edata.name());
+		LOGGER.info("Edata :: " + edata);
 		Map<String, Object> object = (Map<String, Object>) message.get(PublishPipelineParams.object.name());
+		LOGGER.info("object :: " + object);
+
 
 		if (!validateObject(edata) || null == object) {
 			LOGGER.info("Ignoring the message because it is not valid for publishing.");
@@ -98,9 +101,13 @@ public class PublishPipelineService implements ISamzaService {
 		}
 
 		String nodeId = (String) object.get(PublishPipelineParams.id.name());
+		LOGGER.info("nodeId :: " + nodeId);
+
 		if (StringUtils.isNotBlank(nodeId)) {
 			try {
 				Node node = getNode(nodeId);
+				LOGGER.info("node :: " + node);
+
 				if (null != node) {
 					if (prePublishValidation(node, (Map<String, Object>) edata.get("metadata"))) {
 						LOGGER.info(

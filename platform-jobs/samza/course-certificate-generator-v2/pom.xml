@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>course-certificate-generator-v2</artifactId>
-    <version>0.0.18</version>
+    <version>0.0.22</version>
     
 
     <properties>
