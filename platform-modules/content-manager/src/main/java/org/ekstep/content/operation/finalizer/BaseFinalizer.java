@@ -24,6 +24,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.optimizr.ThumbnailGenerator;
+import org.ekstep.common.util.CommonCloudStore;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.ZipUtility;
@@ -213,37 +214,7 @@ public class BaseFinalizer extends BasePipeline {
 		ObjectMapper mapper = new ObjectMapper();
 		File stageIcon = null;
 		try {
-			if (stageIconFile.contains("http")) {
-				stageIconFile = StringUtils.removeEnd(stageIconFile, "?format=base64");
-				stageIconId = stageIconFile.substring((stageIconFile.indexOf("/stage") + 7), stageIconFile.length());
-
-				HttpURLConnection httpConn = null;
-				TelemetryManager.log("Start Downloading for File: " + stageIconId);
-
-				URL url = new URL(stageIconFile);
-				httpConn = (HttpURLConnection) url.openConnection();
-				int responseCode = httpConn.getResponseCode();
-				TelemetryManager.log("Response Code: " + responseCode);
-
-				// always check HTTP response code first
-				if (responseCode == HttpURLConnection.HTTP_OK) {
-					TelemetryManager.log("Response is OK.");
-					BufferedReader br = new BufferedReader(new InputStreamReader((httpConn.getInputStream())));
-					StringBuilder sb = new StringBuilder();
-					String output;
-					while ((output = br.readLine()) != null) {
-						sb.append(output);
-					}
-					String result = sb.toString();
-					Map<String, Object> dataMap = mapper.readValue(result, Map.class);
-					dataMap = (Map<String, Object>) dataMap.get("result");
-					String base64Data = (String) dataMap.get("result");
-					stageIcon = downloadStageIconFiles(basePath, base64Data, stageIconId);
-
-				}
-			} else {
-				stageIcon = downloadStageIconFiles(basePath, stageIconFile, stageIconId);
-			}
+			stageIcon = CommonCloudStore.download(stageIconFile, basePath);
 
 			if (stageIcon.exists()) {
 				TelemetryManager.log("Thumbnail created for Content Id: " + node.getIdentifier());
