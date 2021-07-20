@@ -516,7 +516,7 @@ auto-creator-v2:
     azure_storage_container="{{ azure_public_container }}"
 
     source {
-      baseUrl="{{proto}}://{{domain_name}}/api"
+      baseUrl="{{ source_base_url }}"
     }
 
   flink-conf: |+
