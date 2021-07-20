@@ -23,10 +23,10 @@ node() {
         }
         
 //        stage Build learning.
-           println ANSI_BOLD + ANSI_GREEN + "Triggering KnowledgePlatform build.." + ANSI_NORMAL
-           lpbuild = build job: "AutoBuild/$envDir/$module/Learning", parameters: [string(name: 'github_release_tag', value: "$tag_name")]
+//           println ANSI_BOLD + ANSI_GREEN + "Triggering KnowledgePlatform build.." + ANSI_NORMAL
+//           lpbuild = build job: "AutoBuild/$envDir/$module/Learning", parameters: [string(name: 'github_release_tag', value: "$tag_name")]
 
-          if (lpbuild.currentResult == "SUCCESS") {
+//          if (lpbuild.currentResult == "SUCCESS") {
 //        stage Build
             sh 'mvn clean package  -DskipTests -P samza-jobs'
         
