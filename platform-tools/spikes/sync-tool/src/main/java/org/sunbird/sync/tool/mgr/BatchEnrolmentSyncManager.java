@@ -43,7 +43,7 @@ public class BatchEnrolmentSyncManager {
     private static ObjectMapper mapper = new ObjectMapper();
     private static int batchSize = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size"): 50;
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private static SimpleDateFormat utcDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static SimpleDateFormat utcDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     Map<String, String> esIndexObjecTypeMap = new HashMap<String, String>() {{
         put("course-batch", "course-batch");
         put("user-courses", "user-courses");
