@@ -47,7 +47,7 @@ middleware_user_activity_agg_table: "user_activity_agg"
 activity_agg_checkpointing_interval: 300000
 activity_agg_checkpointing_pause_interval: 90000
 activity_agg_batch_interval: 60
-activity_agg_batch_read_size: 2
+activity_agg_batch_read_size: 1
 activity_agg_batch_write_size: 10
 activity_agg_window_shards: 1000
 activity_agg_dedup_index: 13
