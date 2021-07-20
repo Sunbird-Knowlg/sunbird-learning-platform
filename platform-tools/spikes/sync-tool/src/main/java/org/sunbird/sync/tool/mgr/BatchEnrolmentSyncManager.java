@@ -7,7 +7,6 @@ import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.util.ArrayMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,8 +20,8 @@ import org.sunbird.searchindex.elasticsearch.ElasticSearchUtil;
 import org.sunbird.sync.tool.util.CassandraColumns;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.core.type.TypeReference;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -164,6 +163,12 @@ public class BatchEnrolmentSyncManager {
 
                     esDoc.put(esKey, docMap.get(key));
                 }
+                esDoc.put("startDate", getDate("start_date", "startdate", docMap));
+                esDoc.put("endDate", getDate("end_date", "enddate", docMap));
+                esDoc.put("enrollmentEndDate", getDate("enrollment_enddate", "enrollmentenddate", docMap));
+                esDoc.keySet().removeAll(Arrays.asList( "enrollment_enddate", "enrollmentenddate", "end_date", "enddate", "start_date", "startdate"));
+                
+                mapCertTemplate(esDoc);
                 esDoc.put("identifier", docId);
                 esDoc.put("id", docId);
                 esDocs.put(docId, esDoc);
@@ -177,7 +182,7 @@ public class BatchEnrolmentSyncManager {
             rowClone.subList(0, currentBatchSize).clear();
         }
     }
-
+    
     private static List<Row> read(String table, int limit, String[] batchIds) {
         Session session = CassandraConnector.getSession("platform-courses");
         Select.Where selectQuery = null;
@@ -298,6 +303,66 @@ public class BatchEnrolmentSyncManager {
         } else {
             return row.getString(oldColumnName);
         }
-        
+    }
+    public String getDate(String columnName, String oldColumnName, Map<String, Object> docMap) throws Exception {
+        if(null != docMap.get(columnName)) {
+            return dateFormat.format(dateFormat.parse((String)docMap.get(columnName)));
+        } else {
+            return (String)docMap.get(oldColumnName);
+        }
+
+    }
+    
+    private Map<String, Object> mapCertTemplate(Map<String, Object> courseBatch) throws Exception {
+        Map<String, Map<String, Object>> certificateTemplates =
+                (Map<String, Map<String, Object>>)
+                        courseBatch.getOrDefault("certTemplates", null);
+        if(MapUtils.isNotEmpty(certificateTemplates)){
+            certificateTemplates
+                    .entrySet()
+                    .stream()
+                    .forEach(
+                            cert_template ->
+                                    certificateTemplates.put(
+                                            cert_template.getKey(), mapToObject(cert_template.getValue())));
+            courseBatch.put("cert_templates", certificateTemplates);
+        }
+        return courseBatch;
+    }
+
+    private Map<String, Object> mapToObject(Map<String, Object> template) {
+        try {
+            template.put(
+                    "criteria",
+                    mapper.readValue(
+                            (String) template.get("criteria"),
+                            new TypeReference<HashMap<String, Object>>() {
+                            }));
+            if (StringUtils.isNotEmpty((String) template.get("signatoryList"))) {
+                template.put(
+                        "signatoryList",
+                        mapper.readValue(
+                                (String) template.get("signatoryList"),
+                                new TypeReference<List<Object>>() {
+                                }));
+            }
+            if (StringUtils.isNotEmpty((String) template.get("issuer"))) {
+                template.put(
+                        "issuer",
+                        mapper.readValue(
+                                (String) template.get("issuer"),
+                                new TypeReference<HashMap<String, Object>>() {
+                                }));
+            }
+            if (StringUtils.isNotEmpty((String) template.get("notifyTemplate"))) {
+                template.put(
+                        "notifyTemplate",
+                        mapper.readValue(
+                                (String) template.get("notifyTemplate"),
+                                new TypeReference<HashMap<String, Object>>() {
+                                }));
+            }
+        }catch (Exception e) {}
+        return template;
     }
 }
