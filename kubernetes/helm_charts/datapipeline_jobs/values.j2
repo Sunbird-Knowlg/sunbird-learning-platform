@@ -515,6 +515,10 @@ auto-creator-v2:
     azure_storage_secret="{{ sunbird_public_storage_account_key }}"
     azure_storage_container="{{ azure_public_container }}"
 
+    source {
+      baseUrl="{{proto}}://{{domain_name}}/api"
+    }
+
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['auto-creator-v2'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['auto-creator-v2'].taskmanager_memory }}
