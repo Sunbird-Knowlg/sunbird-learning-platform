@@ -43,6 +43,7 @@ public class BatchEnrolmentSyncManager {
     private static ObjectMapper mapper = new ObjectMapper();
     private static int batchSize = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size"): 50;
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static SimpleDateFormat utcDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     Map<String, String> esIndexObjecTypeMap = new HashMap<String, String>() {{
         put("course-batch", "course-batch");
         put("user-courses", "user-courses");
@@ -58,6 +59,7 @@ public class BatchEnrolmentSyncManager {
     
     static {
         dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Kolkata"));
+        utcDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
     
     public void sync(String objectType, String offset, String limit, String resetProgress, String[] batchIds, String[] courseIds) throws Exception {
@@ -306,7 +308,7 @@ public class BatchEnrolmentSyncManager {
     }
     public String getDate(String columnName, String oldColumnName, Map<String, Object> docMap) throws Exception {
         if(null != docMap.get(columnName)) {
-            return dateFormat.format(dateFormat.parse((String)docMap.get(columnName)));
+            return dateFormat.format(utcDateFormat.parse((String)docMap.get(columnName)));
         } else {
             return (String)docMap.get(oldColumnName);
         }
