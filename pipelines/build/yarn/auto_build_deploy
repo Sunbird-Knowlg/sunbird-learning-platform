@@ -47,11 +47,11 @@ node() {
         slack_notify(currentBuild.result, tag_name)
         email_notify()  
         auto_build_deploy()
-     }
-     else {
-              println (ANSI_BOLD + ANSI_RED + "knowledge platform build failed. Skipping build" + ANSI_NORMAL)
-              error "knowledge platform build failed"
-           }
+//     }
+//     else {
+//              println (ANSI_BOLD + ANSI_RED + "knowledge platform build failed. Skipping build" + ANSI_NORMAL)
+//              error "knowledge platform build failed"
+//           }
         
     }
     catch (err) {
