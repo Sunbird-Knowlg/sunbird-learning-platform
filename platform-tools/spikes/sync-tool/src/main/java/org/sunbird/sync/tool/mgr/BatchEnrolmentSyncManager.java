@@ -159,7 +159,7 @@ public class BatchEnrolmentSyncManager {
                 String docId = docids.stream().map(key -> (String) docMap.get(key.toLowerCase())).collect(Collectors.toList())
                         .stream().collect(Collectors.joining("_"));
 
-                System.out.println(docMap);
+                //System.out.println(docMap);
                 Map<String, Object> esDoc = new HashMap<>();
                 for(String key : docMap.keySet()){
                     String esKey = CassandraColumns.COLUMNS.get(key);
@@ -173,7 +173,9 @@ public class BatchEnrolmentSyncManager {
                 mapCertTemplate(esDoc);
                 esDoc.put("identifier", docId);
                 esDoc.put("id", docId);
+                System.out.println("ES DOC for : " + docId +" : " +esDoc);
                 esDocs.put(docId, esDoc);
+                
             }
             if(MapUtils.isNotEmpty(esDocs)) {
                 ElasticSearchUtil.bulkIndexWithIndexId(index, "_doc", esDocs);
