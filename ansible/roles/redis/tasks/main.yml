@@ -6,7 +6,7 @@
     state: directory
     owner: "{{ learner_user }}"
     group: "{{ learner_user }}"
-    mode: 0750
+    mode: 0755
   become: yes
 
 - name: download redis zipfile
