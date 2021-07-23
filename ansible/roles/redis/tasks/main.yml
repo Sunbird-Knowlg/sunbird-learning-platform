@@ -1,5 +1,14 @@
 ---
 # tasks file for redis
+- name: change the data dir ownership
+  file:
+    path: /data
+    state: directory
+    owner: "{{ learner_user }}"
+    group: "{{ learner_user }}"
+    mode: 0750
+  become: yes
+
 - name: download redis zipfile
   become: yes
   become_user: "{{ learner_user }}"
