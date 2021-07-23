@@ -3,4 +3,4 @@ learner_user_home: /home/{{learner_user}}
 redis_home: "{{learner_user_home}}/redis-stable"
 redis_version: 6.2.5
 redis_tar_ball: "http://download.redis.io/releases/redis-{{ redis_version }}.tar.gz"
-redis_dir: /data
+redis_data_dir: /data
