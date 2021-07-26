@@ -652,19 +652,26 @@ content-publish:
       }
     }
     content {
+      bundleLocation = "/data/contentBundle"
+      isECARExtractionEnabled = true
+      retry_asset_download_count = 1
       keyspace = "{{ content_keyspace_name }}"
       table = "content_data"
       tmp_file_location = "/tmp"
       template_name = "contentTemplate.vm"
-      cloud_storage.itemset.folder = ""
-      cloud_storage.content.folder = ""
       objectType = ["Content", "ContentImage"]
-      mimeType = ["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm"]
+      mimeType = ["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm", "application/vnd.ekstep.html-archive","application/vnd.ekstep.ecml-archive"]
       stream {
         enabled = {{ content_stream_enabled | lower }}
         mimeType = ["video/mp4", "video/webm"]
       }
       artifact.size.for_online= {{ content_artifact_size_for_online }}
+    }
+    cloud_storage {
+        folder {
+            content = "content"
+            artifact = "artifact"
+        }
     }
 
     cloud_storage_type="{{ cloud_store }}"
