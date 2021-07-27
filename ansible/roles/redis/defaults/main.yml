@@ -1,5 +1,6 @@
 learner_user: learning
 learner_user_home: /home/{{learner_user}}
 redis_home: "{{learner_user_home}}/redis-stable"
-redis_tar_ball: http://download.redis.io/releases/redis-stable.tar.gz
-redis_dir: "{{ learner_user_home }}"
+redis_version: 6.2.5
+redis_tar_ball: "http://download.redis.io/releases/redis-{{ redis_version }}.tar.gz"
+redis_data_dir: /data
