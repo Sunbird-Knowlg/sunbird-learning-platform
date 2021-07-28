@@ -103,6 +103,11 @@ audit_event_generator_parallelism: 1
 audit_event_generator_producer_parallelism: 1
 audit_event_generator_default_channel: "{{ default_channel | default('org.sunbird') }}"
 
+### Metrics data transformer related vars
+metrics_data_transformer_consumer_parallelism: 1
+metrics_data_transformer_parallelism: 1
+metrics_data_transformer_producer_parallelism: 1
+
 ### Collection Cert Pre Processor
 collection_cert_pre_processor_consumer_parallelism: 1
 generate_certificate_parallelism: 1
@@ -192,6 +197,13 @@ flink_job_names:
     cpu_requests: 0.3
   audit-event-generator:
     job_class_name: 'org.sunbird.job.auditevent.task.AuditEventGeneratorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  metrics-data-transformer:
+    job_class_name: 'org.sunbird.job.metricstransformer.task.MetricsDataTransformerStreamTask'
     replica: 1
     jobmanager_memory: 1024m
     taskmanager_memory: 1024m

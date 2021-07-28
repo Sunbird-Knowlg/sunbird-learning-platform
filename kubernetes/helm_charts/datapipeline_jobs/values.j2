@@ -557,6 +557,34 @@ audit-event-generator:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
+metrics-data-transformer:
+  metrics-data-transformer: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.learning.graph.events
+      groupId = {{ env_name }}-metrics-data-transformer-group
+    }
+
+    task {
+      consumer.parallelism = {{ metrics_data_transformer_consumer_parallelism }}
+      parallelism = {{ metrics_data_transformer_parallelism }}
+      producer.parallelism = {{ metrics_data_transformer_producer_parallelism }}
+    }
+    content_read_api = "/content/v3/read"
+    content_update_api = "/content/v4/system/update"
+    service {
+      content.basePath = "{{ cert_domain_url }}/action"
+      learner.basePath = "{{ content_service_base_url }}"
+    }
+
+    flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['metrics-data-transformer'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['metrics-data-transformer'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['metrics-data-transformer'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
 collection-cert-pre-processor:
   collection-cert-pre-processor: |+
     include file("/data/flink/conf/base-config.conf")
