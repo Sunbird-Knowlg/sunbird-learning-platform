@@ -576,6 +576,7 @@ metrics-data-transformer:
       content.basePath = "{{ cert_domain_url }}/action"
       learner.basePath = "{{ content_service_base_url }}"
     }
+    data.metrics = ["me_totalRatingsCount","me_averageRating","me_totalTimeSpentInSec","me_totalPlaySessionCount"]
 
     flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['metrics-data-transformer'].jobmanager_memory }}
