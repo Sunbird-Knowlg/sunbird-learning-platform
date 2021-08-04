@@ -267,7 +267,6 @@ questionset-publish:
     questionset {
       keyspace = "{{ hierarchy_keyspace_name }}"
       table = "questionset_hierarchy"
-      media_download_duration = "60 seconds"
     }
     print_service.base_url = "{{ kp_print_service_base_url }}"
     cloud_storage_type="{{ cloud_store }}"
