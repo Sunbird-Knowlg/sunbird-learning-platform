@@ -614,11 +614,10 @@ mvc-indexer:
     lms-cassandra.keyspace = "{{ content_keyspace_name }}"
     lms-cassandra.table = "content_data"
 
-    timezone = "IST"
-
     nested.fields="{{ mvc_indexer_nested_fields }}
 
-    learning_service.basePath = "{{ kp_learning_service_base_url }}"
+    service.learning.basePath = "{{ kp_learning_service_base_url }}"
+    es.indexAlias = "mvc-content"
 
     ml.vector.host="{{ mvc_indexer_ml_vector_host }}"
     ml.vector.port="{{ mvc_indexer_ml_vector_port }}"
