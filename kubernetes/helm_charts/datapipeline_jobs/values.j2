@@ -574,7 +574,7 @@ metrics-data-transformer:
     content_update_api = "/content/v4/system/update"
     service {
       content.basePath = "{{ kp_content_service_base_url }}"
-      learner.basePath = "{{ content_service_base_url }}"
+      dock.learner.basePath = "{{ dock_content_service_base_url }}"
     }
     data.metrics = ["me_totalRatingsCount","me_averageRating","me_totalTimeSpentInSec","me_totalPlaySessionCount"]
 
