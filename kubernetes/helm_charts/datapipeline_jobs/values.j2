@@ -687,9 +687,9 @@ content-publish:
       keyspace = "{{ content_keyspace_name }}"
       table = "content_data"
       tmp_file_location = "/tmp"
-      template_name = "contentTemplate.vm"
       objectType = ["Content", "ContentImage"]
       mimeType = ["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm", "application/vnd.ekstep.html-archive","application/vnd.ekstep.ecml-archive"]
+      asset_download_duration = "60 seconds"
       stream {
         enabled = {{ content_stream_enabled | lower }}
         mimeType = ["video/mp4", "video/webm"]
