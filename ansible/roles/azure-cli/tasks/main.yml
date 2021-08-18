@@ -5,7 +5,7 @@
 - name: Add Azure apt repository
   apt_repository: repo='deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main' state=present
 
-- name: Add bionic security apt repository
+- name: Add distribution release security apt repository
   apt_repository: repo='deb http://security.ubuntu.com/ubuntu {{ ansible_distribution_release }}-security main' state=present
 
 - name: ensure azure-cli and apt-transport-https is installed
