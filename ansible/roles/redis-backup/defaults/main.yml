@@ -1,3 +1,4 @@
 redis_backup_dir: /tmp/redis-backup
 redis_backup_azure_container_name: redis-backup
 learner_user: learning
+redis_data_dir: /data
