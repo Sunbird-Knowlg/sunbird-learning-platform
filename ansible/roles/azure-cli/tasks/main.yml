@@ -8,11 +8,17 @@
 - name: Add distribution release security apt repository
   apt_repository: repo='deb http://security.ubuntu.com/ubuntu {{ ansible_distribution_release }}-security main' state=present
 
-- name: ensure azure-cli and apt-transport-https is installed
+- name: install azure cli dependency
   apt: name={{ item }} state=present update_cache=yes 
   #allow_unauthenticated: yes
   with_items:
     - libssl1.0-dev
+  when: ansible_distribution_release == "focal"
+  
+- name: ensure azure-cli and apt-transport-https is installed
+  apt: name={{ item }} state=present update_cache=yes 
+  #allow_unauthenticated: yes
+  with_items:
     - apt-transport-https 
     - azure-cli
 
