@@ -13,7 +13,7 @@
   #allow_unauthenticated: yes
   with_items:
     - libssl1.0-dev
-  when: {{ ansible_distribution_release }} == 'focal'
+  when: ansible_distribution_release == "focal"
   
 - name: ensure azure-cli and apt-transport-https is installed
   apt: name={{ item }} state=present update_cache=yes 
