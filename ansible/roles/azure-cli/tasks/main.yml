@@ -6,7 +6,7 @@
   apt_repository: repo='deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main' state=present
 
 - name: Add distribution release security apt repository
-  apt_repository: repo='deb http://security.ubuntu.com/ubuntu {{ ansible_distribution_release }}-security main' state=present
+  apt_repository: repo='deb http://security.ubuntu.com/ubuntu bionic-security main' state=present
 
 - name: install azure cli dependency
   apt: name={{ item }} state=present update_cache=yes 
