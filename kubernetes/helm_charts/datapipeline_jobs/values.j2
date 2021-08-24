@@ -586,6 +586,15 @@ collection-cert-pre-processor:
       content.basePath = "{{ content_service_base_url }}"
       learner.basePath = "{{ learner_service_base_url }}"
     }
+    redis-meta {
+    {% if metadata2_redis_host is defined %}
+      host = {{ metadata2_redis_host }}
+    {% else %}
+      host = {{ redis_host }}
+    {% endif %}
+      port = 6379
+    }
+    assessment.metrics.supported.contenttype = ["selfAssess"]
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['collection-cert-pre-processor'].jobmanager_memory }}
