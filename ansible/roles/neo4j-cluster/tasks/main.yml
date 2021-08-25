@@ -2,9 +2,7 @@
   become: yes
   apt: name={{item}} state=present
   with_items: 
-             - python-dev
-             - python-pip
-             - unzip 
+     - unzip 
 
 - name: create folder data for learning
   become: yes
