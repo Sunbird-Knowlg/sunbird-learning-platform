@@ -317,6 +317,17 @@ public class ContentUtil {
 
 	private void update(String channelId, String internalId, Map<String, Object> updateMetadata) throws Exception {
 		String url = KP_CS_BASE_URL + "/content/v3/update/" + internalId;
+		String appIconUrl = (String) updateMetadata.getOrDefault("appIcon", "");
+		File file = getFile(identifier, appIconUrl, "image");
+		if (null == file || !file.exists()) {
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Error Occurred while downloading appIcon file for " + identifier + " | File Url : "+appIconUrl);
+		}
+		String[] urls = uploadArtifact(file, identifier);
+		if (null != urls && StringUtils.isNotBlank(urls[1])) {
+			String appIconBlobUrl = urls[IDX_CLOUD_URL];
+			LOGGER.info("ContentUtil :: update :: Icon Uploaded Successfully to cloud for : " + identifier + " | appIconUrl : " + appIconUrl + " | appIconBlobUrl : " + appIconBlobUrl);
+			updateMetadata.put("appIcon",appIconBlobUrl);
+		}
 		Map<String, Object> request = new HashMap<String, Object>() {{
 			put("request", new HashMap<String, Object>() {{
 				put("content", updateMetadata);

@@ -73,7 +73,8 @@ public class GoogleDriveUtil {
 			String fileName = googleDriveFile.getName();
 			String fileMimeType = googleDriveFile.getMimeType();
 			LOGGER.info("GoogleDriveUtil :: downloadFile ::: Node mimeType :: "+mimeType + " | File mimeType :: "+fileMimeType);
-			validateMimeType(fileId, mimeType, fileMimeType);
+			if(!StringUtils.equalsIgnoreCase(mimeType,"image"))
+				validateMimeType(fileId, mimeType, fileMimeType);
 			File saveFile = new File(saveDir);
 			if (!saveFile.exists()) {
 				saveFile.mkdirs();
