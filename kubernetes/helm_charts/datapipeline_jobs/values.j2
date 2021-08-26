@@ -594,7 +594,7 @@ collection-cert-pre-processor:
     {% endif %}
       port = 6379
     }
-    assessment.metrics.supported.contenttype = ["selfAssess"]
+    assessment.metrics.supported.contenttype = ["SelfAssess"]
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['collection-cert-pre-processor'].jobmanager_memory }}
