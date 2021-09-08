@@ -1,14 +1,23 @@
 ---
 # tasks file for redis
+- name: change the data dir ownership
+  file:
+    path: /data
+    state: directory
+    owner: "{{ learner_user }}"
+    group: "{{ learner_user }}"
+    mode: 0755
+  become: yes
+
 - name: download redis zipfile
   become: yes
   become_user: "{{ learner_user }}"
-  get_url: url={{ redis_tar_ball }} dest={{ learner_user_home }}/redis-stable.tar.gz timeout=50 force=no owner={{ learner_user }}
+  get_url: url={{ redis_tar_ball }} dest={{ learner_user_home }}/redis-{{ redis_version }}.tar.gz timeout=50 force=no owner={{ learner_user }}
 
 - name: unzip
   become: yes
   become_user: "{{ learner_user }}"
-  unarchive: src={{ learner_user_home }}/redis-stable.tar.gz dest={{ learner_user_home }} copy=no group={{ learner_user }} owner={{ learner_user }} creates={{ redis_home }}
+  unarchive: src={{ learner_user_home }}/redis-{{ redis_version }}.tar.gz dest={{ learner_user_home }} copy=no group={{ learner_user }} owner={{ learner_user }} creates={{ redis_home }}
 
 - name: Change ownership of redis installation
   become: yes
@@ -16,7 +25,7 @@
 
 - name: redis conf
   become: yes
-  template: src=redis.conf.j2 dest={{ learner_user_home }}/redis-stable/redis.conf
+  template: src=redis.conf.j2 dest={{ learner_user_home }}/redis-{{ redis_version }}/redis.conf
 
 - name: Go to the folder and run make
   become: yes

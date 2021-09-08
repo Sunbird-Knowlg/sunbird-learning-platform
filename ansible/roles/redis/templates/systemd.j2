@@ -5,10 +5,10 @@ After=network.target
 [Service]
 User={{ learner_user }}
 Group={{ learner_user }}
-ExecStart={{ redis_dir }}/redis-stable/src/redis-server {{ redis_dir }}/redis-stable/redis.conf
-ExecStop={{ redis_dir }}/redis-stable/src/redis-cli shutdown
+ExecStart={{ learner_user_home }}/redis-{{ redis_version }}/src/redis-server {{ learner_user_home }}/redis-{{ redis_version }}/redis.conf
+ExecStop={{ learner_user_home }}/redis-{{ redis_version }}/src/redis-cli shutdown
 Restart=always
-Type=notify
+Type=forking
 
 [Install]
 WantedBy=multi-user.target

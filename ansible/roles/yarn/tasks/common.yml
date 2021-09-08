@@ -69,6 +69,8 @@
     copy:
       src: "/usr/local/scala-{{scala_version}}/lib/{{item}}"
       dest: "{{hadoop_yarn_home}}/share/hadoop/hdfs/lib/"
+      owner: hduser
+      group: hadoop
       remote_src: true
     with_items:
       - scala-compiler.jar

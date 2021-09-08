@@ -93,7 +93,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 	 * @return the response
 	 */
 	public Response finalize(Map<String, Object> parameterMap) {
-		TelemetryManager.log("Parameter Map: ", parameterMap);
+		TelemetryManager.info("Parameter Map: ", parameterMap);
 		Response response;
 		if (null == parameterMap)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -154,7 +154,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 		Map<String,Object> object = new HashMap<String,Object>();
 		Map<String,Object> edata = new HashMap<String,Object>();
 		
-		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), contentId, publishType);
+		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), contentId, publishType, node.getObjectType());
 		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
 		String learningJobRequestTopic = Platform.config.getString("kafka.topics.instruction");
 		String learningJobInstructionTopic = Platform.config.getString("kafka.publish.request.topic");
@@ -179,7 +179,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 	}
 	
 	private void generateInstructionEventMetadata(Map<String,Object> actor, Map<String,Object> context, 
-			Map<String,Object> object, Map<String,Object> edata, Map<String, Object> metadata, String contentId, String publishType) {
+			Map<String,Object> object, Map<String,Object> edata, Map<String, Object> metadata, String contentId, String publishType, String objectType) {
 		
 		actor.put("id", actorId);
 		actor.put("type", actorType);
@@ -201,6 +201,9 @@ public class ReviewFinalizer extends BaseFinalizer {
 		instructionEventMetadata.put("pkgVersion", metadata.get("pkgVersion"));
 		instructionEventMetadata.put("mimeType", metadata.get("mimeType"));
 		instructionEventMetadata.put("lastPublishedBy", metadata.get("lastPublishedBy"));
+		instructionEventMetadata.put("identifier", contentId);
+		if(StringUtils.isNotBlank(objectType))
+			instructionEventMetadata.put("objectType", objectType.replaceAll("Image", ""));
 
 		edata.put("action", action);
 		edata.put("metadata", instructionEventMetadata);

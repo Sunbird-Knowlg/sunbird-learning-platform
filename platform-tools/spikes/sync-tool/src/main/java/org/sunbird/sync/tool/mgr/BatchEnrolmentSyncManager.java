@@ -6,8 +6,8 @@ import com.datastax.driver.core.Session;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.util.ArrayMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,8 +22,8 @@ import org.sunbird.sync.tool.util.CassandraColumns;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,6 +44,8 @@ public class BatchEnrolmentSyncManager {
     private static ObjectMapper mapper = new ObjectMapper();
     private static int batchSize = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size"): 50;
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static SimpleDateFormat utcDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static List<String>  changeInSimpleDateFormat = Arrays.asList("startDate", "endDate", "enrollmentEndDate", "createdDate", "updatedDate");
     Map<String, String> esIndexObjecTypeMap = new HashMap<String, String>() {{
         put("course-batch", "course-batch");
         put("user-courses", "user-courses");
@@ -59,6 +61,8 @@ public class BatchEnrolmentSyncManager {
     
     static {
         dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Kolkata"));
+        utcDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        
     }
     
     public void sync(String objectType, String offset, String limit, String resetProgress, String[] batchIds, String[] courseIds) throws Exception {
@@ -155,18 +159,23 @@ public class BatchEnrolmentSyncManager {
                 String docId = docids.stream().map(key -> (String) docMap.get(key.toLowerCase())).collect(Collectors.toList())
                         .stream().collect(Collectors.joining("_"));
 
-                System.out.println(docMap);
+                //System.out.println(docMap);
                 Map<String, Object> esDoc = new HashMap<>();
                 for(String key : docMap.keySet()){
                     String esKey = CassandraColumns.COLUMNS.get(key);
                     if (StringUtils.isBlank(esKey))
                         esKey = key;
-
                     esDoc.put(esKey, docMap.get(key));
                 }
+                esDoc.put("startDate", getDate("start_date", "startdate", docMap));
+                esDoc.put("endDate", getDate("end_date", "enddate", docMap));
+                esDoc.put("enrollmentEndDate", getDate("enrollment_enddate", "enrollmentenddate", docMap));
+                mapCertTemplate(esDoc);
                 esDoc.put("identifier", docId);
                 esDoc.put("id", docId);
+                System.out.println("ES DOC for : " + docId +" : " +esDoc);
                 esDocs.put(docId, esDoc);
+                
             }
             if(MapUtils.isNotEmpty(esDocs)) {
                 ElasticSearchUtil.bulkIndexWithIndexId(index, "_doc", esDocs);
@@ -299,5 +308,67 @@ public class BatchEnrolmentSyncManager {
             return row.getString(oldColumnName);
         }
         
+    }
+
+    public String getDate(String columnName, String oldColumnName, Map<String, Object> docMap) throws Exception {
+        if(null != docMap.get(columnName)) {
+            return dateFormat.format(utcDateFormat.parse((String)docMap.get(columnName)));
+        } else {
+            return (String)docMap.get(oldColumnName);
+        }
+
+    }
+
+    private Map<String, Object> mapCertTemplate(Map<String, Object> courseBatch) throws Exception {
+        Map<String, Map<String, Object>> certificateTemplates =
+                (Map<String, Map<String, Object>>)
+                        courseBatch.getOrDefault("certTemplates", null);
+        if(MapUtils.isNotEmpty(certificateTemplates)){
+            certificateTemplates
+                    .entrySet()
+                    .stream()
+                    .forEach(
+                            cert_template ->
+                                    certificateTemplates.put(
+                                            cert_template.getKey(), mapToObject(cert_template.getValue())));
+            courseBatch.put("cert_templates", certificateTemplates);
+        }
+        return courseBatch;
+    }
+
+    private Map<String, Object> mapToObject(Map<String, Object> template) {
+        try {
+            template.put(
+                    "criteria",
+                    mapper.readValue(
+                            (String) template.get("criteria"),
+                            new TypeReference<HashMap<String, Object>>() {
+                            }));
+            if (StringUtils.isNotEmpty((String) template.get("signatoryList"))) {
+                template.put(
+                        "signatoryList",
+                        mapper.readValue(
+                                (String) template.get("signatoryList"),
+                                new TypeReference<List<Object>>() {
+                                }));
+            }
+            if (StringUtils.isNotEmpty((String) template.get("issuer"))) {
+                template.put(
+                        "issuer",
+                        mapper.readValue(
+                                (String) template.get("issuer"),
+                                new TypeReference<HashMap<String, Object>>() {
+                                }));
+            }
+            if (StringUtils.isNotEmpty((String) template.get("notifyTemplate"))) {
+                template.put(
+                        "notifyTemplate",
+                        mapper.readValue(
+                                (String) template.get("notifyTemplate"),
+                                new TypeReference<HashMap<String, Object>>() {
+                                }));
+            }
+        }catch (Exception e) {}
+        return template;
     }
 }

@@ -47,7 +47,7 @@ middleware_user_activity_agg_table: "user_activity_agg"
 activity_agg_checkpointing_interval: 300000
 activity_agg_checkpointing_pause_interval: 90000
 activity_agg_batch_interval: 60
-activity_agg_batch_read_size: 2
+activity_agg_batch_read_size: 1
 activity_agg_batch_write_size: 10
 activity_agg_window_shards: 1000
 activity_agg_dedup_index: 13
@@ -87,7 +87,7 @@ video_stream_generator_azure_token_client_secret: "{{ media_service_azure_token_
 video_stream_generator_azure_stream_base_url: "{{ stream_base_url | default('') }}"
 video_stream_generator_consumer_parallelism: 1
 video_stream_generator_parallelism: 1
-video_stream_generator_timer_duration: 60
+video_stream_generator_timer_duration: 600
 video_stream_generator_max_retries: 10
 
 ### Enrolment Reconciliation
@@ -96,6 +96,12 @@ enrolment_reconciliation_parallelism: 1
 enrolment_reconciliation_batch_write_size: 10
 enrolment_reconciliation_filter_processe_enabled: true
 enrolment_reconciliation_collection_status_cache_expiry_time: 3600
+
+### Audit event generator related vars
+audit_event_generator_consumer_parallelism: 1
+audit_event_generator_parallelism: 1
+audit_event_generator_producer_parallelism: 1
+audit_event_generator_default_channel: "{{ default_channel | default('org.sunbird') }}"
 
 ### Collection Cert Pre Processor
 collection_cert_pre_processor_consumer_parallelism: 1
@@ -184,6 +190,13 @@ flink_job_names:
     taskmanager_memory: 1024m
     taskslots: 1
     cpu_requests: 0.3
+  audit-event-generator:
+    job_class_name: 'org.sunbird.job.auditevent.task.AuditEventGeneratorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
   collection-cert-pre-processor:
     job_class_name: 'org.sunbird.job.collectioncert.task.CollectionCertPreProcessorTask'
     replica: 1
@@ -203,6 +216,13 @@ flink_job_names:
     replica: 1
     jobmanager_memory: 1024m
     taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  content-publish:
+    job_class_name: 'org.sunbird.job.content.task.ContentPublishStreamTask'
+    replica: 1
+    jobmanager_memory: 2048m
+    taskmanager_memory: 2048m
     taskslots: 1
     cpu_requests: 0.3
 
@@ -225,6 +245,8 @@ asset_enrichment_consumer_parallelism: 1
 asset_enrichment_router_parallelism: 1
 image_enrichment_parallelism: 1
 video_enrichment_parallelism: 1
+asset_enrichment_checkpointing_interval: 300000
+asset_enrichment_checkpointing_pause_interval: 180000
 
 ### Audit history indexer Related Vars
 audit_history_indexer_consumer_parallelism: 1
@@ -250,3 +272,9 @@ flink_jobs_console_log_level: INFO
 flink_libraries_log_level: ERROR
 
 master_category_validation_enabled: "Yes"
+
+### content-publish related vars
+content_stream_enabled: true
+content_artifact_size_for_online: 209715200
+
+source_base_url: "{{proto}}://{{domain_name}}/api"
