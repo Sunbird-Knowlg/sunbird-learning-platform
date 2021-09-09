@@ -436,7 +436,7 @@ public class ControllerUtil extends BaseLearningManager {
     public Map<String, Long> getCountByObjectType(String graphId) {
         Map<String, Long> counts = new HashMap<String, Long>();
         Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-        request.put(GraphDACParams.query.name(), MessageFormat.format("MATCH (n:{0}) WHERE EXISTS(n.IL_FUNC_OBJECT_TYPE) RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;", graphId));
+        request.put(GraphDACParams.query.name(), MessageFormat.format("MATCH (n:{0}) WHERE EXISTS(n.IL_FUNC_OBJECT_TYPE) AND n.IL_SYS_NODE_TYPE=\"DATA_NODE\" RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;", graphId));
         List<String> props = new ArrayList<String>();
         props.add("objectType");
         props.add("count");
