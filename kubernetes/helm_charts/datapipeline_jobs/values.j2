@@ -676,6 +676,8 @@ content-publish:
       router.parallelism = 1
     }
     redis {
+      host={{redis_host}}
+      port={{redis_port}}
       database {
         contentCache.id = 0
       }
