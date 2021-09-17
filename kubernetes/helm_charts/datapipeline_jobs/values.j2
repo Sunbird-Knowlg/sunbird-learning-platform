@@ -576,6 +576,7 @@ metrics-data-transformer:
       content.basePath = "{{ kp_content_service_base_url }}"
       sourcing.content.basePath = "{{ sourcing_content_service_base_url }}"
     }
+    sourcing.update.api.response.error.code = ["404", "400"]
     data.metrics = ["me_totalRatingsCount","me_averageRating","me_totalTimeSpentInSec","me_totalPlaySessionCount"]
 
   flink-conf: |+
@@ -615,6 +616,15 @@ collection-cert-pre-processor:
       content.basePath = "{{ content_service_base_url }}"
       learner.basePath = "{{ learner_service_base_url }}"
     }
+    redis-meta {
+    {% if metadata2_redis_host is defined %}
+      host = {{ metadata2_redis_host }}
+    {% else %}
+      host = {{ redis_host }}
+    {% endif %}
+      port = 6379
+    }
+    assessment.metrics.supported.contenttype = ["SelfAssess"]
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['collection-cert-pre-processor'].jobmanager_memory }}
@@ -676,6 +686,8 @@ content-publish:
       router.parallelism = 1
     }
     redis {
+      host={{redis_host}}
+      port=6379
       database {
         contentCache.id = 0
       }
