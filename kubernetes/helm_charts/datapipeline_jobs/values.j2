@@ -576,6 +576,7 @@ metrics-data-transformer:
       content.basePath = "{{ kp_content_service_base_url }}"
       sourcing.content.basePath = "{{ sourcing_content_service_base_url }}"
     }
+    sourcing.update.api.response.error.code = ["404"]
     data.metrics = ["me_totalRatingsCount","me_averageRating","me_totalTimeSpentInSec","me_totalPlaySessionCount"]
 
   flink-conf: |+
