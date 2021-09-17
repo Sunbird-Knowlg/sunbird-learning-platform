@@ -223,6 +223,13 @@ flink_job_names:
     taskmanager_memory: 1024m
     taskslots: 1
     cpu_requests: 0.3
+  mvc-indexer:
+    job_class_name: 'org.sunbird.job.mvcindexer.task.MVCIndexerStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
   content-publish:
     job_class_name: 'org.sunbird.job.content.task.ContentPublishStreamTask'
     replica: 1
@@ -260,6 +267,15 @@ audit_history_indexer_parallelism: 1
 ### Auto Creator V2 Related Vars
 auto_creator_v2_consumer_parallelism: 1
 auto_creator_v2_parallelism: 1
+
+### MVC Indexer Related Vars
+mvc_indexer_consumer_parallelism: 1
+mvc_indexer_parallelism: 1
+mvc_indexer_ml_vector_host: "{{ mlworkbench | default('') }}"
+mvc_indexer_ml_vector_port: 1729
+mvc_indexer_ml_keyword_host: "{{ mlworkbench | default('') }}"
+mvc_indexer_ml_keyword_port: 3579
+mvc_indexer_nested_fields: "trackable,credentials"
 
 service_monitor_enabled: true
 
