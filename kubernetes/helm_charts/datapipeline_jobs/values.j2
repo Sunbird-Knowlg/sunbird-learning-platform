@@ -691,7 +691,7 @@ mvc-indexer:
     lms-cassandra.keyspace = "{{ content_keyspace_name }}"
     lms-cassandra.table = "content_data"
 
-    nested.fields="{{ mvc_indexer_nested_fields }}
+    nested.fields="{{ mvc_indexer_nested_fields }}"
 
     service.learning.basePath = "{{ kp_learning_service_base_url }}"
     es.indexAlias = "mvc-content"
