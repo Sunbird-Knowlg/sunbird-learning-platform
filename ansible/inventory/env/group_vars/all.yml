@@ -111,6 +111,4 @@ cert_cloud_storage_type: "azure"
 cert_azure_storage_secret: "{{sunbird_private_storage_account_key}}"
 cert_azure_storage_key: "{{sunbird_private_storage_account_name}}"
 
-notification_service_base_url: "http://{{private_ingressgateway_ip}}/notification"
-
 default_channel: "org.sunbird"
