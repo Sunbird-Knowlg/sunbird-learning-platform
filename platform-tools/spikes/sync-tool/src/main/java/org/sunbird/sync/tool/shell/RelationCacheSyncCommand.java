@@ -32,19 +32,19 @@ public class RelationCacheSyncCommand implements CommandMarker {
             @CliOption(key = {
                     "verbose"}, mandatory = false, unspecifiedDefaultValue="false", specifiedDefaultValue="true",  help = "Print more data for debug.") final String verbose
     ) throws Exception  {
+        boolean verboseBool = (StringUtils.equalsIgnoreCase("true", verbose)) ? true : false;
         if (StringUtils.equalsIgnoreCase("true", forAll)) {
             System.out.println("Generating relations sync events for all collections.");
             int totalCollections = relationCacheSyncManager.getCollectionCount();
             int finalLimit = (limit > 0) ? limit : totalCollections;
             System.out.println("Total Collections: " + totalCollections + " and processing " + finalLimit + " collections.");
-            boolean verboseBool = (StringUtils.equalsIgnoreCase("true", verbose)) ? true : false;
             if (totalCollections > 0) {
                 relationCacheSyncManager.syncAllCollections(totalCollections, finalLimit, offset, verboseBool);
                 System.out.println("Completed processing " + totalCollections + " collections.");
             }
         } else if (null != ids && CollectionUtils.isEmpty(Arrays.asList(ids))) {
             System.out.println("Generating relations sync events for collections with id: " + ids);
-            // TODO: pending.
+            relationCacheSyncManager.syncCollectionByIds(Arrays.asList(ids), verboseBool);
         } else {
             System.out.println("Required options are not available. Please provide 'ids' or 'all'");
         }
