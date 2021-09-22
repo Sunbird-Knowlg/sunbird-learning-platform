@@ -678,7 +678,7 @@ mvc-indexer:
     include "base-config.conf"
 
     kafka {
-      input.topic = "{{ env_name }}.learning.graph.events"
+      input.topic = "{{ env_name }}.mvc.processor.job.request"
       groupId = "{{ env_name }}-mvc-indexer-group"
       output.failed.topic = "{{ env_name }}.mvc.events.failed"
     }
@@ -693,7 +693,7 @@ mvc-indexer:
 
     nested.fields="{{ mvc_indexer_nested_fields }}"
 
-    service.learning.basePath = "{{ kp_learning_service_base_url }}"
+    service.content.basePath = "{{ kp_content_service_base_url }}"
     es.indexAlias = "mvc-content"
 
     ml.vector.host="{{ mvc_indexer_ml_vector_host }}"
