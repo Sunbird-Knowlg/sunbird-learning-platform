@@ -43,8 +43,9 @@ public class RelationCacheSyncCommand implements CommandMarker {
                 System.out.println("Completed processing " + totalCollections + " collections.");
             }
         } else if (null != ids && CollectionUtils.isNotEmpty(Arrays.asList(ids))) {
-            System.out.println("Generating relations sync events for collections with id: " + ids);
-            relationCacheSyncManager.syncCollectionByIds(Arrays.asList(ids), verboseBool);
+            List<String> idList = Arrays.asList(ids); 
+            System.out.println("Generating relations sync events for collections with id: " + idList);
+            relationCacheSyncManager.syncCollectionByIds(idList, verboseBool);
         } else {
             System.out.println("Required options are not available. Please provide 'ids' or 'all'");
         }
