@@ -46,7 +46,7 @@ public class RelationCacheSyncManager {
     }
     
     public void syncCollectionByIds(List<String> ids, boolean verbose) throws Exception {
-        String query = "MATCH (n:domain{IL_FUNC_OBJECT_TYPE:\"Collection\", mimeType: \"application/vnd.ekstep.content-collection\", visibility: \"Default\"}) WHERE n.status in [\"Live\", \"Unlisted\", \"Retired\", \"Flagged\"] and n.IL_UNIQUE_ID in " + ids + " RETURN n.IL_UNIQUE_ID AS identifier, n.contentType as contentType, n.pkgVersion as pkgVersion, n.status as status, n.name as name, n.createdBy as createdBy;";
+        String query = "MATCH (n:domain{IL_FUNC_OBJECT_TYPE:\"Collection\", mimeType: \"application/vnd.ekstep.content-collection\", visibility: \"Default\"}) WHERE n.status in [\"Live\", \"Unlisted\", \"Retired\", \"Flagged\"] and n.IL_UNIQUE_ID in " + mapper.writeValueAsString(ids) + " RETURN n.IL_UNIQUE_ID AS identifier, n.contentType as contentType, n.pkgVersion as pkgVersion, n.status as status, n.name as name, n.createdBy as createdBy;";
         List<Map<String, Object>> list = getCollectionProps(query);
         for (Map<String, Object> content : list) {
             String event = generateKafkaEvent(content);
