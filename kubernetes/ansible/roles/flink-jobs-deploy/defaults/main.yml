@@ -1,0 +1,264 @@
+imagepullsecrets: sunbird-registry-secret
+
+### Job manager related vars
+jobmanager_rpc_port: 6123
+jobmanager_blob_port: 6124
+jobmanager_query_port: 6125
+jobmanager_ui_port: 8081
+jobmanager_prom_port: 9250
+jobmanager_heap_memory: 1024
+jobmanager_ui_rest_port: 80
+jobmanager_ui_tcp_port: 8081
+jobmanager_ui_service:
+  type: LoadBalancer
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+
+### taskmanager related vars
+healthcheck: true
+taskmanager_liveness:
+  livenessProbe:
+    tcpSocket:
+      port: 6122
+    initialDelaySeconds: 30
+    periodSeconds: 60
+
+taskmanager_prom_port: 9251
+taskmanager_rpc_port: 6122
+taskmanager_heap_memory: 1024
+
+### base-config related vars
+postgres_max_connections: 2
+flink_container_name: flink-check-points-store
+checkpoint_interval: 60000
+checkpoint_pause_between_seconds: 5000
+checkpoint_compression_enabled: true
+restart_attempts: 3
+restart_delay: 30000 # in milli-seconds
+producer_max_request_size: 1572864
+
+### Activity Aggregate job related vars
+activity_agg_consumer_parallelism: 1
+activity_agg_dedup_parallelism: 1
+activity_agg_parallelism: 1
+enrolment_complete_parallelism: 1
+middleware_consumption_table: "user_content_consumption"
+middleware_user_activity_agg_table: "user_activity_agg"
+activity_agg_checkpointing_interval: 300000
+activity_agg_checkpointing_pause_interval: 90000
+activity_agg_batch_interval: 60
+activity_agg_batch_read_size: 1
+activity_agg_batch_write_size: 10
+activity_agg_window_shards: 1000
+activity_agg_dedup_index: 13
+activity_agg_dedup_expiry: 604800
+activity_module_aggs_enabled: true
+activity_input_dedup_enabled: true
+activity_agg_enrolment_filter_processe_enabled: true
+activity_agg_collection_status_cache_expiry_time: 3600
+
+
+### Relation Cache Updater Job related Vars
+extractor_consumer_parallelism: 1
+relation_cache_updater_consumer_parallelism: 1
+relation_cache_updater_parallelism: 1
+middleware_content_hierarchy_table: "content_hierarchy"
+
+### Post Publish Processor Job related Vars
+post_publish_processor_consumer_parallelism: 1
+post_publish_event_router_parallelism: 1
+post_publish_shallow_copy_parallelism: 1
+post_publish_link_dialcode_parallelism: 1
+post_publish_batch_create_parallelism: 1
+
+###  Certificate Job related Vars
+certificate_generator_consumer_parallelism: 1
+certificate_generator_parallelism: 1
+
+
+### Video stream generator related vars
+### IMPORTANT: The media-service configuration values should be updated in respective environment.
+video_stream_generator_azure_tenant: "{{ media_service_azure_tenant | default('') }}"
+video_stream_generator_azure_subscription_id: "{{ media_service_azure_subscription_id | default('') }}"
+video_stream_generator_azure_account_name: "{{ media_service_azure_account_name | default('') }}"
+video_stream_generator_azure_resource_group_name: "{{ media_service_azure_resource_group_name | default('') }}"
+video_stream_generator_azure_token_client_key: "{{ media_service_azure_token_client_key | default('') }}"
+video_stream_generator_azure_token_client_secret: "{{ media_service_azure_token_client_secret | default('') }}"
+video_stream_generator_azure_stream_base_url: "{{ stream_base_url | default('') }}"
+video_stream_generator_consumer_parallelism: 1
+video_stream_generator_parallelism: 1
+video_stream_generator_timer_duration: 600
+video_stream_generator_max_retries: 10
+
+### Enrolment Reconciliation
+enrolment_reconciliation_consumer_parallelism: 1
+enrolment_reconciliation_parallelism: 1
+enrolment_reconciliation_batch_write_size: 10
+enrolment_reconciliation_filter_processe_enabled: true
+enrolment_reconciliation_collection_status_cache_expiry_time: 3600
+
+### Audit event generator related vars
+audit_event_generator_consumer_parallelism: 1
+audit_event_generator_parallelism: 1
+audit_event_generator_producer_parallelism: 1
+audit_event_generator_default_channel: "{{ default_channel | default('org.sunbird') }}"
+
+### Collection Cert Pre Processor
+collection_cert_pre_processor_consumer_parallelism: 1
+generate_certificate_parallelism: 1
+middleware_course_batch_table: "course_batch"
+middleware_user_enrolments_table: "user_enrolments"
+middleware_assessment_aggregator_table: "assessment_aggregator"
+
+###  Collection Generator Job related Vars
+collection_certificate_generator_consumer_parallelism: 1
+collection_certificate_generator_parallelism: 1
+
+
+### to be removed
+job_classname: ""
+
+### class name vars
+flink_job_names:
+  activity-aggregate-updater:
+    job_class_name: 'org.sunbird.job.aggregate.task.ActivityAggregateUpdaterStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  relation-cache-updater:
+    job_class_name: 'org.sunbird.job.relationcache.task.RelationCacheUpdaterStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  post-publish-processor:
+    job_class_name: 'org.sunbird.job.postpublish.task.PostPublishProcessorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  questionset-publish:
+    job_class_name: 'org.sunbird.job.questionset.task.QuestionSetPublishStreamTask'
+    replica: 1
+    jobmanager_memory: 2048m
+    taskmanager_memory: 2048m
+    taskslots: 1
+    cpu_requests: 0.3
+  video-stream-generator:
+    job_class_name: 'org.sunbird.job.videostream.task.VideoStreamGeneratorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  search-indexer:
+    job_class_name: 'org.sunbird.job.searchindexer.task.SearchIndexerStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  enrolment-reconciliation:
+    job_class_name: 'org.sunbird.job.recounciliation.task.EnrolmentReconciliationStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  asset-enrichment:
+    job_class_name: 'org.sunbird.job.assetenricment.task.AssetEnrichmentStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  audit-history-indexer:
+    job_class_name: 'org.sunbird.job.audithistory.task.AuditHistoryIndexerStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  auto-creator-v2:
+    job_class_name: 'org.sunbird.job.task.AutoCreatorV2StreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  audit-event-generator:
+    job_class_name: 'org.sunbird.job.auditevent.task.AuditEventGeneratorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  collection-cert-pre-processor:
+    job_class_name: 'org.sunbird.job.collectioncert.task.CollectionCertPreProcessorTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  collection-certificate-generator:
+    job_class_name: 'org.sunbird.job.certgen.task.CertificateGeneratorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  content-publish:
+    job_class_name: 'org.sunbird.job.content.task.ContentPublishStreamTask'
+    replica: 1
+    jobmanager_memory: 2048m
+    taskmanager_memory: 2048m
+    taskslots: 1
+    cpu_requests: 0.3
+
+### Global vars
+middleware_course_keyspace: "sunbird_courses"
+cloud_store: azure
+
+
+### Search Indexer Related Vars
+search_indexer_consumer_parallelism: 1
+transaction_event_router_parallelism: 1
+composite_search_indexer_parallelism: 1
+dialcode_external_indexer_parallelism: 1
+dialcode_metric_indexer_parallelism: 1
+schema_definition_cache_expiry_in_sec: 14400
+search_indexer_ignored_fields: ["responseDeclaration", "body", "options", "lastStatusChangedOn", "SYS_INTERNAL_LAST_UPDATED_ON", "sYS_INTERNAL_LAST_UPDATED_ON"]
+
+### Asset Enrichment Related Vars
+asset_enrichment_consumer_parallelism: 1
+asset_enrichment_router_parallelism: 1
+image_enrichment_parallelism: 1
+video_enrichment_parallelism: 1
+asset_enrichment_checkpointing_interval: 300000
+asset_enrichment_checkpointing_pause_interval: 180000
+
+### Audit history indexer Related Vars
+audit_history_indexer_consumer_parallelism: 1
+audit_history_indexer_parallelism: 1
+
+### Auto Creator V2 Related Vars
+auto_creator_v2_consumer_parallelism: 1
+auto_creator_v2_parallelism: 1
+
+service_monitor_enabled: true
+
+### controlling the flink jobs log level
+flink_jobs_console_log_level: INFO
+flink_libraries_log_level: ERROR
+
+master_category_validation_enabled: "Yes"
+
+### content-publish related vars
+content_stream_enabled: true
+content_artifact_size_for_online: 209715200
+
+source_base_url: "{{proto}}://{{domain_name}}/api"

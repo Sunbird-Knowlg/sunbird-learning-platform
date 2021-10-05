@@ -3,22 +3,23 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.ekstep</groupId>
-		<artifactId>ekstep-platform</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<groupId>org.sunbird</groupId>
+		<artifactId>sunbird-platform</artifactId>
+		<version>1.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>ekstep-modules</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<artifactId>sunbird-modules</artifactId>
+	<version>1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Base for all EkStep modules</name>
-
+    
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring.version>4.2.4.RELEASE</spring.version>
 		<version.compiler.plugin>2.3.1</version.compiler.plugin>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
+		<cloud.store.version>1.2.8</cloud.store.version>
 	</properties>
 
 	<modules>
@@ -29,7 +30,7 @@
 		<module>service</module>
 		<module>actors</module>
 		<module>content-manager</module>
-		<module>ekstep-framework</module>
+		<module>sunbird-framework</module>
 	</modules>
 
 	<dependencies>

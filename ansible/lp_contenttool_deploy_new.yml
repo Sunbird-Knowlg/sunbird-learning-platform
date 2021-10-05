@@ -17,7 +17,7 @@
     - name: Run Sync tool with given command and parameters.
       become: yes
       become_user: "{{learner_user}}"
-      shell: "java -Dconfig.file=/home/learning/content_tool/application.conf -jar content-tool-1.0-SNAPSHOT.jar content-tool {{command}} {{parameters}}"
+      shell: "java -Dconfig.file=/home/learning/content_tool/application.conf -jar content-tool-1.1-SNAPSHOT.jar content-tool {{command}} {{parameters}}"
       async: 3600
       poll: 10
       args:

@@ -9,6 +9,7 @@ secrets_path: '{{inventory_dir}}/group_vars/common.yml'
 env_name: "{{ env }}"
 instance_name: "{{ env }}"
 instance: "{{ env }}"
+cert_env_prefix : "{{ instance }}"
 
 learner_user: learning
 learner_group: learning
@@ -18,21 +19,26 @@ learner_user_home: "/home/{{ learner_user }}"
 # these  variables can be defined as {{instance}}_*
 content_keyspace_name: "{{instance}}_content_store"
 hierarchy_keyspace_name: "{{instance}}_hierarchy_store"
-orchestrator_keyspace_name: "{{instance}}_script_store"
 dialcode_keyspace_name: "{{instance}}_dialcode_store"
+category_keyspace_name: "{{instance}}_category_store"
+assessment_keyspace_name: "{{instance}}_question_store"
+question_keyspace_name: "{{instance}}_question_store"
+platform_keyspace_name: "{{instance}}_platform_db"
+uci_keyspace_name: "{{instance}}_uci_store"
+
 
 dp_cassandra_connection: "{{ groups['dp-cassandra'][0] }}:9042"
 core_cassandra_connection: "{{groups['core-cassandra']|join(':9042,')}}:9042"
+core_cassandra_connection_ip: "{{ groups['core-cassandra'][0] }}"
 
-
-dial_service_generate_url: "{{ekstep_domain_name}}/api/dialcode/v3/generate"
+dial_service_generate_url: "http://{{private_ingressgateway_ip}}/dial/dialcode/v3/generate"
 search_service_endpoint: "{{ekstep_domain_name}}/api/search/v2/search"
 
 
 ## learning service variables
 plugin_media_base_url: "{{proto}}://{{domain_name}}"  # Plugin should be doanloaded from sunbird. Commenting the ekstep url : "{{ekstep_domain_name}}"
 content_media_base_url: "{{proto}}://{{domain_name}}"      # content_media_base_url
-dial_service_search_url: "{{ekstep_domain_name}}/api/dialcode/v3/search"   # dial_service_search_url
+dial_service_search_url: "http://{{private_ingressgateway_ip}}/dial/dialcode/v3/search"   # dial_service_search_url
 resourcemanager: "{{ groups['yarn-master'][0] }}"
 yarn_slaves: "{{ groups['yarn-slave']}}"
 __yarn_host__: "{{ groups['yarn-master'][0] }}"
@@ -52,29 +58,20 @@ other_bolt_write_url: bolt://{{ groups['learning-neo4j-cluster'][0] }}:8687
 lp_cassandra_connection: "{{groups['cassandra']|join(':9042,')}}:9042"
 cassandra_host: "{{ groups['cassandra'][0] }}"
 redis_host: "{{ groups['redis1'][0] }}"
+dp_redis_host: "{{ groups['dp-redis'][0] }}"
 kafka_brokers: "{{groups['processing-cluster-kafka']|join(':9092,')}}:9092"
 zookeepers: "{{groups['processing-cluster-zookeepers']|join(':2181,')}}:2181"
 audit_es_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
 search_es_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
 search_lms_es_host: "{{ groups['core-es']|join(':9200,')}}:9200"
 
-azure_account_key: "{{lp_vault_azure_storage_secret}}"
-azure_storage_secret: "{{lp_vault_azure_storage_secret}}"
 graph_passport_key: "{{ lp_vault_graph_passport_key }}"
-dial_service_authorization: "{{ lp_vault_dial_service_authorization }}"
 youtube_api_key: "{{ lp_vault_youtube_api_key }}"
-
-#### backup storage secret
-backup_azure_storage_account_name: "{{azure_account_name}}"
-backup_azure_storage_access_key: "{{lp_vault_azure_storage_secret}}"
 
 ## es backup
 es_snapshot_host: "{{ groups['composite-search-cluster'][0] }}"
 snapshot_base_path: compositesearch
 
-#artfiact upload download
-artifact_azure_account_name: "{{azure_account_name}}"
-artifact_azure_account_key: "{{lp_vault_azure_storage_secret}}"
 
 #Learning-Service baseURL
 kp_learning_service_base_url: "http://{{ groups['learning1'][0] }}:8080/learning-service"
@@ -84,9 +81,33 @@ sunbird_platform_installation: "{{ sunbird_installation }}"
 # DIAL Image Container Name
 dial_image_storage_container: "dial"
 
-learner_service_base_url: "http://{{swarm_manager_lb_ip}}:9000"
-cert_service_base_url: "http://{{swarm_manager_lb_ip}}:9011"
+search_es7_host: "{{ groups['es7']|join(':9200,')}}:9200"
+
+mlworkbench: "{{ groups['mlworkbench'][0]}}"
+
+azure_account: "{{ sunbird_public_storage_account_name }}"
+azure_secret: "{{ sunbird_public_storage_account_key }}"
+dedup_redis_host: "{{ dp_redis_host }}"
+kp_redis_host: "{{ groups['redisall'][0] }}"
+neo4j_route_path: "bolt://{{ groups['learning-neo4j-node1'][0] }}:7687"
+
+### Global vars
+flink_namespace: "flink-kp-{{ instance }}"
+middleware_hierarchy_keyspace: "{{ instance }}_hierarchy_store"
+kp_print_service_base_url: "http://{{private_ingressgateway_ip}}/print"
+cert_reg_service_base_url: "http://{{private_ingressgateway_ip}}/certreg"
+kp_search_service_base_url: "http://{{private_ingressgateway_ip}}/search"
+lms_service_base_url: "http://{{private_ingressgateway_ip}}/lms"
+learner_service_base_url: "http://{{private_ingressgateway_ip}}/learner"
+content_service_base_url: "http://{{private_ingressgateway_ip}}/content"
+kp_content_service_base_url: "http://{{private_ingressgateway_ip}}/content"
+cert_service_base_url: "http://{{private_ingressgateway_ip}}/cert"
+enc_service_base_url: "http://{{private_ingressgateway_ip}}/enc"
 certificate_base_path: "https://{{domain_name}}/certs"
-kp_content_service_base_url: "http://{{swarm_manager_lb_ip}}:9002"
-kp_print_service_base_url: "http://{{swarm_manager_lb_ip}}:5001"
-cert_reg_service_base_url: "http://{{swarm_manager_lb_ip}}:9013"
+cert_domain_url:  "{{proto}}://{{domain_name}}"
+cert_container_name: "{{cert_env_prefix}}-e-credentials"
+cert_cloud_storage_type: "azure"
+cert_azure_storage_secret: "{{sunbird_private_storage_account_key}}"
+cert_azure_storage_key: "{{sunbird_private_storage_account_name}}"
+
+default_channel: "org.sunbird"

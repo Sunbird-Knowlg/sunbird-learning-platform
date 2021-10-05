@@ -30,6 +30,15 @@
         -  'term_definition'
         -  'misconception_definition'
         -  'license_definition'
+        -  'objectcategory_definition'
+        -  'objectcategorydefinition_definition'
+        -  'collection_definition'
+        -  'collection_image_definition'
+        -  'asset_definition'
+        -  'question_definition'
+        -  'question_image_definition'
+        -  'questionset_definition'
+        -  'questionset_image_definition'
       register: definition_update_status
       tags:
       - update-definition

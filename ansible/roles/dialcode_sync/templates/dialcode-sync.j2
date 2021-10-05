@@ -1,0 +1,9 @@
+#!/bin/bash
+echo "CSV file name: $1"
+i=1
+while IFS=, read identifier
+do
+	test $i -eq 1 && ((i=i+1)) && continue # can be removed if header is not there in dialcodes.csv
+    java -Dconfig.file={{ home_dir }}/sync_tool/application.conf -jar {{ home_dir }}/sync_tool/sync-tool-0.0.1-SNAPSHOT.jar syncdialcodes --ids ${identifier}
+echo
+done < $1

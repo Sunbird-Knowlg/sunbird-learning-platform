@@ -2,17 +2,17 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.ekstep</groupId>
-		<artifactId>ekstep-modules</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<groupId>org.sunbird</groupId>
+		<artifactId>sunbird-modules</artifactId>
+		<version>1.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>ekstep-manager</artifactId>
+	<artifactId>sunbird-manager</artifactId>
 	<dependencies>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>searchindex-elasticsearch</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<type>jar</type>
 			<exclusions>
 				<exclusion>
@@ -22,21 +22,21 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>content-manager</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-beta</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>taxonomy-manager</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>graph-engine</artifactId>
 			<type>test-jar</type>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -95,9 +95,9 @@
 			<version>1.4</version>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>learning-actors</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<type>jar</type>
 			<exclusions>
 				<exclusion>
@@ -116,10 +116,10 @@
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>unit-tests</artifactId>
 			<type>test-jar</type>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -215,15 +215,15 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>cassandra-connector</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
+			<groupId>org.sunbird</groupId>
 			<artifactId>cassandra-connector</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
@@ -253,18 +253,24 @@
 		<dependency>
 			<groupId>org.sunbird</groupId>
     		<artifactId>cloud-store-sdk</artifactId>
-    		<version>1.2.5</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<version>2.24.5</version>
-			<scope>test</scope>
+    		<version>${cloud.store.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-core</artifactId>
 			<version>1.17.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-mockito</artifactId>
+			<version>1.6.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+			<version>1.6.4</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

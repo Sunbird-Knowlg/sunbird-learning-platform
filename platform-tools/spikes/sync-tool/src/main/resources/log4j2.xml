@@ -9,7 +9,7 @@
         </File>
     </Appenders>
     <Loggers>
-        <Logger name="org.ekstep.tools.loader" level="info" additivity="false">
+        <Logger name="org.sunbird.tools.loader" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Root level="error" additivity="false">

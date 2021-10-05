@@ -11,7 +11,7 @@
 
 - name: copy dump.rdb file
   copy:
-    src: /home/learning/redis-stable/dump.rdb
+    src: "{{ redis_data_dir }}/dump.rdb"
     dest: "{{ redis_backup_dir }}/{{ redis_backup_file_name }}"
     remote_src: yes
     
@@ -31,7 +31,7 @@
   shell: "echo info keyspace | ./src/redis-cli"
   register: restoreinfo
   args:
-    chdir: "/home/learning/redis-stable/"
+    chdir: "{{ redis_dir }}"
 
 - debug: var=restoreinfo.stdout_lines
 

@@ -46,15 +46,19 @@ search.batch.size=500
 search.connection.timeout=30
 search.index.name="{{ compositesearch_index_name }}"
 
-nested.fields=["badgeAssertions","targets","badgeAssociations"]
+nested.fields=["badgeAssertions","targets","badgeAssociations","plugins","me_totalTimeSpent","me_totalPlaySessionCount","me_totalTimeSpentInSec","batches","trackable","credentials"]
 channel.default="in.ekstep"
 
 # Cassandra Configurations
 hierarchy.keyspace.name="{{ hierarchy_keyspace_name }}"
 content.hierarchy.table="content_hierarchy"
+content.keyspace.name="{{ content_keyspace_name }}"
 cassandra.lp.connection="{{ lp_cassandra_connection }}"
 assessment.keyspace.name="{{ content_keyspace_name }}"
 assessment.keyspace.table="question_data"
+# Dialcodes service specific configuration
+dialcode.keyspace.name="{{ sunbirddev_dialcode_store }}"
+dialcode.table="dial_code"
 
 #Filter metadata based on definition while indexing into ES
 #restrict.metadata.objectTypes="Content,ContentImage"
@@ -68,4 +72,47 @@ courses.keyspace.name="sunbird_courses"
 courses.topic="{{ env }}.coursebatch.job.request"
 kafka.urls="{{ graphevent_kafka_url }}"
 
+content.postpublish.topic="{{ env }}.content.postpublish.request"
+
 search.lms_es_conn_info="{{ search_lms_index_host }}"
+
+#Azure Storage details
+cloud_storage_type="{{ cloud_store }}"
+azure_storage_key="{{sunbird_public_storage_account_name}}"
+azure_storage_secret="{{sunbird_public_storage_account_key}}"
+azure_storage_container="{{ azure_public_container }}"
+
+contentTypeToPrimaryCategory {
+  ClassroomTeachingVideo: "Explanation Content"
+  ConceptMap: "Learning Resource"
+  Course: "Course"
+  CuriosityQuestionSet: "Practice Question Set"
+  eTextBook: "eTextbook"
+  ExperientialResource: "Learning Resource"
+  ExplanationResource: "Explanation Content"
+  ExplanationVideo: "Explanation Content"
+  FocusSpot: "Teacher Resource"
+  LearningOutcomeDefinition: "Teacher Resource"
+  MarkingSchemeRubric: "Teacher Resource"
+  PedagogyFlow: "Teacher Resource"
+  PracticeQuestionSet: "Practice Question Set"
+  PracticeResource: "Practice Question Set"
+  SelfAssess: "Course Assessment"
+  TeachingMethod: "Teacher Resource"
+  TextBook: "Digital Textbook"
+  Collection: "Content Playlist"
+  ExplanationReadingMaterial: "Learning Resource"
+  LearningActivity: "Learning Resource"
+  LessonPlan: "Content Playlist"
+  LessonPlanResource: "Teacher Resource"
+  PreviousBoardExamPapers: "Learning Resource"
+  TVLesson: "Explanation Content"
+  OnboardingResource: "Learning Resource"
+  ReadingMaterial: "Learning Resource"
+  Template: "Template"
+  Asset: "Asset"
+  Plugin: "Plugin"
+  LessonPlanUnit: "Lesson Plan Unit"
+  CourseUnit: "Course Unit"
+  TextBookUnit: "Textbook Unit"
+}

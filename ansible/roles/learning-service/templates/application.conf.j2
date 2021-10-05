@@ -14,8 +14,6 @@ redis.port={{ redis_port }}
 redis.maxConnections=128
 
 # Cassandra Configuration
-orchestrator.keyspace.name="{{ orchestrator_keyspace_name }}"
-orchestrator.keyspace.table="script_data"
 content.keyspace.name="{{ content_keyspace_name }}"
 hierarchy.keyspace.name="{{ hierarchy_keyspace_name }}"
 content.hierarchy.table="content_hierarchy"
@@ -64,41 +62,6 @@ LearningActorSystem {
           throughput = 1
       }
       deployment {
-        /SearchManager 
-        {
-          router = smallest-mailbox-pool
-          nr-of-instances = 5
-        }
-        /HealthCheckManager
-        {
-          router = smallest-mailbox-pool
-                  nr-of-instances = 5
-        }
-      }
-    }
-  }
-}
-
-LanguageActorSystem {
-  akka {
-    actor {
-      default-dispatcher {
-        type = "Dispatcher"
-        executor = "fork-join-executor"
-        fork-join-executor {
-          parallelism-min = 1
-          parallelism-factor = 2.0
-          parallelism-max = 4
-        }
-        # Throughput for default Dispatcher, set to 1 for as fair as possible
-        throughput = 1
-      }
-      deployment {
-        /SearchManager 
-        {
-          router = smallest-mailbox-pool
-          nr-of-instances = 5
-        }
         /HealthCheckManager
         {
           router = smallest-mailbox-pool
@@ -199,8 +162,10 @@ channel.fetch.suggested_frameworks=true
 
 # Kafka configuration details
 kafka.topics.instruction="{{ kafka_topics_instruction }}"
+kafka.publish.request.topic="{{ kafka_publish_request_topic }}"
 kafka.urls="{{ graphevent_kafka_url }}"
 kafka.topic.system.command="{{ kafka_topic_system_command }}"
+job.request.event.mimetype=["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm"]
 
 #Youtube Standard Licence Validation
 learning.content.youtube.validate.license=true
@@ -231,8 +196,8 @@ youtube.license.regex.pattern=["\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embe
 
 #Azure Storage details
 cloud_storage_type="{{ cloud_store }}"
-azure_storage_key="{{ azure_account_name }}"
-azure_storage_secret="{{ azure_account_key }}"
+azure_storage_key="{{sunbird_public_storage_account_name}}"
+azure_storage_secret="{{sunbird_public_storage_account_key}}"
 azure_storage_container="{{ azure_public_container }}"
 
 installation.id="{{ instance_name }}"
@@ -240,7 +205,6 @@ installation.id="{{ instance_name }}"
 # Configuration for DIALCode linking
 learning.content.link_dialcode_validation=true
 dialcode.api.search.url="{{ dial_service_search_url }}"
-dialcode.api.authorization="{{ dial_service_authorization }}"
 dialcode.api.generate.url="{{dial_service_generate_url}}"
 
 # Configuration for default channel ID
@@ -283,3 +247,6 @@ content.license="CC BY 4.0"
 # Content Tagging Config
 content.tagging.backward_enable=true
 content.tagging.property="subject,medium"
+
+# Search Service Config
+kp.search_service.base_url="{{ kp_search_service_base_url }}"

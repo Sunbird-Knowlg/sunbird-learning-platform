@@ -1,21 +1,24 @@
 ---
 
 - name: Download backup file
-  shell: "az storage blob download --container-name {{ redis_backup_azure_container_name }} --file {{ redis_restore_file_name }} --name {{ redis_restore_file_name }} --account-name {{ backup_azure_storage_account_name }} --account-key {{ backup_azure_storage_access_key }}"
+  shell: "az storage blob download --container-name {{ redis_backup_azure_container_name }} --file {{ redis_restore_file_name }} --name {{ redis_restore_file_name }} --account-name {{sunbird_management_storage_account_name}} --account-key {{sunbird_management_storage_account_key}}"
   args:
     chdir: /tmp/ 
 
-- name: Ensure redis process is stopped
-  shell: sh {{ learning_user_home }}/stop_script.sh
+- name: stop redis to take backup 
+  become: yes
+  systemd:
+    name: redis
+    state: stopped
 
 - name: Copy rdb file to data dir
   shell: cp /tmp/{{ redis_restore_file_name }} {{ learning_user_home }}/redis-stable/dump.rdb
 
-
-- name: Start redis service
-  shell: nohup src/redis-server {{learning_user_home}}/redis-stable/redis.conf --protected-mode no &
-  args:
-    chdir: "{{learning_user_home}}/redis-stable/"
+- name: start redis
+  become: yes
+  systemd:
+    name: redis
+    state: started
 
 - name: Keyspace info
   shell: "echo info keyspace | ./src/redis-cli"

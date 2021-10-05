@@ -11,13 +11,13 @@ import org.apache.samza.task.StreamTask;
 import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
 import org.apache.samza.task.WindowableTask;
-import org.ekstep.common.Platform;
-import org.ekstep.jobs.samza.service.ISamzaService;
-import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.jobs.samza.util.SamzaCommonParams;
-import org.ekstep.telemetry.TelemetryGenerator;
-import org.ekstep.telemetry.TelemetryParams;
-import org.ekstep.telemetry.handler.Level;
+import org.sunbird.common.Platform;
+import org.sunbird.jobs.samza.service.ISamzaService;
+import org.sunbird.jobs.samza.service.task.JobMetrics;
+import org.sunbird.jobs.samza.util.SamzaCommonParams;
+import org.sunbird.telemetry.TelemetryGenerator;
+import org.sunbird.telemetry.TelemetryParams;
+import org.sunbird.telemetry.handler.Level;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,8 +27,8 @@ import java.util.UUID;
 
 public abstract class BaseTask implements StreamTask, InitableTask, WindowableTask {
     protected JobMetrics metrics;
-    private Config config = null;
-    private String eventId = "";
+    protected Config config = null;
+    protected String eventId = "";
     protected List<String> action = new ArrayList<>();
     protected String jobStartMessage = "";
     protected String jobEndMessage = "";
@@ -42,10 +42,10 @@ public abstract class BaseTask implements StreamTask, InitableTask, WindowableTa
     @Override
     public void init(Config config, TaskContext context) throws Exception {
         metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
-        ISamzaService service = initialize();
-        service.initialize(config);
         this.config = config;
         this.eventId = "BE_JOB_REQUEST";
+        ISamzaService service = initialize();
+        service.initialize(config);
     }
 
     public abstract ISamzaService initialize() throws Exception;
@@ -68,7 +68,8 @@ public abstract class BaseTask implements StreamTask, InitableTask, WindowableTa
         if(StringUtils.equalsIgnoreCase(this.eventId, eid)) {
             String action = (String) edata.get(SamzaCommonParams.action.name());
             if(this.action.contains(action)) {
-                int currentIteration = (int) edata.get(SamzaCommonParams.iteration.name());
+                int currentIteration = ((Number) edata.get(SamzaCommonParams.iteration.name())).intValue();
+
                 preProcess(message, collector, execution, maxIterations, currentIteration);
                 process(message, collector, coordinator);
                 postProcess(message, collector, execution, maxIterations, currentIteration);
@@ -180,7 +181,7 @@ public abstract class BaseTask implements StreamTask, InitableTask, WindowableTa
 
     private String generateEvent(String logLevel, String message, Map<String, Object> data) {
         Map<String, String> context = new HashMap<String, String>();
-        context.put(TelemetryParams.ACTOR.name(), "org.ekstep.learning.platform");
+        context.put(TelemetryParams.ACTOR.name(), "org.sunbird.learning.platform");
         context.put(TelemetryParams.ENV.name(), "content");
         context.put(TelemetryParams.CHANNEL.name(), Platform.config.getString("channel.default"));
         return TelemetryGenerator.log(context, "system", logLevel, message);

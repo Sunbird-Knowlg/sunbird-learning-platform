@@ -43,7 +43,7 @@
 
 	<servlet>
 		<servlet-name>init-servlet</servlet-name>
-		<servlet-class>org.ekstep.servlet.InitServlet</servlet-class>
+		<servlet-class>org.sunbird.servlet.InitServlet</servlet-class>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
 
@@ -54,7 +54,7 @@
 
 	<filter>
 		<filter-name>learning</filter-name>
-		<filter-class>org.ekstep.interceptor.ResponseFilter</filter-class>
+		<filter-class>org.sunbird.interceptor.ResponseFilter</filter-class>
 	</filter>
 
 	<filter-mapping>

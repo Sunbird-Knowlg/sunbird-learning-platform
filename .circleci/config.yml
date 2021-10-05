@@ -15,11 +15,8 @@ jobs:
           paths: ~/.m2
 
       - run:
-          name: Prepare search-api artifact
-          command: cd searchIndex-platform/module/search-api && mvn play2:dist -pl search-manager
-      - run:
           name: Copy artifacts to one location
-          command: mkdir artifacts && cp platform-modules/service/target/learning-service.war artifacts/ && cp searchIndex-platform/module/search-api/search-manager/target/search-manager-1.0-SNAPSHOT-dist.zip artifacts/ && cp platform-tools/spikes/sync-tool/target/sync-tool-0.0.1-SNAPSHOT.jar artifacts/
+          command: mkdir artifacts && cp platform-modules/service/target/learning-service.war artifacts/ && cp platform-tools/spikes/sync-tool/target/sync-tool-0.0.1-SNAPSHOT.jar artifacts/
 
       - store_artifacts:
          path: artifacts

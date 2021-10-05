@@ -1,0 +1,695 @@
+namespace: {{ flink_namespace }}
+imagepullsecrets: {{ imagepullsecrets }}
+dockerhub: {{ dockerhub }}
+repository: {{flink_repository|default('knowledge-platform-jobs')}}
+image_tag: {{ image_tag }}
+azure_account: {{ azure_account }}
+azure_secret: {{ azure_secret }}
+serviceMonitor:
+  enabled: {{ service_monitor_enabled | lower}}
+
+replicaCount: {{taskmana_replicacount|default(1)}}
+
+jobmanager:
+  rpc_port: {{ jobmanager_rpc_port }}
+  blob_port: {{ jobmanager_blob_port }}
+  query_port: {{ jobmanager_query_port }}
+  ui_port: {{ jobmanager_ui_port }}
+  prom_port: {{ jobmanager_prom_port }}
+  heap_memory: {{ jobmanager_heap_memory }}
+
+service: {{ jobmanager_ui_service|to_json }}
+
+rest_port: {{ jobmanager_ui_rest_port }}
+resttcp_port: {{ jobmanager_ui_tcp_port }}
+
+taskmanager:
+  prom_port: {{ taskmanager_prom_port }}
+  rpc_port: {{ taskmanager_rpc_port }}
+  heap_memory: {{ taskmanager_heap_memory }}
+  replicas: {{taskmanager_replicacount|default(1)}}
+
+job_classname: {{ job_classname }}
+{{ taskmanager_liveness | to_nice_yaml }}
+
+log4j_console_properties: |
+  # This affects logging for both user code and Flink
+  rootLogger.level = {{ flink_jobs_console_log_level | default(INFO) }}
+  rootLogger.appenderRef.console.ref = ConsoleAppender
+
+  # Uncomment this if you want to _only_ change Flink's logging
+  #logger.flink.name = org.apache.flink
+  #logger.flink.level = {{ flink_jobs_console_log_level | default(INFO) }}
+
+  # The following lines keep the log level of common libraries/connectors on
+  # log level INFO. The root logger does not override this. You have to manually
+  # change the log levels here.
+  logger.akka.name = akka
+  logger.akka.level = {{ flink_libraries_log_level | default(INFO) }}
+  logger.kafka.name= org.apache.kafka
+  logger.kafka.level = {{ flink_libraries_log_level | default(INFO) }}
+  logger.hadoop.name = org.apache.hadoop
+  logger.hadoop.level = {{ flink_libraries_log_level | default(INFO) }}
+  logger.zookeeper.name = org.apache.zookeeper
+  logger.zookeeper.level = {{ flink_libraries_log_level | default(INFO) }}
+
+  # Log all infos to the console
+  appender.console.name = ConsoleAppender
+  appender.console.type = CONSOLE
+  appender.console.layout.type = PatternLayout
+  appender.console.layout.pattern = %d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %-60c %x - %m%n
+
+  # Suppress the irrelevant (wrong) warnings from the Netty channel handler
+  logger.netty.name = org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline
+  logger.netty.level = OFF
+
+base_config: |
+  kafka {
+      broker-servers = "{{ kafka_brokers }}"
+      zookeeper = "{{ zookeepers }}"
+      producer {
+        max-request-size = {{ producer_max_request_size }}
+      }
+    }
+    job {
+      env = "{{ env_name }}"
+      enable.distributed.checkpointing = true
+      statebackend {
+        blob {
+          storage {
+            account = "{{ azure_account }}.blob.core.windows.net"
+            container = "{{ flink_container_name }}"
+            checkpointing.dir = "checkpoint"
+          }
+        }
+        base.url = "wasbs://"${job.statebackend.blob.storage.container}"@"${job.statebackend.blob.storage.account}"/"${job.statebackend.blob.storage.checkpointing.dir}
+      }
+    }
+    task {
+      parallelism = 1
+      consumer.parallelism = 1
+      checkpointing.compressed = {{ checkpoint_compression_enabled|lower }}
+      checkpointing.interval = {{ checkpoint_interval }}
+      checkpointing.pause.between.seconds = {{ checkpoint_pause_between_seconds }}
+      restart-strategy.attempts = {{ restart_attempts }}
+      restart-strategy.delay = {{ restart_delay }} # in milli-seconds
+    }
+    redis {
+      host = {{ dp_redis_host }}
+      port = 6379
+    }
+    lms-cassandra {
+      host = "{{ core_cassandra_connection_ip }}"
+      port = "9042"
+    }
+    neo4j {
+      routePath = "{{ neo4j_route_path }}"
+      graph = "domain"
+    }
+    es {
+        basePath = "{{ search_es_host }}"
+    }
+    schema {
+      basePath = "{{ kp_schema_base_path }}"
+      supportedVersion = {
+        itemset = "2.0"
+      }
+    }
+
+activity-aggregate-updater:
+  activity-aggregate-updater: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.coursebatch.job.request
+      output.audit.topic = {{ env_name }}.telemetry.raw
+      output.failed.topic = {{ env_name }}.activity.agg.failed
+      output.certissue.topic = {{ env_name }}.issue.certificate.request
+      groupId = {{ env_name }}-activity-aggregate-group
+    }
+    task {
+      window.shards = {{ activity_agg_window_shards }}
+      checkpointing.interval = {{ activity_agg_checkpointing_interval }}
+      checkpointing.pause.between.seconds = {{ activity_agg_checkpointing_pause_interval }}
+      restart-strategy.attempts = {{ restart_attempts }} # max 3 restart attempts
+      restart-strategy.delay = 240000 # in milli-seconds # on max restarts (3) within 4 min the job will fail.
+      consumer.parallelism = {{ activity_agg_consumer_parallelism }}
+      dedup.parallelism = {{ activity_agg_dedup_parallelism }}
+      activity.agg.parallelism = {{ activity_agg_parallelism }}
+      enrolment.complete.parallelism = {{ enrolment_complete_parallelism }}
+    }
+    lms-cassandra {
+      keyspace = "{{ middleware_course_keyspace }}"
+      consumption.table = "{{ middleware_consumption_table }}"
+      user_activity_agg.table = "{{ middleware_user_activity_agg_table }}"
+      user_enrolments.table = "user_enrolments"
+    }
+    redis {
+      database {
+        relationCache.id = 10
+      }
+    }
+    dedup-redis {
+      host = {{ dedup_redis_host }}
+      port = 6379
+      database.index = {{ activity_agg_dedup_index }}
+      database.expiry = {{ activity_agg_dedup_expiry }}
+    }
+    threshold.batch.read.interval = {{ activity_agg_batch_interval }}
+    threshold.batch.read.size = {{ activity_agg_batch_read_size }}
+    threshold.batch.write.size = {{ activity_agg_batch_write_size }}
+    activity {
+      module.aggs.enabled = true
+      input.dedup.enabled = true
+      filter.processed.enrolments = {{ activity_agg_enrolment_filter_processe_enabled | lower }}
+      collection.status.cache.expiry = {{ activity_agg_collection_status_cache_expiry_time }}
+    }
+    service {
+      search.basePath = "{{ kp_search_service_base_url }}"
+    }
+
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['activity-aggregate-updater'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['activity-aggregate-updater'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['activity-aggregate-updater'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+relation-cache-updater:
+  relation-cache-updater: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.content.postpublish.request
+      groupId = {{ env_name }}-relation-cache-updater-group
+    }
+    task {
+      consumer.parallelism = {{ relation_cache_updater_consumer_parallelism }}
+      parallelism = {{ relation_cache_updater_parallelism }}
+    }
+    lms-cassandra {
+          keyspace = "{{ middleware_hierarchy_keyspace }}"
+          table = "{{ middleware_content_hierarchy_table }}"
+    }
+    redis {
+      database.index = 10
+    }
+    dp-redis {
+      host = {{ dp_redis_host }}
+      port = 6379
+      database.index = 5
+    }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['relation-cache-updater'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['relation-cache-updater'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['relation-cache-updater'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+post-publish-processor:
+  post-publish-processor: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.content.postpublish.request
+      groupId = {{ env_name }}-post-publish-processor-group
+      publish.topic = {{ env_name }}.learning.job.request
+      qrimage.topic = {{ env_name }}.qrimage.request
+    }
+    task {
+      consumer.parallelism = {{ post_publish_processor_consumer_parallelism }}
+      router.parallelism = {{ post_publish_event_router_parallelism }}
+      shallow_copy.parallelism = {{ post_publish_shallow_copy_parallelism }}
+      link_dialcode.parallelism = {{ post_publish_link_dialcode_parallelism }}
+      batch_create.parallelism = {{ post_publish_batch_create_parallelism }}
+    }
+    lms-cassandra {
+      keyspace = "{{ middleware_course_keyspace }}"
+      batchTable = "course_batch"
+    }
+    dialcode-cassandra {
+      keyspace = "dialcodes"
+      imageTable = "dialcode_images"
+    }
+    service {
+      search.basePath = "{{ kp_search_service_base_url }}"
+      lms.basePath = "{{ lms_service_base_url }}"
+      learning_service.basePath = "{{ kp_learning_service_base_url }}"
+      dial.basePath = "https://{{domain_name}}/dial/"
+    }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['post-publish-processor'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['post-publish-processor'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['post-publish-processor'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+questionset-publish:
+  questionset-publish: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.assessment.publish.request
+      post_publish.topic = {{ env_name }}.content.postpublish.request
+      groupId = {{ env_name }}-questionset-publish-group
+    }
+    task {
+      consumer.parallelism = 1
+      parallelism = 1
+      router.parallelism = 1
+    }
+    question {
+      keyspace = "{{ assessment_keyspace_name }}"
+      table = "question_data"
+    }
+    questionset {
+      keyspace = "{{ hierarchy_keyspace_name }}"
+      table = "questionset_hierarchy"
+    }
+    print_service.base_url = "{{ kp_print_service_base_url }}"
+    cloud_storage_type="{{ cloud_store }}"
+    azure_storage_key="{{ sunbird_public_storage_account_name }}"
+    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
+    azure_storage_container="{{ azure_public_container }}"
+
+    master.category.validation.enabled ="{{ master_category_validation_enabled }}"
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['questionset-publish'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['questionset-publish'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['questionset-publish'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+video-stream-generator:
+  video-stream-generator: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.content.postpublish.request"
+      groupId = "{{ env_name }}-video-stream-generator-group"
+    }
+    task {
+      timer.duration = {{ video_stream_generator_timer_duration }}
+      consumer.parallelism = {{ video_stream_generator_consumer_parallelism }}
+      parallelism = {{ video_stream_generator_parallelism }}
+      max.retries = {{ video_stream_generator_max_retries }}
+    }
+    lms-cassandra {
+      keyspace = {{ platform_keyspace_name }}
+      table = "job_request"
+    }
+    service.content.basePath="{{ kp_content_service_base_url }}"
+    azure {
+      location = "centralindia"
+      login {
+        endpoint="https://login.microsoftonline.com"
+      }
+      api {
+        endpoint="https://management.azure.com"
+        version = "2018-07-01"
+      }
+      transform {
+        default = "media_transform_default"
+        hls = "media_transform_hls"
+      }
+      stream {
+        base_url="{{ video_stream_generator_azure_stream_base_url }}"
+        endpoint_name = "default"
+        protocol = "Hls"
+        policy_name = "Predefined_ClearStreamingOnly"
+      }
+    }
+    azure_tenant="{{ video_stream_generator_azure_tenant }}"
+    azure_subscription_id="{{ video_stream_generator_azure_subscription_id }}"
+    azure_account_name="{{ video_stream_generator_azure_account_name }}"
+    azure_resource_group_name="{{ video_stream_generator_azure_resource_group_name }}"
+    azure_token_client_key="{{ video_stream_generator_azure_token_client_key }}"
+    azure_token_client_secret="{{ video_stream_generator_azure_token_client_secret }}"
+
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['video-stream-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+search-indexer:
+  search-indexer: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.learning.graph.events"
+      error.topic = "{{ env_name }}.learning.events.failed"
+      groupId = "{{ env_name }}-search-indexer-group"
+    }
+    task {
+      consumer.parallelism = {{ search_indexer_consumer_parallelism }}
+      router.parallelism = {{ transaction_event_router_parallelism }}
+      compositeSearch.parallelism = {{ composite_search_indexer_parallelism }}
+      dialcodeIndexer.parallelism = {{ dialcode_external_indexer_parallelism }}
+      dialcodemetricsIndexer.parallelism = {{ dialcode_metric_indexer_parallelism }}
+    }
+    compositesearch.index.name = "compositesearch"
+    dialcode.index.name = "dialcode"
+    dailcodemetrics.index.name = "dialcodemetrics"
+    restrict.metadata.objectTypes = []
+    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions"]
+    schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_sec }}
+    restrict.objectTypes = ["EventSet", "EventSetImage", "Event", "EventImage", "Questionnaire", "Misconception", "FrameworkType", "Concept", "Misconception", "Language", "Reference", "Dimension", "Method", "Library", "Domain", "Api"]
+    ignored.fields={{ search_indexer_ignored_fields | to_json }}
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['search-indexer'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['search-indexer'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['search-indexer'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+enrolment-reconciliation:
+  enrolment-reconciliation: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.batch.enrolment.sync.request
+      output.audit.topic = {{ env_name }}.telemetry.raw
+      output.failed.topic = {{ env_name }}.activity.agg.failed
+      output.certissue.topic = {{ env_name }}.issue.certificate.request
+      groupId = {{ env_name }}-enrolment-reconciliation-group
+    }
+    task {
+      restart-strategy.attempts = {{ restart_attempts }} # max 3 restart attempts
+      restart-strategy.delay = 240000 # in milli-seconds # on max restarts (3) within 4 min the job will fail.
+      consumer.parallelism = {{ enrolment_reconciliation_consumer_parallelism }}
+      enrolment.reconciliation.parallelism = {{ enrolment_reconciliation_parallelism }}
+      enrolment.complete.parallelism = {{ enrolment_complete_parallelism }}
+    }
+    lms-cassandra {
+      keyspace = "{{ middleware_course_keyspace }}"
+      consumption.table = "{{ middleware_consumption_table }}"
+      user_activity_agg.table = "{{ middleware_user_activity_agg_table }}"
+      user_enrolments.table = "user_enrolments"
+    }
+    redis {
+      database {
+        relationCache.id = 10
+      }
+    }
+    threshold.batch.write.size = {{ enrolment_reconciliation_batch_write_size }}
+    activity {
+      module.aggs.enabled = true
+      collection.status.cache.expiry = {{ enrolment_reconciliation_collection_status_cache_expiry_time }}
+    }
+    service {
+      search.basePath = "{{ kp_search_service_base_url }}"
+    }
+
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['enrolment-reconciliation'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['enrolment-reconciliation'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['enrolment-reconciliation'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+asset-enrichment:
+  asset-enrichment: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.learning.job.request
+      groupId = {{ env_name }}-asset-enrichment-group
+      video_stream.topic = {{ env_name }}.content.postpublish.request
+    }
+    task {
+      checkpointing.timeout = 900000
+      checkpointing.interval = {{ asset_enrichment_checkpointing_interval }}
+      checkpointing.pause.between.seconds = {{ asset_enrichment_checkpointing_pause_interval }}
+      consumer.parallelism = {{ asset_enrichment_consumer_parallelism }}
+      router.parallelism = {{ asset_enrichment_router_parallelism }}
+      imageEnrichment.parallelism = {{ image_enrichment_parallelism }}
+      videoEnrichment.parallelism = {{ video_enrichment_parallelism }}
+    }
+    content {
+      stream {
+        enabled = true
+        mimeType = ["video/mp4", "video/webm"]
+      }
+      youtube {
+        applicationName = "fetch-youtube-license"
+        regexPattern = ["\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)", "^([A-Za-z0-9\\-\\_]*)"]
+      }
+      upload.context.driven = true
+      max.iteration.count = 2
+    }
+    thumbnail.max {
+      sample = 5
+      size.pixel = 150
+    }
+    content_youtube_apikey="{{ youtube_api_key }}"
+    cloud_storage_type="{{ cloud_store }}"
+    azure_storage_key="{{ sunbird_public_storage_account_name }}"
+    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
+    azure_storage_container="{{ azure_public_container }}"
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['asset-enrichment'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['asset-enrichment'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['asset-enrichment'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+audit-history-indexer:
+  audit-history-indexer: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.learning.graph.events"
+      groupId = "{{ env_name }}-audit-history-indexer-group"
+    }
+
+    task {
+      consumer.parallelism = {{ audit_history_indexer_consumer_parallelism }}
+      parallelism = {{ audit_history_indexer_parallelism }}
+      window.time = 60
+    }
+
+    timezone = "IST"
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['audit-history-indexer'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['audit-history-indexer'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['audit-history-indexer'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+auto-creator-v2:
+  auto-creator-v2: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.object.import.request"
+      groupId = "{{ env_name }}-auto-creator-v2-group"
+    }
+
+    task {
+      consumer.parallelism = {{ auto_creator_v2_consumer_parallelism }}
+      parallelism = {{ auto_creator_v2_parallelism }}
+      window.time = 60
+    }
+
+    question {
+      keyspace = "{{ assessment_keyspace_name }}"
+    }
+    questionset {
+      keyspace = "{{ hierarchy_keyspace_name }}"
+    }
+    service {
+      content.basePath = "{{ kp_content_service_base_url }}"
+    }
+    cloud_storage_type="{{ cloud_store }}"
+    azure_storage_key="{{ sunbird_public_storage_account_name }}"
+    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
+    azure_storage_container="{{ azure_public_container }}"
+
+    source {
+      baseUrl="{{ source_base_url }}"
+    }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['auto-creator-v2'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['auto-creator-v2'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['auto-creator-v2'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+audit-event-generator:
+  audit-event-generator: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.learning.graph.events"
+      output.topic = "{{ env_name }}.telemetry.raw"
+      groupId = "{{ env_name }}-audit-event-generator-group"
+    }
+
+    task {
+      consumer.parallelism = {{ audit_event_generator_consumer_parallelism }}
+      parallelism = {{ audit_event_generator_parallelism }}
+      producer.parallelism = {{ audit_event_generator_producer_parallelism }}
+    }
+
+    schema {
+      basePath = "{{ kp_schema_base_path }}"
+    }
+
+    channel.default = "{{ audit_event_generator_default_channel }}"
+
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['audit-event-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['audit-event-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['audit-event-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+collection-cert-pre-processor:
+  collection-cert-pre-processor: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.issue.certificate.request
+      output.topic = {{ env_name }}.generate.certificate.request
+      output.failed.topic = {{ env_name }}.issue.certificate.failed
+      groupId = {{ env_name }}-collection-cert-pre-processor-group
+    }
+    task {
+      restart-strategy.attempts = {{ restart_attempts }} # max 3 restart attempts
+      restart-strategy.delay = 240000 # in milli-seconds # on max restarts (3) within 4 min the job will fail.
+      consumer.parallelism = {{ collection_cert_pre_processor_consumer_parallelism }}
+      generate_certificate.parallelism = {{generate_certificate_parallelism}}
+    }
+    lms-cassandra {
+      keyspace = "{{ middleware_course_keyspace }}"
+      consumption.table = "{{ middleware_consumption_table }}"
+      user_enrolments.table = "{{ middleware_user_enrolments_table }}"
+      course_batch.table = "{{ middleware_course_batch_table }}"
+      assessment_aggregator.table = "{{ middleware_assessment_aggregator_table }}"
+    }
+    cert_domain_url = "{{ cert_domain_url }}"
+    user_read_api = "/private/user/v1/read"
+    content_read_api = "/content/v3/read"
+    service {
+      content.basePath = "{{ content_service_base_url }}"
+      learner.basePath = "{{ learner_service_base_url }}"
+    }
+    redis-meta {
+    {% if metadata2_redis_host is defined %}
+      host = {{ metadata2_redis_host }}
+    {% else %}
+      host = {{ redis_host }}
+    {% endif %}
+      port = 6379
+    }
+    assessment.metrics.supported.contenttype = ["SelfAssess"]
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['collection-cert-pre-processor'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['collection-cert-pre-processor'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['collection-cert-pre-processor'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+    
+collection-certificate-generator:
+  collection-certificate-generator: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.generate.certificate.request
+      output.audit.topic = {{ env_name }}.telemetry.raw
+      groupId = {{ env_name }}-certificate-generator-group
+    }
+    task {
+      restart-strategy.attempts = {{ restart_attempts }} # max 3 restart attempts
+      restart-strategy.delay = 240000 # in milli-seconds # on max restarts (3) within 4 min the job will fail.
+      consumer.parallelism = {{ collection_certificate_generator_consumer_parallelism }}
+      parallelism = {{ collection_certificate_generator_parallelism }}
+    }
+    lms-cassandra {
+      keyspace = "{{ middleware_course_keyspace }}"
+      user_enrolments.table = "{{ middleware_user_enrolments_table }}"
+      course_batch.table = "{{ middleware_course_batch_table }}"
+    }
+    cert_domain_url = "{{ cert_domain_url }}"
+    cert_container_name = "{{ cert_container_name }}"
+    cert_cloud_storage_type = "{{ cert_cloud_storage_type }}"
+    cert_azure_storage_secret = "{{ cert_azure_storage_secret }}"
+    cert_azure_storage_key = "{{ cert_azure_storage_key }}"
+    service {
+      certreg.basePath = "{{ cert_reg_service_base_url }}"
+      learner.basePath = "{{ learner_service_base_url }}"
+      enc.basePath = "{{ enc_service_base_url }}"
+    }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['collection-certificate-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['collection-certificate-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['collection-certificate-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+content-publish:
+  content-publish: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.publish.job.request
+      post_publish.topic = {{ env_name }}.content.postpublish.request
+      groupId = {{ env_name }}-content-publish-group
+    }
+    task {
+      consumer.parallelism = 1
+      parallelism = 1
+      router.parallelism = 1
+    }
+    redis {
+      database {
+        contentCache.id = 0
+      }
+    }
+    content {
+      keyspace = "{{ content_keyspace_name }}"
+      table = "content_data"
+      tmp_file_location = "/tmp"
+      template_name = "contentTemplate.vm"
+      cloud_storage.itemset.folder = ""
+      cloud_storage.content.folder = ""
+      objectType = ["Content", "ContentImage"]
+      mimeType = ["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm"]
+      stream {
+        enabled = {{ content_stream_enabled | lower }}
+        mimeType = ["video/mp4", "video/webm"]
+      }
+      artifact.size.for_online= {{ content_artifact_size_for_online }}
+    }
+
+    cloud_storage_type="{{ cloud_store }}"
+    azure_storage_key="{{ sunbird_public_storage_account_name }}"
+    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
+    azure_storage_container="{{ azure_public_container }}"
+
+    master.category.validation.enabled ="{{ master_category_validation_enabled }}"
+    service {
+      print.basePath = "{{ kp_print_service_base_url }}"
+    }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['content-publish'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['content-publish'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['content-publish'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1

@@ -17,4 +17,4 @@
 - name: Copy jar file.
   become: yes
   become_user: "{{learner_user}}"
-  copy: src=content-tool-1.0-SNAPSHOT.jar dest=/home/learning/content_tool/
+  copy: src=content-tool-1.1-SNAPSHOT.jar dest=/home/learning/content_tool/

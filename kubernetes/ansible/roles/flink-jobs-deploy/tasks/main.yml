@@ -1,0 +1,15 @@
+- name: template values.yaml file
+  template:
+    src: "{{ chart_path }}/values.j2"
+    dest: "{{ chart_path }}/values.yaml"
+
+- name: remove the job.batch
+  shell: kubectl delete job.batch {{ item }}-jobmanager -n {{ flink_namespace }}
+  with_items:
+    - "{{ job_names_to_deploy.split(',')|list }}"
+  ignore_errors: yes
+
+- name: helm upgrade
+  shell: helm upgrade --install {{ item }} {{ chart_path }} --set job_classname={{ flink_job_names['%s'|format(item)].job_class_name }} --set taskmanager.replicas={{ flink_job_names['%s'|format(item)].replica }} --set taskmanager.cpu_requests={{ flink_job_names['%s'|format(item)].cpu_requests }} -n {{ flink_namespace }}
+  with_items:
+    - "{{ job_names_to_deploy.split(',')|list }}"

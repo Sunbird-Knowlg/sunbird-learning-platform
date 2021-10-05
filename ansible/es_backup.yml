@@ -1,3 +1,16 @@
+- hosts: localhost
+  gather_facts: no
+  become: yes
+  vars_files:
+    - ['{{inventory_dir}}/secrets.yml']
+  tasks:
+    - name: Create a container for storing backups
+      command: az storage container create  --name elasticsearch-snapshots --public-access blob
+      environment:
+        AZURE_STORAGE_ACCOUNT: "{{sunbird_management_storage_account_name}}"
+        AZURE_STORAGE_KEY: "{{sunbird_management_storage_account_key}}"
+
+
 - hosts: composite-search-cluster
   become: yes
   vars_files:

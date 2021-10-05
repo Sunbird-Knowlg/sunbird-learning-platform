@@ -1,0 +1,40 @@
+{{- if .Values.serviceMonitor.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}-taskmanager
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Release.Name }}-taskmanager
+    release: prometheus-operator
+spec:
+  selector:
+    matchLabels:
+      component: {{ .Release.Name }}-taskmanager
+  endpoints:
+  - port: prom
+    interval: 30s
+  namespaceSelector:
+    matchNames:
+    - {{ .Values.namespace }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}-jobmanager
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Release.Name }}-jobmanager
+    release: prometheus-operator
+spec:
+  selector:
+    matchLabels:
+      component: {{ .Release.Name }}-jobmanager
+  endpoints:
+  - port: prom
+    interval: 30s
+  namespaceSelector:
+    matchNames:
+    - {{ .Values.namespace }}
+{{- end }}

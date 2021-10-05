@@ -1,5 +1,10 @@
 package org.sunbird.jobs.samza.service;
 
+import com.datastax.driver.core.RegularStatement;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.querybuilder.Batch;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.querybuilder.Update;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -8,16 +13,17 @@ import org.apache.samza.config.Config;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
-import org.ekstep.common.Platform;
-import org.ekstep.common.exception.ClientException;
-import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
-import org.ekstep.jobs.samza.service.ISamzaService;
-import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.jobs.samza.util.FailedEventsUtil;
-import org.ekstep.jobs.samza.util.JSONUtils;
-import org.ekstep.jobs.samza.util.JobLogger;
-import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.sunbird.common.Platform;
+import org.sunbird.common.exception.ClientException;
+import org.sunbird.jobs.samza.exception.PlatformErrorCodes;
+import org.sunbird.jobs.samza.service.ISamzaService;
+import org.sunbird.jobs.samza.service.task.JobMetrics;
+import org.sunbird.jobs.samza.util.FailedEventsUtil;
+import org.sunbird.jobs.samza.util.JSONUtils;
+import org.sunbird.jobs.samza.util.JobLogger;
+import org.sunbird.searchindex.elasticsearch.ElasticSearchUtil;
 import org.sunbird.jobs.samza.model.BatchEnrollmentSyncModel;
+import org.sunbird.jobs.samza.util.CassandraConnector;
 import org.sunbird.jobs.samza.util.MergeUserCoursesParams;
 import org.sunbird.jobs.samza.util.SunbirdCassandraUtil;
 
@@ -43,6 +49,8 @@ public class MergeUserCoursesService implements ISamzaService {
     private static String COURSE_BATCH_UPDATER_KAFKA_TOPIC;
     private static String COURSE_DATE_FORMAT;
     private static SimpleDateFormat DateFormatter;
+    private static String USER_ACTIVITY_AGG;
+    private Session cassandraSession = null;
 
     protected int getMaxIterations() {
         if (Platform.config.hasPath("max.iteration.count.samza.job"))
@@ -65,10 +73,10 @@ public class MergeUserCoursesService implements ISamzaService {
                 Platform.config.getString("courses.keyspace.name") : "sunbird_courses";
 
         CONTENT_CONSUMPTION_TABLE = Platform.config.hasPath("content.consumption.table") ?
-                Platform.config.getString("content.consumption.table") : "content_consumption";
+                Platform.config.getString("content.consumption.table") : "user_content_consumption";
 
         USER_COURSES_TABLE = Platform.config.hasPath("user.courses.table") ?
-                Platform.config.getString("user.courses.table") : "user_courses";
+                Platform.config.getString("user.courses.table") : "user_enrolments";
 
         USER_COURSE_ES_INDEX = Platform.config.hasPath("user.courses.es.index") ?
                 Platform.config.getString("user.courses.es.index") : "user-courses";
@@ -80,6 +88,8 @@ public class MergeUserCoursesService implements ISamzaService {
 
         COURSE_DATE_FORMAT = Platform.config.hasPath("course.date.format") ?
                 Platform.config.getString("course.date.format") : "yyyy-MM-dd HH:mm:ss:SSSZ";
+        
+        USER_ACTIVITY_AGG = "user_activity_agg";
 
         DateFormatter = new SimpleDateFormat(COURSE_DATE_FORMAT);
     }
@@ -89,6 +99,7 @@ public class MergeUserCoursesService implements ISamzaService {
         this.config = config;
         JSONUtils.loadProperties(config);
         initializeConfigurations();
+        this.cassandraSession = new CassandraConnector(config).getSession();
         LOGGER.info("MergeUserCoursesService:initialize: Service config initialized");
         ElasticSearchUtil.initialiseESClient(USER_COURSE_ES_INDEX, Platform.config.getString("search.es_conn_info"));
         LOGGER.info("MergeUserCoursesService:initialize: ESClient initialized for index:" + USER_COURSE_ES_INDEX);
@@ -115,7 +126,6 @@ public class MergeUserCoursesService implements ISamzaService {
             return;
         }
 
-        String action = (String) edata.get(MergeUserCoursesParams.action.name());
         String fromUserId = (String) edata.get(MergeUserCoursesParams.fromAccountId.name());
         String toUserId = (String) edata.get(MergeUserCoursesParams.toAccountId.name());
 
@@ -131,6 +141,7 @@ public class MergeUserCoursesService implements ISamzaService {
             mergeContentConsumption(fromUserId, toUserId);
             mergeUserBatches(fromUserId, toUserId);
             generateBatchEnrollmentSyncEvents(toUserId, collector);
+            mergeUserActivityAggregates(fromUserId, toUserId);
             metrics.incSuccessCounter();
             LOGGER.info("MergeUserCoursesService:processMessage: Event processed successfully", message);
         } catch (Exception e) {
@@ -156,54 +167,44 @@ public class MergeUserCoursesService implements ISamzaService {
         List<BatchEnrollmentSyncModel> fromBatches = getBatchDetailsOfUser(fromUserId);
         List<BatchEnrollmentSyncModel> toBatches = getBatchDetailsOfUser(toUserId);
 
-        List<String> fromBatchIds = new ArrayList<>();
-        List<String> toBatchIds = new ArrayList<>();
+        Map<String, BatchEnrollmentSyncModel> fromBatchIds = new HashMap<>();
+        Map<String, BatchEnrollmentSyncModel> toBatchIds = new HashMap<>();
         if (CollectionUtils.isNotEmpty(fromBatches)) {
             for (BatchEnrollmentSyncModel fromBatch : fromBatches) {
                 if (StringUtils.isNotBlank(fromBatch.getBatchId()))
-                    fromBatchIds.add(fromBatch.getBatchId());
+                    fromBatchIds.put(fromBatch.getBatchId(), fromBatch);
             }
         }
         if (CollectionUtils.isNotEmpty(toBatches)) {
             for (BatchEnrollmentSyncModel toBatch : toBatches) {
                 if (StringUtils.isNotBlank(toBatch.getBatchId()))
-                    toBatchIds.add(toBatch.getBatchId());
+                    toBatchIds.put(toBatch.getBatchId(), toBatch);
             }
         }
 
-        List<String> batchIdsToBeMigrated = (List<String>) CollectionUtils.subtract(fromBatchIds, toBatchIds);
+        List<String> batchIdsToBeMigrated = (List<String>) CollectionUtils.subtract(fromBatchIds.keySet(), toBatchIds.keySet());
 
         //Migrate batch records in Cassandra and ES
         if (CollectionUtils.isNotEmpty(batchIdsToBeMigrated)) {
             for (String batchId : batchIdsToBeMigrated) {
-                Map<String, Object> userCourse = getUserCourse(batchId, fromUserId);
+                String courseId = fromBatchIds.get(batchId).getCourseId();
+                Map<String, Object> userCourse = getUserCourse(batchId, fromUserId, courseId);
                 if (MapUtils.isNotEmpty(userCourse)) {
                     userCourse.put(MergeUserCoursesParams.userId.name(), toUserId);
                     LOGGER.info("MergeUserCoursesService:mergeUserBatches: Merging batch:" + batchId + " updated record:" + userCourse);
                     SunbirdCassandraUtil.upsert(KEYSPACE, USER_COURSES_TABLE, userCourse);
 
-                    String documentJson = ElasticSearchUtil.getDocumentAsStringById(USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE,
+                    /*String documentJson = ElasticSearchUtil.getDocumentAsStringById(USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE,
                             batchId + UNDERSCORE + fromUserId);
                     Map<String, Object> userCourseDoc = mapper.readValue(documentJson, Map.class);
                     userCourseDoc.put(MergeUserCoursesParams.userId.name(), toUserId);
                     userCourseDoc.put(MergeUserCoursesParams.id.name(), batchId + UNDERSCORE + toUserId);
                     userCourseDoc.put(MergeUserCoursesParams.identifier.name(), batchId + UNDERSCORE + toUserId);
                     ElasticSearchUtil.addDocumentWithId(USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE,
-                            batchId + UNDERSCORE + toUserId, mapper.writeValueAsString(userCourseDoc));
+                            batchId + UNDERSCORE + toUserId, mapper.writeValueAsString(userCourseDoc));*/
                 } else {
                     LOGGER.info("MergeUserCoursesService:mergeUserBatches: user_courses record with batchId:" + batchId + " userId:" + fromUserId + " found in ES but not in Cassandra");
                 }
-            }
-        }
-
-        //Clear fromUserId batches from Cassandra and ES
-        if (CollectionUtils.isNotEmpty(fromBatchIds)) {
-            for (String batchId : fromBatchIds) {
-                Map<String, Object> key = new HashMap<>();
-                key.put(MergeUserCoursesParams.batchId.name(), batchId);
-                key.put(MergeUserCoursesParams.userId.name(), fromUserId);
-                SunbirdCassandraUtil.delete(KEYSPACE, USER_COURSES_TABLE, key);
-                ElasticSearchUtil.deleteDocument(USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE, batchId + UNDERSCORE + fromUserId);
             }
         }
     }
@@ -224,11 +225,6 @@ public class MergeUserCoursesService implements ISamzaService {
                 }
                 SunbirdCassandraUtil.upsert(KEYSPACE, CONTENT_CONSUMPTION_TABLE, matchingRecord);
             }
-
-            //Clear fromUserId content consumption data
-            Map<String, Object> key = new HashMap<>();
-            key.put(MergeUserCoursesParams.userId.name(), fromUserId);
-            SunbirdCassandraUtil.delete(KEYSPACE, CONTENT_CONSUMPTION_TABLE, key);
         }
     }
 
@@ -344,10 +340,11 @@ public class MergeUserCoursesService implements ISamzaService {
         return SunbirdCassandraUtil.readAsListOfMap(KEYSPACE, CONTENT_CONSUMPTION_TABLE, key);
     }
 
-    private Map<String, Object> getUserCourse(String batchId, String userId) {
+    private Map<String, Object> getUserCourse(String batchId, String userId, String courseId) {
         Map<String, Object> key = new HashMap<>();
         key.put(MergeUserCoursesParams.batchId.name(), batchId);
         key.put(MergeUserCoursesParams.userId.name(), userId);
+        key.put(MergeUserCoursesParams.courseId.name(), courseId);
         List<Map<String, Object>> data = SunbirdCassandraUtil.readAsListOfMap(KEYSPACE, USER_COURSES_TABLE, key);
         return CollectionUtils.isEmpty(data) ? new HashMap() : data.get(0);
     }
@@ -358,7 +355,10 @@ public class MergeUserCoursesService implements ISamzaService {
         List<String> userIdList = new ArrayList<>();
         userIdList.add(userId);
         searchQuery.put(MergeUserCoursesParams.userId.name(), userIdList);
-        List<Map> documents = ElasticSearchUtil.textSearchReturningId(searchQuery, USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE);
+        Map<String, Object> key = new HashMap<>();
+        key.put(MergeUserCoursesParams.userId.name(), userIdList);
+        List<Map<String, Object>> documents = SunbirdCassandraUtil.readAsListOfMap(KEYSPACE, USER_COURSES_TABLE, key);
+        //List<Map> documents = ElasticSearchUtil.textSearchReturningId(searchQuery, USER_COURSE_ES_INDEX, USER_COURSE_ES_TYPE);
         if (CollectionUtils.isNotEmpty(documents)) {
             documents.forEach(doc -> {
                 BatchEnrollmentSyncModel model = new BatchEnrollmentSyncModel();
@@ -399,6 +399,62 @@ public class MergeUserCoursesService implements ISamzaService {
                 put("type", "CourseBatchEnrolment");
             }});
         }};
+    }
+
+
+    private void mergeUserActivityAggregates(String fromUserId, String toUserId) throws Exception {
+        List<BatchEnrollmentSyncModel> fromBatches = getBatchDetailsOfUser(fromUserId);
+        if(CollectionUtils.isNotEmpty(fromBatches)) {
+            List<String> fromCourseIds = fromBatches.stream().map(enrol -> enrol.getCourseId()).collect(Collectors.toList());
+            List<String> toCourseIds = fromBatches.stream().map(enrol -> enrol.getCourseId()).collect(Collectors.toList());
+            Map<String, Object> key = new HashMap<>();
+            key.put(MergeUserCoursesParams.activity_type.name(), "Course");
+            key.put(MergeUserCoursesParams.user_id.name(), fromUserId);
+            key.put(MergeUserCoursesParams.activity_id.name(), fromCourseIds);
+            List<Map<String, Object>> fromData = SunbirdCassandraUtil.readAsListOfMap(KEYSPACE, USER_ACTIVITY_AGG, key);
+            key.put(MergeUserCoursesParams.activity_id.name(), toCourseIds);
+            List<Map<String, Object>> toData = SunbirdCassandraUtil.readAsListOfMap(KEYSPACE, USER_ACTIVITY_AGG, key);
+            Map<String, Object> toDataMap = toData.stream().collect(Collectors.toMap(m -> (String)m.get("context_id"), m -> m));
+            List<Update.Where> updateQueryList = new ArrayList<>();
+            if(CollectionUtils.isNotEmpty(fromData)) {
+                fromData.stream().filter(data -> MapUtils.isNotEmpty(data)).collect(Collectors.toList()).forEach(data -> {
+                    data.put(MergeUserCoursesParams.user_id.name(), toUserId);
+                    Map<String, Integer> fromAgg = (Map<String, Integer>) data.get("agg");
+                    Map<String, Integer> toAgg = (Map<String, Integer>) ((Map<String, Object>)toDataMap.getOrDefault(data.get("context_id"), new HashMap<String, Object>())).getOrDefault("agg", new HashMap<String, Integer>());
+                    data.put("agg", new HashMap<String, Integer>(){{
+                        put("completedCount", Math.max(fromAgg.getOrDefault("completedCount", 0), toAgg.getOrDefault("completedCount", 0)));
+                    }});
+                    data.put("agg_last_updated", new HashMap<String, Date>(){{
+                        put("completedCount", new Date());
+                    }});
+                    Map<String, Object> dataToSelect = new HashMap<String, Object>() {{
+                        put(MergeUserCoursesParams.activity_type.name(), "Course");
+                        put(MergeUserCoursesParams.activity_id.name(), data.get("activity_id"));
+                        put(MergeUserCoursesParams.user_id.name(), toUserId);
+                        put("context_id", data.get("context_id"));
+                    }};
+                    updateQueryList.add(updateQuery(KEYSPACE, USER_ACTIVITY_AGG, data, dataToSelect));
+                });
+            }
+            if(CollectionUtils.isNotEmpty(updateQueryList)){
+                Batch batch = QueryBuilder.batch(updateQueryList.toArray(new RegularStatement[updateQueryList.size()]));
+                cassandraSession.execute(batch);
+            }
+        }
+        
+    }
+
+
+    public Update.Where updateQuery(String keyspace, String table, Map<String, Object> propertiesToUpdate, Map<String, Object> propertiesToSelect) {
+        Update.Where updateQuery = QueryBuilder.update(keyspace, table).where();
+        propertiesToUpdate.entrySet().forEach(entry -> updateQuery.with(QueryBuilder.set(entry.getKey(), entry.getValue())));
+        propertiesToSelect.entrySet().forEach(entry -> {
+            if (entry.getValue() instanceof List)
+                updateQuery.and(QueryBuilder.in(entry.getKey(), (List) entry.getValue()));
+            else
+                updateQuery.and(QueryBuilder.eq(entry.getKey(), entry.getValue()));
+        });
+        return updateQuery;
     }
 
 }

@@ -26,3 +26,5 @@ platform-tools/spikes/sunbird-tools/nbproject
 *.retry
 *.idea*
 *.iml
+platform-tools/spikes/sync-tool/spring-shell.log
+platform-tools/spikes/sync-tool/all.log

@@ -10,19 +10,9 @@ node() {
         ansiColor('xterm') {
             stage('Checkout') {
                 cleanWs()
-                if(params.github_release_tag == ""){
-                    checkout scm
-                    commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    branch_name = sh(script: 'git name-rev --name-only HEAD | rev | cut -d "/" -f1| rev', returnStdout: true).trim()
-                    artifact_version = branch_name + "_" + commit_hash
-                    println(ANSI_BOLD + ANSI_YELLOW + "github_release_tag not specified, using the latest commit hash: " + commit_hash + ANSI_NORMAL)
-                }
-                else {
-                    def scmVars = checkout scm
-                    checkout scm: [$class: 'GitSCM', branches: [[name: "refs/tags/${params.github_release_tag}"]],  userRemoteConfigs: [[url: scmVars.GIT_URL]]]
-                    artifact_version = params.github_release_tag
-                    println(ANSI_BOLD + ANSI_YELLOW + "github_release_tag specified, building from github_release_tag: " + params.github_release_tag + ANSI_NORMAL)
-                }
+                checkout scm
+                commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                artifact_version = sh(script: "echo " + params.github_release_tag.split('/')[-1] + "_" + commit_hash + "_" + env.BUILD_NUMBER, returnStdout: true).trim()
                 echo "artifact_version: "+ artifact_version
             }
         }
@@ -36,19 +26,11 @@ node() {
                 rm -rf /data/testGraphDB/*
                 vim -esnc '%s/dialcode.es_conn_info="localhost:9200"/dialcode.es_conn_info="10.6.0.11:9200"/g|:wq' platform-core/unit-tests/src/test/resources/application.conf
                 vim -esnc '%s/search.es_conn_info="localhost:9200"/search.es_conn_info="10.6.0.11:9200"/g|:wq' platform-core/unit-tests/src/test/resources/application.conf
-                vim -esnc '%s/search.es_conn_info="localhost:9200"/search.es_conn_info="10.6.0.11:9200"/g|:wq' searchIndex-platform/module/search-api/search-manager/conf/application.conf
                 """
         }
 
         stage('Build') {
             sh 'mvn clean install -DskipTests -P ${profile_id} -T10'
-        }
-
-        stage('Post-Build') {
-            sh """
-                        cd searchIndex-platform/module/search-api/search-manager
-                        mvn play2:dist
-                     """
         }
 
         stage('Post_Build-Action') {
@@ -61,7 +43,6 @@ node() {
                  sh """
                         mkdir lp_artifacts
                         cp platform-modules/service/target/learning-service.war lp_artifacts
-                        cp searchIndex-platform/module/search-api/search-manager/target/search-manager*.zip lp_artifacts
                         cp platform-tools/spikes/sync-tool/target/sync-tool*.jar lp_artifacts
                         cp platform-tools/spikes/content-tool/target/content-tool-*.jar lp_artifacts
                         zip -j lp_artifacts.zip:${artifact_version} lp_artifacts/*
@@ -71,7 +52,6 @@ node() {
                  sh """
                         mkdir lp_artifacts
                         cp platform-modules/service/target/learning-service.war lp_artifacts
-                        cp searchIndex-platform/module/search-api/search-manager/target/search-manager*.zip lp_artifacts
                         zip -j lp_artifacts.zip:${artifact_version} lp_artifacts/*
                     """
               }
