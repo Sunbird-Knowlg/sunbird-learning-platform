@@ -403,24 +403,22 @@ public class ContentUtil {
 		Map<String, String> header = new HashMap<String, String>() {{
 			put("X-Channel-Id", channelId);
 		}};
-		if (size > CONTENT_UPLOAD_ARTIFACT_MAX_SIZE) {
-			if (BULK_UPLOAD_MIMETYPES.contains(mimeType)) {
-				Long uploadStartTime = System.currentTimeMillis();
-				String[] urls = uploadArtifact(file, identifier);
-				Long uploadEndTime = System.currentTimeMillis();
-				LOGGER.info("ContentUtil :: upload :: Total time taken for upload: " + (uploadEndTime - uploadStartTime));
-				if (null != urls && StringUtils.isNotBlank(urls[1])) {
-					String uploadUrl = urls[IDX_CLOUD_URL];
-					LOGGER.info("ContentUtil :: upload :: Artifact Uploaded Successfully to cloud for : " + identifier + " | uploadUrl : " + uploadUrl);
-					resp = UnirestUtil.post(url, "fileUrl", uploadUrl, header);
-				}
-			} else {
-				LOGGER.info("ContentUtil :: upload :: File Size is larger than allowed file size allowed in upload api for : " + identifier + " | File Size (MB): " + (size / 1048576) + " | mimeType : " + mimeType);
-				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "File Size is larger than allowed file size allowed in upload api for : " + identifier + " | File Size (MB): " + (size / 1048576) + " | mimeType : " + mimeType);
-			}
-		} else {
-			resp = UnirestUtil.post(url, "file", file, header);
+
+		if (size > CONTENT_UPLOAD_ARTIFACT_MAX_SIZE && !BULK_UPLOAD_MIMETYPES.contains(mimeType)) {
+			LOGGER.info("ContentUtil :: upload :: File Size is larger than allowed file size allowed in upload api for : " + identifier + " | File Size (MB): " + (size / 1048576) + " | mimeType : " + mimeType);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "File Size is larger than allowed file size allowed in upload api for : " + identifier + " | File Size (MB): " + (size / 1048576) + " | mimeType : " + mimeType);
 		}
+
+		Long uploadStartTime = System.currentTimeMillis();
+		String[] urls = uploadArtifact(file, identifier);
+		Long uploadEndTime = System.currentTimeMillis();
+		LOGGER.info("ContentUtil :: upload :: Total time taken for upload: " + (uploadEndTime - uploadStartTime));
+		if (null != urls && StringUtils.isNotBlank(urls[1])) {
+			String uploadUrl = urls[IDX_CLOUD_URL];
+			LOGGER.info("ContentUtil :: upload :: Artifact Uploaded Successfully to cloud for : " + identifier + " | uploadUrl : " + uploadUrl);
+			resp = UnirestUtil.post(url, "fileUrl", uploadUrl, header);
+		}
+
 		if ((null != resp && resp.getResponseCode() == ResponseCode.OK) && MapUtils.isNotEmpty(resp.getResult())) {
 			String artifactUrl = (String) resp.getResult().get(AutoCreatorParams.artifactUrl.name());
 			if (StringUtils.isNotBlank(artifactUrl)) {
