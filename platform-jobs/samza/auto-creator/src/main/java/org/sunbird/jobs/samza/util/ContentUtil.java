@@ -247,7 +247,12 @@ public class ContentUtil {
 		String result = "na";
 		String status = (String) metadata.get(AutoCreatorParams.status.name());
 		String artifactUrl = (String) metadata.get(AutoCreatorParams.artifactUrl.name());
-		Double pkgVer = (Double) metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), 0.0);
+		Double pkgVer = 0.0;
+		try {
+			pkgVer = (Double) metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), 0.0);
+		} catch (ClassCastException ccex) {
+			pkgVer = Double.valueOf((Integer) metadata.getOrDefault(AutoCreatorParams.pkgVersion.name(), 0));
+		}
 		if (!FINAL_STATUS.contains(status))
 			result = StringUtils.isNotBlank(artifactUrl) ? "review" : "update";
 		else if (pkgVersion > pkgVer)
