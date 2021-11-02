@@ -751,7 +751,7 @@ content-publish:
         full = ["appIcon", "grayScaleAppIcon", "artifactUrl", "itemSetPreviewUrl", "media"]
       }
 
-      nested.fields=["badgeAssertions","targets","badgeAssociations"]
+      nested.fields=["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions", "variants"]
 
     }
     cloud_storage {
@@ -804,6 +804,8 @@ content-publish:
       Asset: "Certificate Template"
     }
 
+    compositesearch.index.name = "compositesearch"
+    search.document.type = "cs"
 
     cloud_storage_type="{{ cloud_store }}"
     azure_storage_key="{{ sunbird_public_storage_account_name }}"
