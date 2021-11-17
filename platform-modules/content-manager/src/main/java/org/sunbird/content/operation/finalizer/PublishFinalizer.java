@@ -1483,7 +1483,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
     private void getLeafNodesIds(Map<String, Object> data, Set<String> leafNodeIds) {
-	    if (INCLUDE_LEAFNODE_OBJECTS.contains(data.get(ContentAPIParams.objectType.name())))
+	    if (INCLUDE_LEAFNODE_OBJECTS.contains(data.get(ContentAPIParams.objectType.name())) &&
+				StringUtils.equalsIgnoreCase((String) data.get(ContentWorkflowPipelineParams.visibility.name()), "Default"))
 		    leafNodeIds.add((String) data.get(ContentAPIParams.identifier.name()));
         List<Map<String,Object>> children = (List<Map<String,Object>>)data.get("children");
         if(CollectionUtils.isNotEmpty(children)) {
