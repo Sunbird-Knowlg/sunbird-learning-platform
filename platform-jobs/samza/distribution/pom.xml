@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>publish-pipeline</artifactId>
-            <version>0.0.381</version>
+            <version>0.0.382</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
