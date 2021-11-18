@@ -350,6 +350,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 			if(MapUtils.isNotEmpty(collectionHierarchy)) {
 				children = (List<Map<String,Object>>)collectionHierarchy.get("children");
+				LOGGER.info("Collection children data before processing : "+children);
 				if(!isContentShallowCopy) {
 					Set<String> collectionResourceChildNodes = new HashSet<>();
 					enrichChildren(children, collectionResourceChildNodes, node);
