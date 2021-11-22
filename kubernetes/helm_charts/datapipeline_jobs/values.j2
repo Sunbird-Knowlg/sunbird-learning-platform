@@ -738,14 +738,22 @@ content-publish:
       keyspace = "{{ content_keyspace_name }}"
       table = "content_data"
       tmp_file_location = "/tmp"
-      objectType = ["Content", "ContentImage"]
-      mimeType = ["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm", "application/vnd.ekstep.html-archive","application/vnd.ekstep.ecml-archive"]
+      objectType = ["Content", "ContentImage","Collection","CollectionImage"]
+      mimeType = ["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm", "application/vnd.ekstep.html-archive","application/vnd.ekstep.ecml-archive","application/vnd.ekstep.content-collection"]
       asset_download_duration = "60 seconds"
       stream {
         enabled = {{ content_stream_enabled | lower }}
         mimeType = ["video/mp4", "video/webm"]
       }
       artifact.size.for_online= {{ content_artifact_size_for_online }}
+
+      downloadFiles {
+        spine = ["appIcon"]
+        full = ["appIcon", "grayScaleAppIcon", "artifactUrl", "itemSetPreviewUrl", "media"]
+      }
+
+      nested.fields=["badgeAssertions","targets","badgeAssociations"]
+
     }
     cloud_storage {
         folder {
@@ -753,6 +761,52 @@ content-publish:
             artifact = "artifact"
         }
     }
+
+    hierarchy {
+      keyspace = "{{ hierarchy_keyspace_name }}"
+      table = "content_hierarchy"
+    }
+
+    contentTypeToPrimaryCategory {
+      ClassroomTeachingVideo: "Explanation Content"
+      ConceptMap: "Learning Resource"
+      Course: ["Course", "Curriculum Course", "Professional Development Course"]
+      CuriosityQuestionSet: "Practice Question Set"
+      eTextBook: "eTextbook"
+      Event: "Event"
+      EventSet: "Event Set"
+      ExperientialResource: "Learning Resource"
+      ExplanationResource: "Explanation Content"
+      ExplanationVideo: "Explanation Content"
+      FocusSpot: "Teacher Resource"
+      LearningOutcomeDefinition: "Teacher Resource"
+      MarkingSchemeRubric: "Teacher Resource"
+      PedagogyFlow: "Teacher Resource"
+      PracticeQuestionSet: "Practice Question Set"
+      PracticeResource: "Practice Question Set"
+      SelfAssess: "Course Assessment"
+      TeachingMethod: "Teacher Resource"
+      TextBook: "Digital Textbook"
+      Collection: "Content Playlist"
+      ExplanationReadingMaterial: "Learning Resource"
+      LearningActivity: "Learning Resource"
+      LessonPlan: "Content Playlist"
+      LessonPlanResource: "Teacher Resource"
+      PreviousBoardExamPapers: "Learning Resource"
+      TVLesson: "Explanation Content"
+      OnboardingResource: "Learning Resource"
+      ReadingMaterial: "Learning Resource"
+      Template: "Template"
+      Asset: "Asset"
+      Plugin: "Plugin"
+      LessonPlanUnit: "Lesson Plan Unit"
+      CourseUnit: "Course Unit"
+      TextBookUnit: "Textbook Unit"
+      Asset: "Certificate Template"
+    }
+
+    compositesearch.index.name = "compositesearch"
+    search.document.type = "cs"
 
     cloud_storage_type="{{ cloud_store }}"
     azure_storage_key="{{ sunbird_public_storage_account_name }}"
