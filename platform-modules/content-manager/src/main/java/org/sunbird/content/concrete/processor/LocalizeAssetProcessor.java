@@ -208,7 +208,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 							if (StringUtils.isNotBlank(subFolder))
 								downloadPath += File.separator + subFolder;
 							createDirectoryIfNeeded(downloadPath);
-							TelemetryManager.info("Downloading file : " + getDownloadUrl(media.getSrc() + " -TO- " + downloadPath
+							TelemetryManager.info("Downloading file : " + getDownloadUrl(media.getSrc()) + " -TO- " + downloadPath
 									+ " | [Content Id '" + contentId + "']");
 							File downloadedFile = HttpDownloadUtility.downloadFile(getDownloadUrl(media.getSrc()),
 									downloadPath);
