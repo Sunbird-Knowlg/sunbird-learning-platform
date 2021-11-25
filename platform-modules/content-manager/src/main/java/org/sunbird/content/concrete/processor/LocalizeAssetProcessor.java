@@ -120,7 +120,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 	private Map<String, String> processAssetsDownload(List<Media> medias) {
 		Map<String, String> map = new HashMap<String, String>();
 		try {
-			TelemetryManager.log("Total Medias to Download: for [Content Id '" + contentId + "']: " +  medias.size());
+			TelemetryManager.info("Total Medias to Download: for [Content Id '" + contentId + "']: " +  medias.size());
 
 			Map<String, Object> downloadResultMap = downloadAssets(medias);
 			TelemetryManager.log("Downloaded Result Map After the Firts Try: "+
@@ -128,17 +128,17 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 
 			Map<String, String> successMap = (Map<String, String>) downloadResultMap
 					.get(ContentWorkflowPipelineParams.success.name());
-			TelemetryManager.log("Successful Media Downloads: " + successMap + " | [Content Id '" + contentId + "']");
+			TelemetryManager.info("Successful Media Downloads: " + successMap + " | [Content Id '" + contentId + "']");
 			if (null != successMap && !successMap.isEmpty())
 				map.putAll(successMap);
 
 			List<Media> skippedMedia = (List<Media>) downloadResultMap
 					.get(ContentWorkflowPipelineParams.skipped.name());
-			TelemetryManager.log("Skipped Media Downloads: " + skippedMedia + " | [Content Id '" + contentId + "']");
+			TelemetryManager.info("Skipped Media Downloads: " + skippedMedia + " | [Content Id '" + contentId + "']");
 			if (null != skippedMedia && !skippedMedia.isEmpty()) {
-				TelemetryManager.log("Fetching the Retry Count From Configuration. | [Content Id '" + contentId + "']");
+				TelemetryManager.info("Fetching the Retry Count From Configuration. | [Content Id '" + contentId + "']");
 				int retryCnt = Platform.config.getInt(ContentWorkflowPipelineParams.RETRY_ASSET_DOWNLOAD_COUNT.name());
-				TelemetryManager.log("Starting the Retry For Count: " + retryCnt + " | [Content Id '" + contentId + "']");
+				TelemetryManager.info("Starting the Retry For Count: " + retryCnt + " | [Content Id '" + contentId + "']");
 				for (int i = 0; i < retryCnt; i++) {
 					TelemetryManager.log(
 							"Retrying Asset Download For " + i + 1 + " times" + " | [Content Id '" + contentId + "']");
@@ -178,7 +178,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 	private Map<String, Object> downloadAssets(List<Media> medias) throws InterruptedException, ExecutionException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != medias && !StringUtils.isBlank(basePath)) {
-			TelemetryManager.log("Starting Asset Download Fanout. | [Content Id '" + contentId + "']: "+ contentId);
+			TelemetryManager.info("Starting Asset Download Fanout. | [Content Id '" + contentId + "']: "+ contentId);
 			final List<Media> skippedMediaDownloads = new ArrayList<Media>();
 			final Map<String, String> successfulMediaDownloads = new HashMap<String, String>();
 			ExecutorService pool = Executors.newFixedThreadPool(10);
@@ -208,9 +208,11 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 							if (StringUtils.isNotBlank(subFolder))
 								downloadPath += File.separator + subFolder;
 							createDirectoryIfNeeded(downloadPath);
+							TelemetryManager.info("Downloading file : " + getDownloadUrl(media.getSrc() + " -TO- " + downloadPath
+									+ " | [Content Id '" + contentId + "']");
 							File downloadedFile = HttpDownloadUtility.downloadFile(getDownloadUrl(media.getSrc()),
 									downloadPath);
-							TelemetryManager.log("Downloaded file : " + media.getSrc() + " - " + downloadedFile
+							TelemetryManager.info("Downloaded file : " + media.getSrc() + " - " + downloadedFile
 									+ " | [Content Id '" + contentId + "']");
 							if (null == downloadedFile)
 								skippedMediaDownloads.add(media);
@@ -233,14 +235,14 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 					successfulMediaDownloads.putAll(m);
 			}
 			pool.shutdown();
-			TelemetryManager.log("Successful Media Download Count for | [Content Id '" + contentId + "']"+
+			TelemetryManager.info("Successful Media Download Count for | [Content Id '" + contentId + "']"+
 					successfulMediaDownloads.size());
-			TelemetryManager.log("Skipped Media Download Count: | [Content Id '" + contentId + "']" +
+			TelemetryManager.info("Skipped Media Download Count: | [Content Id '" + contentId + "']" +
 					skippedMediaDownloads.size());
 			map.put(ContentWorkflowPipelineParams.success.name(), successfulMediaDownloads);
 			map.put(ContentWorkflowPipelineParams.skipped.name(), skippedMediaDownloads);
 		}
-		TelemetryManager.log("Returning the Map of Successful and Skipped Media. | [Content Id '" + contentId + "']", map);
+		TelemetryManager.info("Returning the Map of Successful and Skipped Media. | [Content Id '" + contentId + "']", map);
 		return map;
 	}
 
