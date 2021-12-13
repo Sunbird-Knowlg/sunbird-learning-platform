@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.sunbird.cassandra.CassandraTestSetup;
 import org.sunbird.common.Platform;
 import org.sunbird.common.exception.ClientException;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Ignore
 public class ContentStoreTest extends CassandraTestSetup {
 	static final String keyspace = Platform.config.hasPath("content.keyspace.name")
 			? Platform.config.getString("content.keyspace.name")
