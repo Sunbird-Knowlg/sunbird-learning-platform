@@ -30,6 +30,7 @@
       with_items: "{{ learnings.paths }}"
   roles:
     - jdk-1.8.0_121
+    - jdk11
     - tomcat
     - ffmpeg
     - imagemagick
