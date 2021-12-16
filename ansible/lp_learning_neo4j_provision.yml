@@ -30,5 +30,6 @@
   become: yes
   roles:
     - jdk-1.8.0_121
+    - jdk11
     - neo4j-cluster
     - logstash

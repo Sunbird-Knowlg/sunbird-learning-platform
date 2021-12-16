@@ -7,7 +7,7 @@ User={{learner_user}}
 Group={{learner_user}}
 LimitNOFILE=32768
 Restart=on-failure
-#Environment="{{ logstash_jvm_opts }}"
+Environment="{{ logstash_java_home }}"
 ExecStart={{logstash_home}}/bin/logstash -f {{logstash_home}}/logstash-lp.conf -w 1 --verbose
 
 [Install]

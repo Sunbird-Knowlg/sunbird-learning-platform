@@ -1,6 +1,6 @@
 learner_user: learning
 learner_user_home: /home/{{learner_user}}
-logstash_version: 6.3.1
+logstash_version: 6.8.21
 neo4j_dir: neo4j-learning
 neo4j_home: #"{{learner_user_home}}/{{neo4j_dir}}/neo4j-file-version"
 graphevent_kafka_url: "{{groups['processing-cluster-zookeepers']|join(':9092,')}}:9092"

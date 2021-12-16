@@ -1,0 +1,10 @@
+---
+# You can use JAVA_HOME=/opt/jdk-11 in your applications / exports if you want to use JDK11
+
+- name: Uncompressing and copying to system path
+  unarchive:
+    src: https://download.java.net/openjdk/jdk11/ri/openjdk-11+28_linux-x64_bin.tar.gz
+    dest: /opt/
+    remote_src: yes
+    keep_newer: yes
+  register: tar
