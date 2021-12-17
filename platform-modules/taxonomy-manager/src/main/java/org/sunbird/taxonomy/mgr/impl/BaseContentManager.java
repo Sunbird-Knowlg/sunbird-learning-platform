@@ -705,13 +705,12 @@ public abstract class BaseContentManager extends BaseManager {
     }
 
 	protected void validateContentForReservedDialcodes(Map<String, Object> metaData) {
-		List<String> validContentType = Platform.config.hasPath("learning.reserve_dialcode.content_type") ?
-				Platform.config.getStringList("learning.reserve_dialcode.content_type") :
-				Arrays.asList("TextBook");
+		List<String> validMimeType = Platform.config.hasPath("learning.reserve_dialcode.mimeType") ?
+				Platform.config.getStringList("learning.reserve_dialcode.mimeType") :
+				Arrays.asList("application/vnd.ekstep.content-collection");
 
-		if(!validContentType.contains(metaData.get(ContentAPIParams.contentType.name())))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_CONTENTTYPE.name(),
-					"Invalid Content Type.");
+		if(!validMimeType.contains(metaData.get(ContentAPIParams.mimeType.name())))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_MIMETYPE.name(), "Invalid mimeType.");
 	}
 
 	protected Map<String, Integer> getReservedDialCodes(Node node) throws JsonParseException, JsonMappingException, IOException {
@@ -720,7 +719,6 @@ public abstract class BaseContentManager extends BaseManager {
 			return objectMapper.readValue((String)node.getMetadata().get(ContentAPIParams.reservedDialcodes.name()), new TypeReference<Map<String, Integer>>() {});
 		return null;
 	}
-	
 
 	protected void validateChannel(Map<String, Object> metadata, String channelId) {
 		if(!StringUtils.equals((String) metadata.get(ContentAPIParams.channel.name()), channelId))

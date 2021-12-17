@@ -87,7 +87,7 @@ video_stream_generator_azure_token_client_secret: "{{ media_service_azure_token_
 video_stream_generator_azure_stream_base_url: "{{ stream_base_url | default('') }}"
 video_stream_generator_consumer_parallelism: 1
 video_stream_generator_parallelism: 1
-video_stream_generator_timer_duration: 600
+video_stream_generator_timer_duration: 1800
 video_stream_generator_max_retries: 10
 
 ### Enrolment Reconciliation
@@ -102,6 +102,11 @@ audit_event_generator_consumer_parallelism: 1
 audit_event_generator_parallelism: 1
 audit_event_generator_producer_parallelism: 1
 audit_event_generator_default_channel: "{{ default_channel | default('org.sunbird') }}"
+
+### Metrics data transformer related vars
+metrics_data_transformer_consumer_parallelism: 1
+metrics_data_transformer_parallelism: 1
+metrics_data_transformer_producer_parallelism: 1
 
 ### Collection Cert Pre Processor
 collection_cert_pre_processor_consumer_parallelism: 1
@@ -197,6 +202,13 @@ flink_job_names:
     taskmanager_memory: 1024m
     taskslots: 1
     cpu_requests: 0.3
+  metrics-data-transformer:
+    job_class_name: 'org.sunbird.job.metricstransformer.task.MetricsDataTransformerStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
   collection-cert-pre-processor:
     job_class_name: 'org.sunbird.job.collectioncert.task.CollectionCertPreProcessorTask'
     replica: 1
@@ -206,6 +218,13 @@ flink_job_names:
     cpu_requests: 0.3
   collection-certificate-generator:
     job_class_name: 'org.sunbird.job.certgen.task.CertificateGeneratorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  mvc-indexer:
+    job_class_name: 'org.sunbird.job.mvcindexer.task.MVCIndexerStreamTask'
     replica: 1
     jobmanager_memory: 1024m
     taskmanager_memory: 1024m
@@ -232,6 +251,7 @@ dialcode_external_indexer_parallelism: 1
 dialcode_metric_indexer_parallelism: 1
 schema_definition_cache_expiry_in_sec: 14400
 search_indexer_ignored_fields: ["responseDeclaration", "body", "options", "lastStatusChangedOn", "SYS_INTERNAL_LAST_UPDATED_ON", "sYS_INTERNAL_LAST_UPDATED_ON"]
+search_indexer_restrict_object_types: ["EventSet", "EventSetImage", "Event", "EventImage", "Questionnaire", "Misconception", "FrameworkType", "Concept", "Misconception", "Language", "Reference", "Dimension", "Method", "Library", "Domain", "Api"]
 
 ### Asset Enrichment Related Vars
 asset_enrichment_consumer_parallelism: 1
@@ -248,6 +268,15 @@ audit_history_indexer_parallelism: 1
 ### Auto Creator V2 Related Vars
 auto_creator_v2_consumer_parallelism: 1
 auto_creator_v2_parallelism: 1
+
+### MVC Indexer Related Vars
+mvc_indexer_consumer_parallelism: 1
+mvc_indexer_parallelism: 1
+mvc_indexer_ml_vector_host: "{{ mlworkbench | default('') }}"
+mvc_indexer_ml_vector_port: 1729
+mvc_indexer_ml_keyword_host: "{{ mlworkbench | default('') }}"
+mvc_indexer_ml_keyword_port: 3579
+mvc_indexer_nested_fields: "trackable,credentials"
 
 service_monitor_enabled: true
 

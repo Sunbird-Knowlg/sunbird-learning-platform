@@ -30,7 +30,8 @@ public class RelationCacheSyncManager {
             while (offset < limit) {
                 int finalIndex = ((defaultBatch + offset) > limit)? total: (defaultBatch + offset);
                 System.out.println("Processing contents with index: " + offset +" to " + finalIndex);
-                List<Map<String, Object>> list = getCollectionProps(offset, defaultBatch);
+                String query = "MATCH (n:domain{IL_FUNC_OBJECT_TYPE:\"Collection\", mimeType: \"application/vnd.ekstep.content-collection\", visibility: \"Default\"}) WHERE n.status in [\"Live\", \"Unlisted\", \"Retired\", \"Flagged\"] RETURN n.IL_UNIQUE_ID AS identifier, n.contentType as contentType, n.pkgVersion as pkgVersion, n.status as status, n.name as name, n.createdBy as createdBy SKIP " + offset + " LIMIT " + defaultBatch + ";";
+                List<Map<String, Object>> list = getCollectionProps(query);
                 offset += defaultBatch;
 
                 for (Map<String, Object> content : list) {
@@ -40,6 +41,18 @@ public class RelationCacheSyncManager {
                         System.out.println(event);
                     }
                 }
+            }
+        }
+    }
+    
+    public void syncCollectionByIds(List<String> ids, boolean verbose) throws Exception {
+        String query = "MATCH (n:domain{IL_FUNC_OBJECT_TYPE:\"Collection\", mimeType: \"application/vnd.ekstep.content-collection\", visibility: \"Default\"}) WHERE n.status in [\"Live\", \"Unlisted\", \"Retired\", \"Flagged\"] and n.IL_UNIQUE_ID in " + mapper.writeValueAsString(ids) + " RETURN n.IL_UNIQUE_ID AS identifier, n.contentType as contentType, n.pkgVersion as pkgVersion, n.status as status, n.name as name, n.createdBy as createdBy;";
+        List<Map<String, Object>> list = getCollectionProps(query);
+        for (Map<String, Object> content : list) {
+            String event = generateKafkaEvent(content);
+            KafkaClient.send(event, KAFKA_TOPIC);
+            if (verbose) {
+                System.out.println(event);
             }
         }
     }
@@ -57,9 +70,8 @@ public class RelationCacheSyncManager {
         }
     }
 
-    public List<Map<String, Object>> getCollectionProps(int offset, int limit)  {
+    public List<Map<String, Object>> getCollectionProps(String query)  {
         List<Map<String, Object>> list = new ArrayList<>();
-        String query = "MATCH (n:domain{IL_FUNC_OBJECT_TYPE:\"Collection\", mimeType: \"application/vnd.ekstep.content-collection\", visibility: \"Default\"}) WHERE n.status in [\"Live\", \"Unlisted\", \"Retired\", \"Flagged\"] RETURN n.IL_UNIQUE_ID AS identifier, n.contentType as contentType, n.pkgVersion as pkgVersion, n.status as status, n.name as name, n.createdBy as createdBy SKIP " + offset + " LIMIT " + limit + ";";
         Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
         try (Session session = driver.session()) {
             StatementResult result = session.run(query);

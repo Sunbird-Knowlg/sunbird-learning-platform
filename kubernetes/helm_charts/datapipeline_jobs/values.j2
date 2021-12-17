@@ -359,7 +359,7 @@ search-indexer:
     restrict.metadata.objectTypes = []
     nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions"]
     schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_sec }}
-    restrict.objectTypes = ["EventSet", "EventSetImage", "Event", "EventImage", "Questionnaire", "Misconception", "FrameworkType", "Concept", "Misconception", "Language", "Reference", "Dimension", "Method", "Library", "Domain", "Api"]
+    restrict.objectTypes = {{ search_indexer_restrict_object_types | to_json }}
     ignored.fields={{ search_indexer_ignored_fields | to_json }}
 
   flink-conf: |+
@@ -557,6 +557,36 @@ audit-event-generator:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
+metrics-data-transformer:
+  metrics-data-transformer: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.learning.graph.events
+      groupId = {{ env_name }}-metrics-data-transformer-group
+    }
+
+    task {
+      consumer.parallelism = {{ metrics_data_transformer_consumer_parallelism }}
+      parallelism = {{ metrics_data_transformer_parallelism }}
+      producer.parallelism = {{ metrics_data_transformer_producer_parallelism }}
+    }
+    content_read_api = "/content/v3/read"
+    content_update_api = "/content/v4/system/update"
+    service {
+      content.basePath = "{{ kp_content_service_base_url }}"
+      sourcing.content.basePath = "{{ sourcing_content_service_base_url }}"
+    }
+    sourcing.update.api.response.error.code = ["404", "400"]
+    data.metrics = ["me_totalRatingsCount","me_averageRating","me_totalTimeSpentInSec","me_totalPlaySessionCount"]
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['metrics-data-transformer'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['metrics-data-transformer'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['metrics-data-transformer'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
 collection-cert-pre-processor:
   collection-cert-pre-processor: |+
     include file("/data/flink/conf/base-config.conf")
@@ -569,6 +599,7 @@ collection-cert-pre-processor:
     task {
       restart-strategy.attempts = {{ restart_attempts }} # max 3 restart attempts
       restart-strategy.delay = 240000 # in milli-seconds # on max restarts (3) within 4 min the job will fail.
+      parallelism = {{collection_cert_pre_processor_consumer_parallelism}}
       consumer.parallelism = {{ collection_cert_pre_processor_consumer_parallelism }}
       generate_certificate.parallelism = {{generate_certificate_parallelism}}
     }
@@ -642,6 +673,43 @@ collection-certificate-generator:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
+mvc-indexer:
+  mvc-indexer: |+
+    include "base-config.conf"
+
+    kafka {
+      input.topic = "{{ env_name }}.mvc.processor.job.request"
+      groupId = "{{ env_name }}-mvc-indexer-group"
+      output.failed.topic = "{{ env_name }}.mvc.events.failed"
+    }
+
+    task {
+      consumer.parallelism = {{ mvc_indexer_consumer_parallelism }}
+      parallelism = {{ mvc_indexer_parallelism }}
+    }
+
+    lms-cassandra.keyspace = "{{ content_keyspace_name }}"
+    lms-cassandra.table = "content_data"
+
+    nested.fields="{{ mvc_indexer_nested_fields }}"
+
+    service.content.basePath = "{{ kp_content_service_base_url }}"
+    es.indexAlias = "mvc-content"
+
+    ml.vector.host="{{ mvc_indexer_ml_vector_host }}"
+    ml.vector.port="{{ mvc_indexer_ml_vector_port }}"
+    ml.keyword.host="{{ mvc_indexer_ml_keyword_host }}"
+    ml.keyword.port="{{ mvc_indexer_ml_keyword_port }}"
+
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['mvc-indexer'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['mvc-indexer'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['mvc-indexer'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
 content-publish:
   content-publish: |+
     include file("/data/flink/conf/base-config.conf")
@@ -656,24 +724,33 @@ content-publish:
       router.parallelism = 1
     }
     redis {
+      host={{redis_host}}
+      port=6379
       database {
         contentCache.id = 0
       }
     }
     content {
+      bundleLocation = "/tmp/contentBundle"
+      isECARExtractionEnabled = true
+      retry_asset_download_count = 1
       keyspace = "{{ content_keyspace_name }}"
       table = "content_data"
       tmp_file_location = "/tmp"
-      template_name = "contentTemplate.vm"
-      cloud_storage.itemset.folder = ""
-      cloud_storage.content.folder = ""
       objectType = ["Content", "ContentImage"]
-      mimeType = ["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm"]
+      mimeType = ["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm", "application/vnd.ekstep.html-archive","application/vnd.ekstep.ecml-archive"]
+      asset_download_duration = "60 seconds"
       stream {
         enabled = {{ content_stream_enabled | lower }}
         mimeType = ["video/mp4", "video/webm"]
       }
       artifact.size.for_online= {{ content_artifact_size_for_online }}
+    }
+    cloud_storage {
+        folder {
+            content = "content"
+            artifact = "artifact"
+        }
     }
 
     cloud_storage_type="{{ cloud_store }}"

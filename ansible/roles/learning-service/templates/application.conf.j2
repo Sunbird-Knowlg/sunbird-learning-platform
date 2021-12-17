@@ -165,7 +165,7 @@ kafka.topics.instruction="{{ kafka_topics_instruction }}"
 kafka.publish.request.topic="{{ kafka_publish_request_topic }}"
 kafka.urls="{{ graphevent_kafka_url }}"
 kafka.topic.system.command="{{ kafka_topic_system_command }}"
-job.request.event.mimetype=["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm"]
+job.request.event.mimetype=["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm", "application/vnd.ekstep.html-archive","application/vnd.ekstep.ecml-archive"]
 
 #Youtube Standard Licence Validation
 learning.content.youtube.validate.license=true
@@ -217,7 +217,7 @@ learning.valid_license=["creativeCommon"]
 learning.service_provider=["youtube"]
 
 # Valid content type for dialcode reserve
-learning.reserve_dialcode.content_type=["TextBook","Course"]
+learning.reserve_dialcode.mimeType=["application/vnd.ekstep.content-collection"]
 
 # Max count to be reserved against a content
 learnig.reserve_dialcode.max_count=2500
