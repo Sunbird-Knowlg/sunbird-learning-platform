@@ -110,7 +110,7 @@ public class ContentBundle {
 			urlFields.add("artifactUrl");
 			urlFields.add("itemSetPreviewUrl");
 		}
-
+		LOGGER.info("ContentBundle:: createContentManifestData:: children => " + children);
 		Map<Object, List<String>> downloadUrls = new HashMap<Object, List<String>>();
 		for (Map<String, Object> content : contents) {
 			String identifier = (String) content.get(ContentWorkflowPipelineParams.identifier.name());
