@@ -3,7 +3,6 @@
   become: yes
   with_items:
     - git
-    - git-core
     - zip
     - gcc
     - make

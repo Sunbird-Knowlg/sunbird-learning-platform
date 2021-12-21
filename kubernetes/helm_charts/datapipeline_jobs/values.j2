@@ -716,6 +716,7 @@ content-publish:
     kafka {
       input.topic = {{ env_name }}.publish.job.request
       post_publish.topic = {{ env_name }}.content.postpublish.request
+      error.topic = "{{ env_name }}.learning.events.failed"
       groupId = {{ env_name }}-content-publish-group
     }
     task {
