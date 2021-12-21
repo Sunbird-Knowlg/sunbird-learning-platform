@@ -359,6 +359,8 @@ public class PublishFinalizer extends BaseFinalizer {
 						collectionChildNodes.addAll(collectionResourceChildNodes);
 						node.getMetadata().put(ContentWorkflowPipelineParams.childNodes.name(), collectionChildNodes);
 					}
+				} else {
+					node.getMetadata().put(ContentWorkflowPipelineParams.childNodes.name(), collectionHierarchy.get("childNodes"));
 				}
 			}
 

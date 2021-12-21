@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.sunbird.cassandra.CassandraTestSetup;
 import org.sunbird.common.Platform;
 import org.sunbird.common.exception.ClientException;
