@@ -357,7 +357,7 @@ search-indexer:
     dialcode.index.name = "dialcode"
     dailcodemetrics.index.name = "dialcodemetrics"
     restrict.metadata.objectTypes = []
-    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions", "transcripts"]
+    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions", "transcripts", "accessibility"]
     schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_sec }}
     restrict.objectTypes = {{ search_indexer_restrict_object_types | to_json }}
     ignored.fields={{ search_indexer_ignored_fields | to_json }}
