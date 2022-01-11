@@ -112,3 +112,5 @@ cert_azure_storage_secret: "{{sunbird_private_storage_account_key}}"
 cert_azure_storage_key: "{{sunbird_private_storage_account_name}}"
 
 default_channel: "org.sunbird"
+download_neo4j: true
+neo4j_upstream_download: false

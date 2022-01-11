@@ -1,14 +1,12 @@
 - import_playbook: artifacts-download.yml
   vars:
-    download_neo4j: true
     artifact: "{{ neo4j_zip }}"
     artifact_path: "{{ playbook_dir }}/artifacts/{{ artifact }}"
   when: download_neo4j
 
 # This is for community/adopters
 - hosts: local
-  vars:
-    neo4j_upstream_download: false
+  gather_facts: false
   tasks:
   - name: Download neo4j community
     uri:
