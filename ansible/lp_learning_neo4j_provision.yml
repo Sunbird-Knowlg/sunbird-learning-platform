@@ -5,6 +5,22 @@
     artifact_path: "{{ playbook_dir }}/artifacts/{{ artifact }}"
   when: download_neo4j
 
+# This is for community/adopters
+- hosts: local
+  vars:
+    neo4j_upstream_download: false
+  tasks:
+  - name: Download neo4j community
+    uri:
+      url: https://neo4j.com/artifact.php?name={{neo4j_zip}}
+      dest: artifacts/{{neo4j_zip}}
+      method: GET
+      follow_redirects: yes
+      status_code: [200]
+      timeout: 30
+      remote_src: yes
+    when: neo4j_upstream_download
+
 - hosts: learning-neo4j-cluster
   vars_files:
     - "{{inventory_dir}}/secrets.yml"
