@@ -741,7 +741,37 @@ content-publish:
       table = "content_data"
       tmp_file_location = "/tmp"
       objectType = ["Content", "ContentImage","Collection","CollectionImage"]
-      mimeType = ["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm", "application/vnd.ekstep.html-archive","application/vnd.ekstep.ecml-archive","application/vnd.ekstep.content-collection"]
+      mimeType = ["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm", "application/vnd.ekstep.html-archive","application/vnd.ekstep.ecml-archive","application/vnd.ekstep.content-collection"
+                                              "application/vnd.ekstep.ecml-archive",
+                                                "application/vnd.ekstep.html-archive",
+                                                "application/vnd.android.package-archive",
+                                                "application/vnd.ekstep.content-archive",
+                                                "application/octet-stream",
+                                                 "application/json",
+                                                 "application/javascript",
+                                                 "application/xml",
+                                                 "text/plain",
+                                                 "text/html",
+                                                 "text/javascript",
+                                                 "text/xml",
+                                                 "text/css",
+                                                 "image/jpeg", "image/jpg", "image/png", "image/tiff", "image/bmp", "image/gif", "image/svg+xml",
+                                                 "image/x-quicktime",
+                                                 "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm",
+                                                 "video/msvideo",
+                                                 "video/x-msvideo",
+                                                 "video/x-qtc",
+                                                 "video/x-mpeg",
+                                                 "audio/mp3", "audio/mp4", "audio/mpeg", "audio/ogg", "audio/webm", "audio/x-wav", "audio/wav",
+                                                 "audio/mpeg3",
+                                                 "audio/x-mpeg-3",
+                                                 "audio/vorbis",
+                                                 "application/x-font-ttf",
+                                                 "application/pdf", "application/epub", "application/msword",
+                                                 "application/vnd.ekstep.h5p-archive",
+                                                 "application/vnd.ekstep.plugin-archive",
+                                                 "video/x-youtube", "video/youtube",
+                                                 "text/x-url"]
       asset_download_duration = "60 seconds"
       stream {
         enabled = {{ content_stream_enabled | lower }}
