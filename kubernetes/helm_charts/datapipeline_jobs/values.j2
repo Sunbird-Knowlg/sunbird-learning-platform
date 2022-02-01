@@ -527,6 +527,73 @@ auto-creator-v2:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
+
+content-auto-creator:
+  content-auto-creator: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.object.import.request"
+      groupId = "{{ env_name }}-content-auto-creator-group"
+      failed.topic = "{{ env_name }}.auto.creation.job.request.failed"
+    }
+
+    task {
+      consumer.parallelism = {{ content_auto_creator_consumer_parallelism }}
+      parallelism = {{ content_auto_creator_parallelism }}
+      window.time = 60
+    }
+
+    redis {
+      database {
+        relationCache.id = 10
+        collectionCache.id = 5
+      }
+    }
+
+    service {
+      content_service.basePath = "{{ kp_content_service_base_url }}"
+      search.basePath = "{{ kp_search_service_base_url }}"
+      lms.basePath = "{{ lms_service_base_url }}"
+      learning_service.basePath = "{{ kp_learning_service_base_url }}"
+    }
+
+    cloud_storage_type="{{ cloud_store }}"
+    azure_storage_key="{{ sunbird_public_storage_account_name }}"
+    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
+    azure_storage_container="{{ azure_public_container }}"
+
+    content_auto_creator {
+        actions=auto-create
+        allowed_object_types=["Content"]
+        allowed_content_stages=["create","upload","review","publish"]
+        content_mandatory_fields=["name","code","mimeType","primaryCategory","artifactUrl","lastPublishedBy"]
+        content_props_to_removed=["identifier","downloadUrl","artifactUrl","variants","createdOn","collections","children","lastUpdatedOn","SYS_INTERNAL_LAST_UPDATED_ON","versionKey","s3Key","status","pkgVersion","toc_url","mimeTypesCount","contentTypesCount","leafNodesCount","childNodes","prevState","lastPublishedOn","flagReasons","compatibilityLevel","size","publishChecklist","publishComment","lastPublishedBy","rejectReasons","rejectComment","badgeAssertions","leafNodes","sYS_INTERNAL_LAST_UPDATED_ON","previewUrl","channel","objectType","visibility","version","pragma","prevStatus","streamingUrl","idealScreenSize","contentDisposition","lastStatusChangedOn","idealScreenDensity","lastSubmittedOn","publishError","flaggedBy","flags","lastFlaggedOn","publisher","lastUpdatedBy","lastSubmittedBy","uploadError","lockKey","publish_type","reviewError","totalCompressedSize","origin","originData","importError","questions"]
+        bulk_upload_mime_types=["video/mp4"]
+        artifact_upload_max_size=52428800
+        content_create_props=["name","code","mimeType","contentType","framework","processId","primaryCategory"]
+        artifact_upload_allowed_source="{{ auto_creator_artifact_allowed_sources }}"
+        g_service_acct_cred="{{ auto_creator_g_service_acct_cred }}"
+        gdrive.application_name=drive-download
+        initial_backoff_delay=120000
+        maximum_backoff_delay=1200000
+        increment_backoff_delay=2
+        api_call_delay=1
+        maxIteration=1
+    }
+
+    search_exists_fields=originData
+    search_fields=identifier,mimeType,pkgVersion,channel,status,origin,originData,artifactUrl
+
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['content-auto-creator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['content-auto-creator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['content-auto-creator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+
 audit-event-generator:
   audit-event-generator: |+
     include file("/data/flink/conf/base-config.conf")
