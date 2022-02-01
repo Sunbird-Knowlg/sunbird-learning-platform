@@ -196,7 +196,7 @@ flink_job_names:
     taskslots: 1
     cpu_requests: 0.3
   content-auto-creator:
-    job_class_name: 'org.sunbird.job.task.ContentAutoCreatorStreamTask'
+    job_class_name: 'org.sunbird.job.contentautocreator.task.ContentAutoCreatorStreamTask'
     replica: 1
     jobmanager_memory: 1024m
     taskmanager_memory: 1024m
