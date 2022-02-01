@@ -280,6 +280,8 @@ auto_creator_v2_parallelism: 1
 ### Content Auto Creator Related Vars
 content_auto_creator_consumer_parallelism: 1
 content_auto_creator_parallelism: 1
+auto_creator_artifact_allowed_sources: "{{ auto_creator_artifact_allowed_sources | default('') }}"
+auto_creator_g_service_acct_cred: "{{ auto_creator_gservice_acct_cred | default('') }}"
 
 ### MVC Indexer Related Vars
 mvc_indexer_consumer_parallelism: 1
