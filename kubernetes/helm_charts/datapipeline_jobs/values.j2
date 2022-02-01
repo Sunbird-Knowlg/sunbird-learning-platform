@@ -581,8 +581,8 @@ content-auto-creator:
         maxIteration=1
     }
 
-    search_exists_fields=originData
-    search_fields=identifier,mimeType,pkgVersion,channel,status,origin,originData,artifactUrl
+    search_exists_fields=["originData"]
+    search_fields=["identifier","mimeType","pkgVersion","channel","status","origin","originData","artifactUrl"]
 
 
   flink-conf: |+
