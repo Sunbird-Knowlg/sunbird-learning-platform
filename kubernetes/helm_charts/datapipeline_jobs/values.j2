@@ -532,7 +532,7 @@ content-auto-creator:
   content-auto-creator: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = "{{ env_name }}.object.import.request"
+      input.topic = "{{ env_name }}.auto.creation.job.request"
       groupId = "{{ env_name }}-content-auto-creator-group"
       failed.topic = "{{ env_name }}.auto.creation.job.request.failed"
     }
