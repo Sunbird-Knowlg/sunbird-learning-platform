@@ -155,16 +155,17 @@ public class ReviewFinalizer extends BaseFinalizer {
 		Map<String,Object> context = new HashMap<String,Object>();
 		Map<String,Object> object = new HashMap<String,Object>();
 		Map<String,Object> edata = new HashMap<String,Object>();
-
+		String learningJobRequestTopic = Platform.config.getString("kafka.topics.instruction");
+		String learningJobInstructionTopic = Platform.config.getString("kafka.publish.request.topic");
 		if(node.getMetadata().get("interceptionPoints") !=null && !node.getMetadata().get("interceptionPoints").equals("{}")) {
 			generatePublishChainEvent(actor, context, object, edata, node.getMetadata(), contentId, publishType, node.getObjectType());
+			learningJobInstructionTopic = Platform.config.getString("kafka.publish.chain.request.topic");
 		}
 		else {
 			generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), contentId, publishType, node.getObjectType());
 		}
 		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
-		String learningJobRequestTopic = Platform.config.getString("kafka.topics.instruction");
-		String learningJobInstructionTopic = Platform.config.getString("kafka.publish.request.topic");
+
 		
 		if(StringUtils.isBlank(beJobRequestEvent)) {
 			TelemetryManager.error("Instruction event is not generated properly. # beJobRequestEvent : " + beJobRequestEvent);
