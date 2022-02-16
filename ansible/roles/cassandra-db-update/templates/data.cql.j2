@@ -52,6 +52,8 @@ ALTER KEYSPACE {{ hierarchy_keyspace_name }} WITH replication = {
   'datacenter1' : 2
 };
 
+ALTER TABLE {{ hierarchy_keyspace_name }}.content_hierarchy ADD relational_metadata text;
+
 {% endif %}
 
 
