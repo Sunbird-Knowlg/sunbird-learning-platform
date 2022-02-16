@@ -1,7 +1,7 @@
 version: 2.1
 jobs:
   lp-build:
-    machine: true
+    machine: ubuntu-2004:202201-02
     steps:
       - checkout
       - restore_cache:
