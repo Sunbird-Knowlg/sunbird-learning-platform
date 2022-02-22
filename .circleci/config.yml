@@ -3,6 +3,8 @@ jobs:
   lp-build:
     machine:
       image: ubuntu-2004:202201-02
+      java:
+        version: 'oraclejdk8'
     steps:
       - checkout
       - restore_cache:
