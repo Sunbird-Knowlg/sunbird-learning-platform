@@ -1,14 +1,15 @@
 version: 2.1
 jobs:
   lp-build:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout
       - restore_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
       - run:
           name: Build
-          command: mvn clean install -DskipTests=true
+          command: JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 mvn clean install -DskipTests=true
 
       - save_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
