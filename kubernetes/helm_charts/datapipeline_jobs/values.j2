@@ -924,3 +924,42 @@ content-publish:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+
+qrcode-image-generator:
+  qrcode-image-generator: |+
+    include file("/data/flink/conf/base-config.conf")
+
+    kafka {
+      input.topic = "{{ env_name }}.qrimage.request"
+      groupId = "{{ env_name }}-qrcode-image-generator-group"
+    }
+
+    task {
+      consumer.parallelism = {{ qrcode_image_generator_consumer_parallelism }}
+      parallelism = {{ qrcode_image_generator_parallelism }}
+      window.time = 60
+    }
+
+    lp.tmp.file.location="/tmp"
+
+    qr.image {
+        imageFormat="png"
+        bottomMargin=0
+        margin=1
+    }
+
+    lms-cassandra {
+      keyspace = "dialcodes"
+      table {
+        image = "dialcode_images"
+        batch = "dialcode_batch"
+      }
+    }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['qrcode-image-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
