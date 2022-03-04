@@ -732,6 +732,8 @@ collection-certificate-generator:
       learner.basePath = "{{ learner_service_base_url }}"
       enc.basePath = "{{ enc_service_base_url }}"
     }
+    enable.suppress.exception = {{ collection_certificate_generator_enable_suppress_exception }}
+
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['collection-certificate-generator'].jobmanager_memory }}
