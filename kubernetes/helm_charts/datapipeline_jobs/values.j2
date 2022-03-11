@@ -950,6 +950,11 @@ qrcode-image-generator:
         margin=1
     }
 
+    cloud_storage_type="{{ cloud_store }}"
+    azure_storage_key="{{ sunbird_public_storage_account_name }}"
+    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
+    azure_storage_container="{{ azure_public_container }}"
+
     lms-cassandra {
       keyspace = "dialcodes"
       table {
@@ -957,11 +962,6 @@ qrcode-image-generator:
         batch = "dialcode_batch"
       }
     }
-
-    cloud_storage_type="{{ cloud_store }}"
-    azure_storage_key="{{ sunbird_public_storage_account_name }}"
-    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
-    azure_storage_container="{{ azure_public_container }}"
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].jobmanager_memory }}
