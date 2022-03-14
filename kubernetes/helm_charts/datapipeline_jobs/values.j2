@@ -731,6 +731,8 @@ collection-certificate-generator:
       certreg.basePath = "{{ cert_reg_service_base_url }}"
       learner.basePath = "{{ learner_service_base_url }}"
       enc.basePath = "{{ enc_service_base_url }}"
+      rc.basePath = "{{ cert_rc_base_url }}"
+      rc.entity = "{{ cert_rc_entity }}"
     }
     enable.suppress.exception = {{ collection_certificate_generator_enable_suppress_exception }}
 
