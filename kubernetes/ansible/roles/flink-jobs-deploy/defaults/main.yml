@@ -119,7 +119,7 @@ middleware_assessment_aggregator_table: "assessment_aggregator"
 collection_certificate_generator_consumer_parallelism: 1
 collection_certificate_generator_parallelism: 1
 collection_certificate_generator_enable_suppress_exception: false
-
+collection_certificate_generator_enable_rc_certificate: true
 
 
 ### to be removed
