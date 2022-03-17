@@ -736,8 +736,8 @@ collection-certificate-generator:
       rc.basePath = "{{ cert_rc_base_url }}"
       rc.entity = "{{ cert_rc_entity }}"
     }
-    enable.suppress.exception = {{ collection_certificate_generator_enable_suppress_exception }}
-    enable.rc.certificate = {{ collection_certificate_generator_enable_rc_certificate }}
+    enable.suppress.exception = {{ collection_certificate_generator_enable_suppress_exception | lower }}
+    enable.rc.certificate = {{ collection_certificate_generator_enable_rc_certificate | lower }}
 
 
   flink-conf: |+
