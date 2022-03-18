@@ -721,6 +721,8 @@ collection-certificate-generator:
       keyspace = "{{ middleware_course_keyspace }}"
       user_enrolments.table = "{{ middleware_user_enrolments_table }}"
       course_batch.table = "{{ middleware_course_batch_table }}"
+      sbkeyspace = "{{ registry_sunbird_keyspace }}"
+      certreg.table ="{{ cert_registry_table }}"
     }
     cert_domain_url = "{{ cert_domain_url }}"
     cert_container_name = "{{ cert_container_name }}"
@@ -734,8 +736,8 @@ collection-certificate-generator:
       rc.basePath = "{{ cert_rc_base_url }}"
       rc.entity = "{{ cert_rc_entity }}"
     }
-    enable.suppress.exception = {{ collection_certificate_generator_enable_suppress_exception }}
-    enable.rc.certificate = {{ collection_certificate_generator_enable_rc_certificate }}
+    enable.suppress.exception = {{ collection_certificate_generator_enable_suppress_exception | lower }}
+    enable.rc.certificate = {{ collection_certificate_generator_enable_rc_certificate | lower }}
 
 
   flink-conf: |+
