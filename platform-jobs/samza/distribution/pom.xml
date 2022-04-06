@@ -9,13 +9,13 @@
     <packaging>pom</packaging>
     <name>Distribution</name>
     <dependencies>
-		<dependency>
-			<groupId>org.sunbird</groupId>
-			<artifactId>qrcode-image-generator</artifactId>
-			<version>0.0.31</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.sunbird</groupId>-->
+<!--			<artifactId>qrcode-image-generator</artifactId>-->
+<!--			<version>0.0.31</version>-->
+<!--			<type>tar.gz</type>-->
+<!--			<classifier>distribution</classifier>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>publish-pipeline</artifactId>
@@ -30,13 +30,13 @@
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
-		<dependency>
-			<groupId>org.sunbird</groupId>
-			<artifactId>auto-creator</artifactId>
-			<version>0.0.39</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.sunbird</groupId>-->
+<!--			<artifactId>auto-creator</artifactId>-->
+<!--			<version>0.0.39</version>-->
+<!--			<type>tar.gz</type>-->
+<!--			<classifier>distribution</classifier>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>mvc-processor-indexer</artifactId>
