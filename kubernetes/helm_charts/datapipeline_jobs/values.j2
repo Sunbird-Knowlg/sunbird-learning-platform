@@ -214,7 +214,7 @@ post-publish-processor:
     kafka {
       input.topic = {{ env_name }}.content.postpublish.request
       groupId = {{ env_name }}-post-publish-processor-group
-      publish.topic = {{ env_name }}.learning.job.request
+      publish.topic = {{ env_name }}.publish.job.request
       qrimage.topic = {{ env_name }}.qrimage.request
     }
     task {
