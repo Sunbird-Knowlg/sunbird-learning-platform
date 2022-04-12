@@ -13,11 +13,6 @@ node() {
                 tag_name = env.JOB_NAME.split("/")[-1]
                 pre_checks()
                 cleanWs()
-                if (!tag_name.contains(env.public_repo_branch)) {
-                    println("Error.. Tag does not contain " + env.public_repo_branch)
-                    error("Oh ho! Tag is not a release candidate.. Skipping build")
-                 }
-                cleanWs()
                 def scmVars = checkout scm
                 checkout scm: [$class: 'GitSCM', branches: [[name: "refs/tags/$tag_name"]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
                 commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
