@@ -685,6 +685,7 @@ collection-cert-pre-processor:
       content.basePath = "{{ content_service_base_url }}"
       learner.basePath = "{{ learner_service_base_url }}"
     }
+    enable.suppress.exception = {{ collection_certificate_pre_processor_enable_suppress_exception | lower }}
     redis-meta {
     {% if metadata2_redis_host is defined %}
       host = {{ metadata2_redis_host }}
