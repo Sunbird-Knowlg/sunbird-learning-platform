@@ -92,6 +92,33 @@ paths:
           description: 'Dial Code not found with identifier:{dialcodeId}'
       security: []
      
+  '/dialcode/v4/read/{dialcodeId}':
+    get:
+      description: API to fetch information about a specific DIAL code with its context information.
+      summary: Dial Code - Read
+      tags:
+        - DialCode
+      operationId: DialcodeV4ReadByDialcodeIdGet
+      produces:
+        - application/json
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: dialcodeId
+          in: path
+          required: true
+          type: string
+          description: ''
+      responses:
+        '200':
+          description: 'Dial Code Object Will be Returned as Response'
+        '404':
+          description: 'Dial Code not found with identifier:{dialcodeId}'
+      security: [ ]
+
   '/dialcode/v3/update/{dialcodeId}':
     patch:
       description: API to update metadata of the given DIAL code.
@@ -136,6 +163,52 @@ paths:
         '500':
           description: 'Server Error! Generated if any system failure occure during request processing'
       security: []
+
+  '/dialcode/v4/update/{dialcodeId}':
+    patch:
+      description: API to update context information of the given DIAL code.
+      summary: DialCode - Update
+      tags:
+        - DialCode
+      operationId: DialcodeV4UpdateByDialcodeIdPatch
+      produces:
+        - application/json
+      parameters:
+        - name: Body
+          in: body
+          required: true
+          description: ''
+          schema:
+            $ref: '#/definitions/Dialcode  updaterequest'
+        - name: X-Channel-Id
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: Content-Type
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: Authorization
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: dialcodeId
+          in: path
+          required: true
+          type: string
+          description: ''
+      responses:
+        '200':
+          description: 'Dial Code Updated Successfully'
+        '400':
+          description: 'Dial Code Updated Failed! . CLIENT_ERROR'
+        '500':
+          description: 'Server Error! Generated if any system failure occure during request processing'
+      security: [ ]
+
   /dialcode/v3/list:
     post:
       description: To get the DIAL codes of a publisher (required).
