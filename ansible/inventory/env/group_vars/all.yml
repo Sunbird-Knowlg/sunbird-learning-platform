@@ -104,6 +104,8 @@ content_service_base_url: "http://{{private_ingressgateway_ip}}/content"
 kp_content_service_base_url: "http://{{private_ingressgateway_ip}}/content"
 cert_service_base_url: "http://{{private_ingressgateway_ip}}/cert"
 enc_service_base_url: "http://{{private_ingressgateway_ip}}/enc"
+cert_rc_base_url: "http://{{private_ingressgateway_ip}}/registry-service/api/v1"
+cert_rc_entity: "TrainingCertificate"
 certificate_base_path: "https://{{domain_name}}/certs"
 cert_domain_url:  "{{proto}}://{{domain_name}}"
 cert_container_name: "{{cert_env_prefix}}-e-credentials"
@@ -112,3 +114,5 @@ cert_azure_storage_secret: "{{sunbird_private_storage_account_key}}"
 cert_azure_storage_key: "{{sunbird_private_storage_account_name}}"
 
 default_channel: "org.sunbird"
+download_neo4j: true
+neo4j_upstream_download: false

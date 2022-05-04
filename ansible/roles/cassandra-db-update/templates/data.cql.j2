@@ -52,6 +52,8 @@ ALTER KEYSPACE {{ hierarchy_keyspace_name }} WITH replication = {
   'datacenter1' : 2
 };
 
+ALTER TABLE {{ hierarchy_keyspace_name }}.content_hierarchy ADD relational_metadata text;
+
 {% endif %}
 
 
@@ -94,6 +96,8 @@ CREATE TABLE IF NOT EXISTS {{ hierarchy_keyspace_name }}.questionset_hierarchy (
   instructions text,
   PRIMARY KEY (identifier)
 );
+
+ALTER TABLE {{ hierarchy_keyspace_name }}.questionset_hierarchy ADD outcomeDeclaration text;
 
 CREATE KEYSPACE IF NOT EXISTS {{ platform_keyspace_name }} WITH replication = {
   'class': 'SimpleStrategy',

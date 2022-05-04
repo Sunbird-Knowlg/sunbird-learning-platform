@@ -357,7 +357,7 @@ search-indexer:
     dialcode.index.name = "dialcode"
     dailcodemetrics.index.name = "dialcodemetrics"
     restrict.metadata.objectTypes = []
-    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions"]
+    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions", "transcripts", "accessibility"]
     schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_sec }}
     restrict.objectTypes = {{ search_indexer_restrict_object_types | to_json }}
     ignored.fields={{ search_indexer_ignored_fields | to_json }}
@@ -527,6 +527,72 @@ auto-creator-v2:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
+content-auto-creator:
+  content-auto-creator: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.auto.creation.job.request"
+      groupId = "{{ env_name }}-content-auto-creator-group"
+      failed.topic = "{{ env_name }}.auto.creation.job.request.failed"
+    }
+
+    task {
+      consumer.parallelism = {{ content_auto_creator_consumer_parallelism }}
+      parallelism = {{ content_auto_creator_parallelism }}
+      window.time = 60
+    }
+
+    redis {
+      database {
+        relationCache.id = 10
+        collectionCache.id = 5
+      }
+    }
+
+    service {
+      content_service.basePath = "{{ kp_content_service_base_url }}"
+      search.basePath = "{{ kp_search_service_base_url }}"
+      lms.basePath = "{{ lms_service_base_url }}"
+      learning_service.basePath = "{{ kp_learning_service_base_url }}"
+    }
+
+    cloud_storage_type="{{ cloud_store }}"
+    azure_storage_key="{{ sunbird_public_storage_account_name }}"
+    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
+    azure_storage_container="{{ azure_public_container }}"
+
+    content_auto_creator {
+        actions=auto-create
+        allowed_object_types=["Content"]
+        allowed_content_stages=["create","upload","review","publish"]
+        content_mandatory_fields=["name","code","mimeType","primaryCategory","artifactUrl","lastPublishedBy"]
+        content_props_to_removed=["identifier","downloadUrl","variants","createdOn","collections","children","lastUpdatedOn","SYS_INTERNAL_LAST_UPDATED_ON","versionKey","s3Key","status","pkgVersion","toc_url","mimeTypesCount","contentTypesCount","leafNodesCount","childNodes","prevState","lastPublishedOn","flagReasons","compatibilityLevel","size","publishChecklist","publishComment","lastPublishedBy","rejectReasons","rejectComment","badgeAssertions","leafNodes","sYS_INTERNAL_LAST_UPDATED_ON","previewUrl","channel","objectType","visibility","version","pragma","prevStatus","streamingUrl","idealScreenSize","contentDisposition","lastStatusChangedOn","idealScreenDensity","lastSubmittedOn","publishError","flaggedBy","flags","lastFlaggedOn","publisher","lastUpdatedBy","lastSubmittedBy","uploadError","lockKey","publish_type","reviewError","totalCompressedSize","origin","originData","importError","questions"]
+        bulk_upload_mime_types=["video/mp4"]
+        artifact_upload_max_size=52428800
+        content_create_props=["name","code","mimeType","contentType","framework","processId","primaryCategory"]
+        artifact_upload_allowed_source=[]
+        g_service_acct_cred="{{ auto_creator_g_service_acct_cred }}"
+        gdrive.application_name=drive-download
+        initial_backoff_delay=120000
+        maximum_backoff_delay=1200000
+        increment_backoff_delay=2
+        api_call_delay=1
+        maxIteration=1
+    }
+
+    search_exists_fields=["originData"]
+    search_fields=["identifier","mimeType","pkgVersion","channel","status","origin","originData","artifactUrl"]
+
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['content-auto-creator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['content-auto-creator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['content-auto-creator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+
 audit-event-generator:
   audit-event-generator: |+
     include file("/data/flink/conf/base-config.conf")
@@ -609,6 +675,7 @@ collection-cert-pre-processor:
       user_enrolments.table = "{{ middleware_user_enrolments_table }}"
       course_batch.table = "{{ middleware_course_batch_table }}"
       assessment_aggregator.table = "{{ middleware_assessment_aggregator_table }}"
+      user_activity_agg.table = "{{ middleware_user_activity_agg_table }}"
     }
     cert_domain_url = "{{ cert_domain_url }}"
     user_read_api = "/private/user/v1/read"
@@ -653,6 +720,8 @@ collection-certificate-generator:
       keyspace = "{{ middleware_course_keyspace }}"
       user_enrolments.table = "{{ middleware_user_enrolments_table }}"
       course_batch.table = "{{ middleware_course_batch_table }}"
+      sbkeyspace = "{{ registry_sunbird_keyspace }}"
+      certreg.table ="{{ cert_registry_table }}"
     }
     cert_domain_url = "{{ cert_domain_url }}"
     cert_container_name = "{{ cert_container_name }}"
@@ -663,7 +732,12 @@ collection-certificate-generator:
       certreg.basePath = "{{ cert_reg_service_base_url }}"
       learner.basePath = "{{ learner_service_base_url }}"
       enc.basePath = "{{ enc_service_base_url }}"
+      rc.basePath = "{{ cert_rc_base_url }}"
+      rc.entity = "{{ cert_rc_entity }}"
     }
+    enable.suppress.exception = {{ collection_certificate_generator_enable_suppress_exception | lower }}
+    enable.rc.certificate = {{ collection_certificate_generator_enable_rc_certificate | lower }}
+
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['collection-certificate-generator'].jobmanager_memory }}
@@ -716,6 +790,7 @@ content-publish:
     kafka {
       input.topic = {{ env_name }}.publish.job.request
       post_publish.topic = {{ env_name }}.content.postpublish.request
+      mvc.topic = "{{ env_name }}.mvc.processor.job.request"
       error.topic = "{{ env_name }}.learning.events.failed"
       groupId = {{ env_name }}-content-publish-group
     }
@@ -738,14 +813,76 @@ content-publish:
       keyspace = "{{ content_keyspace_name }}"
       table = "content_data"
       tmp_file_location = "/tmp"
-      objectType = ["Content", "ContentImage"]
-      mimeType = ["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm", "application/vnd.ekstep.html-archive","application/vnd.ekstep.ecml-archive"]
+      objectType = ["Content", "ContentImage","Collection","CollectionImage"]
+      mimeType = ["application/pdf",
+                                   "application/vnd.ekstep.ecml-archive",
+                                   "application/vnd.ekstep.html-archive",
+                                   "application/vnd.android.package-archive",
+                                   "application/vnd.ekstep.content-archive",
+                                   "application/epub",
+                                   "application/msword",
+                                   "application/vnd.ekstep.h5p-archive",
+                                   "video/webm",
+                                   "video/mp4",
+                                   "application/vnd.ekstep.content-collection",
+                                   "video/quicktime",
+                                   "application/octet-stream",
+                                   "application/json",
+                                   "application/javascript",
+                                   "application/xml",
+                                   "text/plain",
+                                   "text/html",
+                                   "text/javascript",
+                                   "text/xml",
+                                   "text/css",
+                                   "image/jpeg",
+                                   "image/jpg",
+                                   "image/png",
+                                   "image/tiff",
+                                   "image/bmp",
+                                   "image/gif",
+                                   "image/svg+xml",
+                                   "image/x-quicktime",
+                                   "video/avi",
+                                   "video/mpeg",
+                                   "video/quicktime",
+                                   "video/3gpp",
+                                   "video/mp4",
+                                   "video/ogg",
+                                   "video/webm",
+                                   "video/msvideo",
+                                   "video/x-msvideo",
+                                   "video/x-qtc",
+                                   "video/x-mpeg",
+                                   "audio/mp3",
+                                   "audio/mp4",
+                                   "audio/mpeg",
+                                   "audio/ogg",
+                                   "audio/webm",
+                                   "audio/x-wav",
+                                   "audio/wav",
+                                   "audio/mpeg3",
+                                   "audio/x-mpeg-3",
+                                   "audio/vorbis",
+                                   "application/x-font-ttf",
+                                   "application/vnd.ekstep.plugin-archive",
+                                   "video/x-youtube",
+                                   "video/youtube",
+                                   "text/x-url"]
       asset_download_duration = "60 seconds"
       stream {
         enabled = {{ content_stream_enabled | lower }}
         mimeType = ["video/mp4", "video/webm"]
       }
       artifact.size.for_online= {{ content_artifact_size_for_online }}
+
+      downloadFiles {
+        spine = ["appIcon"]
+        full = ["appIcon", "grayScaleAppIcon", "artifactUrl", "itemSetPreviewUrl", "media"]
+      }
+
+      nested.fields=["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions", "transcripts", "accessibility"]
+
     }
     cloud_storage {
         folder {
@@ -753,6 +890,52 @@ content-publish:
             artifact = "artifact"
         }
     }
+
+    hierarchy {
+      keyspace = "{{ hierarchy_keyspace_name }}"
+      table = "content_hierarchy"
+    }
+
+    contentTypeToPrimaryCategory {
+      ClassroomTeachingVideo: "Explanation Content"
+      ConceptMap: "Learning Resource"
+      Course: "Course"
+      CuriosityQuestionSet: "Practice Question Set"
+      eTextBook: "eTextbook"
+      Event: "Event"
+      EventSet: "Event Set"
+      ExperientialResource: "Learning Resource"
+      ExplanationResource: "Explanation Content"
+      ExplanationVideo: "Explanation Content"
+      FocusSpot: "Teacher Resource"
+      LearningOutcomeDefinition: "Teacher Resource"
+      MarkingSchemeRubric: "Teacher Resource"
+      PedagogyFlow: "Teacher Resource"
+      PracticeQuestionSet: "Practice Question Set"
+      PracticeResource: "Practice Question Set"
+      SelfAssess: "Course Assessment"
+      TeachingMethod: "Teacher Resource"
+      TextBook: "Digital Textbook"
+      Collection: "Content Playlist"
+      ExplanationReadingMaterial: "Learning Resource"
+      LearningActivity: "Learning Resource"
+      LessonPlan: "Content Playlist"
+      LessonPlanResource: "Teacher Resource"
+      PreviousBoardExamPapers: "Learning Resource"
+      TVLesson: "Explanation Content"
+      OnboardingResource: "Learning Resource"
+      ReadingMaterial: "Learning Resource"
+      Template: "Template"
+      Asset: "Asset"
+      Plugin: "Plugin"
+      LessonPlanUnit: "Lesson Plan Unit"
+      CourseUnit: "Course Unit"
+      TextBookUnit: "Textbook Unit"
+      Asset: "Certificate Template"
+    }
+
+    compositesearch.index.name = "compositesearch"
+    search.document.type = "cs"
 
     cloud_storage_type="{{ cloud_store }}"
     azure_storage_key="{{ sunbird_public_storage_account_name }}"
@@ -768,6 +951,50 @@ content-publish:
     jobmanager.memory.flink.size: {{ flink_job_names['content-publish'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['content-publish'].taskmanager_memory }}
     taskmanager.numberOfTaskSlots: {{ flink_job_names['content-publish'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+qrcode-image-generator:
+  qrcode-image-generator: |+
+    include file("/data/flink/conf/base-config.conf")
+
+    kafka {
+      input.topic = "{{ env_name }}.qrimage.request"
+      groupId = "{{ env_name }}-qrcode-image-generator-group"
+    }
+
+    task {
+      consumer.parallelism = {{ qrcode_image_generator_consumer_parallelism }}
+      parallelism = {{ qrcode_image_generator_parallelism }}
+      window.time = 60
+    }
+
+    lp.tmp.file.location="/tmp"
+
+    qr.image {
+        imageFormat="png"
+        bottomMargin=0
+        margin=1
+    }
+
+    cloud_storage_type="{{ cloud_store }}"
+    azure_storage_key="{{ sunbird_public_storage_account_name }}"
+    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
+    azure_storage_container="{{ azure_public_container }}"
+
+    lms-cassandra {
+      keyspace = "dialcodes"
+      table {
+        image = "dialcode_images"
+        batch = "dialcode_batch"
+      }
+    }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['qrcode-image-generator'].taskslots }}
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1

@@ -1,8 +1,12 @@
+- name: Update APT package cache
+  apt: update_cache=yes 
+
 - name: Install required utils
   apt: name={{ item }} state=present 
   become: yes
   with_items:
     - git
+    - git-core
     - zip
     - gcc
     - make
