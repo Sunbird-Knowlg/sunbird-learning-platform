@@ -737,7 +737,7 @@ collection-certificate-generator:
     }
     enable.suppress.exception = {{ collection_certificate_generator_enable_suppress_exception | lower }}
     enable.rc.certificate = {{ collection_certificate_generator_enable_rc_certificate | lower }}
-
+    task.rc.badcharlist : {{ collection_certificate_generator_rc_badcharlist }}
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['collection-certificate-generator'].jobmanager_memory }}
