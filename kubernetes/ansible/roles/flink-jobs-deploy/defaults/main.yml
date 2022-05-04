@@ -121,7 +121,7 @@ collection_certificate_generator_parallelism: 1
 collection_certificate_generator_enable_suppress_exception: "{{ enable_suppress_exception | lower }}"
 collection_certificate_generator_enable_rc_certificate: "{{ enable_rc_certificate | lower }}"
 collection_certificate_pre_processor_enable_suppress_exception: "{{ enable_suppress_exception | lower }}"
-collection_certificate_generator_rc_badcharlist: "{{ rc_bad_char_list | default('\\x00,\\\\aaa,\\aaa,Ø,Ý') }}"
+collection_certificate_generator_rc_badcharlist: "{{ rc_bad_char_list | default('"\\x00,\\\\aaa,\\aaa,Ø,Ý"') }}"
 registry_sunbird_keyspace: "sunbird"
 cert_registry_table: "cert_registry"
 
