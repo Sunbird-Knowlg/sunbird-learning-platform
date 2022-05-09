@@ -541,6 +541,7 @@ content-auto-creator:
       consumer.parallelism = {{ content_auto_creator_consumer_parallelism }}
       parallelism = {{ content_auto_creator_parallelism }}
       window.time = 60
+      checkpointing.timeout = 4200000
     }
 
     redis {
