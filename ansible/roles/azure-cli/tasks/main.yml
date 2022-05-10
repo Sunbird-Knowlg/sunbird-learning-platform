@@ -1,14 +1,21 @@
 - name: Import Azure signing key
-  #become: yes
+  become: yes
+  become_user: root
   shell: curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 
 - name: Add Azure apt repository
+  become: yes
+  become_user: root
   apt_repository: repo='deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main' state=present
 
 - name: Add distribution release security apt repository
+  become: yes
+  become_user: root
   apt_repository: repo='deb http://security.ubuntu.com/ubuntu bionic-security main' state=present
 
 - name: install azure cli dependency
+  become: yes
+  become_user: root
   apt: name={{ item }} state=present update_cache=yes 
   #allow_unauthenticated: yes
   with_items:
@@ -16,9 +23,10 @@
   when: ansible_distribution_release == "focal"
   
 - name: ensure azure-cli and apt-transport-https is installed
+  become: yes
+  become_user: root
   apt: name={{ item }} state=present update_cache=yes 
   #allow_unauthenticated: yes
   with_items:
     - apt-transport-https 
     - azure-cli
-
