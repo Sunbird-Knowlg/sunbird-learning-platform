@@ -1010,14 +1010,14 @@ dialcode-context-updater:
   dialcode-context-updater: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = "sunbirddev.dialcode.context.job.request"
-      failed.topic = "sunbirddev.dialcode.context.job.request.failed"
-      groupId = "sunbirddev-dialcode-group"
+      input.topic = "{{ env_name }}.dialcode.context.job.request"
+      failed.topic = "{{ env_name }}.dialcode.context.job.request.failed"
+      groupId = "{{ env_name }}-dialcode-group"
     }
     task {
       consumer.parallelism = 1
       parallelism = 1
-      content-auto-creator.parallelism = 1
+      dialcode-context-updater.parallelism = 1
     }
     dialcode_context_updater {
       actions="dialcode-context-update"
