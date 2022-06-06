@@ -70,6 +70,7 @@ post_publish_event_router_parallelism: 1
 post_publish_shallow_copy_parallelism: 1
 post_publish_link_dialcode_parallelism: 1
 post_publish_batch_create_parallelism: 1
+post_publish_dialcode_context_parallelism: 1
 
 ###  Certificate Job related Vars
 certificate_generator_consumer_parallelism: 1
