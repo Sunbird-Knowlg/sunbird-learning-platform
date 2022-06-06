@@ -216,7 +216,7 @@ post-publish-processor:
       groupId = {{ env_name }}-post-publish-processor-group
       publish.topic = {{ env_name }}.publish.job.request
       qrimage.topic = {{ env_name }}.qrimage.request
-      dialcode.context.topic = "sunbirddev.dialcode.context.job.request"
+      dialcode.context.topic = {{ env_name }}.dialcode.context.job.request
     }
     task {
       consumer.parallelism = {{ post_publish_processor_consumer_parallelism }}
