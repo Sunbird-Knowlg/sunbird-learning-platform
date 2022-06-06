@@ -224,7 +224,7 @@ post-publish-processor:
       shallow_copy.parallelism = {{ post_publish_shallow_copy_parallelism }}
       link_dialcode.parallelism = {{ post_publish_link_dialcode_parallelism }}
       batch_create.parallelism = {{ post_publish_batch_create_parallelism }}
-      dialcode_context_updater.parallelism = {{ post_publish_link_dialcode_parallelism }}
+      dialcode_context_updater.parallelism = {{ post_publish_dialcode_context_parallelism }}
     }
     lms-cassandra {
       keyspace = "{{ middleware_course_keyspace }}"
