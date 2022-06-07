@@ -1032,3 +1032,11 @@ dialcode-context-updater:
       search.basePath = "{{ kp_search_service_base_url }}"
       dial_service.basePath = "{{ kp_dial_service_base_url }}"
     }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['qrcode-image-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
