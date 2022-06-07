@@ -255,3 +255,6 @@ processing_kafka_overriden_topics:
   - name: object.import.request
     retention_time: 1209600000
     replication_factor: 1
+  - name: dialcode.context.job.request
+    retention_time: 1209600000
+    replication_factor: 1
