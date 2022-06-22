@@ -14,16 +14,6 @@ CREATE TABLE IF NOT EXISTS {{ content_keyspace_name }}.content_data (
   PRIMARY KEY (content_id)
 );
 
-CREATE TABLE IF NOT EXISTS {{ content_keyspace_name }}.question_data (
-  question_id text, 
-  last_updated_on timestamp,
-  body blob,
-  editorState blob,
-  question blob,
-  solutions blob,
-  PRIMARY KEY (question_id)
-);
-
 CREATE KEYSPACE IF NOT EXISTS {{ hierarchy_keyspace_name }} WITH replication = {
   'class': 'SimpleStrategy',
   'replication_factor': '1'
@@ -58,7 +48,6 @@ ALTER TABLE {{ hierarchy_keyspace_name }}.content_hierarchy ADD relational_metad
 
 
 CREATE TRIGGER IF NOT EXISTS content_data_trigger ON {{ content_keyspace_name }}.content_data USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
-CREATE TRIGGER IF NOT EXISTS question_data_trigger ON {{ content_keyspace_name }}.question_data USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
 CREATE TRIGGER IF NOT EXISTS framework_hierarchy_trigger ON {{ hierarchy_keyspace_name }}.framework_hierarchy USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
 CREATE TRIGGER IF NOT EXISTS content_hierarchy_trigger ON {{ hierarchy_keyspace_name }}.content_hierarchy USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
 
@@ -70,34 +59,6 @@ CREATE TABLE IF NOT EXISTS {{ category_keyspace_name }}.category_definition_data
     forms map<text, text>,
     objectmetadata map<text, text>
 );
-
-CREATE KEYSPACE IF NOT EXISTS {{ question_keyspace_name }} WITH replication = {
-  'class': 'NetworkTopologyStrategy',
-  'datacenter1': '2'
-};
-
-CREATE TABLE IF NOT EXISTS {{ question_keyspace_name }}.question_data (
-  identifier text,
-  body blob,
-  editorState text,
-  answer blob,
-  solutions text,
-  instructions text,
-  hints text,
-  media text,
-  responseDeclaration text,
-  interactions text,
-  PRIMARY KEY (identifier)
-);
-
-CREATE TABLE IF NOT EXISTS {{ hierarchy_keyspace_name }}.questionset_hierarchy (
-  identifier text,
-  hierarchy text,
-  instructions text,
-  PRIMARY KEY (identifier)
-);
-
-ALTER TABLE {{ hierarchy_keyspace_name }}.questionset_hierarchy ADD outcomeDeclaration text;
 
 CREATE KEYSPACE IF NOT EXISTS {{ platform_keyspace_name }} WITH replication = {
   'class': 'SimpleStrategy',
