@@ -120,11 +120,11 @@ post-publish-processor:
   post-publish-processor: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = {{ env_name }}.content.postpublish.request
-      groupId = {{ env_name }}-post-publish-processor-group
-      publish.topic = {{ env_name }}.publish.job.request
-      qrimage.topic = {{ env_name }}.qrimage.request
-      dialcode.context.topic = {{ env_name }}.dialcode.context.job.request
+      input.topic = {{ env_name }}.{{ bb_name }}.content.postpublish.request
+      groupId = {{ env_name }}-{{ bb_name }}-post-publish-processor-group
+      publish.topic = {{ env_name }}.{{ bb_name }}.publish.job.request
+      qrimage.topic = {{ env_name }}.{{ bb_name }}.qrimage.request
+      dialcode.context.topic = {{ env_name }}.{{ bb_name }}.dialcode.context.job.request
     }
     task {
       consumer.parallelism = {{ post_publish_processor_consumer_parallelism }}
@@ -161,8 +161,8 @@ video-stream-generator:
   video-stream-generator: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = "{{ env_name }}.content.postpublish.request"
-      groupId = "{{ env_name }}-video-stream-generator-group"
+      input.topic = "{{ env_name }}.{{ bb_name }}.content.postpublish.request"
+      groupId = "{{ env_name }}-{{ bb_name }}-video-stream-generator-group"
     }
     task {
       timer.duration = {{ video_stream_generator_timer_duration }}
@@ -215,9 +215,9 @@ search-indexer:
   search-indexer: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = "{{ env_name }}.learning.graph.events"
-      error.topic = "{{ env_name }}.learning.events.failed"
-      groupId = "{{ env_name }}-search-indexer-group"
+      input.topic = "{{ env_name }}.{{ bb_name }}.learning.graph.events"
+      error.topic = "{{ env_name }}.{{ bb_name }}.learning.events.failed"
+      groupId = "{{ env_name }}-{{ bb_name }}-search-indexer-group"
     }
     task {
       consumer.parallelism = {{ search_indexer_consumer_parallelism }}
@@ -247,9 +247,9 @@ asset-enrichment:
   asset-enrichment: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = {{ env_name }}.learning.job.request
-      groupId = {{ env_name }}-asset-enrichment-group
-      video_stream.topic = {{ env_name }}.content.postpublish.request
+      input.topic = {{ env_name }}.{{ bb_name }}.learning.job.request
+      groupId = {{ env_name }}-{{ bb_name }}-asset-enrichment-group
+      video_stream.topic = {{ env_name }}.{{ bb_name }}.content.postpublish.request
     }
     task {
       checkpointing.timeout = 900000
@@ -294,8 +294,8 @@ audit-history-indexer:
   audit-history-indexer: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = "{{ env_name }}.learning.graph.events"
-      groupId = "{{ env_name }}-audit-history-indexer-group"
+      input.topic = "{{ env_name }}.{{ bb_name }}.learning.graph.events"
+      groupId = "{{ env_name }}-{{ bb_name }}-audit-history-indexer-group"
     }
 
     task {
@@ -318,9 +318,9 @@ content-auto-creator:
   content-auto-creator: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = "{{ env_name }}.auto.creation.job.request"
-      groupId = "{{ env_name }}-content-auto-creator-group"
-      failed.topic = "{{ env_name }}.auto.creation.job.request.failed"
+      input.topic = "{{ env_name }}.{{ bb_name }}.auto.creation.job.request"
+      groupId = "{{ env_name }}-{{ bb_name }}-content-auto-creator-group"
+      failed.topic = "{{ env_name }}.{{ bb_name }}.auto.creation.job.request.failed"
     }
 
     task {
@@ -385,9 +385,9 @@ audit-event-generator:
   audit-event-generator: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = "{{ env_name }}.learning.graph.events"
-      output.topic = "{{ env_name }}.telemetry.raw"
-      groupId = "{{ env_name }}-audit-event-generator-group"
+      input.topic = "{{ env_name }}.{{ bb_name }}.learning.graph.events"
+      output.topic = "{{ env_name }}.{{ bb_name }}.telemetry.raw"
+      groupId = "{{ env_name }}-{{ bb_name }}-audit-event-generator-group"
     }
 
     task {
@@ -415,11 +415,11 @@ content-publish:
   content-publish: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = {{ env_name }}.publish.job.request
-      post_publish.topic = {{ env_name }}.content.postpublish.request
-      mvc.topic = "{{ env_name }}.mvc.processor.job.request"
-      error.topic = "{{ env_name }}.learning.events.failed"
-      groupId = {{ env_name }}-content-publish-group
+      input.topic = {{ env_name }}.{{ bb_name }}.publish.job.request
+      post_publish.topic = {{ env_name }}.{{ bb_name }}.content.postpublish.request
+      mvc.topic = "{{ env_name }}.{{ bb_name }}.mvc.processor.job.request"
+      error.topic = "{{ env_name }}.{{ bb_name }}.learning.events.failed"
+      groupId = {{ env_name }}-{{ bb_name }}-content-publish-group
     }
     task {
       consumer.parallelism = 1
@@ -588,8 +588,8 @@ qrcode-image-generator:
     include file("/data/flink/conf/base-config.conf")
 
     kafka {
-      input.topic = "{{ env_name }}.qrimage.request"
-      groupId = "{{ env_name }}-qrcode-image-generator-group"
+      input.topic = "{{ env_name }}.{{ bb_name }}.qrimage.request"
+      groupId = "{{ env_name }}-{{ bb_name }}-qrcode-image-generator-group"
     }
 
     task {
@@ -631,9 +631,9 @@ dialcode-context-updater:
   dialcode-context-updater: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = "{{ env_name }}.dialcode.context.job.request"
-      failed.topic = "{{ env_name }}.dialcode.context.job.request.failed"
-      groupId = "{{ env_name }}-dialcode-group"
+      input.topic = "{{ env_name }}.{{ bb_name }}.dialcode.context.job.request"
+      failed.topic = "{{ env_name }}.{{ bb_name }}.dialcode.context.job.request.failed"
+      groupId = "{{ env_name }}-{{ bb_name }}-dialcode-group"
     }
     task {
       consumer.parallelism = 1
