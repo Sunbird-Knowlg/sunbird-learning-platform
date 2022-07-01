@@ -226,7 +226,7 @@ search-indexer:
       dialcodeIndexer.parallelism = {{ dialcode_external_indexer_parallelism }}
       dialcodemetricsIndexer.parallelism = {{ dialcode_metric_indexer_parallelism }}
     }
-    compositesearch.index.name = "compositesearch"
+    compositesearch.index.name = "{{ compositesearch_index_name }}"
     dialcode.index.name = "dialcode"
     dailcodemetrics.index.name = "dialcodemetrics"
     restrict.metadata.objectTypes = []
@@ -561,7 +561,7 @@ content-publish:
       Asset: "Certificate Template"
     }
 
-    compositesearch.index.name = "compositesearch"
+    compositesearch.index.name = "{{ compositesearch_index_name }}"
     search.document.type = "cs"
     enableDIALContextUpdate = "Yes"
 
