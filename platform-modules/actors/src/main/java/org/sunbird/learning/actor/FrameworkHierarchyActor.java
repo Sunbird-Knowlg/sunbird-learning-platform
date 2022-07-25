@@ -34,6 +34,7 @@ public class FrameworkHierarchyActor extends BaseGraphManager {
 			} else {
 				if (StringUtils.equalsIgnoreCase(FrameworkHierarchyOperations.generateFrameworkHierarchy.name(), methodName)) {
 					String id = (String) request.get("identifier");
+					TelemetryManager.log("FrameworkHierarchyActor: invoking generateFrameworkHierarchy method" );
 					fwHierarchy.generateFrameworkHierarchy(id);
 					OK(parent);
 				} else if(StringUtils.equalsIgnoreCase(FrameworkHierarchyOperations.getFrameworkHierarchy.name(), methodName)){
