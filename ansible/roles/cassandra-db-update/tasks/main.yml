@@ -12,8 +12,6 @@
     mode: 0755
   with_items:
     - "data.cql"
-    - "dialcode.cql"
-    - "uci.cql"
   run_once: true
 
   
@@ -22,6 +20,4 @@
   shell: 'cqlsh -f /tmp/lp-{{item}}'
   with_items:
     - "data.cql"
-    - "dialcode.cql"
-    - "uci.cql"
   run_once: true
