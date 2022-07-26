@@ -34,7 +34,7 @@ public class FrameworkHierarchyActor extends BaseGraphManager {
 			} else {
 				if (StringUtils.equalsIgnoreCase(FrameworkHierarchyOperations.generateFrameworkHierarchy.name(), methodName)) {
 					String id = (String) request.get("identifier");
-					TelemetryManager.log("FrameworkHierarchyActor: invoking generateFrameworkHierarchy method" );
+					TelemetryManager.info("FrameworkHierarchyActor: invoking generateFrameworkHierarchy method" );
 					fwHierarchy.generateFrameworkHierarchy(id);
 					OK(parent);
 				} else if(StringUtils.equalsIgnoreCase(FrameworkHierarchyOperations.getFrameworkHierarchy.name(), methodName)){
@@ -42,7 +42,7 @@ public class FrameworkHierarchyActor extends BaseGraphManager {
 					Map<String,Object> frameworkData = fwHierarchy.getFrameworkHierarchy(frameworkId);
 					OK("framework", frameworkData, sender());
 				} else {
-					TelemetryManager.log("Unsupported operation: " + methodName);
+					TelemetryManager.info("Unsupported operation: " + methodName);
 					throw new ClientException(LearningErrorCodes.ERR_INVALID_OPERATION.name(),
 							"Unsupported operation: " + methodName);
 				}

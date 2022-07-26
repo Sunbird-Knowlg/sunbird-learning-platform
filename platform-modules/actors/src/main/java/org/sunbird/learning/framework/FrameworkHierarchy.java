@@ -54,17 +54,17 @@ public class FrameworkHierarchy extends BaseManager {
 	 */
 	public void generateFrameworkHierarchy(String id) throws Exception {
 		Response responseNode = getDataNode(GRAPH_ID, id);
-		TelemetryManager.log("FrameworkHierarchy: generateFrameworkHierarchy method");
+		TelemetryManager.info("FrameworkHierarchy: generateFrameworkHierarchy method");
 		if (checkError(responseNode))
 			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + id);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		if (StringUtils.equalsIgnoreCase(node.getObjectType(), "Framework")) {
 			FrameworkCache.delete(id);
-			TelemetryManager.log("FrameworkHierarchy: generateFrameworkHierarchy method:: After Deleting Framework Cache");
+			TelemetryManager.info("FrameworkHierarchy: generateFrameworkHierarchy method:: After Deleting Framework Cache");
 			Map<String, Object> frameworkDocument = new HashMap<>();
 			Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false, true);
 			CategoryCache.setFramework(node.getIdentifier(), frameworkHierarchy);
-			TelemetryManager.log("FrameworkHierarchy: generateFrameworkHierarchy method:: After generating Hierarchy: frameworkHierarchy: " + frameworkHierarchy);
+			TelemetryManager.info("FrameworkHierarchy: generateFrameworkHierarchy method:: After generating Hierarchy: frameworkHierarchy: " + frameworkHierarchy);
 			frameworkDocument.putAll(frameworkHierarchy);
 			frameworkDocument.put("identifier", node.getIdentifier());
 			frameworkDocument.put("objectType", node.getObjectType());
@@ -74,7 +74,7 @@ public class FrameworkHierarchy extends BaseManager {
 				if(null!=node.getMetadata().get(field))
 					frameworkDocument.put(field, node.getMetadata().get(field));
 			}
-			TelemetryManager.log("FrameworkHierarchy: generateFrameworkHierarchy method::Before saving Hierarchy to cassandra " );
+			TelemetryManager.info("FrameworkHierarchy: generateFrameworkHierarchy method::Before saving Hierarchy to cassandra " );
 			hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(),frameworkDocument);
 		} else {
 			throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "The object with given identifier is not a framework: " + id);
