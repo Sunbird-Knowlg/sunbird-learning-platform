@@ -139,7 +139,8 @@ defaultTokenCountAfterWord=10
 
 # Neo4j Graph Configuration
 graph.dir="/data/graphDB"
-akka.request_timeout=900
+# in seconds
+akka.request_timeout=90
 environment.id="{{ environment_id }}"
 graph.passport.key.base="{{ graph_passport_key }}"
 route.domain="{{ learning_neo4j_bolt_url }}"
