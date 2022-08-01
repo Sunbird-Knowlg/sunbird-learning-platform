@@ -132,6 +132,9 @@ processing_kafka_topics:
   - name: dialcode.context.job.request
     num_of_partitions: 1
     replication_factor: 1
+  - name: dialcode.context.job.request.failed
+    num_of_partitions: 1
+    replication_factor: 1
 
 processing_kafka_overriden_topics:
   - name: telemetry.raw
@@ -256,5 +259,8 @@ processing_kafka_overriden_topics:
     retention_time: 1209600000
     replication_factor: 1
   - name: dialcode.context.job.request
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: dialcode.context.job.request.failed
     retention_time: 1209600000
     replication_factor: 1
