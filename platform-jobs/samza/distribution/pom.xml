@@ -11,18 +11,11 @@
     <dependencies>
 <!--		<dependency>-->
 <!--			<groupId>org.sunbird</groupId>-->
-<!--			<artifactId>qrcode-image-generator</artifactId>-->
-<!--			<version>0.0.31</version>-->
+<!--			<artifactId>publish-pipeline</artifactId>-->
+<!--            <version>0.0.386</version>-->
 <!--			<type>tar.gz</type>-->
 <!--			<classifier>distribution</classifier>-->
 <!--		</dependency>-->
-		<dependency>
-			<groupId>org.sunbird</groupId>
-			<artifactId>publish-pipeline</artifactId>
-            <version>0.0.386</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>merge-user-courses</artifactId>
@@ -30,13 +23,6 @@
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.sunbird</groupId>-->
-<!--			<artifactId>auto-creator</artifactId>-->
-<!--			<version>0.0.39</version>-->
-<!--			<type>tar.gz</type>-->
-<!--			<classifier>distribution</classifier>-->
-<!--		</dependency>-->
 		<dependency>
 			<groupId>org.sunbird</groupId>
 			<artifactId>mvc-processor-indexer</artifactId>
