@@ -92,11 +92,9 @@ public class LearningRequestRouter extends UntypedActor {
 		ActorRef contentStoreActor = system.actorOf(new SmallestMailboxPool(poolSize).props(contentStoreProps));
 		ActorRef fwHierarchyActor = system.actorOf(new SmallestMailboxPool(poolSize).props(fwhierarchyProps));
 		ActorRef localCacheUpdaterActor = system.actorOf(new SmallestMailboxPool(poolSize).props(localCacheUpdaterProps));
-		TelemetryManager.info("LearningRequestRouter: initActorPool:: Before adding actors to pool" );
 		LearningActorPool.addActorRefToPool(LearningActorNames.CONTENT_STORE_ACTOR.name(), contentStoreActor);
 		LearningActorPool.addActorRefToPool(LearningActorNames.FRAMEWORK_HIERARCHY_ACTOR.name(), fwHierarchyActor);
 		LearningActorPool.addActorRefToPool(LearningActorNames.CACHE_UPDATE_ACTOR.name(), localCacheUpdaterActor);
-		TelemetryManager.info("LearningRequestRouter: initActorPool:: After adding actors to pool" );
 	}
 
 	/**
@@ -112,7 +110,6 @@ public class LearningRequestRouter extends UntypedActor {
 		if (null == ref)
 			throw new ClientException(LearningErrorCodes.ERR_ROUTER_ACTOR_NOT_FOUND.name(),
 					"Actor not found in the pool for manager: " + manager);
-		TelemetryManager.info("LearningRequestRouter: getActorFromPool:: Actor ref: " + ref );
 		return ref;
 	}
 
