@@ -1032,6 +1032,8 @@ dialcode-context-updater:
       dial_service.basePath = "{{ kp_dial_service_base_url }}"
     }
 
+    es_sync_wait_time = 20000
+
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].taskmanager_memory }}
