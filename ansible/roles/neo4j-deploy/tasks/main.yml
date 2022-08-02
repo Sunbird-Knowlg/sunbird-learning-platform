@@ -1,3 +1,6 @@
+#- name: checking the list of installed services
+#  service_facts:
+
 - name: Stop the monit
   service: name=monit state=stopped
   become: yes
