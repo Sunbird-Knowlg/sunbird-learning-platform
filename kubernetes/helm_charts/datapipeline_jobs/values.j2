@@ -201,6 +201,29 @@ video-stream-generator:
     azure_resource_group_name="{{ video_stream_generator_azure_resource_group_name }}"
     azure_token_client_key="{{ video_stream_generator_azure_token_client_key }}"
     azure_token_client_secret="{{ video_stream_generator_azure_token_client_secret }}"
+    # CSP Name. e.g: aws or azure
+    media_service_type="aws"
+    #AWS Elemental Media Convert Config
+    aws {
+      region="{{ aws_mediaconvert_region }}"
+      content_bucket_name="{{ aws_content_bucket_name }}"
+      token {
+        access_key="{{ aws_mediaconvert_access_key }}"
+        access_secret="{{ aws_mediaconvert_access_secret }}"
+      }
+      api {
+        endpoint="{{ aws_mediaconvert_api_endpoint }}"
+        version="2017-08-29"
+      }
+      service {
+        name="mediaconvert"
+        queue="{{ aws_mediaconvert_queue_id }}"
+        role="{{ aws_mediaconvert_role_name }}"
+      }
+      stream {
+        protocol="Hls"
+      }
+    }
 
 
   flink-conf: |+
@@ -569,6 +592,10 @@ content-publish:
     azure_storage_key="{{ sunbird_public_storage_account_name }}"
     azure_storage_secret="{{ sunbird_public_storage_account_key }}"
     azure_storage_container="{{ azure_public_container }}"
+    #AWS Cloud Config
+    aws_storage_key= "{{ aws_cred_storage_key }}"
+    aws_storage_secret= "{{ aws_cred_storage_secret }}"
+    aws_storage_container= "{{ aws_storage_container_name }}"
 
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
     service {
