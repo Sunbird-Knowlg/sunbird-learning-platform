@@ -23,13 +23,6 @@
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
-		<dependency>
-			<groupId>org.sunbird</groupId>
-			<artifactId>merge-user-courses</artifactId>
-			<version>0.0.19</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency>
 <!--		<dependency>-->
 <!--			<groupId>org.sunbird</groupId>-->
 <!--			<artifactId>auto-creator</artifactId>-->
