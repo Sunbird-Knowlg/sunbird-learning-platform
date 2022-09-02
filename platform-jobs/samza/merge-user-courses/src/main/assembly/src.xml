@@ -34,10 +34,10 @@
             <source>${basedir}/src/main/resources/log4j.xml</source>
             <outputDirectory>lib</outputDirectory>
         </file>
-        <!-- filtered=true, so we do variable expansion so the yarn package pathvi
+        <!-- filtered=true, so we do variable expansion so the yarn package path
             always points to the correct spot on any machine -->
         <file>
-            <source>${basedir}/src/main/config/local.merge-user-courses.properties</source>
+            <source>${basedir}/src/main/config/merge-user-courses.properties</source>
             <outputDirectory>config</outputDirectory>
             <filtered>true</filtered>
         </file>
