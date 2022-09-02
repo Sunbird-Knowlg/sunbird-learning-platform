@@ -216,6 +216,7 @@ post-publish-processor:
       groupId = {{ env_name }}-post-publish-processor-group
       publish.topic = {{ env_name }}.publish.job.request
       qrimage.topic = {{ env_name }}.qrimage.request
+      dialcode.context.topic = {{ env_name }}.dialcode.context.job.request
     }
     task {
       consumer.parallelism = {{ post_publish_processor_consumer_parallelism }}
@@ -223,6 +224,7 @@ post-publish-processor:
       shallow_copy.parallelism = {{ post_publish_shallow_copy_parallelism }}
       link_dialcode.parallelism = {{ post_publish_link_dialcode_parallelism }}
       batch_create.parallelism = {{ post_publish_batch_create_parallelism }}
+      dialcode_context_updater.parallelism = {{ post_publish_dialcode_context_parallelism }}
     }
     lms-cassandra {
       keyspace = "{{ middleware_course_keyspace }}"
@@ -328,6 +330,29 @@ video-stream-generator:
     azure_resource_group_name="{{ video_stream_generator_azure_resource_group_name }}"
     azure_token_client_key="{{ video_stream_generator_azure_token_client_key }}"
     azure_token_client_secret="{{ video_stream_generator_azure_token_client_secret }}"
+    ## CSP Name. e.g: aws or azure
+    media_service_type="{{ media_service_provider_name }}"
+    ## AWS Elemental Media Convert Config
+    aws {
+      region="{{ aws_mediaconvert_region }}"
+      content_bucket_name="{{ aws_content_bucket_name }}"
+      token {
+        access_key="{{ aws_mediaconvert_access_key }}"
+        access_secret="{{ aws_mediaconvert_access_secret }}"
+      }
+      api {
+        endpoint="{{ aws_mediaconvert_api_endpoint }}"
+        version="{{ aws_mediaconvert_api_version }}"
+      }
+      service {
+        name="mediaconvert"
+        queue="{{ aws_mediaconvert_queue_id }}"
+        role="{{ aws_mediaconvert_role_name }}"
+      }
+      stream {
+        protocol="Hls"
+      }
+    }
 
 
   flink-conf: |+
@@ -940,6 +965,7 @@ content-publish:
 
     compositesearch.index.name = "compositesearch"
     search.document.type = "cs"
+    enableDIALContextUpdate = "Yes"
 
     cloud_storage_type="{{ cloud_store }}"
     azure_storage_key="{{ sunbird_public_storage_account_name }}"
@@ -994,6 +1020,42 @@ qrcode-image-generator:
         batch = "dialcode_batch"
       }
     }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['qrcode-image-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+dialcode-context-updater:
+  dialcode-context-updater: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.dialcode.context.job.request"
+      failed.topic = "{{ env_name }}.dialcode.context.job.request.failed"
+      groupId = "{{ env_name }}-dialcode-group"
+    }
+    task {
+      consumer.parallelism = 1
+      parallelism = 1
+      dialcode-context-updater.parallelism = 1
+    }
+    dialcode_context_updater {
+      actions="dialcode-context-update"
+      search_mode="Collection"
+      context_map_path = "https://raw.githubusercontent.com/project-sunbird/knowledge-platform-jobs/release-5.0.0/dialcode-context-updater/src/main/resources/contextMapping.json"
+      identifier_search_fields = ["identifier", "primaryCategory", "channel"]
+      dial_code_context_read_api_path = "/dialcode/v4/read/"
+      dial_code_context_update_api_path = "/dialcode/v4/update/"
+    }
+    service {
+      search.basePath = "{{ kp_search_service_base_url }}"
+      dial_service.basePath = "{{ kp_dial_service_base_url }}"
+    }
+
+    es_sync_wait_time = 20000
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].jobmanager_memory }}
