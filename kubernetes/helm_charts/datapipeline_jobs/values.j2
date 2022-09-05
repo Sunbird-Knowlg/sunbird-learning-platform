@@ -351,6 +351,19 @@ video-stream-generator:
         protocol="Hls"
       }
     }
+    media_service_job_success_status=["FINISHED","COMPLETE","SUCCEEDED"]
+    media_service_job_fail_status=["ERROR", "FAILED"]
+    ## GCP Transcoder API Config
+    gcp {
+      project_id="{{ gcp_media_service_project_id }}"
+      location="{{ gcp_media_service_location }}"
+      content_bucket_name="{{ gcp_content_bucket_name }}"
+      service_account_cred="{{ gcp_transcoder_service_acc_cred }}"
+      stream {
+        protocol="Hls"
+        template_id="{{ gcp_media_service_hls_template_id }}" 
+      }
+    }
 
 
   flink-conf: |+

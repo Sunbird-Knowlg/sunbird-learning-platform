@@ -333,6 +333,12 @@ aws_mediaconvert_access_secret: ""
 aws_mediaconvert_api_endpoint: ""
 aws_mediaconvert_queue_id: ""
 aws_mediaconvert_role_name: ""
+## GCP media service vars
+gcp_media_service_project_id: ""
+gcp_media_service_location: "asia-south1"
+gcp_content_bucket_name: ""
+gcp_transcoder_service_acc_cred: ""
+gcp_media_service_hls_template_id: "hls_stream_template_default"
 
 #AWS
 aws_cred_storage_key: ""
