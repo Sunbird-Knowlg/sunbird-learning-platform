@@ -253,9 +253,9 @@ questionset-publish:
   questionset-publish: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = {{ env_name }}.assessment.publish.request
-      post_publish.topic = {{ env_name }}.content.postpublish.request
-      groupId = {{ env_name }}-questionset-publish-group
+      input.topic = {{ inquiry_assessment_publish_kafka_topic_name }}
+      post_publish.topic = {{ inquiry_assessment_post_publish_kafka_topic_name }}
+      groupId = {{ inquiry_assessment_publish_group }}
     }
     task {
       consumer.parallelism = 1
