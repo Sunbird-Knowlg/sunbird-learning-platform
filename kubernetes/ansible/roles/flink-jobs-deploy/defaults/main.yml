@@ -329,3 +329,8 @@ qrcode_image_generator_consumer_parallelism: 1
 qrcode_image_generator_parallelism: 1
 
 source_base_url: "{{proto}}://{{domain_name}}/api"
+
+### questionset-publish related vars
+inquiry_assessment_publish_kafka_topic_name: "{{ env_name }}.assessment.publish.request"
+inquiry_assessment_post_publish_kafka_topic_name: "{{ env_name }}.content.postpublish.request"
+inquiry_assessment_publish_group: "{{ env_name }}-questionset-publish-group"
