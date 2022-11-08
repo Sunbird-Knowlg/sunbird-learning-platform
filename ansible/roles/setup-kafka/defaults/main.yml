@@ -129,6 +129,33 @@ processing_kafka_topics:
   - name: object.import.request
     num_of_partitions: 1
     replication_factor: 1
+  - name: ml.observation.raw
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: ml.observation.druid
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: ml.observation.evidence.druid
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: ml.survey.evidence.druid
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: ml.survey.raw
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: ml.survey.druid
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: ml.submission.rating.raw
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: ml.incomplete.observation.raw
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: ml.improvement.project.submission
+    num_of_partitions: 1
+    replication_factor: 1
 
 processing_kafka_overriden_topics:
   - name: telemetry.raw
@@ -250,5 +277,32 @@ processing_kafka_overriden_topics:
     retention_time: 1209600000
     replication_factor: 1
   - name: object.import.request
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: ml.observation.raw
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: ml.observation.druid
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: ml.observation.evidence.druid
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: ml.survey.evidence.druid
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: ml.survey.raw
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: ml.survey.druid
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: ml.submission.rating.raw
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: ml.incomplete.observation.raw
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: ml.improvement.project.submission
     retention_time: 1209600000
     replication_factor: 1
