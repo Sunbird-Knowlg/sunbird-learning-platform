@@ -730,12 +730,13 @@ public abstract class BaseContentManager extends BaseManager {
 		return ofNullable((String[]) node.getMetadata().get(ContentAPIParams.dialcodes.name())).filter(dialcodes -> dialcodes.length > 0);
 	}
 
-	protected boolean isContent(Node node) {
-		return equalsIgnoreCase(ContentAPIParams.Content.name(), node.getObjectType());
+	protected boolean isCollection(Node node) {
+        TelemetryManager.log("BaseContentManager::isCollection:: The Object type of node is:" +  node.getObjectType());
+		return equalsIgnoreCase(ContentAPIParams.Collection.name(), node.getObjectType());
 	}
 
 	protected void validateIsContent(Node node) {
-		if (!isContent(node))
+		if (!isCollection(node))
 			throw new ClientException(ContentErrorCodes.ERR_NOT_A_CONTENT.name(), "Error! Not a Content.");
 	}
 
