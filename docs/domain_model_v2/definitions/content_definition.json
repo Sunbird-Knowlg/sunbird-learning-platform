@@ -271,7 +271,9 @@
             "audio/ogg",
             "audio/webm",
             "audio/x-wav",
-            "audio/wav"
+            "audio/wav",
+            "application/json",
+            "application/quiz"
           ],
           "defaultValue": "application/vnd.ekstep.ecml-archive",
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
