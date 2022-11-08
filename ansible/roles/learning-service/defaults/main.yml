@@ -27,6 +27,7 @@ language_write_elb_url: bolt://{{ groups['learning-neo4j-node1'][0] }}:8687
 graphevent_kafka_url: "{{groups['processing-cluster-zookeepers']|join(':9092,')}}:9092"
 kafka_topics_instruction: "{{env}}.learning.job.request"
 kafka_publish_request_topic: "{{env}}.publish.job.request"
+kafka_publish_chain_request_topic: "{{env}}.publish.interactive.request"
 kafka_topic_system_command: "{{env}}.system.command"
 object_bookmark_expiry_in_seconds: 15
 platform_api_url: "http://{{ groups['learning1'][0] }}:8080/learning-service"

@@ -21,6 +21,7 @@ import org.sunbird.common.exception.ServerException;
 import org.sunbird.content.common.ContentErrorMessageConstants;
 import org.sunbird.content.enums.ContentErrorCodeConstants;
 import org.sunbird.content.enums.ContentWorkflowPipelineParams;
+import org.sunbird.graph.common.JSONUtils;
 import org.sunbird.graph.dac.model.Node;
 import org.sunbird.kafka.KafkaClient;
 import org.sunbird.learning.common.enums.ContentErrorCodes;
@@ -44,6 +45,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 	private static String pdataId = "org.sunbird.platform";
 	private static String pdataVersion = "1.0";
 	private static String action = "publish";
+	private static String publisChainAction = "publishchain";
 	private static List<String> validResourceStatus = Arrays.asList("Live", "Unlisted");
 	private ControllerUtil controllerUtil;
 	private static List<String> learningJobInstructionMimeType = Platform.config.hasPath("job.request.event.mimetype") ? 
@@ -153,11 +155,17 @@ public class ReviewFinalizer extends BaseFinalizer {
 		Map<String,Object> context = new HashMap<String,Object>();
 		Map<String,Object> object = new HashMap<String,Object>();
 		Map<String,Object> edata = new HashMap<String,Object>();
-		
-		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), contentId, publishType, node.getObjectType());
-		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
 		String learningJobRequestTopic = Platform.config.getString("kafka.topics.instruction");
 		String learningJobInstructionTopic = Platform.config.getString("kafka.publish.request.topic");
+		if(node.getMetadata().get("interceptionPoints") !=null && !node.getMetadata().get("interceptionPoints").equals("{}")) {
+			generatePublishChainEvent(actor, context, object, edata, node.getMetadata(), contentId, publishType, node.getObjectType());
+			learningJobInstructionTopic = Platform.config.getString("kafka.publish.chain.request.topic");
+		}
+		else {
+			generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), contentId, publishType, node.getObjectType());
+		}
+		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+
 		
 		if(StringUtils.isBlank(beJobRequestEvent)) {
 			TelemetryManager.error("Instruction event is not generated properly. # beJobRequestEvent : " + beJobRequestEvent);
@@ -207,6 +215,69 @@ public class ReviewFinalizer extends BaseFinalizer {
 
 		edata.put("action", action);
 		edata.put("metadata", instructionEventMetadata);
+		edata.put("publish_type", publishType);
+		edata.put("contentType", metadata.get("contentType"));
+	}
+
+	private void generatePublishChainEvent(Map<String,Object> actor, Map<String,Object> context,
+										   Map<String,Object> object, Map<String,Object> edata, Map<String, Object> metadata, String contentId, String publishType, String objectType) {
+
+		actor.put("id", actorId);
+		actor.put("type", actorType);
+
+		context.put("channel", metadata.get("channel"));
+		Map<String, Object> pdata = new HashMap<>();
+		pdata.put("id", pdataId);
+		pdata.put("ver", pdataVersion);
+		context.put("pdata", pdata);
+		if (Platform.config.hasPath("cloud_storage.env")) {
+			String env = Platform.config.getString("cloud_storage.env");
+			context.put("env", env);
+		}
+
+		object.put("id", contentId);
+		object.put("ver", metadata.get("versionKey"));
+
+		Map<String, Object> instructionEventMetadata = new HashMap<>();
+		instructionEventMetadata.put("pkgVersion", metadata.get("pkgVersion"));
+		instructionEventMetadata.put("mimeType", metadata.get("mimeType"));
+		instructionEventMetadata.put("lastPublishedBy", metadata.get("lastPublishedBy"));
+		instructionEventMetadata.put("identifier", contentId);
+		if(StringUtils.isNotBlank(objectType))
+			instructionEventMetadata.put("objectType", objectType.replaceAll("Image", ""));
+
+		String interceptionPointsString = (String) metadata.get("interceptionPoints");
+		Map<String,Object> interceptionPoints = (Map<String,Object>) JSONUtils.convertJSONString(interceptionPointsString);
+		List<Map<String,Object>> publishChainList = new ArrayList<>();
+		int order=1;
+		if(interceptionPoints !=null) {
+			List<Map<String,Object>> items = (List<Map<String,Object>>) interceptionPoints.get("items");
+			for(Map<String, Object> publishChainEvent : items) {
+				publishChainEvent.put("identifier",publishChainEvent.get("identifier"));
+				publishChainEvent.put("mimeType","application/vnd.sunbird.questionset");
+				publishChainEvent.put("lastPublishedBy","");
+				publishChainEvent.put("pkgVersion",metadata.get("pkgVersion"));
+				publishChainEvent.put("objectType",publishChainEvent.get("type"));
+				publishChainEvent.put("state",ContentWorkflowPipelineParams.Processing.name());
+				publishChainEvent.put("publishErr","");
+				publishChainEvent.put("order",order);
+				publishChainList.add(publishChainEvent);
+				order++;
+			}
+			Map<String, Object> publishChainEvent = new HashMap<>();
+			publishChainEvent.put("identifier",contentId);
+			publishChainEvent.put("mimeType",metadata.get("mimeType"));
+			publishChainEvent.put("lastPublishedBy",metadata.get("lastPublishedBy"));
+			publishChainEvent.put("pkgVersion",metadata.get("pkgVersion"));
+			publishChainEvent.put("objectType",objectType.replaceAll("Image", ""));
+			publishChainEvent.put("state",ContentWorkflowPipelineParams.Processing.name());
+			publishChainEvent.put("publishErr","");
+			publishChainEvent.put("order",order);
+			publishChainList.add(publishChainEvent);
+		}
+		edata.put("action", publisChainAction);
+		//	edata.put("metadata", instructionEventMetadata);
+		edata.put("publishchain",publishChainList);
 		edata.put("publish_type", publishType);
 		edata.put("contentType", metadata.get("contentType"));
 	}
