@@ -5,6 +5,17 @@
   args:
     chdir: /tmp/ 
 
+- name: download file from gcloud storage
+  include_role:
+    name: gcp-cloud-storage
+    tasks_from: download.yml
+  vars:
+    gcp_bucket_name: "{{ gcloud_management_bucket_name }}"
+    dest_folder_name: "{{ redis_backup_storage }}"
+    dest_file_name: "{{ redis_restore_file_name }}"
+    local_file_or_folder_path: "/tmp"
+  when: cloud_service_provider == "gcloud"
+
 - name: stop redis to take backup 
   become: yes
   systemd:
