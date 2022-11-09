@@ -40,6 +40,7 @@
   #  AZURE_STORAGE_KEY: "{{ backup_azure_storage_access_key }}"
   async: 3600
   poll: 10
+  when: cloud_service_provider == "azure"
 
 - name: upload file to gcloud storage
   include_role:

@@ -10,6 +10,8 @@
   args:
     chdir: "{{ restore_path }}"
   become_user: "{{user}}"
+  when: cloud_service_provider == "azure"
+
 
 - name: download file from gcloud storage
   include_role:
