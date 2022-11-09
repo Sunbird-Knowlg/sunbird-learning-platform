@@ -5,10 +5,12 @@
     - "{{inventory_dir}}/secrets.yml"
   tasks:
     - name: download artifact from azure storage
-      include_role: artifacts-download-azure
-      environment:
-        AZURE_STORAGE_ACCOUNT: "{{sunbird_artifact_storage_account_name}}"
-        AZURE_STORAGE_SAS_TOKEN: "{{sunbird_artifact_storage_account_sas}}"
+      include_role:
+        name: artifacts-download-azure
+        apply:
+          environment:
+           AZURE_STORAGE_ACCOUNT: "{{sunbird_artifact_storage_account_name}}"
+           AZURE_STORAGE_SAS_TOKEN: "{{sunbird_artifact_storage_account_sas}}"
       when: cloud_service_provider == "azure"
 
     - name: download artifact from gcloud storage

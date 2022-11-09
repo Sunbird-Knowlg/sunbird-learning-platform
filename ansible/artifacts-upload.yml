@@ -5,10 +5,12 @@
     - "{{inventory_dir}}/secrets.yml"
   tasks:
     - name: upload artifact to azure storage
-      include_role: artifacts-upload-azure
-      environment:
-        AZURE_STORAGE_ACCOUNT: "{{sunbird_artifact_storage_account_name}}"
-        AZURE_STORAGE_SAS_TOKEN: "{{sunbird_artifact_storage_account_sas}}"
+      include_role:
+        name: artifacts-upload-azure
+        apply:
+          environment:
+           AZURE_STORAGE_ACCOUNT: "{{sunbird_artifact_storage_account_name}}"
+           AZURE_STORAGE_SAS_TOKEN: "{{sunbird_artifact_storage_account_sas}}"
       when: cloud_service_provider == "azure"
 
     - name: upload artifact to gcloud storage
