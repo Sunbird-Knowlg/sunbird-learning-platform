@@ -54,6 +54,6 @@
   when: cloud_service_provider == "gcloud"
 
 - name: clean up backup dir after upload
-  file: path={{learner_user_home}}/backup state=absent
+  file: path={{ neo4j_backup_dir }} state=absent
 
   
