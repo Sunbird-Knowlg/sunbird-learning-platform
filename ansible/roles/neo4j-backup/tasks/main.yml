@@ -38,7 +38,7 @@
     container_public_access: "off"
     local_file_or_folder_path: "/home/learning/backup/{{ var1.stdout }}"
     storage_account_name: "{{ azure_management_storage_account_name }}"
-    storage_account_sas_token: "{{ azure_management_storage_account_sas }}"
+    storage_account_key: "{{ azure_management_storage_account_key }}"
   when: cloud_service_provider == "azure"
 
 - name: clean up backup dir after upload
