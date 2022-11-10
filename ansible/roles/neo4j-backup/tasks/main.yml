@@ -26,27 +26,16 @@
 
 - name: debugging variable
   debug:
-    var: var1.stdout
-
-- name: Ensure azure blob storage container exists
-  include_role:
-    name: azure-cloud-storage
-    tasks_from: container-create.yml
-  vars:
-    blob_container_name: "{{ neo4j_backup_storage }}"
-    container_public_access: "off"
-    storage_account_name: "{{ azure_management_storage_account_name }}"
-    storage_account_sas_token: "{{ azure_management_storage_account_sas }}"
-  when: cloud_service_provider == "azure"  
+    var: var1.stdout 
 
 - name: upload file to azure storage using azcopy
   include_role:
     name: azure-cloud-storage
-    tasks_from: upload-using-azcopy.yml
+    tasks_from: blob-upload.yml
   vars:
     blob_container_name: "{{ neo4j_backup_storage }}"
+    blob_file_name: "{{ var1.stdout }}"
     container_public_access: "off"
-    blob_container_folder_path: ""
     local_file_or_folder_path: "/home/learning/backup/{{ var1.stdout }}"
     storage_account_name: "{{ azure_management_storage_account_name }}"
     storage_account_sas_token: "{{ azure_management_storage_account_sas }}"
