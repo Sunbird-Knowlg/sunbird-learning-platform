@@ -1,15 +1,18 @@
 ---
 - name: Add Microsfot signing key
+  become: yes
   apt_key:
     url: https://packages.microsoft.com/keys/microsoft.asc
     state: present
 
-- name: Add Microsfot repository into sources list
+- name: Add Microsoft repository into sources list
+  become: yes
   apt_repository:
     repo: "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release | lower }} main"
     state: present
 
 - name: Install azue cli and dependent packages
+  become: yes
   apt:
     pkg:
     - ca-certificates
@@ -20,6 +23,7 @@
     - "azure-cli=2.33.1-1~{{ ansible_distribution_release | lower }}"
 
 - name: Install azcopy
+  become: yes
   shell: |
     which azcopy || ( \
     mkdir /tmp/azcopy && cd /tmp/azcopy && \
