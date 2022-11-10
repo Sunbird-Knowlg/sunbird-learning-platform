@@ -1,18 +1,21 @@
 ---
 - name: Add Microsfot signing key
   become: yes
+  become_user: root
   apt_key:
     url: https://packages.microsoft.com/keys/microsoft.asc
     state: present
 
 - name: Add Microsoft repository into sources list
   become: yes
+  become_user: root
   apt_repository:
     repo: "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release | lower }} main"
     state: present
 
 - name: Install azue cli and dependent packages
   become: yes
+  become_user: root
   apt:
     pkg:
     - ca-certificates
@@ -24,6 +27,7 @@
 
 - name: Install azcopy
   become: yes
+  become_user: root
   shell: |
     which azcopy || ( \
     mkdir /tmp/azcopy && cd /tmp/azcopy && \
