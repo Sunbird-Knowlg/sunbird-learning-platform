@@ -18,7 +18,7 @@
 
 - name: run the backup script
   become: true
-  shell: python3 cassandra_backup.py --snapshotname "{{ cassandra_backup_folder_name }}" --snapshotdirectory "{{ cassandra_backup_folder_name }}" "{{additional_arguments|d('')}}"
+  shell: python3 cassandra_backup.py --snapshotname "{{ cassandra_backup_folder_name }}" --snapshotdirectory "{{ cassandra_backup_folder_name }}"
   args:
     chdir: /data/cassandra/backup
   async: 14400
