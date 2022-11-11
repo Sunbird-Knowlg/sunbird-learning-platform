@@ -1,6 +1,3 @@
-- name: clean up backup dir after upload
-  file: path={{learner_user_home}}/backup state=absent
-
 - name: delete learning_graph or language_graph
   #become: yes
   file: path={{learner_user_home}}/{{graph_machine}} state=absent
@@ -21,7 +18,7 @@
 - name: ls backup directory
   #become: yes
   #become_user: "{{ learner_user }}"
-  command: ls {{learner_user_home}}/backup/
+  command: ls {{ neo4j_backup_dir }}
   register: var1
 
 - name: debugging variable
@@ -43,8 +40,20 @@
   #  AZURE_STORAGE_KEY: "{{ backup_azure_storage_access_key }}"
   async: 3600
   poll: 10
+  when: cloud_service_provider == "azure"
+
+- name: upload file to gcloud storage
+  include_role:
+    name: gcp-cloud-storage
+    tasks_from: upload.yml
+  vars:
+    gcp_bucket_name: "{{ gcloud_management_bucket_name }}"
+    dest_folder_name: "{{ neo4j_backup_storage }}"
+    dest_file_name: "{{ var1.stdout }}"
+    local_file_or_folder_path: "{{ neo4j_backup_dir }}/{{ var1.stdout }}"
+  when: cloud_service_provider == "gcloud"
 
 - name: clean up backup dir after upload
-  file: path={{learner_user_home}}/backup state=absent
+  file: path={{ neo4j_backup_dir }} state=absent
 
   

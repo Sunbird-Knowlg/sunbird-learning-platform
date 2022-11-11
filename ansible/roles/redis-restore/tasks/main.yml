@@ -4,6 +4,18 @@
   shell: "az storage blob download --container-name {{ redis_backup_azure_container_name }} --file {{ redis_restore_file_name }} --name {{ redis_restore_file_name }} --account-name {{sunbird_management_storage_account_name}} --account-key {{sunbird_management_storage_account_key}}"
   args:
     chdir: /tmp/ 
+  when: cloud_service_provider == "azure"
+
+- name: download file from gcloud storage
+  include_role:
+    name: gcp-cloud-storage
+    tasks_from: download.yml
+  vars:
+    gcp_bucket_name: "{{ gcloud_management_bucket_name }}"
+    dest_folder_name: "{{ redis_backup_storage }}"
+    dest_file_name: "{{ redis_restore_file_name }}"
+    local_file_or_folder_path: "/tmp"
+  when: cloud_service_provider == "gcloud"
 
 - name: stop redis to take backup 
   become: yes

@@ -11,6 +11,19 @@
     AZURE_STORAGE_KEY: "{{sunbird_management_storage_account_key}}"
   async: 3600
   poll: 10
+  when: cloud_service_provider == "azure"
+
+
+- name: download file from gcloud storage
+  include_role:
+    name: gcp-cloud-storage
+    tasks_from: download.yml
+  vars:
+    gcp_bucket_name: "{{ gcloud_management_bucket_name }}"
+    dest_folder_name: "{{ neo4j_backup_storage }}"
+    dest_file_name: "{{ neo4j_backup_file_name }}"
+    local_file_or_folder_path: "{{ neo4j_backup_file_path }}"
+  when: cloud_service_provider == "gcloud"
 
 - name: Check if neo4j is running
   become_user: "{{ learner_user }}"

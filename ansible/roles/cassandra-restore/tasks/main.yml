@@ -10,6 +10,19 @@
   args:
     chdir: "{{ restore_path }}"
   become_user: "{{user}}"
+  when: cloud_service_provider == "azure"
+
+
+- name: download file from gcloud storage
+  include_role:
+    name: gcp-cloud-storage
+    tasks_from: download.yml
+  vars:
+    gcp_bucket_name: "{{ gcloud_management_bucket_name }}"
+    dest_folder_name: "{{ cassandra_backup_storage }}"
+    dest_file_name: "{{ cassandra_restore_file_name }}"
+    local_file_or_folder_path: "{{ cassandra_restore_gzip_file_path }}"
+  when: cloud_service_provider == "gcloud"
 
 - name: unarchieve backup file
   unarchive: src={{restore_path}}/{{ cassandra_restore_file_name }} dest={{restore_path}}/ copy=no
