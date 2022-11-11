@@ -1,0 +1,10 @@
+---
+- hosts: local
+  become: yes
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
+  environment:
+    AZURE_STORAGE_ACCOUNT: "{{sunbird_artifact_storage_account_name}}"
+    AZURE_STORAGE_SAS_TOKEN: "{{sunbird_artifact_storage_account_sas}}"
+  roles:
+    - artifacts-download-azure
