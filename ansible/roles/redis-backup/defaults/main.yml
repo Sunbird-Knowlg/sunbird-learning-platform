@@ -11,4 +11,3 @@ redis_dir: "/home/{{ learner_user }}/redis-{{ redis_version }}"
 #    or other default files and just assign the value to the newly introduced common variable 
 # 3. After few releases, we will remove the older variables and use only the new variables across the repos
 redis_backup_storage: "{{ redis_backup_azure_container_name }}"
-

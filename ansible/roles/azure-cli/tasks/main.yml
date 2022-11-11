@@ -1,32 +1,36 @@
-- name: Import Azure signing key
+---
+- name: Add Microsfot signing key
   become: yes
   become_user: root
-  shell: curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+  apt_key:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    state: present
 
-- name: Add Azure apt repository
+- name: Add Microsoft repository into sources list
   become: yes
   become_user: root
-  apt_repository: repo='deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main' state=present
+  apt_repository:
+    repo: "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release | lower }} main"
+    state: present
 
-- name: Add distribution release security apt repository
+- name: Install azue cli and dependent packages
   become: yes
   become_user: root
-  apt_repository: repo='deb http://security.ubuntu.com/ubuntu bionic-security main' state=present
+  apt:
+    pkg:
+    - ca-certificates
+    - curl
+    - apt-transport-https
+    - lsb-release
+    - gnupg
+    - "azure-cli=2.33.1-1~{{ ansible_distribution_release | lower }}"
 
-- name: install azure cli dependency
+- name: Install azcopy
   become: yes
   become_user: root
-  apt: name={{ item }} state=present update_cache=yes 
-  #allow_unauthenticated: yes
-  with_items:
-    - libssl1.0-dev
-  when: ansible_distribution_release == "focal"
-  
-- name: ensure azure-cli and apt-transport-https is installed
-  become: yes
-  become_user: root
-  apt: name={{ item }} state=present update_cache=yes 
-  #allow_unauthenticated: yes
-  with_items:
-    - apt-transport-https 
-    - azure-cli
+  shell: |
+    which azcopy || ( \
+    mkdir /tmp/azcopy && cd /tmp/azcopy && \
+    wget -O azcopy_v10.tar.gz https://aka.ms/downloadazcopy-v10-linux && tar -xf azcopy_v10.tar.gz --strip-components=1 \
+    && mv azcopy /usr/local/bin \
+    && rm -rf /tmp/azcopy )

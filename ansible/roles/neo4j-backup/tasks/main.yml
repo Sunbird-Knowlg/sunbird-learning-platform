@@ -23,23 +23,19 @@
 
 - name: debugging variable
   debug:
-    var: var1.stdout
+    var: var1.stdout 
 
-- name: Ensure azure blob storage container exists
-  command: az storage container create  --name {{ neo4j_backup_azure_container_name }}
-  ignore_errors: true
-
-  #environment:
-  #  AZURE_STORAGE_ACCOUNT: "{{ backup_azure_storage_account_name }}"
-  #  AZURE_STORAGE_KEY: "{{ backup_azure_storage_access_key }}"
-
-- name: Upload to azure blob storage
-  command: "az storage blob upload --name {{ var1.stdout }} --file /home/learning/backup/{{ var1.stdout }} --container-name {{ neo4j_backup_azure_container_name }}"
-  #environment:
-  #  AZURE_STORAGE_ACCOUNT: "{{ backup_azure_storage_account_name }}"
-  #  AZURE_STORAGE_KEY: "{{ backup_azure_storage_access_key }}"
-  async: 3600
-  poll: 10
+- name: upload file to azure storage using azcopy
+  include_role:
+    name: azure-cloud-storage
+    tasks_from: blob-upload.yml
+  vars:
+    blob_container_name: "{{ neo4j_backup_storage }}"
+    blob_file_name: "{{ var1.stdout }}"
+    container_public_access: "off"
+    local_file_or_folder_path: "/home/learning/backup/{{ var1.stdout }}"
+    storage_account_name: "{{ azure_management_storage_account_name }}"
+    storage_account_key: "{{ azure_management_storage_account_key }}"
   when: cloud_service_provider == "azure"
 
 - name: upload file to gcloud storage
