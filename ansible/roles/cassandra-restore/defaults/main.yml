@@ -11,4 +11,3 @@ backup_dir: "{{restore_path}}/cassandra_backup"
 #    or other default files and just assign the value to the newly introduced common variable
 # 3. After few releases, we will remove the older variables and use only the new variables across the repos
 cassandra_backup_storage: "{{ cassandra_backup_azure_container_name }}"
-

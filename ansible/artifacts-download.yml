@@ -3,8 +3,23 @@
   become: yes
   vars_files:
     - "{{inventory_dir}}/secrets.yml"
-  environment:
-    AZURE_STORAGE_ACCOUNT: "{{sunbird_artifact_storage_account_name}}"
-    AZURE_STORAGE_SAS_TOKEN: "{{sunbird_artifact_storage_account_sas}}"
-  roles:
-    - artifacts-download-azure
+  tasks:
+    - name: download artifact from azure storage
+      include_role:
+        name: artifacts-download-azure
+        apply:
+          environment:
+           AZURE_STORAGE_ACCOUNT: "{{sunbird_artifact_storage_account_name}}"
+           AZURE_STORAGE_SAS_TOKEN: "{{sunbird_artifact_storage_account_sas}}"
+      when: cloud_service_provider == "azure"
+
+    - name: download artifact from gcloud storage
+      include_role:
+        name: gcp-cloud-storage
+        tasks_from: download.yml
+      vars:
+        gcp_bucket_name: "{{ gcloud_artifact_bucket_name }}"
+        dest_folder_name: "{{ artifacts_container }}"
+        dest_file_name: "{{ artifact }}"
+        local_file_or_folder_path: "{{ artifact_path }}"
+      when: cloud_service_provider == "gcloud"

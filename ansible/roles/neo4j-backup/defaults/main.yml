@@ -8,6 +8,8 @@ service: learning
 graph_machine: "{{service}}{{var1}}"
 neo4j_backup_azure_container_name: neo4j-backup
 
+neo4j_backup_dir: "{{ learner_user_home }}/backup"
+
 # This variable is added for the below reason -
 # 1. Introduce a common variable for various clouds. In case of azure, it refers to container name, in case of aws / gcp, it refers to folder name
 # 2. We want to avoid too many new variable introduction / replacement in first phase. Hence we will reuse the existing variable defined in private repo
