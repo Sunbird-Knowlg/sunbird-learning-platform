@@ -119,3 +119,6 @@ download_neo4j: true
 neo4j_upstream_download: false
 enable_suppress_exception: false
 enable_rc_certificate: true
+
+# SB-31155
+plugin_storage: "{{ plugin_container_name }}"
