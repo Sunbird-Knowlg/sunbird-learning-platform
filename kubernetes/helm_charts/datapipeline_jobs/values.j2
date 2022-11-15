@@ -1314,3 +1314,74 @@ live-video-stream-generator:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+
+csp-migrator:
+  csp-migrator: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.csp.migration.request"
+      groupId = "{{ env_name }}-csp-migrator-group"
+      failed.topic = "{{ env_name }}.csp.migration.job.request.failed"
+      live_video_stream.topic = "{{ env_name }}.live.video.stream.request"
+      live_content_node_republish.topic = "{{ env_name }}.republish.job.request"
+    }
+    task {
+      timer.duration = {{ csp_migrator_timer_duration }}
+      consumer.parallelism = {{ csp_migrator_consumer_parallelism }}
+      parallelism = {{ csp_migrator_parallelism }}
+      max.retries = {{ csp_migrator_max_retries }}
+      cassandra-migrator.parallelism = {{csp_migrator_cassandra_parallelism}}
+    }
+    redis {
+      database {
+        relationCache.id = 10
+        collectionCache.id = 5
+      }
+    }
+
+    hierarchy {
+      keyspace = "{{ hierarchy_keyspace_name }}"
+      table = "content_hierarchy"
+    }
+
+    content {
+        keyspace = "{{ content_keyspace_name }}"
+        content_table = "content_data"
+        assessment_table = "question_data"
+    }
+
+    key_value_strings_to_migrate = {
+        "https://sunbirddev.blob.core.windows.net/": "https://obj.dev.sunbirded.org",
+        "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/": "https://obj.dev.sunbirded.org",
+        "https://community.ekstep.in/assets/public/": "https://obj.dev.sunbirded.org"
+    }
+
+    neo4j_fields_to_migrate = {
+        "asset": ["artifactUrl","thumbnail"],
+        "content": ["appIcon","artifactUrl", "posterImage", "previewUrl", "thumbnail", "assetsMap", "certTemplate", "itemSetPreviewUrl", "grayScaleAppIcon","sourceURL"],
+        "contentimage": ["appIcon","artifactUrl", "posterImage", "previewUrl", "thumbnail", "assetsMap", "certTemplate", "itemSetPreviewUrl", "grayScaleAppIcon","sourceURL"],
+        "collection": ["appIcon","artifactUrl", "posterImage", "previewUrl", "thumbnail", "toc_url", "grayScaleAppIcon"],
+        "collectionimage": ["appIcon","artifactUrl", "posterImage", "previewUrl", "thumbnail", "toc_url", "grayScaleAppIcon"],
+        "plugins": ["artifactUrl"],
+        "itemset": ["previewUrl"],
+        "assessmentitem": ["data", "question", "solutions", "editorState", "media"]
+    }
+
+    cassandra_fields_to_migrate = {
+        "assessmentitem": ["body", "editorState", "answer", "solutions", "instructions", "media"]
+    }
+
+    migrationVersion = 1
+    video_stream_regeneration_enable = true
+    live_node_republish_enable = true
+    copy_missing_files_to_cloud = true
+    download_path = /tmp
+
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['video-stream-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1

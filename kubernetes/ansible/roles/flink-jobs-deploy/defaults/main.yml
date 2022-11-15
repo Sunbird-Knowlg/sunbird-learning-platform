@@ -265,6 +265,27 @@ flink_job_names:
     taskmanager_memory: 1024m
     taskslots: 1
     cpu_requests: 0.3
+  csp-migrator:
+    job_class_name: 'org.sunbird.job.cspmigrator.task.CSPMigratorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  live-node-publisher:
+    job_class_name: 'org.sunbird.job.livenodepublisher.task.LiveNodePublisherStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  live-video-stream-generator:
+    job_class_name: 'org.sunbird.job.livevideostream.task.LiveVideoStreamGeneratorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
 
 ### Global vars
 middleware_course_keyspace: "sunbird_courses"
@@ -341,3 +362,11 @@ aws_mediaconvert_access_secret: ""
 aws_mediaconvert_api_endpoint: ""
 aws_mediaconvert_queue_id: ""
 aws_mediaconvert_role_name: ""
+
+
+### csp-migrator related vars
+csp_migrator_parallelism: 1
+csp_migrator_timer_duration: 1800
+csp_migrator_max_retries: 10
+csp_migrator_consumer_parallelism: 1
+csp_migrator_cassandra_parallelism: 1
