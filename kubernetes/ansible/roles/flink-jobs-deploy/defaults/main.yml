@@ -341,3 +341,9 @@ aws_mediaconvert_access_secret: ""
 aws_mediaconvert_api_endpoint: ""
 aws_mediaconvert_queue_id: ""
 aws_mediaconvert_role_name: ""
+
+#Cloud storage config
+cloud_storage_key: ""
+cloud_storage_secret: ""
+cloud_storage_container: ""
+cloud_storage_endpoint: ""
