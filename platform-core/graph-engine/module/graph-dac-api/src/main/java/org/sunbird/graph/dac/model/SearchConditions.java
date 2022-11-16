@@ -20,6 +20,7 @@ public class SearchConditions implements Serializable {
     public static final String OP_LESS_OR_EQUAL = "<=";
     public static final String OP_NOT_EQUAL = "!=";
     public static final String OP_IN = "in";
+    public static final String OP_IS = "is";
     
     static List<String> operators = new ArrayList<String>();
     
@@ -34,5 +35,6 @@ public class SearchConditions implements Serializable {
         operators.add(OP_LESS_OR_EQUAL);
         operators.add(OP_NOT_EQUAL);
         operators.add(OP_IN);
+        operators.add(OP_IS);
     }
 }
