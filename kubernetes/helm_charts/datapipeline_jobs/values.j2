@@ -1319,7 +1319,7 @@ csp-migrator:
   csp-migrator: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = "{{ env_name }}.csp.migration.request"
+      input.topic = "{{ env_name }}.csp.migration.job.request"
       groupId = "{{ env_name }}-csp-migrator-group"
       failed.topic = "{{ env_name }}.csp.migration.job.request.failed"
       live_video_stream.topic = "{{ env_name }}.live.video.stream.request"
