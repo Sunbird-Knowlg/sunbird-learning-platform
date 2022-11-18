@@ -1351,11 +1351,12 @@ csp-migrator:
     }
 
     key_value_strings_to_migrate = {
-        "https://sunbirddev.blob.core.windows.net/": "Knowlg_Store",
-        "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com": "Knowlg_Store",
-        "https://community.ekstep.in/assets/public": "Knowlg_Store",
-        "https://ntpproductionall.blob.core.windows.net/ntp-content-production": "Knowlg_Store",
-        "https://vdn.diksha.gov.in/assets/public": "Knowlg_Store"
+        "https://sunbirddev.blob.core.windows.net": "$Knowlg_Store$",
+        "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com": "$Knowlg_Store$",
+        "https://community.ekstep.in/assets/public": "$Knowlg_Store$",
+        "https://ntpproductionall.blob.core.windows.net/ntp-content-production": "$Knowlg_Store$",
+        "https://vdn.diksha.gov.in/assets/public": "$Knowlg_Store$",
+        "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging": "$Knowlg_Store$"
     }
 
     neo4j_fields_to_migrate = {
@@ -1374,7 +1375,7 @@ csp-migrator:
     }
 
     migrationVersion = 1
-    video_stream_regeneration_enable = true
+    video_stream_regeneration_enable = false
     live_node_republish_enable = true
     copy_missing_files_to_cloud = true
     download_path = /tmp
