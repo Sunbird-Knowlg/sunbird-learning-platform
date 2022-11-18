@@ -136,8 +136,8 @@ processing_kafka_topics:
     num_of_partitions: 1
     replication_factor: 1
   - name: csp.migration.job.request
-      num_of_partitions: 1
-      replication_factor: 1
+    num_of_partitions: 1
+    replication_factor: 1
 
 processing_kafka_overriden_topics:
   - name: telemetry.raw
@@ -268,5 +268,5 @@ processing_kafka_overriden_topics:
     retention_time: 1209600000
     replication_factor: 1
   - name: csp.migration.job.request
-      retention_time: 1209600000
-      replication_factor: 1
+    retention_time: 1209600000
+    replication_factor: 1
