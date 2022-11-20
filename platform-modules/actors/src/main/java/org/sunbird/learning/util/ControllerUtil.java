@@ -4,6 +4,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONArray;
+import org.neo4j.driver.v1.Values;
 import org.sunbird.common.Platform;
 import org.sunbird.common.dto.NodeDTO;
 import org.sunbird.common.dto.Request;
@@ -16,7 +18,11 @@ import org.sunbird.common.exception.ServerException;
 import org.sunbird.common.mgr.ConvertGraphNode;
 import org.sunbird.graph.common.enums.GraphHeaderParams;
 import org.sunbird.graph.dac.enums.GraphDACParams;
+import org.sunbird.graph.dac.enums.SystemNodeTypes;
+import org.sunbird.graph.dac.model.Filter;
+import org.sunbird.graph.dac.model.MetadataCriterion;
 import org.sunbird.graph.dac.model.Node;
+import org.sunbird.graph.dac.model.SearchConditions;
 import org.sunbird.graph.dac.model.SearchCriteria;
 import org.sunbird.graph.engine.mgr.impl.NodeManager;
 import org.sunbird.graph.engine.router.GraphEngineManagers;
@@ -406,6 +412,32 @@ public class ControllerUtil extends BaseLearningManager {
         }
     }
 
+    public List<Node> getNodes(String graphId, String objectType, List<String> mimeTypes, List<String> status, int startPosition, int batchSize) {
+        List<Filter> filters = new ArrayList<Filter>();
+        if(!mimeTypes.isEmpty())
+            filters.add(new Filter("mimeType", SearchConditions.OP_IN, mimeTypes));
+        if(!status.isEmpty())
+            filters.add(new Filter("status", SearchConditions.OP_IN, status));
+        filters.add(new Filter("migrationVersion", SearchConditions.OP_IS, Values.NULL));
+        SearchCriteria sc = new SearchCriteria();
+        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+        sc.setObjectType(objectType);
+        sc.setResultSize(batchSize);
+        sc.setStartPosition(startPosition);
+       if(!filters.isEmpty() && filters.size()>0)
+            sc.addMetadata(MetadataCriterion.create(filters));
+        Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), sc);
+        req.put(GraphDACParams.get_tags.name(), true);
+        Response listRes = getResponse(req);
+        if (checkError(listRes))
+            return null;
+        else {
+            List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
+            return nodes;
+        }
+    }
+
     public List<String> getNodesWithInDateRange(String graphId, String objectType, String startDate, String endDate) {
 
         List<String> nodeIds = new ArrayList<>();
@@ -756,6 +788,29 @@ public class ControllerUtil extends BaseLearningManager {
             for (Map<String, Object> child : children)
                 hierarchyCleanUp(child);
         }
+    }
+
+    public Map<String, Long> getCSPMigrationObjectCount(String graphId, List<String> objectTypes) {
+        Map<String, Long> counts = new HashMap<String, Long>();
+        Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
+        request.put(GraphDACParams.query.name(), MessageFormat.format("MATCH (n:{0}) WHERE EXISTS(n.IL_FUNC_OBJECT_TYPE) AND n.IL_SYS_NODE_TYPE=\"DATA_NODE\" AND n.IL_FUNC_OBJECT_TYPE IN {1} AND NOT EXISTS(n.migrationVersion) RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;", graphId, new JSONArray(objectTypes)));
+        List<String> props = new ArrayList<String>();
+        props.add("objectType");
+        props.add("count");
+        request.put(GraphDACParams.property_keys.name(), props);
+        Response response = getResponse(request);
+        if (!checkError(response)) {
+            Map<String, Object> result = response.getResult();
+            List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
+            if (null != list && !list.isEmpty()) {
+                for (int i = 0; i < list.size(); i++) {
+                    Map<String, Object> properties = list.get(i);
+                    counts.put((String) properties.get("objectType"), (Long) properties.get("count"));
+                }
+            }
+
+        }
+        return counts;
     }
 
 }
