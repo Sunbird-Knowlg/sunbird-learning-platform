@@ -1064,3 +1064,327 @@ dialcode-context-updater:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+
+live-node-publisher:
+  live-node-publisher: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = {{ env_name }}.republish.job.request
+      live_video_stream.topic = "{{ env_name }}.live.video.stream.request"
+      error.topic = "{{ env_name }}.learning.events.failed"
+      skipped.topic = "{{ env_name }}.learning.events.skipped"
+      groupId = {{ env_name }}-content-republish-group
+    }
+    task {
+      consumer.parallelism = 1
+      parallelism = 1
+      router.parallelism = 1
+    }
+    redis {
+      host={{redis_host}}
+      port=6379
+      database {
+        contentCache.id = 0
+      }
+    }
+    content {
+      bundleLocation = "/tmp/contentBundle"
+      isECARExtractionEnabled = true
+      retry_asset_download_count = 1
+      keyspace = "{{ content_keyspace_name }}"
+      table = "content_data"
+      tmp_file_location = "/tmp"
+      objectType = ["Content", "ContentImage","Collection","CollectionImage"]
+      mimeType = ["application/pdf",
+                   "application/vnd.ekstep.ecml-archive",
+                   "application/vnd.ekstep.html-archive",
+                   "application/vnd.android.package-archive",
+                   "application/vnd.ekstep.content-archive",
+                   "application/epub",
+                   "application/msword",
+                   "application/vnd.ekstep.h5p-archive",
+                   "video/webm",
+                   "video/mp4",
+                   "application/vnd.ekstep.content-collection",
+                   "video/quicktime",
+                   "application/octet-stream",
+                   "application/json",
+                   "application/javascript",
+                   "application/xml",
+                   "text/plain",
+                   "text/html",
+                   "text/javascript",
+                   "text/xml",
+                   "text/css",
+                   "image/jpeg",
+                   "image/jpg",
+                   "image/png",
+                   "image/tiff",
+                   "image/bmp",
+                   "image/gif",
+                   "image/svg+xml",
+                   "image/x-quicktime",
+                   "video/avi",
+                   "video/mpeg",
+                   "video/quicktime",
+                   "video/3gpp",
+                   "video/mp4",
+                   "video/ogg",
+                   "video/webm",
+                   "video/msvideo",
+                   "video/x-msvideo",
+                   "video/x-qtc",
+                   "video/x-mpeg",
+                   "audio/mp3",
+                   "audio/mp4",
+                   "audio/mpeg",
+                   "audio/ogg",
+                   "audio/webm",
+                   "audio/x-wav",
+                   "audio/wav",
+                   "audio/mpeg3",
+                   "audio/x-mpeg-3",
+                   "audio/vorbis",
+                   "application/x-font-ttf",
+                   "application/vnd.ekstep.plugin-archive",
+                   "video/x-youtube",
+                   "video/youtube",
+                   "text/x-url"]
+      asset_download_duration = "60 seconds"
+      stream {
+        enabled = {{ content_stream_enabled | lower }}
+        mimeType = ["video/mp4", "video/webm"]
+      }
+      artifact.size.for_online= {{ content_artifact_size_for_online }}
+
+      downloadFiles {
+        spine = ["appIcon"]
+        full = ["appIcon", "grayScaleAppIcon", "artifactUrl", "itemSetPreviewUrl", "media"]
+      }
+
+      nested.fields=["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions", "transcripts", "accessibility"]
+
+    }
+    cloud_storage {
+        folder {
+            content = "content"
+            artifact = "artifact"
+        }
+    }
+
+    hierarchy {
+      keyspace = "{{ hierarchy_keyspace_name }}"
+      table = "content_hierarchy"
+    }
+
+    contentTypeToPrimaryCategory {
+      ClassroomTeachingVideo: "Explanation Content"
+      ConceptMap: "Learning Resource"
+      Course: "Course"
+      CuriosityQuestionSet: "Practice Question Set"
+      eTextBook: "eTextbook"
+      Event: "Event"
+      EventSet: "Event Set"
+      ExperientialResource: "Learning Resource"
+      ExplanationResource: "Explanation Content"
+      ExplanationVideo: "Explanation Content"
+      FocusSpot: "Teacher Resource"
+      LearningOutcomeDefinition: "Teacher Resource"
+      MarkingSchemeRubric: "Teacher Resource"
+      PedagogyFlow: "Teacher Resource"
+      PracticeQuestionSet: "Practice Question Set"
+      PracticeResource: "Practice Question Set"
+      SelfAssess: "Course Assessment"
+      TeachingMethod: "Teacher Resource"
+      TextBook: "Digital Textbook"
+      Collection: "Content Playlist"
+      ExplanationReadingMaterial: "Learning Resource"
+      LearningActivity: "Learning Resource"
+      LessonPlan: "Content Playlist"
+      LessonPlanResource: "Teacher Resource"
+      PreviousBoardExamPapers: "Learning Resource"
+      TVLesson: "Explanation Content"
+      OnboardingResource: "Learning Resource"
+      ReadingMaterial: "Learning Resource"
+      Template: "Template"
+      Asset: "Asset"
+      Plugin: "Plugin"
+      LessonPlanUnit: "Lesson Plan Unit"
+      CourseUnit: "Course Unit"
+      TextBookUnit: "Textbook Unit"
+      Asset: "Certificate Template"
+    }
+
+    compositesearch.index.name = "compositesearch"
+    search.document.type = "cs"
+    enableDIALContextUpdate = "Yes"
+
+    cloud_storage_type="{{ cloud_store }}"
+    azure_storage_key="{{ sunbird_public_storage_account_name }}"
+    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
+    azure_storage_container="{{ azure_public_container }}"
+
+    master.category.validation.enabled ="{{ master_category_validation_enabled }}"
+    service {
+      print.basePath = "{{ kp_print_service_base_url }}"
+      search.basePath = "{{ kp_search_service_base_url }}"
+    }
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['content-publish'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['content-publish'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['content-publish'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+live-video-stream-generator:
+  live-video-stream-generator: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.live.video.stream.request"
+      groupId = "{{ env_name }}-live-video-stream-generator-group"
+    }
+    task {
+      timer.duration = {{ video_stream_generator_timer_duration }}
+      consumer.parallelism = {{ video_stream_generator_consumer_parallelism }}
+      parallelism = {{ video_stream_generator_parallelism }}
+      max.retries = {{ video_stream_generator_max_retries }}
+    }
+    lms-cassandra {
+      keyspace = {{ platform_keyspace_name }}
+      table = "job_request"
+    }
+    service.content.basePath="{{ kp_content_service_base_url }}"
+    azure {
+      location = "centralindia"
+      login {
+        endpoint="https://login.microsoftonline.com"
+      }
+      api {
+        endpoint="https://management.azure.com"
+        version = "2018-07-01"
+      }
+      transform {
+        default = "media_transform_default"
+        hls = "media_transform_hls"
+      }
+      stream {
+        base_url="{{ video_stream_generator_azure_stream_base_url }}"
+        endpoint_name = "default"
+        protocol = "Hls"
+        policy_name = "Predefined_ClearStreamingOnly"
+      }
+    }
+    azure_tenant="{{ video_stream_generator_azure_tenant }}"
+    azure_subscription_id="{{ video_stream_generator_azure_subscription_id }}"
+    azure_account_name="{{ video_stream_generator_azure_account_name }}"
+    azure_resource_group_name="{{ video_stream_generator_azure_resource_group_name }}"
+    azure_token_client_key="{{ video_stream_generator_azure_token_client_key }}"
+    azure_token_client_secret="{{ video_stream_generator_azure_token_client_secret }}"
+    ## CSP Name. e.g: aws or azure
+    media_service_type="{{ media_service_provider_name }}"
+    ## AWS Elemental Media Convert Config
+    aws {
+      region="{{ aws_mediaconvert_region }}"
+      content_bucket_name="{{ aws_content_bucket_name }}"
+      token {
+        access_key="{{ aws_mediaconvert_access_key }}"
+        access_secret="{{ aws_mediaconvert_access_secret }}"
+      }
+      api {
+        endpoint="{{ aws_mediaconvert_api_endpoint }}"
+        version="{{ aws_mediaconvert_api_version }}"
+      }
+      service {
+        name="mediaconvert"
+        queue="{{ aws_mediaconvert_queue_id }}"
+        role="{{ aws_mediaconvert_role_name }}"
+      }
+      stream {
+        protocol="Hls"
+      }
+    }
+
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['video-stream-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
+
+csp-migrator:
+  csp-migrator: |+
+    include file("/data/flink/conf/base-config.conf")
+    kafka {
+      input.topic = "{{ env_name }}.csp.migration.job.request"
+      groupId = "{{ env_name }}-csp-migrator-group"
+      failed.topic = "{{ env_name }}.csp.migration.job.request.failed"
+      live_video_stream.topic = "{{ env_name }}.live.video.stream.request"
+      live_content_node_republish.topic = "{{ env_name }}.republish.job.request"
+    }
+    task {
+      timer.duration = {{ csp_migrator_timer_duration }}
+      consumer.parallelism = {{ csp_migrator_consumer_parallelism }}
+      parallelism = {{ csp_migrator_parallelism }}
+      max.retries = {{ csp_migrator_max_retries }}
+      cassandra-migrator.parallelism = {{csp_migrator_cassandra_parallelism}}
+    }
+    redis {
+      database {
+        relationCache.id = 10
+        collectionCache.id = 5
+      }
+    }
+
+    hierarchy {
+      keyspace = "{{ hierarchy_keyspace_name }}"
+      table = "content_hierarchy"
+    }
+
+    content {
+        keyspace = "{{ content_keyspace_name }}"
+        content_table = "content_data"
+        assessment_table = "question_data"
+    }
+
+    key_value_strings_to_migrate = {
+        "https://sunbirddev.blob.core.windows.net": "$Knowlg_Store$",
+        "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com": "$Knowlg_Store$",
+        "https://community.ekstep.in/assets/public": "$Knowlg_Store$",
+        "https://ntpproductionall.blob.core.windows.net/ntp-content-production": "$Knowlg_Store$",
+        "https://vdn.diksha.gov.in/assets/public": "$Knowlg_Store$",
+        "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging": "$Knowlg_Store$"
+    }
+
+    neo4j_fields_to_migrate = {
+        "asset": ["artifactUrl", "thumbnail", "downloadUrl"],
+        "content": ["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "assetsMap", "certTemplate", "itemSetPreviewUrl", "grayScaleAppIcon", "sourceURL", "variants", "downloadUrl"],
+        "contentimage": ["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "assetsMap", "certTemplate", "itemSetPreviewUrl", "grayScaleAppIcon", "sourceURL", "variants", "downloadUrl"],
+        "collection": ["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "toc_url", "grayScaleAppIcon", "variants", "downloadUrl"],
+        "collectionimage": ["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "toc_url", "grayScaleAppIcon", "variants", "downloadUrl"],
+        "plugins": ["artifactUrl"],
+        "itemset": ["previewUrl", "downloadUrl"],
+        "assessmentitem": ["data", "question", "solutions", "editorState", "media"]
+    }
+
+    cassandra_fields_to_migrate = {
+        "assessmentitem": ["body", "editorState", "answer", "solutions", "instructions", "media"]
+    }
+
+    migrationVersion = 1
+    video_stream_regeneration_enable = false
+    live_node_republish_enable = true
+    copy_missing_files_to_cloud = false
+    download_path = /tmp
+
+
+  flink-conf: |+
+    jobmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['video-stream-generator'].taskslots }}
+    parallelism.default: 1
+    jobmanager.execution.failover-strategy: region
+    taskmanager.memory.network.fraction: 0.1
