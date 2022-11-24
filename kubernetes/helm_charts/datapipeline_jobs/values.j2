@@ -271,10 +271,10 @@ questionset-publish:
       table = "questionset_hierarchy"
     }
     print_service.base_url = "{{ kp_print_service_base_url }}"
-    cloud_storage_type="{{ cloud_store }}"
-    cloud_storage_key="{{ cloud_storage_key }}"
-    cloud_storage_secret="{{ cloud_storage_secret }}"
-    cloud_storage_container="{{ cloud_storage_container }}"
+    cloud_storage_type="{{ cloud_service_provider }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
 
@@ -475,10 +475,10 @@ asset-enrichment:
       size.pixel = 150
     }
     content_youtube_apikey="{{ youtube_api_key }}"
-    cloud_storage_type="{{ cloud_store }}"
-    cloud_storage_key="{{ cloud_storage_key }}"
-    cloud_storage_secret="{{ cloud_storage_secret }}"
-    cloud_storage_container="{{ cloud_storage_container }}"
+    cloud_storage_type="{{ cloud_service_provider }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['asset-enrichment'].jobmanager_memory }}
@@ -535,10 +535,10 @@ auto-creator-v2:
     service {
       content.basePath = "{{ kp_content_service_base_url }}"
     }
-    cloud_storage_type="{{ cloud_store }}"
-    cloud_storage_key="{{ cloud_storage_key }}"
-    cloud_storage_secret="{{ cloud_storage_secret }}"
-    cloud_storage_container="{{ cloud_storage_container }}"
+    cloud_storage_type="{{ cloud_service_provider }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     source {
       baseUrl="{{ source_base_url }}"
@@ -583,10 +583,10 @@ content-auto-creator:
       learning_service.basePath = "{{ kp_learning_service_base_url }}"
     }
 
-    cloud_storage_type="{{ cloud_store }}"
-    cloud_storage_key="{{ cloud_storage_key }}"
-    cloud_storage_secret="{{ cloud_storage_secret }}"
-    cloud_storage_container="{{ cloud_storage_container }}"
+    cloud_storage_type="{{ cloud_service_provider }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     content_auto_creator {
         actions=auto-create
@@ -967,10 +967,10 @@ content-publish:
     search.document.type = "cs"
     enableDIALContextUpdate = "Yes"
 
-    cloud_storage_type="{{ cloud_store }}"
-    cloud_storage_key="{{ cloud_storage_key }}"
-    cloud_storage_secret="{{ cloud_storage_secret }}"
-    cloud_storage_container="{{ cloud_storage_container }}"
+    cloud_storage_type="{{ cloud_service_provider }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
     service {
@@ -1008,10 +1008,10 @@ qrcode-image-generator:
         margin=1
     }
 
-    cloud_storage_type="{{ cloud_store }}"
-    cloud_storage_key="{{ cloud_storage_key }}"
-    cloud_storage_secret="{{ cloud_storage_secret }}"
-    cloud_storage_container="{{ cloud_storage_container }}"
+    cloud_storage_type="{{ cloud_service_provider }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     lms-cassandra {
       keyspace = "dialcodes"
