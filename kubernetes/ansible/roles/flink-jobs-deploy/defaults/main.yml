@@ -369,7 +369,6 @@ cloud_storage_secret: ""
 cloud_storage_container: ""
 cloud_storage_endpoint: ""
 
-
 ### csp-migrator related vars
 csp_migrator_parallelism: 1
 csp_migrator_timer_duration: 1800
