@@ -26,7 +26,6 @@
 		<module>qrcode-image-generator</module>
 		<module>distribution</module>
         <module>qr-image-generator</module>
-		<module>merge-user-courses</module>
         <module>auto-creator</module>
 		<module>mvc-processor-indexer</module>
     </modules>

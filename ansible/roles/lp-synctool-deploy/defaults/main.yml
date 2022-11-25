@@ -26,3 +26,5 @@ search_lms_index_host: "{{ groups['core-es']|join(':9200,')}}:9200"
 cloud_store: azure
 azure_public_container: 
 azure_account_name:
+
+csp_migration_batch_size: 100

@@ -351,6 +351,24 @@ qrcode_image_generator_parallelism: 1
 
 source_base_url: "{{proto}}://{{domain_name}}/api"
 
+### video-stream-generator related vars
+media_service_provider_name: "azure"
+## AWS media convert service vars
+aws_mediaconvert_api_version: "2017-08-29"
+aws_mediaconvert_region: ""
+aws_content_bucket_name: ""
+aws_mediaconvert_access_key: ""
+aws_mediaconvert_access_secret: ""
+aws_mediaconvert_api_endpoint: ""
+aws_mediaconvert_queue_id: ""
+aws_mediaconvert_role_name: ""
+
+#Cloud storage config
+cloud_storage_key: ""
+cloud_storage_secret: ""
+cloud_storage_container: ""
+cloud_storage_endpoint: ""
+
 ### csp-migrator related vars
 csp_migrator_parallelism: 1
 csp_migrator_timer_duration: 1800
