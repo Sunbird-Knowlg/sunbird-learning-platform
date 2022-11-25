@@ -1324,6 +1324,7 @@ csp-migrator:
       failed.topic = "{{ env_name }}.csp.migration.job.request.failed"
       live_video_stream.topic = "{{ env_name }}.live.video.stream.request"
       live_content_node_republish.topic = "{{ env_name }}.republish.job.request"
+      live_question_node_republish.topic = "{{ env_name }}.assessment.republish.request"
     }
     task {
       timer.duration = {{ csp_migrator_timer_duration }}
@@ -1350,24 +1351,31 @@ csp-migrator:
         assessment_table = "question_data"
     }
 
+    questionset.hierarchy.keyspace="{{ hierarchy_keyspace_name }}"
+    questionset.hierarchy.table="questionset_hierarchy"
+
     key_value_strings_to_migrate = {
-        "https://sunbirddev.blob.core.windows.net": "$Knowlg_Store$",
-        "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com": "$Knowlg_Store$",
-        "https://community.ekstep.in/assets/public": "$Knowlg_Store$",
-        "https://ntpproductionall.blob.core.windows.net/ntp-content-production": "$Knowlg_Store$",
-        "https://vdn.diksha.gov.in/assets/public": "$Knowlg_Store$",
-        "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging": "$Knowlg_Store$"
+        "https://community.ekstep.in/assets/public": "CLOUD_STORAGE_BASE_PATH",
+        "https://sunbirddev.blob.core.windows.net": "CLOUD_STORAGE_BASE_PATH",
+        "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com": "CLOUD_STORAGE_BASE_PATH",
+        "https://ntpproductionall.blob.core.windows.net/ntp-content-production": "CLOUD_STORAGE_BASE_PATH",
+        "https://vdn.diksha.gov.in/assets/public": "CLOUD_STORAGE_BASE_PATH",
+        "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging": "CLOUD_STORAGE_BASE_PATH"
     }
 
     neo4j_fields_to_migrate = {
         "asset": ["artifactUrl", "thumbnail", "downloadUrl"],
-        "content": ["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "assetsMap", "certTemplate", "itemSetPreviewUrl", "grayScaleAppIcon", "sourceURL", "variants", "downloadUrl"],
-        "contentimage": ["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "assetsMap", "certTemplate", "itemSetPreviewUrl", "grayScaleAppIcon", "sourceURL", "variants", "downloadUrl"],
+        "content": ["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "assetsMap", "certTemplate", "itemSetPreviewUrl", "grayScaleAppIcon", "sourceURL", "variants", "downloadUrl","streamingUrl"],
+        "contentimage": ["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "assetsMap", "certTemplate", "itemSetPreviewUrl", "grayScaleAppIcon", "sourceURL", "variants", "downloadUrl","streamingUrl"],
         "collection": ["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "toc_url", "grayScaleAppIcon", "variants", "downloadUrl"],
         "collectionimage": ["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "toc_url", "grayScaleAppIcon", "variants", "downloadUrl"],
         "plugins": ["artifactUrl"],
         "itemset": ["previewUrl", "downloadUrl"],
-        "assessmentitem": ["data", "question", "solutions", "editorState", "media"]
+        "assessmentitem": ["data", "question", "solutions", "editorState", "media"],
+        "question": ["appIcon","artifactUrl", "posterImage", "previewUrl","downloadUrl", "variants","pdfUrl"],
+        "questionimage": ["appIcon","artifactUrl", "posterImage", "previewUrl","downloadUrl", "variants","pdfUrl"],
+        "questionset": ["appIcon","artifactUrl", "posterImage", "previewUrl","downloadUrl", "variants","pdfUrl"],
+        "questionsetimage": ["appIcon","artifactUrl", "posterImage", "previewUrl","downloadUrl", "variants","pdfUrl"]
     }
 
     cassandra_fields_to_migrate = {
