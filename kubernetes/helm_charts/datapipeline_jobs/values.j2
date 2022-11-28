@@ -315,8 +315,8 @@ asset-enrichment:
     }
     content_youtube_apikey="{{ youtube_api_key }}"
     cloud_storage_type="{{ cloud_service_provider }}"
-    cloud_public_storage_accountname="{{ cloud_public_storage_accountname }}"
-    cloud_public_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     cloudstorage {
@@ -389,8 +389,8 @@ content-auto-creator:
     }
 
     cloud_storage_type="{{ cloud_service_provider }}"
-    cloud_public_storage_accountname="{{ cloud_public_storage_accountname }}"
-    cloud_public_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     cloudstorage {
@@ -617,8 +617,8 @@ content-publish:
     enableDIALContextUpdate = "Yes"
 
     cloud_storage_type="{{ cloud_service_provider }}"
-    cloud_public_storage_accountname="{{ cloud_public_storage_accountname }}"
-    cloud_public_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     cloudstorage {
@@ -665,8 +665,8 @@ qrcode-image-generator:
     }
 
     cloud_storage_type="{{ cloud_service_provider }}"
-    cloud_public_storage_accountname="{{ cloud_public_storage_accountname }}"
-    cloud_public_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_dial_bucketname }}"
 
     lms-cassandra {
@@ -876,8 +876,8 @@ live-node-publisher:
     enableDIALContextUpdate = "Yes"
 
     cloud_storage_type="{{ cloud_service_provider }}"
-    cloud_public_storage_accountname="{{ cloud_public_storage_accountname }}"
-    cloud_public_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
