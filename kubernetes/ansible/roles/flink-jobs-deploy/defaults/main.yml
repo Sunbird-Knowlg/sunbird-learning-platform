@@ -299,6 +299,11 @@ composite_search_indexer_parallelism: 1
 dialcode_external_indexer_parallelism: 1
 dialcode_metric_indexer_parallelism: 1
 schema_definition_cache_expiry_in_sec: 14400
+search_indexer_topic_name: "{{ env_name }}.{{ bb_name }}.learning.graph.events"
+search_indexer_failed_topic_name: "{{ env_name }}.{{ bb_name }}.learning.events.failed"
+search_indexer_group_name: "{{ env_name }}-{{ bb_name }}-search-indexer-group"
+search_indexer_es_index_name: "{{ compositesearch_index_name }}"
+dialcode_es_index_name: "dialcode"
 search_indexer_ignored_fields: ["responseDeclaration", "body", "options", "lastStatusChangedOn", "SYS_INTERNAL_LAST_UPDATED_ON", "sYS_INTERNAL_LAST_UPDATED_ON","branchingLogic"]
 search_indexer_restrict_object_types: ["EventSet", "EventSetImage", "Event", "EventImage", "Questionnaire", "Misconception", "FrameworkType", "Concept", "Misconception", "Language", "Reference", "Dimension", "Method", "Library", "Domain", "Api"]
 
@@ -375,6 +380,15 @@ csp_migrator_timer_duration: 1800
 csp_migrator_max_retries: 10
 csp_migrator_consumer_parallelism: 1
 csp_migrator_cassandra_parallelism: 1
+csp_migration_topic_name: "{{ env_name }}.csp.migration.job.request"
+csp_migrator_group_name: "{{ env_name }}-csp-migrator-group"
+csp_migrator_failed_topic_name: "{{ env_name }}.csp.migration.job.request.failed"
+question_republish_topic_name: "{{ env_name }}.assessment.republish.request"
+content_republish_topic_name: "{{ env_name }}.republish.job.request"
+video_stream_topic_name: "{{ env_name }}.live.video.stream.request"
+content_hierarchy_keyspace_name: "{{ hierarchy_keyspace_name }}"
+questionset_hierarchy_keyspace_name: "{{ hierarchy_keyspace_name }}"
+
 
 cloudstorage_replace_absolute_path: true
 cloudstorage_base_path: "https://sunbirdstagingpublic.blob.core.windows.net"

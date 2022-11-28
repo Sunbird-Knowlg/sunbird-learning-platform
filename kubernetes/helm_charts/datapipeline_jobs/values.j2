@@ -245,9 +245,9 @@ search-indexer:
   search-indexer: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = "{{ env_name }}.{{ bb_name }}.learning.graph.events"
-      error.topic = "{{ env_name }}.{{ bb_name }}.learning.events.failed"
-      groupId = "{{ env_name }}-{{ bb_name }}-search-indexer-group"
+      input.topic = "{{ search_indexer_topic_name }}"
+      error.topic = "{{ search_indexer_failed_topic_name }}"
+      groupId = "{{ search_indexer_group_name }}"
     }
     task {
       consumer.parallelism = {{ search_indexer_consumer_parallelism }}
@@ -256,8 +256,8 @@ search-indexer:
       dialcodeIndexer.parallelism = {{ dialcode_external_indexer_parallelism }}
       dialcodemetricsIndexer.parallelism = {{ dialcode_metric_indexer_parallelism }}
     }
-    compositesearch.index.name = "{{ compositesearch_index_name }}"
-    dialcode.index.name = "dialcode"
+    compositesearch.index.name = "{{ search_indexer_es_index_name }}"
+    dialcode.index.name = "{{ dialcode_es_index_name }}"
     dailcodemetrics.index.name = "dialcodemetrics"
     restrict.metadata.objectTypes = []
     nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions", "transcripts", "accessibility"]
@@ -982,12 +982,12 @@ csp-migrator:
   csp-migrator: |+
     include file("/data/flink/conf/base-config.conf")
     kafka {
-      input.topic = "{{ env_name }}.csp.migration.job.request"
-      groupId = "{{ env_name }}-csp-migrator-group"
-      failed.topic = "{{ env_name }}.csp.migration.job.request.failed"
-      live_video_stream.topic = "{{ env_name }}.live.video.stream.request"
-      live_content_node_republish.topic = "{{ env_name }}.republish.job.request"
-      live_question_node_republish.topic = "{{ env_name }}.assessment.republish.request"
+      input.topic = "{{ csp_migration_topic_name }}"
+      groupId = "{{ csp_migrator_group_name }}"
+      failed.topic = "{{ csp_migrator_failed_topic_name }}"
+      live_video_stream.topic = "{{ video_stream_topic_name }}"
+      live_content_node_republish.topic = "{{ content_republish_topic_name }}"
+      live_question_node_republish.topic = "{{ question_republish_topic_name }}"
     }
     task {
       timer.duration = {{ csp_migrator_timer_duration }}
@@ -1004,7 +1004,7 @@ csp-migrator:
     }
 
     hierarchy {
-      keyspace = "{{ hierarchy_keyspace_name }}"
+      keyspace = "{{ content_hierarchy_keyspace_name }}"
       table = "content_hierarchy"
     }
 
@@ -1014,7 +1014,7 @@ csp-migrator:
         assessment_table = "question_data"
     }
 
-    questionset.hierarchy.keyspace="{{ hierarchy_keyspace_name }}"
+    questionset.hierarchy.keyspace="{{ questionset_hierarchy_keyspace_name }}"
     questionset.hierarchy.table="questionset_hierarchy"
 
     key_value_strings_to_migrate = {
