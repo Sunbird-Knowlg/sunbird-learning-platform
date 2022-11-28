@@ -149,6 +149,13 @@ post-publish-processor:
       dial.basePath = "https://{{domain_name}}/dial/"
     }
 
+    cloudstorage {
+      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
+      metadata.list={{ cloudstorage_metadata_list }}
+      read_base_path="{{ cloudstorage_base_path }}"
+      write_base_path={{ valid_cloudstorage_base_urls }}
+    }
+
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['post-publish-processor'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['post-publish-processor'].taskmanager_memory }}
@@ -258,6 +265,13 @@ search-indexer:
     restrict.objectTypes = {{ search_indexer_restrict_object_types | to_json }}
     ignored.fields={{ search_indexer_ignored_fields | to_json }}
 
+    cloudstorage {
+      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
+      metadata.list={{ cloudstorage_metadata_list }}
+      read_base_path="{{ cloudstorage_base_path }}"
+      write_base_path={{ valid_cloudstorage_base_urls }}
+    }
+
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['search-indexer'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['search-indexer'].taskmanager_memory }}
@@ -304,6 +318,13 @@ asset-enrichment:
     cloud_storage_key="{{ cloud_storage_key }}"
     cloud_storage_secret="{{ cloud_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_container }}"
+
+    cloudstorage {
+      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
+      metadata.list={{ cloudstorage_metadata_list }}
+      read_base_path="{{ cloudstorage_base_path }}"
+      write_base_path={{ valid_cloudstorage_base_urls }}
+    }
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['asset-enrichment'].jobmanager_memory }}
@@ -371,6 +392,13 @@ content-auto-creator:
     cloud_storage_key="{{ cloud_storage_key }}"
     cloud_storage_secret="{{ cloud_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_container }}"
+
+    cloudstorage {
+      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
+      metadata.list={{ cloudstorage_metadata_list }}
+      read_base_path="{{ cloudstorage_base_path }}"
+      write_base_path={{ valid_cloudstorage_base_urls }}
+    }
 
     content_auto_creator {
         actions=auto-create
@@ -592,6 +620,13 @@ content-publish:
     cloud_storage_key="{{ cloud_storage_key }}"
     cloud_storage_secret="{{ cloud_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_container }}"
+
+    cloudstorage {
+      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
+      metadata.list={{ cloudstorage_metadata_list }}
+      read_base_path="{{ cloudstorage_base_path }}"
+      write_base_path={{ valid_cloudstorage_base_urls }}
+    }
 
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
     service {
@@ -841,14 +876,21 @@ live-node-publisher:
     enableDIALContextUpdate = "Yes"
 
     cloud_storage_type="{{ cloud_store }}"
-    azure_storage_key="{{ sunbird_public_storage_account_name }}"
-    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
-    azure_storage_container="{{ azure_public_container }}"
+    cloud_storage_key="{{ cloud_storage_key }}"
+    cloud_storage_secret="{{ cloud_storage_secret }}"
+    cloud_storage_container="{{ cloud_storage_container }}"
 
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
     service {
       print.basePath = "{{ kp_print_service_base_url }}"
       search.basePath = "{{ kp_search_service_base_url }}"
+    }
+
+    cloudstorage {
+      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
+      metadata.list={{ cloudstorage_metadata_list }}
+      read_base_path="{{ cloudstorage_base_path }}"
+      write_base_path={{ valid_cloudstorage_base_urls }}
     }
 
   flink-conf: |+
@@ -1001,6 +1043,13 @@ csp-migrator:
 
     cassandra_fields_to_migrate = {
         "assessmentitem": ["body", "editorState", "answer", "solutions", "instructions", "media"]
+    }
+
+    cloudstorage {
+      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
+      metadata.list={{ cloudstorage_metadata_list }}
+      read_base_path="{{ cloudstorage_base_path }}"
+      write_base_path={{ valid_cloudstorage_base_urls }}
     }
 
     migrationVersion = 1
