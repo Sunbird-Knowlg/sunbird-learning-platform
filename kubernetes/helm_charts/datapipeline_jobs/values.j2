@@ -314,10 +314,10 @@ asset-enrichment:
       size.pixel = 150
     }
     content_youtube_apikey="{{ youtube_api_key }}"
-    cloud_storage_type="{{ cloud_store }}"
-    cloud_storage_key="{{ cloud_storage_key }}"
-    cloud_storage_secret="{{ cloud_storage_secret }}"
-    cloud_storage_container="{{ cloud_storage_container }}"
+    cloud_storage_type="{{ cloud_service_provider }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     cloudstorage {
       metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
@@ -388,10 +388,10 @@ content-auto-creator:
       learning_service.basePath = "{{ kp_learning_service_base_url }}"
     }
 
-    cloud_storage_type="{{ cloud_store }}"
-    cloud_storage_key="{{ cloud_storage_key }}"
-    cloud_storage_secret="{{ cloud_storage_secret }}"
-    cloud_storage_container="{{ cloud_storage_container }}"
+    cloud_storage_type="{{ cloud_service_provider }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     cloudstorage {
       metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
@@ -616,10 +616,10 @@ content-publish:
     search.document.type = "cs"
     enableDIALContextUpdate = "Yes"
 
-    cloud_storage_type="{{ cloud_store }}"
-    cloud_storage_key="{{ cloud_storage_key }}"
-    cloud_storage_secret="{{ cloud_storage_secret }}"
-    cloud_storage_container="{{ cloud_storage_container }}"
+    cloud_storage_type="{{ cloud_service_provider }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     cloudstorage {
       metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
@@ -664,10 +664,10 @@ qrcode-image-generator:
         margin=1
     }
 
-    cloud_storage_type="{{ cloud_store }}"
-    cloud_storage_key="{{ cloud_storage_key }}"
-    cloud_storage_secret="{{ cloud_storage_secret }}"
-    cloud_storage_container="{{ cloud_storage_container }}"
+    cloud_storage_type="{{ cloud_service_provider }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_container="{{ cloud_storage_dial_bucketname }}"
 
     lms-cassandra {
       keyspace = "dialcodes"
@@ -875,10 +875,10 @@ live-node-publisher:
     search.document.type = "cs"
     enableDIALContextUpdate = "Yes"
 
-    cloud_storage_type="{{ cloud_store }}"
-    cloud_storage_key="{{ cloud_storage_key }}"
-    cloud_storage_secret="{{ cloud_storage_secret }}"
-    cloud_storage_container="{{ cloud_storage_container }}"
+    cloud_storage_type="{{ cloud_service_provider }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
     service {
