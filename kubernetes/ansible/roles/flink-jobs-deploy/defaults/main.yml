@@ -390,7 +390,5 @@ content_hierarchy_keyspace_name: "{{ hierarchy_keyspace_name }}"
 questionset_hierarchy_keyspace_name: "{{ hierarchy_keyspace_name }}"
 
 
-cloudstorage_replace_absolute_path: true
-cloudstorage_base_path: "https://sunbirdstagingpublic.blob.core.windows.net"
+cloudstorage_replace_absolute_path: 'true'
 cloudstorage_metadata_list: '["appIcon","posterImage","artifactUrl","downloadUrl","variants","previewUrl","pdfUrl", "streamingUrl", "toc_url"]'
-valid_cloudstorage_base_urls: '["https://sunbirdstagingpublic.blob.core.windows.net"]'
