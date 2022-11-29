@@ -150,7 +150,7 @@ post-publish-processor:
     }
 
     cloudstorage {
-      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
+      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
       metadata.list={{ cloudstorage_metadata_list }}
       read_base_path="{{ cloudstorage_base_path }}"
       write_base_path={{ valid_cloudstorage_base_urls }}
@@ -266,7 +266,7 @@ search-indexer:
     ignored.fields={{ search_indexer_ignored_fields | to_json }}
 
     cloudstorage {
-      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
+      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
       metadata.list={{ cloudstorage_metadata_list }}
       read_base_path="{{ cloudstorage_base_path }}"
     }
@@ -319,7 +319,7 @@ asset-enrichment:
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     cloudstorage {
-      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
+      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
       metadata.list={{ cloudstorage_metadata_list }}
       read_base_path="{{ cloudstorage_base_path }}"
       write_base_path={{ valid_cloudstorage_base_urls }}
@@ -393,7 +393,7 @@ content-auto-creator:
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     cloudstorage {
-      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
+      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
       metadata.list={{ cloudstorage_metadata_list }}
       read_base_path="{{ cloudstorage_base_path }}"
       write_base_path={{ valid_cloudstorage_base_urls }}
@@ -621,7 +621,7 @@ content-publish:
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     cloudstorage {
-      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
+      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
       metadata.list={{ cloudstorage_metadata_list }}
       read_base_path="{{ cloudstorage_base_path }}"
       write_base_path={{ valid_cloudstorage_base_urls }}
@@ -886,7 +886,7 @@ live-node-publisher:
     }
 
     cloudstorage {
-      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
+      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
       metadata.list={{ cloudstorage_metadata_list }}
       read_base_path="{{ cloudstorage_base_path }}"
       write_base_path={{ valid_cloudstorage_base_urls }}
@@ -1045,7 +1045,7 @@ csp-migrator:
     }
 
     cloudstorage {
-      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path }}
+      metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path| default('false') }}
       metadata.list={{ cloudstorage_metadata_list }}
       read_base_path="{{ cloudstorage_base_path }}"
       write_base_path={{ valid_cloudstorage_base_urls }}
