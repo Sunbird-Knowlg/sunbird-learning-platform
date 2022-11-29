@@ -1057,6 +1057,10 @@ csp-migrator:
     copy_missing_files_to_cloud = false
     download_path = /tmp
 
+    cloud_storage_type="{{ cloud_service_provider }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].jobmanager_memory }}
