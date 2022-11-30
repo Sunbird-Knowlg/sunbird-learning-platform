@@ -1084,10 +1084,10 @@ cassandra-data-migration:
       parallelism = 1
     }
 
-    migrate {
+    migrate = {
         keyspace = "dialcodes"
-        table = "dialcode_images"
-        primary_key_column = "filename"
+        table = "dialcode_batch"
+        primary_key_column = "processid"
         column_to_migrate = "url"
         is_column_blob = false
         key_value_strings_to_migrate = {
