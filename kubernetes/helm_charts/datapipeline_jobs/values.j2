@@ -1073,7 +1073,7 @@ csp-migrator:
 cassandra-data-migration:
   cassandra-data-migration: |+
     include file("/data/flink/conf/base-config.conf")
-    afka {
+    kafka {
       input.topic = "{{ env_name }}.cassandra.data.migration.request"
       failed.topic = "{{ env_name }}.cassandra.data.migration.job.request.failed"
       groupId = "{{ env_name }}-cassandra-data-migration-group"
