@@ -1088,8 +1088,9 @@ cassandra-data-migration:
         keyspace = "dialcodes"
         table = "dialcode_batch"
         primary_key_column = "processid"
+        primary_key_column_type = "UUID"
         column_to_migrate = "url"
-        is_column_blob = false
+        column_to_migrate_type = "string"
         key_value_strings_to_migrate = {
             "https://sunbirdstagingpublic.blob.core.windows.net/dial": "CLOUD_STORAGE_DIAL_BASE_PATH"
         }
