@@ -1085,10 +1085,10 @@ cassandra-data-migration:
     }
 
     migrate {
-        keyspace = "hierarchy_store"
-        table = "content_hierarchy"
-        primary_key_column = "identifier"
-        column_to_migrate = "hierarchy"
+        keyspace = "dialcodes"
+        table = "dialcode_images"
+        primary_key_column = "filename"
+        column_to_migrate = "url"
         is_column_blob = false
         key_value_strings_to_migrate = {
             "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging": "CLOUD_STORAGE_BASE_PATH"
