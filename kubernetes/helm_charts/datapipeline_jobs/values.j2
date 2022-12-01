@@ -666,7 +666,7 @@ qrcode-image-generator:
     cloud_storage_type="{{ cloud_service_provider }}"
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
-    cloud_storage_container="{{ cloud_storage_dial_bucketname | default("dial") }}"
+    cloud_storage_container="{{ cloud_storage_dial_bucketname | default('dial') }}"
 
     lms-cassandra {
       keyspace = "dialcodes"
