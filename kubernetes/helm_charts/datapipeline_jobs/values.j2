@@ -1107,7 +1107,8 @@ cassandra-data-migration:
         column_to_migrate = "url"
         column_to_migrate_type = "string"
         key_value_strings_to_migrate = {
-            "https://sunbirdstagingpublic.blob.core.windows.net/dial": "CLOUD_STORAGE_DIAL_BASE_PATH"
+            "https://sunbirdstagingpublic.blob.core.windows.net/dial": "DIAL_STORAGE_BASE_PATH",
+            "CLOUD_STORAGE_DIAL_BASE_PATH": "DIAL_STORAGE_BASE_PATH"
         }
     }
 
