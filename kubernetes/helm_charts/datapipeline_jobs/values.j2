@@ -885,7 +885,6 @@ live-node-publisher:
 
     compositesearch.index.name = "compositesearch"
     search.document.type = "cs"
-    enableDIALContextUpdate = "Yes"
 
     cloud_storage_type="{{ cloud_service_provider }}"
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
@@ -1031,12 +1030,18 @@ csp-migrator:
     questionset.hierarchy.table="questionset_hierarchy"
 
     key_value_strings_to_migrate = {
-        "https://community.ekstep.in/assets/public": "CLOUD_STORAGE_BASE_PATH",
-        "https://sunbirddev.blob.core.windows.net": "CLOUD_STORAGE_BASE_PATH",
-        "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com": "CLOUD_STORAGE_BASE_PATH",
-        "https://ntpproductionall.blob.core.windows.net/ntp-content-production": "CLOUD_STORAGE_BASE_PATH",
-        "https://vdn.diksha.gov.in/assets/public": "CLOUD_STORAGE_BASE_PATH",
-        "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging": "CLOUD_STORAGE_BASE_PATH"
+        "https://qa.ekstep.in/assets/public": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://dev.ekstep.in/assets/public": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://community.ekstep.in/assets/public": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://community.ekstep.in:443": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://ekstep-public-qa.s3-ap-south-1.amazonaws.com": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://ekstep-public-preprod.s3-ap-south-1.amazonaws.com": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://ekstep-public-prod.s3-ap-south-1.amazonaws.com": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://sunbirddev.blob.core.windows.net/sunbird-content-dev": "{{ cloudstorage_relative_path_prefix_content }}"
+        "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging": "{{ cloudstorage_relative_path_prefix_content }}"
+        "https://preprodall.blob.core.windows.net/ntp-content-preprod": "{{ cloudstorage_relative_path_prefix_content }}"
+        "https://ntpproductionall.blob.core.windows.net/ntp-content-production": "{{ cloudstorage_relative_path_prefix_content }}",
     }
 
     neo4j_fields_to_migrate = {
@@ -1107,8 +1112,7 @@ cassandra-data-migration:
         column_to_migrate = "url"
         column_to_migrate_type = "string"
         key_value_strings_to_migrate = {
-            "https://sunbirdstagingpublic.blob.core.windows.net/dial": "DIAL_STORAGE_BASE_PATH",
-            "CLOUD_STORAGE_DIAL_BASE_PATH": "DIAL_STORAGE_BASE_PATH"
+            "https://sunbirdstagingpublic.blob.core.windows.net/dial": "{{ cloudstorage_relative_path_prefix_dial }}"
         }
     }
 
