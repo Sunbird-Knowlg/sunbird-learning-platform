@@ -144,7 +144,10 @@ processing_kafka_topics:
   - name: republish.job.request
     num_of_partitions: 1
     replication_factor: 1
-  - name: assessment.republish.request
+  - name: cassandra.data.migration.request
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: cassandra.data.migration.job.request.failed
     num_of_partitions: 1
     replication_factor: 1
 
@@ -285,7 +288,9 @@ processing_kafka_overriden_topics:
   - name: republish.job.request
     retention_time: 1209600000
     replication_factor: 1
-  - name: assessment.republish.request
+  - name: cassandra.data.migration.request
     retention_time: 1209600000
     replication_factor: 1
-
+  - name: cassandra.data.migration.job.request.failed
+    retention_time: 1209600000
+    replication_factor: 1

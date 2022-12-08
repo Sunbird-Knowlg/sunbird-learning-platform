@@ -29,7 +29,7 @@
 				<module>platform-core</module>
 				<module>platform-modules</module>
 				<module>platform-tools/spikes/sync-tool</module>
-				<module>platform-tools/cassandra-extension</module>
+<!--				<module>platform-tools/cassandra-extension</module>-->
 				<module>platform-tools/spikes/content-tool</module>
 			</modules>
 		</profile>
