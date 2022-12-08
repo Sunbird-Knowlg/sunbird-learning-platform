@@ -383,10 +383,10 @@ auto-creator-v2:
     service {
       content.basePath = "{{ kp_content_service_base_url }}"
     }
-    cloud_storage_type="{{ cloud_store }}"
-    cloud_storage_key="{{ cloud_storage_key }}"
-    cloud_storage_secret="{{ cloud_storage_secret }}"
-    cloud_storage_container="{{ cloud_storage_container }}"
+    cloud_storage_type="{{ cloud_service_provider }}"
+    cloud_storage_key="{{ cloud_public_storage_accountname }}"
+    cloud_storage_secret="{{ cloud_public_storage_secret }}"
+    cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     source {
       baseUrl="{{ source_base_url }}"
