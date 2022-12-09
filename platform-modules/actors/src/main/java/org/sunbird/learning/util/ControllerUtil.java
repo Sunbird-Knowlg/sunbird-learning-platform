@@ -426,10 +426,12 @@ public class ControllerUtil extends BaseLearningManager {
         sc.setStartPosition(startPosition);
        if(!filters.isEmpty() && filters.size()>0)
             sc.addMetadata(MetadataCriterion.create(filters));
+        System.out.println("ControllerUtil:: getNodes:: sc:: " + sc.toString());
         Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
                 GraphDACParams.search_criteria.name(), sc);
         req.put(GraphDACParams.get_tags.name(), true);
         Response listRes = getResponse(req);
+        System.out.println("ControllerUtil:: getNodes:: listRes:: " + listRes);
         if (checkError(listRes))
             return null;
         else {

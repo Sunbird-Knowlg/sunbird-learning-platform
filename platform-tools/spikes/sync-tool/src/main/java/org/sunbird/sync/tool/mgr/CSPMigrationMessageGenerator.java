@@ -82,6 +82,9 @@ public class CSPMigrationMessageGenerator {
 						stopLimit = batchSize;
 					} else stopLimit = limit;
 				} else stopLimit = total;
+
+				System.out.println("CSPMigrationMessageGenerator:: generateMgrMsg:: stopLimit: " + stopLimit + " || total: " + total);
+
 				boolean found = true;
 				while (found && start < stopLimit) {
 					List<Node> nodes = null;
@@ -102,6 +105,7 @@ public class CSPMigrationMessageGenerator {
 							Thread.sleep(delay);
 						}
 					} else {
+						System.out.println("CSPMigrationMessageGenerator:: generateMgrMsg:: Breaking Event Generation Loop!");
 						found = false;
 						break;
 					}
