@@ -1138,18 +1138,19 @@ csp-migrator:
     questionset.hierarchy.table="questionset_hierarchy"
 
     key_value_strings_to_migrate = {
-        "https://qa.ekstep.in/assets/public": "{{ cloudstorage_relative_path_prefix_content }}"
-        "https://dev.ekstep.in/assets/public": "{{ cloudstorage_relative_path_prefix_content }}"
-        "https://community.ekstep.in/assets/public": "{{ cloudstorage_relative_path_prefix_content }}"
-        "https://community.ekstep.in:443": "{{ cloudstorage_relative_path_prefix_content }}"
-        "https://ekstep-public-qa.s3-ap-south-1.amazonaws.com": "{{ cloudstorage_relative_path_prefix_content }}"
-        "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com": "{{ cloudstorage_relative_path_prefix_content }}"
-        "https://ekstep-public-preprod.s3-ap-south-1.amazonaws.com": "{{ cloudstorage_relative_path_prefix_content }}"
-        "https://ekstep-public-prod.s3-ap-south-1.amazonaws.com": "{{ cloudstorage_relative_path_prefix_content }}"
-        "https://sunbirddev.blob.core.windows.net/sunbird-content-dev": "{{ cloudstorage_relative_path_prefix_content }}"
-        "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging": "{{ cloudstorage_relative_path_prefix_content }}"
-        "https://preprodall.blob.core.windows.net/ntp-content-preprod": "{{ cloudstorage_relative_path_prefix_content }}"
-        "https://ntpproductionall.blob.core.windows.net/ntp-content-production": "{{ cloudstorage_relative_path_prefix_content }}"
+        "https://qa.ekstep.in/assets/public": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://dev.ekstep.in/assets/public": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://community.ekstep.in/assets/public": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://community.ekstep.in:443": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://ekstep-public-qa.s3-ap-south-1.amazonaws.com": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://ekstep-public-preprod.s3-ap-south-1.amazonaws.com": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://ekstep-public-prod.s3-ap-south-1.amazonaws.com": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://sunbirddev.blob.core.windows.net/sunbird-content-dev": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://preprodall.blob.core.windows.net/ntp-content-preprod": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://ntpproductionall.blob.core.windows.net/ntp-content-production": "{{ cloudstorage_relative_path_prefix_content }}",
+        "CLOUD_STORAGE_BASE_PATH": "{{ cloudstorage_relative_path_prefix_content }}"
     }
 
     neo4j_fields_to_migrate = {
