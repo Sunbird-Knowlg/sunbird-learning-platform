@@ -834,9 +834,9 @@ dialcode-context-updater:
     es_sync_wait_time = 20000
 
   flink-conf: |+
-    jobmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].jobmanager_memory }}
-    taskmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].taskmanager_memory }}
-    taskmanager.numberOfTaskSlots: {{ flink_job_names['qrcode-image-generator'].taskslots }}
+    jobmanager.memory.flink.size: {{ flink_job_names['dialcode-context-updater'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['dialcode-context-updater'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['dialcode-context-updater'].taskslots }}
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
@@ -1014,9 +1014,9 @@ live-node-publisher:
     }
 
   flink-conf: |+
-    jobmanager.memory.flink.size: {{ flink_job_names['content-publish'].jobmanager_memory }}
-    taskmanager.memory.flink.size: {{ flink_job_names['content-publish'].taskmanager_memory }}
-    taskmanager.numberOfTaskSlots: {{ flink_job_names['content-publish'].taskslots }}
+    jobmanager.memory.flink.size: {{ flink_job_names['live-node-publisher'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['live-node-publisher'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['live-node-publisher'].taskslots }}
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
@@ -1091,9 +1091,9 @@ live-video-stream-generator:
 
 
   flink-conf: |+
-    jobmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].jobmanager_memory }}
-    taskmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].taskmanager_memory }}
-    taskmanager.numberOfTaskSlots: {{ flink_job_names['video-stream-generator'].taskslots }}
+    jobmanager.memory.flink.size: {{ flink_job_names['live-video-stream-generator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['live-video-stream-generator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['live-video-stream-generator'].taskslots }}
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
@@ -1192,9 +1192,9 @@ csp-migrator:
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
   flink-conf: |+
-    jobmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].jobmanager_memory }}
-    taskmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].taskmanager_memory }}
-    taskmanager.numberOfTaskSlots: {{ flink_job_names['video-stream-generator'].taskslots }}
+    jobmanager.memory.flink.size: {{ flink_job_names['csp-migrator'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['csp-migrator'].taskmanager_memory }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['csp-migrator'].taskslots }}
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
