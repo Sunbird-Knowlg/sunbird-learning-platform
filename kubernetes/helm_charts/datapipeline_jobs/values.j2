@@ -855,6 +855,7 @@ live-node-publisher:
       consumer.parallelism = 1
       parallelism = 1
       router.parallelism = 1
+      checkpointing.interval = 300000
     }
     redis {
       host={{redis_host}}
