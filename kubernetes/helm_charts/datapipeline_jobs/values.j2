@@ -728,7 +728,7 @@ dialcode-context-updater:
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['dialcode-context-updater'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['dialcode-context-updater'].taskmanager_memory }}
-    taskmanager.numberOfTaskSlots: {{ flink_job_names['dialcode-context-updaterr'].taskslots }}
+    taskmanager.numberOfTaskSlots: {{ flink_job_names['dialcode-context-updater'].taskslots }}
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
