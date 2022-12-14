@@ -852,9 +852,9 @@ live-node-publisher:
       groupId = {{ env_name }}-content-republish-group
     }
     task {
-      consumer.parallelism = 1
       parallelism = 1
-      router.parallelism = 1
+      consumer.parallelism = {{ search_indexer_consumer_parallelism }}
+      router.parallelism = {{ transaction_event_router_parallelism }}
       window.time = 60
       checkpointing.timeout = 4200000
     }
