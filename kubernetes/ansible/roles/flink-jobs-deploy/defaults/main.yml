@@ -172,7 +172,7 @@ flink_job_names:
     replica: 1
     jobmanager_memory: 1024m
     taskmanager_memory: 1024m
-    taskslots: {{search-indexer-taskslots | default('1') }}
+    taskslots: "{{search-indexer-taskslots | default('1') }}"
     cpu_requests: 0.3
   enrolment-reconciliation:
     job_class_name: 'org.sunbird.job.recounciliation.task.EnrolmentReconciliationStreamTask'
