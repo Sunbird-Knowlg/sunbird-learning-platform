@@ -853,10 +853,10 @@ live-node-publisher:
     }
     task {
       parallelism = 1
-      consumer.parallelism = 2
-      router.parallelism = 2
+      consumer.parallelism = {{live_node_publisher_consumer_parallelism | default('2') }}
+      router.parallelism = {{live_node_publisher_router_parallelism | default('2') }}
       window.time = 60
-      checkpointing.timeout = 900000
+      checkpointing.timeout = {{live_node_publisher_checkpointing_timeout | default('900000') }}
     }
     redis {
       host={{redis_host}}
