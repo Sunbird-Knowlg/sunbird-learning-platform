@@ -270,14 +270,14 @@ flink_job_names:
     replica: 1
     jobmanager_memory: 1024m
     taskmanager_memory: 1024m
-    taskslots: 1
+    taskslots:
     cpu_requests: 0.3
   live-node-publisher:
     job_class_name: 'org.sunbird.job.livenodepublisher.task.LiveNodePublisherStreamTask'
     replica: 1
     jobmanager_memory: 2048m
     taskmanager_memory: 2048m
-    taskslots: 1
+    taskslots: 3
     cpu_requests: 0.7
   live-video-stream-generator:
     job_class_name: 'org.sunbird.job.livevideostream.task.LiveVideoStreamGeneratorStreamTask'
