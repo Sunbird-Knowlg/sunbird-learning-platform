@@ -853,8 +853,8 @@ live-node-publisher:
     }
     task {
       parallelism = 1
-      consumer.parallelism = {{ search_indexer_consumer_parallelism }}
-      router.parallelism = {{ transaction_event_router_parallelism }}
+      consumer.parallelism = 1
+      router.parallelism = 1
       window.time = 60
       checkpointing.timeout = 4200000
     }
