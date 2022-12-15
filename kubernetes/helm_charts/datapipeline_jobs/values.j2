@@ -853,10 +853,10 @@ live-node-publisher:
     }
     task {
       parallelism = 1
-      consumer.parallelism = 1
-      router.parallelism = 1
+      consumer.parallelism = {{live_node_publisher_consumer_parallelism | default('2') }}
+      router.parallelism = {{live_node_publisher_router_parallelism | default('2') }}
       window.time = 60
-      checkpointing.timeout = 4200000
+      checkpointing.timeout = {{live_node_publisher_checkpointing_timeout | default('900000') }}
     }
     redis {
       host={{redis_host}}
@@ -1016,8 +1016,8 @@ live-node-publisher:
     }
 
   flink-conf: |+
-    jobmanager.memory.flink.size: {{ flink_job_names['content-publish'].jobmanager_memory }}
-    taskmanager.memory.flink.size: {{ flink_job_names['content-publish'].taskmanager_memory }}
+    jobmanager.memory.flink.size: {{ flink_job_names['live-node-publisher'].jobmanager_memory }}
+    taskmanager.memory.flink.size: {{ flink_job_names['live-node-publisher'].taskmanager_memory }}
     taskmanager.numberOfTaskSlots: {{ flink_job_names['live-node-publisher'].taskslots }}
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
