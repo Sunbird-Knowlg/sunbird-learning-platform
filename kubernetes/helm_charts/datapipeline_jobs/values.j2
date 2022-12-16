@@ -1216,12 +1216,6 @@ cassandra-data-migration:
     }
 
     migrate = {
-        keyspace = "dialcodes"
-        table = "dialcode_batch"
-        primary_key_column = "processid"
-        primary_key_column_type = "UUID"
-        column_to_migrate = "url"
-        column_to_migrate_type = "string"
         key_value_strings_to_migrate = {
             "https://sunbirdstagingpublic.blob.core.windows.net/dial": "{{ cloudstorage_relative_path_prefix_dial }}"
         }
