@@ -142,7 +142,7 @@ processing_kafka_topics:
     num_of_partitions: 1
     replication_factor: 1
   - name: republish.job.request
-    num_of_partitions: 1
+    num_of_partitions: 4
     replication_factor: 1
   - name: cassandra.data.migration.request
     num_of_partitions: 1
