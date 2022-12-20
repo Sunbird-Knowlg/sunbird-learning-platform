@@ -273,6 +273,8 @@ search-indexer:
       read_base_path="{{ cloudstorage_base_path }}"
     }
 
+    cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['search-indexer'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['search-indexer'].taskmanager_memory }}
