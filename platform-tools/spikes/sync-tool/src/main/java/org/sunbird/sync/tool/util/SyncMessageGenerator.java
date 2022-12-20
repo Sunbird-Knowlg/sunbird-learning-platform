@@ -28,6 +28,9 @@ public class SyncMessageGenerator {
 	private static Map<String, Object> definitionObjectMap = new HashMap<>();
 	private static ControllerUtil util = new ControllerUtil();
 	private static List<String> nestedFields = Platform.config.getStringList("nested.fields");
+	private static boolean isReplaceString = Platform.config.getBoolean("is_replace_string");
+	private static String replaceSrcString = Platform.config.getString("replace_src_string");
+	private static String replaceDestString = Platform.config.getString("replace_dest_string");
 
 	public static Map<String, Object> getMessages(List<Node> nodes, String objectType, Map<String, String> errors)
 			throws Exception {
@@ -112,6 +115,17 @@ public class SyncMessageGenerator {
 		Map<String, Object> transactionData = new HashMap<String, Object>();
 		if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
 			Map<String, Object> propertyMap = new HashMap<String, Object>();
+			if(isReplaceString) {
+				try {
+					String metadataStr = JSONUtils.serialize(node.getMetadata());
+					String updatedMetadataStr = StringUtils.replaceEach(metadataStr, new String[]{replaceSrcString}, new String[]{replaceDestString});
+					Map<String, Object> updatedMetadata = (Map<String, Object>) JSONUtils.convertJSONString(updatedMetadataStr);
+					node.setMetadata(updatedMetadata);
+				} catch (Exception e) {
+					System.out.println("SyncMessageGenerator:getMessage: While replacing string " + e.getMessage());
+					e.printStackTrace();
+				}
+			}
 			for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
 				String key = entry.getKey();
 				if (StringUtils.isNotBlank(key)) {
