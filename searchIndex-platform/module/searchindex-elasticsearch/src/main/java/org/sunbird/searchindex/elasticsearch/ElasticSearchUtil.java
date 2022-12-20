@@ -265,6 +265,7 @@ public class ElasticSearchUtil {
 	public static void bulkIndexWithIndexId(String indexName, String documentType, Map<String, Object> jsonObjects)
 			throws Exception {
 		if (isIndexExists(indexName)) {
+			System.out.println("ElasticSearchUtil: bulkIndexWithIndexId: indexName: " + indexName);
 			RestHighLevelClient client = getClient(indexName);
 			if (!jsonObjects.isEmpty()) {
 				int count = 0;
