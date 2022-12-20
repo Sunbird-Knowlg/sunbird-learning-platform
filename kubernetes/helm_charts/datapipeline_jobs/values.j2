@@ -265,6 +265,7 @@ search-indexer:
     schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_sec }}
     restrict.objectTypes = {{ search_indexer_restrict_object_types | to_json }}
     ignored.fields={{ search_indexer_ignored_fields | to_json }}
+    cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
     cloudstorage {
       metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
