@@ -274,6 +274,7 @@ public class ElasticSearchUtil {
 					request.add(new IndexRequest(indexName, documentType, key)
 							.source((Map<String, Object>) jsonObjects.get(key)));
 					if (count % BATCH_SIZE == 0 || (count % BATCH_SIZE < BATCH_SIZE && count == jsonObjects.size())) {
+						System.out.println("ElasticSearchUtil: bulkIndexWithIndexId: request: " + request);
 						BulkResponse bulkResponse = client.bulk(request);
 						System.out.println("ElasticSearchUtil: bulkIndexWithIndexId: bulkResponse: " + bulkResponse.status());
 						if (bulkResponse.hasFailures()) {
