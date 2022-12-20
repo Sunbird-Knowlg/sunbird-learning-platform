@@ -61,6 +61,7 @@ public class SyncMessageGenerator {
 				errors.put(node.getIdentifier(), e.getMessage());
 			}
 		}
+		System.out.println("SyncMessageGenerator: getMessage: message:: " + messages);
 		return messages;
 	}
 
@@ -119,6 +120,7 @@ public class SyncMessageGenerator {
 				try {
 					String metadataStr = JSONUtils.serialize(node.getMetadata());
 					String updatedMetadataStr = StringUtils.replaceEach(metadataStr, new String[]{replaceSrcString}, new String[]{replaceDestString});
+					System.out.println("SyncMessageGenerator:getMessage: updatedMetadataStr " + updatedMetadataStr);
 					Map<String, Object> updatedMetadata = (Map<String, Object>) JSONUtils.convertJSONString(updatedMetadataStr);
 					node.setMetadata(updatedMetadata);
 				} catch (Exception e) {
