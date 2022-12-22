@@ -30,6 +30,6 @@
         tasks_from: download.yml
       vars:
         oss_bucket_name: "{{ oci_artifact_oss_bucket_name }}"
-        oss_path: "{{ artifact }}"
+        oss_object_name: "{{ artifact }}"
         local_file_or_folder_path: "{{ artifact_path }}"
       when: cloud_service_provider == "oci"
