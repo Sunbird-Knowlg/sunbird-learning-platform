@@ -23,3 +23,13 @@
         dest_file_name: "{{ artifact }}"
         local_file_or_folder_path: "{{ artifact_path }}"
       when: cloud_service_provider == "gcloud"
+
+    - name: download artifact from oci oss storage
+      include_role:
+        name: oci-cloud-storage
+        tasks_from: download.yml
+      vars:
+        oss_bucket_name: "{{ oci_artifact_oss_bucket_name }}"
+        oss_path: "{{ artifact }}"
+        local_file_or_folder_path: "{{ artifact_path }}"
+      when: cloud_service_provider == "oci"
