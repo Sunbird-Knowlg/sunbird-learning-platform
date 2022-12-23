@@ -848,8 +848,8 @@ live-node-publisher:
     kafka {
       input.topic = {{ env_name }}.republish.job.request
       live_video_stream.topic = "{{ env_name }}.live.video.stream.request"
-      error.topic = "{{ env_name }}.learning.events.failed"
-      skipped.topic = "{{ env_name }}.learning.events.skipped"
+      error.topic = "{{ env_name }}.republish.events.failed"
+      skipped.topic = "{{ env_name }}.republish.events.skipped"
       groupId = {{ env_name }}-content-republish-group
     }
     task {
