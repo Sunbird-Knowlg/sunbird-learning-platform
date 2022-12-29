@@ -412,13 +412,15 @@ public class ControllerUtil extends BaseLearningManager {
         }
     }
 
-    public List<Node> getNodes(String graphId, String objectType, List<String> mimeTypes, List<String> status, int startPosition, int batchSize) {
+    public List<Node> getNodes(String graphId, String objectType, List<String> mimeTypes, List<String> status, double migrationVersion, int startPosition, int batchSize) {
         List<Filter> filters = new ArrayList<Filter>();
         if(!mimeTypes.isEmpty())
             filters.add(new Filter("mimeType", SearchConditions.OP_IN, mimeTypes));
         if(!status.isEmpty())
             filters.add(new Filter("status", SearchConditions.OP_IN, status));
-        filters.add(new Filter("migrationVersion", SearchConditions.OP_IS, Values.NULL));
+        if(migrationVersion == 0) filters.add(new Filter("migrationVersion", SearchConditions.OP_IS, Values.NULL));
+        else filters.add(new Filter("migrationVersion", SearchConditions.OP_EQUAL, migrationVersion));
+
         SearchCriteria sc = new SearchCriteria();
         sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
         sc.setObjectType(objectType);
@@ -790,10 +792,24 @@ public class ControllerUtil extends BaseLearningManager {
         }
     }
 
-    public Map<String, Long> getCSPMigrationObjectCount(String graphId, List<String> objectTypes) {
+    public Map<String, Long> getCSPMigrationObjectCount(String graphId, List<String> objectTypes, List<String> mimeTypeList, List<String> statusList, double migrationVersion) {
         Map<String, Long> counts = new HashMap<String, Long>();
         Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-        request.put(GraphDACParams.query.name(), MessageFormat.format("MATCH (n:{0}) WHERE EXISTS(n.IL_FUNC_OBJECT_TYPE) AND n.IL_SYS_NODE_TYPE=\"DATA_NODE\" AND n.IL_FUNC_OBJECT_TYPE IN {1} AND NOT EXISTS(n.migrationVersion) RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;", graphId, new JSONArray(objectTypes)));
+        StringBuilder queryString = new StringBuilder();
+        queryString.append("MATCH (n:{0}) WHERE EXISTS(n.IL_FUNC_OBJECT_TYPE) AND n.IL_SYS_NODE_TYPE=\"DATA_NODE\" AND n.IL_FUNC_OBJECT_TYPE IN {1} ");
+
+        if(migrationVersion == 0) queryString.append(" AND NOT EXISTS(n.migrationVersion) ");
+        else queryString.append(" AND n.migrationVersion={4} ");
+
+        if(mimeTypeList!=null && !mimeTypeList.isEmpty())
+            queryString.append(" AND n.mimeType IN {2} ");
+
+        if(statusList!=null && !statusList.isEmpty())
+            queryString.append(" AND n.status IN {3} ");
+
+        queryString.append("RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;");
+        request.put(GraphDACParams.query.name(), MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(mimeTypeList), new JSONArray(statusList), migrationVersion));
+
         List<String> props = new ArrayList<String>();
         props.add("objectType");
         props.add("count");
