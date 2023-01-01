@@ -1,4 +1,4 @@
-- name: template values.yaml file - checkpoint
+- name: template values.yaml file
   template:
     src: "{{ chart_path }}/values.j2"
     dest: "{{ chart_path }}/values.yaml"
