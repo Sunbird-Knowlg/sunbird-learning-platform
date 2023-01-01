@@ -115,9 +115,9 @@ spec:
                "-Ds3.secret-key={{ .Values.s3_secret_key }}",
                "-Ds3.endpoint={{ .Values.s3_endpoint }}",
                "-Ds3.path.style.access=true",
-               {{else}}
+               {{- else}}
                "-Dfs.azure.account.key.{{ .Values.azure_account }}.blob.core.windows.net={{ .Values.azure_secret }}",
-               {{end}}
+               {{- end}}
                "-Dweb.submit.enable=false",
                "-Dmetrics.reporter.prom.class=org.apache.flink.metrics.prometheus.PrometheusReporter",
                "-Dmetrics.reporter.prom.port={{ .Values.jobmanager.prom_port }}",
