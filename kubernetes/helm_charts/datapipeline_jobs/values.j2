@@ -271,11 +271,11 @@ questionset-publish:
       table = "questionset_hierarchy"
     }
     print_service.base_url = "{{ kp_print_service_base_url }}"
-{% if cloud_service_provider == "oci" -%}
+{%- if cloud_service_provider == "oci" %}
     cloud_storage_type="{{ oci_flink_storage_type }}"
-{% else -%}
+{%- else %}
     cloud_storage_type="{{ cloud_service_provider }}"
-{% endif %}
+{%- endif %}
     cloud_storage_type="{{ cloud_service_provider }}"
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
