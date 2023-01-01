@@ -3,8 +3,12 @@ imagepullsecrets: {{ imagepullsecrets }}
 dockerhub: {{ dockerhub }}
 repository: {{flink_repository|default('knowledge-platform-jobs')}}
 image_tag: {{ image_tag }}
+csp: {{cloud_service_provider}}
 azure_account: {{ azure_account }}
 azure_secret: {{ azure_secret }}
+s3_access_key: {{ cloud_public_storage_accountname }}
+s3_secret_key: {{cloud_public_storage_secret}}
+s3_endpoint: {{cloud_public_storage_endpoint}}
 serviceMonitor:
   enabled: {{ service_monitor_enabled | lower}}
 
