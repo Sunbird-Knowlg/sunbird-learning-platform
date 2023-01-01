@@ -78,7 +78,7 @@ base_config: |
     job {
       env = "{{ env_name }}"
       enable.distributed.checkpointing = true
-      {{- if eq .Values.csp "oci" }}
+{% if cloud_service_provider == "oci" %}
       statebackend {
         s3 {
           storage {
@@ -89,7 +89,7 @@ base_config: |
         }
         base.url = "s3://"${job.statebackend.blob.storage.container}"/"${job.statebackend.s3.storage.endpoint}
       }
-      {{- else }}
+{% else %}
       statebackend {
         blob {
           storage {
@@ -100,7 +100,7 @@ base_config: |
         }
         base.url = "wasbs://"${job.statebackend.blob.storage.container}"@"${job.statebackend.blob.storage.account}"/"${job.statebackend.blob.storage.checkpointing.dir}
       }
-      {{- end}}
+{% endif %}
 
     }
     task {
