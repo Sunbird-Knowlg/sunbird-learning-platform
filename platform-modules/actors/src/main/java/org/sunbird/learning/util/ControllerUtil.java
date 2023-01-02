@@ -798,16 +798,19 @@ public class ControllerUtil extends BaseLearningManager {
         StringBuilder queryString = new StringBuilder();
         queryString.append("MATCH (n:{0}) WHERE EXISTS(n.IL_FUNC_OBJECT_TYPE) AND n.IL_SYS_NODE_TYPE=\"DATA_NODE\" AND n.IL_FUNC_OBJECT_TYPE IN {1} ");
 
-        if(migrationVersion == 0) queryString.append(" AND NOT EXISTS(n.migrationVersion) ");
-        else queryString.append(" AND n.migrationVersion={4} ");
-
         if(mimeTypeList!=null && !mimeTypeList.isEmpty())
             queryString.append(" AND n.mimeType IN {2} ");
 
         if(statusList!=null && !statusList.isEmpty())
             queryString.append(" AND n.status IN {3} ");
 
+        if(migrationVersion == 0) queryString.append(" AND NOT EXISTS(n.migrationVersion) ");
+        else queryString.append(" AND n.migrationVersion={4} ");
+
         queryString.append("RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;");
+
+        System.out.println("Count queryString:: " + MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(mimeTypeList), new JSONArray(statusList), migrationVersion));
+
         request.put(GraphDACParams.query.name(), MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(mimeTypeList), new JSONArray(statusList), migrationVersion));
 
         List<String> props = new ArrayList<String>();
