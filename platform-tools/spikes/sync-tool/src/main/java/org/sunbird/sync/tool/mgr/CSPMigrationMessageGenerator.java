@@ -42,7 +42,7 @@ public class CSPMigrationMessageGenerator {
 		batchSize = batch;
 	}
 
-	public void generateMgrMsg(String graphId, String[] objectTypes, String[] mimeTypes, String[] status, Integer limit, Integer delay) throws Exception {
+	public void generateMgrMsg(String graphId, String[] objectTypes, String[] mimeTypes, String[] status, double migrationVersion, Integer limit, Integer delay) throws Exception {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException("ERR_INVALID_GRAPH_ID", "Graph Id is blank.");
 		if (null == objectTypes || objectTypes.length == 0)
@@ -57,7 +57,7 @@ public class CSPMigrationMessageGenerator {
 		long startTime = System.currentTimeMillis();
 		System.out.println("-----------------------------------------");
 		System.out.println("\nMigration Event Generation starting at " + startTime);
-		Map<String, Long> counts = util.getCSPMigrationObjectCount(graphId, Arrays.asList(objectTypes));
+		Map<String, Long> counts = util.getCSPMigrationObjectCount(graphId, Arrays.asList(objectTypes), mimeTypeList, statusList, migrationVersion);
 		if (counts.isEmpty()) {
 			System.out.println("No objects found in this graph.");
 		} else {
@@ -89,7 +89,7 @@ public class CSPMigrationMessageGenerator {
 				while (found && start < stopLimit) {
 					List<Node> nodes = null;
 					try {
-						nodes = util.getNodes(graphId, objectType.trim(), mimeTypeList, statusList, start, batchSize);
+						nodes = util.getNodes(graphId, objectType.trim(), mimeTypeList, statusList, migrationVersion, start, batchSize);
 					} catch (ResourceNotFoundException e) {
 						System.out.println("Error while fetching neo4j records for objectType=" + objectType + ", start=" + start + ",batchSize=" + batchSize);
 						start += batchSize;
