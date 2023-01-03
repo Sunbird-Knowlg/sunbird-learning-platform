@@ -51,8 +51,3 @@ tomcat_init_mem: -Xms1024m
 tomcat_max_mem: -Xmx4096m
 search_index_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
 compositesearch_index_name: "compositesearch"
-
-
-cloudstorage_relative_path_prefix_content: "CONTENT_STORAGE_BASE_PATH"
-cloudstorage_relative_path_prefix_dial: "DIAL_STORAGE_BASE_PATH"
-cloudstorage_metadata_list: '["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "assetsMap", "certTemplate", "itemSetPreviewUrl", "grayScaleAppIcon", "sourceURL", "variants", "downloadUrl", "streamingUrl", "toc_url", "data", "question", "solutions", "editorState", "media", "pdfUrl", "transcripts"]'
