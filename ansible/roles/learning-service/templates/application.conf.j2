@@ -304,3 +304,12 @@ content.tagging.property="subject,medium"
 
 # Search Service Config
 kp.search_service.base_url="{{ kp_search_service_base_url }}"
+
+# CNAME migration variables
+cloudstorage {
+  metadata.replace_absolute_path=true
+  relative_path_prefix={{ cloudstorage_relative_path_prefix_content }}
+  metadata.list={{ cloudstorage_metadata_list }}
+  read_base_path="{{ cloudstorage_base_path }}"
+  write_base_path={{ valid_cloudstorage_base_urls }}
+}

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.sunbird.common.Platform;
 import org.sunbird.common.dto.Property;
 import org.sunbird.common.dto.Request;
 import org.sunbird.common.dto.Response;
@@ -247,6 +248,8 @@ public class Neo4JBoltSearchMgrImpl extends BaseDACMgr implements IGraphDACSearc
         } else {
             try {
 				List<Node> nodes = Neo4JBoltSearchOperations.searchNodes(graphId, searchCriteria, getTags, request);
+                boolean isrRelativePathEnabled = Platform.config.getBoolean("cloudstorage.metadata.replace_absolute_path");
+                if(isrRelativePathEnabled) updateAbsolutePath(nodes);
 				return OK(GraphDACParams.node_list.name(), nodes);
             } catch (Exception e) {
 				return ERROR(e);
@@ -320,5 +323,35 @@ public class Neo4JBoltSearchMgrImpl extends BaseDACMgr implements IGraphDACSearc
             }
         }
     }
+
+    private Node updateAbsolutePath(Node node) {
+        Map<String, Object> metadata = updateAbsolutePath(node.getMetadata());
+        node.setMetadata(metadata);
+        return node;
+    }
+
+    private java.util.List<Node> updateAbsolutePath(java.util.List<Node> nodes) {
+        for(Node node: nodes) {
+            updateAbsolutePath(node);
+        }
+        return nodes;
+    }
+
+    private Map<String, Object> updateAbsolutePath(Map<String, Object> data) {
+        String relativePathPrefix = Platform.config.getString("cloudstorage.relative_path_prefix");
+        List<String> cspMeta = Platform.config.getStringList("cloudstorage.metadata.list");
+        String absolutePath = Platform.config.getString("cloudstorage.read_base_path") + java.io.File.separator + Platform.config.getString("cloud_storage_container");
+        if (data !=null && !data.isEmpty()) {
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if(cspMeta.contains(entry.getKey())) {
+                    if(entry.getValue() instanceof String) {
+                        data.replace(entry.getKey(), ((String) entry.getValue()).replaceAll(relativePathPrefix, absolutePath));
+                    }
+                }
+            }
+        }
+        return data;
+    }
+
 
 }
