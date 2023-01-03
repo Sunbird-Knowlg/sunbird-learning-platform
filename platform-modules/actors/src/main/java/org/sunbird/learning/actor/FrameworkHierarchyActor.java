@@ -41,7 +41,6 @@ public class FrameworkHierarchyActor extends BaseGraphManager {
 					Map<String,Object> frameworkData = fwHierarchy.getFrameworkHierarchy(frameworkId);
 					OK("framework", frameworkData, sender());
 				} else {
-					TelemetryManager.log("Unsupported operation: " + methodName);
 					throw new ClientException(LearningErrorCodes.ERR_INVALID_OPERATION.name(),
 							"Unsupported operation: " + methodName);
 				}

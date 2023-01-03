@@ -21,6 +21,7 @@ import org.sunbird.graph.engine.router.GraphEngineManagers;
 import org.sunbird.graph.model.cache.CategoryCache;
 import org.sunbird.graph.model.node.DefinitionDTO;
 import org.sunbird.learning.hierarchy.store.HierarchyStore;
+import org.sunbird.telemetry.logger.TelemetryManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,7 +62,6 @@ public class FrameworkHierarchy extends BaseManager {
 			Map<String, Object> frameworkDocument = new HashMap<>();
 			Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false, true);
 			CategoryCache.setFramework(node.getIdentifier(), frameworkHierarchy);
-
 			frameworkDocument.putAll(frameworkHierarchy);
 			frameworkDocument.put("identifier", node.getIdentifier());
 			frameworkDocument.put("objectType", node.getObjectType());
