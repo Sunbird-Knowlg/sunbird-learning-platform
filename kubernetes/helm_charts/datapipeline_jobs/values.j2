@@ -310,15 +310,7 @@ questionset-publish:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
-    s3.access.key: {{cloud_public_storage_accountname}}
-    s3.secret.key: {{cloud_public_storage_secret}}
-    s3.path.style.access: true
-{% if cloud_service_provider == "oci" %}
-    s3.endpoint: {{oci_flink_s3_storage_endpoint}}
-    s3.endpoint.region: {{s3_region}}
-{% else %}
-    s3.endpoint: {{cloud_public_storage_endpoint}}
-{% endif %}
+
 
 video-stream-generator:
   video-stream-generator: |+

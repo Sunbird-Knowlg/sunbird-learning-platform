@@ -111,10 +111,10 @@ spec:
         args: ["start-foreground",
                "--job-classname={{ .Values.job_classname }}",
                {{- if eq .Values.csp "oci" }}
-               "-Dfs.s3.access.key={{ .Values.s3_access_key}}",
-               "-Dfs.s3.secret.key={{ .Values.s3_secret_key }}",
-               "-Dfs.s3.endpoint={{ .Values.s3_endpoint }}",
-               "-Dfs.s3.path.style.access=true",
+               "-Dfs.s3a.access.key={{ .Values.s3_access_key}}",
+               "-Dfs.s3a.secret.key={{ .Values.s3_secret_key }}",
+               "-Dfs.s3a.endpoint={{ .Values.s3_endpoint }}",
+               "-Dfs.s3a.path.style.access=true",
                {{- else}}
                "-Dfs.azure.account.key.{{ .Values.azure_account }}.blob.core.windows.net={{ .Values.azure_secret }}",
                {{- end}}
