@@ -315,7 +315,7 @@ questionset-publish:
     s3.secret.key: {{cloud_public_storage_secret}}
     s3.endpoint: {{oci_flink_s3_storage_endpoint}}
     s3.path.style.access: true
-    s3.aws.credentials.provider: org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider
+    s3.aws.credentials.provider: org.apache.hadoop.fs.s3a.BasicAWSCredentialsProvider
 
 video-stream-generator:
   video-stream-generator: |+
