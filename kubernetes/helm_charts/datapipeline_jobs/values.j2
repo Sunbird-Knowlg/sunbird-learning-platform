@@ -310,14 +310,13 @@ questionset-publish:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
-    fs.s3.access.key: {{cloud_public_storage_accountname}}
-    fs.s3.secret.key: {{cloud_public_storage_secret}}
-    fs.s3.path.style.access: true
+    hive.s3.aws-access-key: {{cloud_public_storage_accountname}}
+    hive.s3.aws-secret-key: {{cloud_public_storage_secret}}
+    hive.s3.path-style-access: true
 {% if cloud_service_provider == "oci" %}
-    fs.s3.endpoint: {{oci_flink_s3_storage_endpoint}}
-    fs.s3.endpoint.region: {{s3_region}}
+    hive.s3.endpoint: {{oci_flink_s3_storage_endpoint}}
 {% else %}
-    fs.s3.endpoint: {{cloud_public_storage_endpoint}}
+    hive.s3.endpoint: {{cloud_public_storage_endpoint}}
 {% endif %}
 
 video-stream-generator:
