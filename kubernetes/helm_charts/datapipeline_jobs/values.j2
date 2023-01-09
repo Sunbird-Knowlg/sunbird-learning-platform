@@ -10,6 +10,8 @@ s3_access_key: {{ cloud_public_storage_accountname }}
 s3_secret_key: {{cloud_public_storage_secret}}
 {% if cloud_service_provider == "oci" %}
 s3_endpoint: {{oci_flink_s3_storage_endpoint}}
+s3_region: {{s3_region}}
+s3_path_style_access: true
 {% else %}
 s3_endpoint: {{cloud_public_storage_endpoint}}
 {% endif %}
@@ -308,6 +310,11 @@ questionset-publish:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+    fs.s3.access.key: {{s3_access_key}}
+    fs.s3.secret.key: {{s3_secret_key}}
+    fs.s3.endpoint: {{s3_endpoint}}
+    fs.s3.endpoint.region: {{s3_region}}
+    fs.s3.path.style.access: {{s3_path_style_access}}
 
 
 video-stream-generator:
