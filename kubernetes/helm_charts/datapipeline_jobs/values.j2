@@ -517,9 +517,7 @@ asset-enrichment:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
-    s3.aws.credentials.provider: org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider
-    s3.access.key: {{ cloud_public_storage_accountname }}
-    s3.secret.key: {{cloud_public_storage_secret}}
+
 
 audit-history-indexer:
   audit-history-indexer: |+
