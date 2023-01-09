@@ -301,6 +301,7 @@ questionset-publish:
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
     cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
+
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
 
   flink-conf: |+
@@ -310,6 +311,7 @@ questionset-publish:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+    s3.aws.credentials.provider: org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider
 
 
 video-stream-generator:
