@@ -93,7 +93,7 @@ base_config: |
             checkpointing.dir = "checkpoint"
           }
         }
-        base.url = "s3://"${job.statebackend.s3.storage.container}"/"${job.statebackend.s3.storage.checkpointing.dir}
+        base.url = "s3a://"${job.statebackend.s3.storage.container}"/"${job.statebackend.s3.storage.checkpointing.dir}
       }
 {% else %}
       statebackend {
