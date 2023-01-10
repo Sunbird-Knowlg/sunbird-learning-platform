@@ -115,6 +115,7 @@ spec:
                "-Ds3.secret.key={{ .Values.s3_secret_key }}",
                "-Ds3.endpoint={{ .Values.s3_endpoint }}",
                "-Ds3.path.style.access={{ .Values.s3_path_style_access }}",
+               "-Ds3.aws.credentials.provider=org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",
                {{- else}}
                "-Dfs.azure.account.key.{{ .Values.azure_account }}.blob.core.windows.net={{ .Values.azure_secret }}",
                {{- end}}
