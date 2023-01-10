@@ -42,26 +42,23 @@ public class CSPMigrationMessageGenerator {
 		batchSize = batch;
 	}
 
-	public void generateMgrMsg(String graphId, String[] objectTypes, String[] mimeTypes, String[] status, String[] contentIds, double migrationVersion, Integer limit, Integer delay) throws Exception {
+	public void generateMgrMsg(String graphId, String[] objectTypes, String[] mimeTypes, String[] status, double migrationVersion, Integer limit, Integer delay) throws Exception {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException("ERR_INVALID_GRAPH_ID", "Graph Id is blank.");
 		if (null == objectTypes || objectTypes.length == 0)
 			throw new ClientException("ERR_EMPTY_OBJECT_TYPE", "Object Type is blank.");
 		List<String> mimeTypeList = new ArrayList<String>();
 		List<String> statusList = new ArrayList<String>();
-		List<String> contentIdsList = new ArrayList<String>();
 		if (null != mimeTypes && mimeTypes.length > 0)
 			mimeTypeList = Arrays.asList(mimeTypes);
 		if (null != status && status.length > 0)
 			statusList = Arrays.asList(status);
-		if (null != contentIds && contentIds.length > 0)
-			contentIdsList = Arrays.asList(contentIds);
 
 		Map<String, String> errors = new HashMap<>();
 		long startTime = System.currentTimeMillis();
 		System.out.println("-----------------------------------------");
 		System.out.println("\nMigration Event Generation starting at " + startTime);
-		Map<String, Long> counts = util.getCSPMigrationObjectCount(graphId, Arrays.asList(objectTypes), mimeTypeList, statusList, contentIdsList, migrationVersion);
+		Map<String, Long> counts = util.getCSPMigrationObjectCount(graphId, Arrays.asList(objectTypes), mimeTypeList, statusList, migrationVersion);
 		if (counts.isEmpty()) {
 			System.out.println("No objects found in this graph.");
 		} else {
@@ -93,7 +90,7 @@ public class CSPMigrationMessageGenerator {
 				while (found && start < stopLimit) {
 					List<Node> nodes = null;
 					try {
-						nodes = util.getNodes(graphId, objectType.trim(), mimeTypeList, statusList, contentIdsList, migrationVersion, start, batchSize);
+						nodes = util.getNodes(graphId, objectType.trim(), mimeTypeList, statusList, migrationVersion, start, batchSize);
 					} catch (ResourceNotFoundException e) {
 						System.out.println("Error while fetching neo4j records for objectType=" + objectType + ", start=" + start + ",batchSize=" + batchSize);
 						start += batchSize;

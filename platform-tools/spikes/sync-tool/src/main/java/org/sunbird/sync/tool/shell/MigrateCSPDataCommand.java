@@ -22,7 +22,6 @@ public class MigrateCSPDataCommand implements CommandMarker {
 					@CliOption(key = {"objectType"}, mandatory = true, help = "Object Type is Required") final String[] objectType,
 					@CliOption(key = {"mimeType"}, mandatory = false, help = "mimeTypes can be provided") final String[] mimeType,
 					@CliOption(key = {"status"}, mandatory = false, help = "Specific Status can be passed") final String[] status,
-					@CliOption(key = {"ids"}, mandatory = false, help = "Specific content Ids can be passed") final String[] contentIds,
 					@CliOption(key = {"migrationVersion"}, mandatory = false, unspecifiedDefaultValue = "0", help = "Specific migration version can be passed") final double migrationVersion,
 					@CliOption(key = {"limit"}, mandatory = false, unspecifiedDefaultValue = "0", help = "Specific Limit can be passed") final Integer limit,
 					@CliOption(key = {"delay"}, mandatory = false, unspecifiedDefaultValue = "10", help = "time gap between each batch") final Integer delay)
@@ -31,7 +30,7 @@ public class MigrateCSPDataCommand implements CommandMarker {
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
-		cspMsgGenerator.generateMgrMsg(graphId, objectType, mimeType, status, contentIds, migrationVersion, limit, delay);
+		cspMsgGenerator.generateMgrMsg(graphId, objectType, mimeType, status, migrationVersion, limit, delay);
 		long endTime = System.currentTimeMillis();
 		long exeTime = endTime - startTime;
 		System.out.println("Total time of execution: " + exeTime + "ms");
