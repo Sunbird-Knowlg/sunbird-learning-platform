@@ -116,7 +116,7 @@ spec:
                "-Ds3.endpoint={{ .Values.s3_endpoint }}",
                "-Ds3.path.style.access={{ .Values.s3_path_style_access }}",
                "-Ds3.aws.credentials.provider=org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",
-               "-Ds3.signing-algorithm=AWS4SignerType",
+               "-Ds3.signing-algorithm=S3SignerType",
                {{- else}}
                "-Dfs.azure.account.key.{{ .Values.azure_account }}.blob.core.windows.net={{ .Values.azure_secret }}",
                {{- end}}
