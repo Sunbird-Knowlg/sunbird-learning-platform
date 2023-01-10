@@ -809,9 +809,9 @@ public class ControllerUtil extends BaseLearningManager {
 
         queryString.append("RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;");
 
-        System.out.println("Count queryString:: " + MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(mimeTypeList), new JSONArray(statusList), migrationVersion, new JSONArray(contentIdsList)));
+        System.out.println("Count queryString:: " + MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(mimeTypeList), new JSONArray(statusList), migrationVersion));
 
-        request.put(GraphDACParams.query.name(), MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(mimeTypeList), new JSONArray(statusList), migrationVersion, new JSONArray(contentIdsList)));
+        request.put(GraphDACParams.query.name(), MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(mimeTypeList), new JSONArray(statusList), migrationVersion));
 
         List<String> props = new ArrayList<String>();
         props.add("objectType");
