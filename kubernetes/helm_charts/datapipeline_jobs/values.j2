@@ -62,6 +62,10 @@ log4j_console_properties: |
   logger.hadoop.level = {{ flink_libraries_log_level | default(INFO) }}
   logger.zookeeper.name = org.apache.zookeeper
   logger.zookeeper.level = {{ flink_libraries_log_level | default(INFO) }}
+  logger.aws.name = com.amazonaws.request
+  logger.aws.level = {{ flink_libraries_log_level | default(INFO) }}
+  logger.awshttp.name = com.amazonaws.thirdparty.apache.http
+  logger.awshttp.level = {{ flink_libraries_log_level | default(INFO) }}
 
   # Log all infos to the console
   appender.console.name = ConsoleAppender
