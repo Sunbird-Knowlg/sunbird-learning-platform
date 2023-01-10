@@ -48,8 +48,8 @@ log4j_console_properties: |
   rootLogger.appenderRef.console.ref = ConsoleAppender
 
   # Uncomment this if you want to _only_ change Flink's logging
-  #logger.flink.name = org.apache.flink
-  #logger.flink.level = {{ flink_jobs_console_log_level | default(INFO) }}
+  logger.flink.name = org.apache.flink
+  logger.flink.level = {{ flink_jobs_console_log_level | default(INFO) }}
 
   # The following lines keep the log level of common libraries/connectors on
   # log level INFO. The root logger does not override this. You have to manually
@@ -62,8 +62,7 @@ log4j_console_properties: |
   logger.hadoop.level = {{ flink_libraries_log_level | default(INFO) }}
   logger.zookeeper.name = org.apache.zookeeper
   logger.zookeeper.level = {{ flink_libraries_log_level | default(INFO) }}
-  logger.http.name = org.apache.http
-  logger.http.level = {{ flink_libraries_log_level | default(INFO) }}
+
 
 
   # Log all infos to the console
