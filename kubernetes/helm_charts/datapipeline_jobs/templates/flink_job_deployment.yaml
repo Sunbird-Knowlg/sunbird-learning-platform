@@ -114,6 +114,7 @@ spec:
                "-Dpresto.s3.access-key={{ .Values.s3_access_key}}",
                "-Dpresto.s3.secret-key={{ .Values.s3_secret_key }}",
                "-Dpresto.s3.endpoint={{ .Values.s3_endpoint }}",
+               "-Dpresto.s3.region={{ .Values.s3_region }}",
                "-Dpresto.s3.path-style-access={{ .Values.s3_path_style_access }}",
                {{- else}}
                "-Dfs.azure.account.key.{{ .Values.azure_account }}.blob.core.windows.net={{ .Values.azure_secret }}",
