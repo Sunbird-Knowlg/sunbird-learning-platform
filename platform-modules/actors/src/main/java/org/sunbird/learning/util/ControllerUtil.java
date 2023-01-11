@@ -418,10 +418,12 @@ public class ControllerUtil extends BaseLearningManager {
             filters.add(new Filter("mimeType", SearchConditions.OP_IN, mimeTypes));
         if(!status.isEmpty())
             filters.add(new Filter("status", SearchConditions.OP_IN, status));
-        if(!contentIdsList.isEmpty())
+        if(!contentIdsList.isEmpty()) {
             filters.add(new Filter("IL_UNIQUE_ID", SearchConditions.OP_IN, contentIdsList));
-        if(migrationVersion == 0) filters.add(new Filter("migrationVersion", SearchConditions.OP_IS, Values.NULL));
-        else filters.add(new Filter("migrationVersion", SearchConditions.OP_EQUAL, migrationVersion));
+        } else {
+            if (migrationVersion == 0) filters.add(new Filter("migrationVersion", SearchConditions.OP_IS, Values.NULL));
+            else filters.add(new Filter("migrationVersion", SearchConditions.OP_EQUAL, migrationVersion));
+        }
 
         SearchCriteria sc = new SearchCriteria();
         sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
@@ -808,9 +810,10 @@ public class ControllerUtil extends BaseLearningManager {
 
         if(contentIdsList!=null && !contentIdsList.isEmpty())
             queryString.append(" AND n.IL_UNIQUE_ID IN {5} ");
-
-        if(migrationVersion == 0) queryString.append(" AND NOT EXISTS(n.migrationVersion) ");
-        else queryString.append(" AND n.migrationVersion={4} ");
+        else {
+            if (migrationVersion == 0) queryString.append(" AND NOT EXISTS(n.migrationVersion) ");
+            else queryString.append(" AND n.migrationVersion={4} ");
+        }
 
         queryString.append("RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;");
 
