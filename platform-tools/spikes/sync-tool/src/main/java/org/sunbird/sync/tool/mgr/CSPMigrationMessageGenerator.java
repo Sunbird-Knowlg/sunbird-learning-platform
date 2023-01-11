@@ -100,8 +100,10 @@ public class CSPMigrationMessageGenerator {
 						continue;
 					}
 					if (CollectionUtils.isNotEmpty(nodes)) {
+						System.out.println("CSPMigrationMessageGenerator:: generateMgrMsg:: nodes: " + nodes.size());
 						start += batchSize;
 						Map<String, String> events = generateMigrationEvent(nodes, errors);
+						System.out.println("CSPMigrationMessageGenerator:: generateMgrMsg:: events: " + events.size());
 						sendEvent(events, errors);
 						current += events.size();
 						printProgress(startTime, total, current);
