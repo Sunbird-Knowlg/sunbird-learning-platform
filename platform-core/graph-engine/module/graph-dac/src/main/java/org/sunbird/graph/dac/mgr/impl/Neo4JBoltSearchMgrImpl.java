@@ -248,7 +248,7 @@ public class Neo4JBoltSearchMgrImpl extends BaseDACMgr implements IGraphDACSearc
         } else {
             try {
 				List<Node> nodes = Neo4JBoltSearchOperations.searchNodes(graphId, searchCriteria, getTags, request);
-                boolean isrRelativePathEnabled = Platform.config.getBoolean("cloudstorage.metadata.replace_absolute_path");
+                boolean isrRelativePathEnabled = Platform.config.hasPath("cloudstorage.metadata.replace_absolute_path")?Platform.config.getBoolean("cloudstorage.metadata.replace_absolute_path"):false;
                 if(isrRelativePathEnabled) updateAbsolutePath(nodes);
 				return OK(GraphDACParams.node_list.name(), nodes);
             } catch (Exception e) {

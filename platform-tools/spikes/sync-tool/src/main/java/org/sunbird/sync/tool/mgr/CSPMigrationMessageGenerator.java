@@ -42,23 +42,26 @@ public class CSPMigrationMessageGenerator {
 		batchSize = batch;
 	}
 
-	public void generateMgrMsg(String graphId, String[] objectTypes, String[] mimeTypes, String[] status, double migrationVersion, Integer limit, Integer delay) throws Exception {
+	public void generateMgrMsg(String graphId, String[] objectTypes, String[] mimeTypes, String[] status, String[] contentIds, double migrationVersion, Integer limit, Integer delay) throws Exception {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException("ERR_INVALID_GRAPH_ID", "Graph Id is blank.");
 		if (null == objectTypes || objectTypes.length == 0)
 			throw new ClientException("ERR_EMPTY_OBJECT_TYPE", "Object Type is blank.");
 		List<String> mimeTypeList = new ArrayList<String>();
 		List<String> statusList = new ArrayList<String>();
+		List<String> contentIdsList = new ArrayList<String>();
 		if (null != mimeTypes && mimeTypes.length > 0)
 			mimeTypeList = Arrays.asList(mimeTypes);
 		if (null != status && status.length > 0)
 			statusList = Arrays.asList(status);
+		if (null != contentIds && contentIds.length > 0)
+			contentIdsList = Arrays.asList(contentIds);
 
 		Map<String, String> errors = new HashMap<>();
 		long startTime = System.currentTimeMillis();
 		System.out.println("-----------------------------------------");
 		System.out.println("\nMigration Event Generation starting at " + startTime);
-		Map<String, Long> counts = util.getCSPMigrationObjectCount(graphId, Arrays.asList(objectTypes), mimeTypeList, statusList, migrationVersion);
+		Map<String, Long> counts = util.getCSPMigrationObjectCount(graphId, Arrays.asList(objectTypes), mimeTypeList, statusList, contentIdsList, migrationVersion);
 		if (counts.isEmpty()) {
 			System.out.println("No objects found in this graph.");
 		} else {
@@ -90,7 +93,7 @@ public class CSPMigrationMessageGenerator {
 				while (found && start < stopLimit) {
 					List<Node> nodes = null;
 					try {
-						nodes = util.getNodes(graphId, objectType.trim(), mimeTypeList, statusList, migrationVersion, start, batchSize);
+						nodes = util.getNodes(graphId, objectType.trim(), mimeTypeList, statusList, contentIdsList, migrationVersion, start, batchSize);
 					} catch (ResourceNotFoundException e) {
 						System.out.println("Error while fetching neo4j records for objectType=" + objectType + ", start=" + start + ",batchSize=" + batchSize);
 						start += batchSize;
@@ -186,25 +189,25 @@ public class CSPMigrationMessageGenerator {
 
 	private static void printProgress(long startTime, long total, long current) {
 		long eta = current == 0 ? 0 :
-						(total - current) * (System.currentTimeMillis() - startTime) / current;
+				(total - current) * (System.currentTimeMillis() - startTime) / current;
 
 		String etaHms = current == 0 ? "N/A" :
-						String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(eta),
-										TimeUnit.MILLISECONDS.toMinutes(eta) % TimeUnit.HOURS.toMinutes(1),
-										TimeUnit.MILLISECONDS.toSeconds(eta) % TimeUnit.MINUTES.toSeconds(1));
+				String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(eta),
+						TimeUnit.MILLISECONDS.toMinutes(eta) % TimeUnit.HOURS.toMinutes(1),
+						TimeUnit.MILLISECONDS.toSeconds(eta) % TimeUnit.MINUTES.toSeconds(1));
 
 		StringBuilder string = new StringBuilder(140);
 		int percent = (int) (current * 100 / total);
 		string
-						.append('\r')
-						.append(String.join("", Collections.nCopies(percent == 0 ? 2 : 2 - (int) (Math.log10(percent)), " ")))
-						.append(String.format(" %d%% [", percent))
-						.append(String.join("", Collections.nCopies(percent, "=")))
-						.append('>')
-						.append(String.join("", Collections.nCopies(100 - percent, " ")))
-						.append(']')
-						.append(String.join("", Collections.nCopies((int) (Math.log10(total)) - (int) (Math.log10(current)), " ")))
-						.append(String.format(" %d/%d, ETA: %s", current, total, etaHms));
+				.append('\r')
+				.append(String.join("", Collections.nCopies(percent == 0 ? 2 : 2 - (int) (Math.log10(percent)), " ")))
+				.append(String.format(" %d%% [", percent))
+				.append(String.join("", Collections.nCopies(percent, "=")))
+				.append('>')
+				.append(String.join("", Collections.nCopies(100 - percent, " ")))
+				.append(']')
+				.append(String.join("", Collections.nCopies((int) (Math.log10(total)) - (int) (Math.log10(current)), " ")))
+				.append(String.format(" %d/%d, ETA: %s", current, total, etaHms));
 
 		System.out.print(string);
 	}
