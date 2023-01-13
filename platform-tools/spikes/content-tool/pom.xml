@@ -65,11 +65,24 @@
         </dependency>
         <dependency>
             <groupId>org.sunbird</groupId>
-            <artifactId>cloud-store-sdk</artifactId>
-            <version>1.2.5</version>
+            <artifactId>cloud-store-sdk_2.12</artifactId>
+            <version>1.4.4</version>
         </dependency>
     </dependencies>
-
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.sunbird</groupId>
+                <artifactId>cloud-store-sdk_2.12</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.flink</groupId>
+                        <artifactId>flink-s3-fs-presto</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <build>
 
         <plugins>

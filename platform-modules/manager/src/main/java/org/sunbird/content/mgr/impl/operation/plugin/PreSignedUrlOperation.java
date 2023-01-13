@@ -17,7 +17,9 @@ public class PreSignedUrlOperation extends BaseContentManager {
         Response response = OK();
         String objectKey = "content/" + type +"/"+contentId+"/"+ Slug.makeSlug(fileName, true);
         String expiry = S3PropertyReader.getProperty("cloud_storage.upload.url.ttl");
-        String preSignedURL = CloudStore.getCloudStoreService().getSignedURL(CloudStore.getContainerName(), objectKey, Option.apply(Integer.parseInt(expiry)), Option.apply("w"));
+        scala.Option<Object> ttl = scala.Option.apply(expiry);
+        scala.Option<String> permission = scala.Option.apply("w");
+        String preSignedURL = CloudStore.getCloudStoreService().getSignedURL(CloudStore.getContainerName(), objectKey, ttl, permission);
         response.put(ContentAPIParams.content_id.name(), contentId);
         response.put(ContentAPIParams.pre_signed_url.name(), preSignedURL);
         response.put(ContentAPIParams.url_expiry.name(), expiry);
