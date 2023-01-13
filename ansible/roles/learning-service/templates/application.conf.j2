@@ -253,8 +253,8 @@ youtube.license.regex.pattern=["\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embe
 cloud_storage_type="{{ cloud_store }}"
 oci_storage_key="{{cloud_public_storage_key}}"
 oci_storage_secret="{{cloud_public_storage_secret}}"
-oci_storage_container="{{ cloudstorage_sdk_endpoint }}"
-oci_storage_endpoint="{{}}"
+oci_storage_container="{{ oci_public_container }}"
+oci_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 {% else %}
 #Azure Storage details
 cloud_storage_type="{{ cloud_store }}"
