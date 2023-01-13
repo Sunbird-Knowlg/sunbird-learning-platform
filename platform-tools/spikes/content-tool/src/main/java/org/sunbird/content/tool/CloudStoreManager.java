@@ -21,9 +21,15 @@ import java.util.Map;
 public class CloudStoreManager {
 
     protected String destStorageType = Platform.config.getString("destination.storage_type");
+    protected scala.Option<String> awsEndpoint = scala.Option.apply("");
+    protected BaseStorageService awsService = StorageServiceFactory.getStorageService(new StorageConfig("aws", Platform.config.getString("aws_storage_key"), Platform.config.getString("aws_storage_secret"),awsEndpoint,""));
+    protected scala.Option<String> azureEndpoint = scala.Option.apply("");
+    protected BaseStorageService azureService = StorageServiceFactory.getStorageService(new StorageConfig("azure", Platform.config.getString("azure_storage_key"), Platform.config.getString("azure_storage_secret"),azureEndpoint,""));
 
-    protected BaseStorageService awsService = StorageServiceFactory.getStorageService(new StorageConfig("aws", Platform.config.getString("aws_storage_key"), Platform.config.getString("aws_storage_secret")));
-    protected BaseStorageService azureService = StorageServiceFactory.getStorageService((new StorageConfig("azure", Platform.config.getString("azure_storage_key"), Platform.config.getString("azure_storage_secret"))));
+    scala.Option<String> ociEndpoint = scala.Option.apply(Platform.config.getString("oci_storage_endpoint"));
+    protected BaseStorageService ociService = StorageServiceFactory.getStorageService(new StorageConfig("oci", Platform.config.getString("oci_storage_key"), Platform.config.getString("oci_storage_secret"),ociEndpoint,""));
+
+
     private String cloudSrcBaseURL = Platform.config.getString("cloud.src.baseurl");
     private String cloudDestBaseURL = Platform.config.getString("cloud.dest.baseurl");
 
@@ -176,7 +182,11 @@ public class CloudStoreManager {
         File file = new File(path);
         String objectKey = folder + "/" + file.getName();
         TelemetryManager.info("Uploading Artifact path : " + file.getAbsolutePath());
-        String url = getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(1), Option.apply(5), Option.empty());
+        scala.Option<Object> isdirectory = scala.Option.apply(false);
+        scala.Option<Object> attempt = scala.Option.apply(1);
+        scala.Option<Object> retry = scala.Option.apply(5);
+        scala.Option<Object> ttl = scala.Option.apply(null);
+        String url = getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), file.getAbsolutePath(), objectKey, isdirectory, attempt, retry, ttl);
         return url;
 
     }
@@ -213,7 +223,11 @@ public class CloudStoreManager {
         String folder = "ecar_files/" + id;
         File file = new File(path);
         String objectKey = folder + "/" + file.getName();
-        String url = getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(1), Option.apply(5), Option.empty());
+        scala.Option<Object> isdirectory = scala.Option.apply(false);
+        scala.Option<Object> attempt = scala.Option.apply(1);
+        scala.Option<Object> retry = scala.Option.apply(5);
+        scala.Option<Object> ttl = scala.Option.apply(null);
+        String url = getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), file.getAbsolutePath(), objectKey, isdirectory, attempt, retry, ttl);
         return url;
     }
 
@@ -249,7 +263,10 @@ public class CloudStoreManager {
             return azureService;
         }else if(StringUtils.equalsIgnoreCase(cloudStoreType, "aws")) {
             return awsService;
-        }else {
+        }else if(StringUtils.equalsIgnoreCase(cloudStoreType, "oci")) {
+            return ociService;
+        }
+        else {
             throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while getting container name");
         }
     }
