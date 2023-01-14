@@ -104,6 +104,8 @@ public class Filter implements Serializable {
         		sb.append(" ").append(param).append(property).append(" in {").append(pIndex).append("} ");
             sc.params.put("" + pIndex, value);
             pIndex += 1;
+        } else if (SearchConditions.OP_IS.equals(getOperator())) {
+            sb.append(" ").append(param).append(property).append(" is ").append(value).append(" ");
         }
         sc.pIndex = pIndex;
         return sb.toString();

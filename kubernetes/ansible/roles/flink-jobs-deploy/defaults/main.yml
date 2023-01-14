@@ -265,6 +265,34 @@ flink_job_names:
     taskmanager_memory: 1024m
     taskslots: 1
     cpu_requests: 0.3
+  csp-migrator:
+    job_class_name: 'org.sunbird.job.cspmigrator.task.CSPMigratorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  live-node-publisher:
+    job_class_name: 'org.sunbird.job.livenodepublisher.task.LiveNodePublisherStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  live-video-stream-generator:
+    job_class_name: 'org.sunbird.job.livevideostream.task.LiveVideoStreamGeneratorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  cassandra-data-migration:
+    job_class_name: 'org.sunbird.job.task.CassandraDataMigrationStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
 
 ### Global vars
 middleware_course_keyspace: "sunbird_courses"
@@ -278,6 +306,11 @@ composite_search_indexer_parallelism: 1
 dialcode_external_indexer_parallelism: 1
 dialcode_metric_indexer_parallelism: 1
 schema_definition_cache_expiry_in_sec: 14400
+search_indexer_topic_name: "{{ env_name }}.learning.graph.events"
+search_indexer_failed_topic_name: "{{ env_name }}.learning.events.failed"
+search_indexer_group_name: "{{ env_name }}-search-indexer-group"
+search_indexer_es_index_name: "{{ compositesearch_index_name }}"
+dialcode_es_index_name: "dialcode"
 search_indexer_ignored_fields: ["responseDeclaration", "body", "options", "lastStatusChangedOn", "SYS_INTERNAL_LAST_UPDATED_ON", "sYS_INTERNAL_LAST_UPDATED_ON","branchingLogic"]
 search_indexer_restrict_object_types: ["EventSet", "EventSetImage", "Event", "EventImage", "Questionnaire", "Misconception", "FrameworkType", "Concept", "Misconception", "Language", "Reference", "Dimension", "Method", "Library", "Domain", "Api"]
 
@@ -347,3 +380,23 @@ cloud_storage_key: ""
 cloud_storage_secret: ""
 cloud_storage_container: ""
 cloud_storage_endpoint: ""
+
+
+### csp-migrator related vars
+csp_migrator_parallelism: 1
+csp_migrator_timer_duration: 1800
+csp_migrator_max_retries: 10
+csp_migrator_consumer_parallelism: 1
+csp_migrator_cassandra_parallelism: 1
+csp_migration_topic_name: "{{ env_name }}.csp.migration.job.request"
+csp_migrator_group_name: "{{ env_name }}-csp-migrator-group"
+csp_migrator_failed_topic_name: "{{ env_name }}.csp.migration.job.request.failed"
+question_republish_topic_name: "{{ env_name }}.assessment.republish.request"
+content_republish_topic_name: "{{ env_name }}.republish.job.request"
+video_stream_topic_name: "{{ env_name }}.live.video.stream.request"
+content_hierarchy_keyspace_name: "{{ hierarchy_keyspace_name }}"
+questionset_hierarchy_keyspace_name: "{{ hierarchy_keyspace_name }}"
+
+cloudstorage_relative_path_prefix_content: "CLOUD_STORAGE_BASE_PATH"
+cloudstorage_relative_path_prefix_dial: "DIAL_STORAGE_BASE_PATH"
+cloudstorage_metadata_list: '["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "assetsMap", "certTemplate", "itemSetPreviewUrl", "grayScaleAppIcon", "sourceURL", "variants", "downloadUrl", "streamingUrl", "toc_url", "data", "question", "solutions", "editorState", "media", "pdfUrl"]'
