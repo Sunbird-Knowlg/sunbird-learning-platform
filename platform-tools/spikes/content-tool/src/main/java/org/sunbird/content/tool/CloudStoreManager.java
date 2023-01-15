@@ -22,8 +22,16 @@ public class CloudStoreManager {
 
     protected String destStorageType = Platform.config.getString("destination.storage_type");
 
-    protected BaseStorageService awsService = StorageServiceFactory.getStorageService(new StorageConfig("aws", Platform.config.getString("aws_storage_key"), Platform.config.getString("aws_storage_secret")));
-    protected BaseStorageService azureService = StorageServiceFactory.getStorageService((new StorageConfig("azure", Platform.config.getString("azure_storage_key"), Platform.config.getString("azure_storage_secret"))));
+    protected scala.Option<String> awsEndpoint = scala.Option.apply("");
+
+    protected BaseStorageService awsService = StorageServiceFactory.getStorageService(new StorageConfig("aws", Platform.config.getString("aws_storage_key"), Platform.config.getString("aws_storage_secret"),awsEndpoint,""));
+
+    protected scala.Option<String> azureEndpoint = scala.Option.apply("");
+    protected BaseStorageService azureService = StorageServiceFactory.getStorageService(new StorageConfig("azure", Platform.config.getString("azure_storage_key"), Platform.config.getString("azure_storage_secret"),azureEndpoint,""));
+
+    protected scala.Option<String> ociEndpoint = scala.Option.apply(Platform.config.getString("oci_storage_endpoint"));
+    protected BaseStorageService ociService = StorageServiceFactory.getStorageService(new StorageConfig("oci", Platform.config.getString("oci_storage_key"), Platform.config.getString("oci_storage_secret"),ociEndpoint,""));
+
     private String cloudSrcBaseURL = Platform.config.getString("cloud.src.baseurl");
     private String cloudDestBaseURL = Platform.config.getString("cloud.dest.baseurl");
 
@@ -239,6 +247,8 @@ public class CloudStoreManager {
             return Platform.config.getString("azure_storage_container");
         }else if(StringUtils.equalsIgnoreCase(cloudStoreType, "aws")) {
             return Platform.config.getString("aws_storage_container");
+        }else if(StringUtils.equalsIgnoreCase(cloudStoreType, "oci")) {
+            return Platform.config.getString("oci_storage_container");
         }else {
             throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while getting container name");
         }
@@ -249,6 +259,8 @@ public class CloudStoreManager {
             return azureService;
         }else if(StringUtils.equalsIgnoreCase(cloudStoreType, "aws")) {
             return awsService;
+        }else if(StringUtils.equalsIgnoreCase(cloudStoreType, "oci")) {
+            return ociService;
         }else {
             throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while getting container name");
         }

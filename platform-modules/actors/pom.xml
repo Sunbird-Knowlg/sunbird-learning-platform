@@ -62,7 +62,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
-    		<artifactId>cloud-store-sdk</artifactId>
+    		<artifactId>cloud-store-sdk_2.11</artifactId>
 			<version>${cloud.store.version}</version>
 		</dependency>
 	</dependencies>

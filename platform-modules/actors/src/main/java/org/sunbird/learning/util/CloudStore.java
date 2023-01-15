@@ -28,11 +28,18 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 		if(StringUtils.equalsIgnoreCase(cloudStoreType, "azure")) {
 			String storageKey = Platform.config.getString("azure_storage_key");
 			String storageSecret = Platform.config.getString("azure_storage_secret");
-			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret));
+			scala.Option<String> endpoint = scala.Option.apply("");
+			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret,endpoint,""));
 		}else if(StringUtils.equalsIgnoreCase(cloudStoreType, "aws")) {
 			String storageKey = Platform.config.getString("aws_storage_key");
 			String storageSecret = Platform.config.getString("aws_storage_secret");
-			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret));
+			scala.Option<String> endpoint = scala.Option.apply("");
+			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret,endpoint,""));
+		}else if(StringUtils.equalsIgnoreCase(cloudStoreType, "oci")) {
+			String storageKey = Platform.config.getString("oci_storage_key");
+			String storageSecret = Platform.config.getString("oci_storage_secret");
+			scala.Option<String> endpoint = scala.Option.apply(Platform.config.getString("oci_storage_endpoint"));
+			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret,endpoint,""));
 		}else {
 			throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while initialising cloud storage");
 		}
