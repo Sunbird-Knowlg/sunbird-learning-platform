@@ -64,6 +64,12 @@
 			<groupId>org.sunbird</groupId>
     		<artifactId>cloud-store-sdk_2.11</artifactId>
 			<version>${cloud.store.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.jclouds.driver</groupId>
+                    <artifactId>jclouds-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 	</dependencies>
   
