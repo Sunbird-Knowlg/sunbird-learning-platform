@@ -1,6 +1,5 @@
 neo4j_restore_dir: /home/{{learner_user}}/restore
 learner_user: learning
-neo4j_backup_azure_container_name: neo4j-backup
 neo4j_home: "{{learner_user_home}}/neo4j-learning/neo4j-enterprise-3.3.0"
 learner_user_home: /home/{{learner_user}}
 path_to_neo4j_db: "{{neo4j_home}}/data/databases"
@@ -10,9 +9,5 @@ path_to_neo4j_db: "{{neo4j_home}}/data/databases"
 #backup_azure_storage_account_name:  defined in private repo
 #backup_azure_storage_access_key: defined in secrets.yml
 
-# This variable is added for the below reason -
-# 1. Introduce a common variable for various clouds. In case of azure, it refers to container name, in case of aws / gcp, it refers to folder name
-# 2. We want to avoid too many new variable introduction / replacement in first phase. Hence we will reuse the existing variable defined in private repo
-#    or other default files and just assign the value to the newly introduced common variable 
-# 3. After few releases, we will remove the older variables and use only the new variables across the repos
-neo4j_backup_storage: "{{ neo4j_backup_azure_container_name }}"
+cloud_storage_neo4jbackup_bucketname: "{{ cloud_storage_management_bucketname }}"
+cloud_storage_neo4jbackup_foldername: neo4j-backup

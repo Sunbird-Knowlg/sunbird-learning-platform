@@ -46,7 +46,7 @@ search.batch.size=500
 search.connection.timeout=30
 search.index.name="{{ compositesearch_index_name }}"
 
-nested.fields=["badgeAssertions","targets","badgeAssociations","plugins","me_totalTimeSpent","me_totalPlaySessionCount","me_totalTimeSpentInSec","batches","trackable","credentials"]
+nested.fields=["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions", "transcripts", "accessibility"]
 channel.default="in.ekstep"
 
 # Cassandra Configurations
@@ -76,11 +76,11 @@ content.postpublish.topic="{{ env }}.content.postpublish.request"
 
 search.lms_es_conn_info="{{ search_lms_index_host }}"
 
-#Azure Storage details
-cloud_storage_type="{{ cloud_store }}"
-azure_storage_key="{{sunbird_public_storage_account_name}}"
-azure_storage_secret="{{sunbird_public_storage_account_key}}"
-azure_storage_container="{{ azure_public_container }}"
+#Cloud Storage details
+cloud_storage_type="{{ cloud_service_provider }}"
+cloud_storage_key="{{ cloud_public_storage_accountname }}"
+cloud_storage_secret="{{ cloud_public_storage_secret }}"
+cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
 contentTypeToPrimaryCategory {
   ClassroomTeachingVideo: "Explanation Content"
@@ -116,3 +116,8 @@ contentTypeToPrimaryCategory {
   CourseUnit: "Course Unit"
   TextBookUnit: "Textbook Unit"
 }
+csp.migration.request.topic="{{ csp_migration_topic_name }}"
+csp.migration.batch.size={{ csp_migration_batch_size }}
+is_replace_string={{ sync_tool_is_replace_string | default('false') }}
+replace_src_string= "{{ sync_tool_replace_src_string | default('') }}"
+replace_dest_string="{{ sync_tool_replace_dest_string | default('') }}"

@@ -4,6 +4,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONArray;
+import org.neo4j.driver.v1.Values;
 import org.sunbird.common.Platform;
 import org.sunbird.common.dto.NodeDTO;
 import org.sunbird.common.dto.Request;
@@ -16,7 +18,11 @@ import org.sunbird.common.exception.ServerException;
 import org.sunbird.common.mgr.ConvertGraphNode;
 import org.sunbird.graph.common.enums.GraphHeaderParams;
 import org.sunbird.graph.dac.enums.GraphDACParams;
+import org.sunbird.graph.dac.enums.SystemNodeTypes;
+import org.sunbird.graph.dac.model.Filter;
+import org.sunbird.graph.dac.model.MetadataCriterion;
 import org.sunbird.graph.dac.model.Node;
+import org.sunbird.graph.dac.model.SearchConditions;
 import org.sunbird.graph.dac.model.SearchCriteria;
 import org.sunbird.graph.engine.mgr.impl.NodeManager;
 import org.sunbird.graph.engine.router.GraphEngineManagers;
@@ -149,25 +155,25 @@ public class ControllerUtil extends BaseLearningManager {
         }
         return null;
     }
-    
+
     public DefinitionDTO getDefinition(String taxonomyId, String objectType, boolean disableAkka) {
-    	DefinitionDTO definition = null;
-    	if(disableAkka) {
-    		try {
-    			Request request = new Request();
-    	        request.getContext().put(GraphHeaderParams.graph_id.name(), TAXONOMY_ID);
-    			request.put(GraphDACParams.object_type.name(), objectType);
-    			NodeManager nodeManager = new NodeManager();
-    			definition = nodeManager.getNodeDefinition(request);
-    		}catch (Exception e) {
-    			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage() + ". Please Try Again After Sometime!");
-    		}
-    	}else {
-    		definition = getDefinition(taxonomyId, objectType);
-    	}
-		return definition;
-		
-	}
+        DefinitionDTO definition = null;
+        if(disableAkka) {
+            try {
+                Request request = new Request();
+                request.getContext().put(GraphHeaderParams.graph_id.name(), TAXONOMY_ID);
+                request.put(GraphDACParams.object_type.name(), objectType);
+                NodeManager nodeManager = new NodeManager();
+                definition = nodeManager.getNodeDefinition(request);
+            }catch (Exception e) {
+                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage() + ". Please Try Again After Sometime!");
+            }
+        }else {
+            definition = getDefinition(taxonomyId, objectType);
+        }
+        return definition;
+
+    }
 
     /**
      * Gets all the definitions
@@ -406,6 +412,38 @@ public class ControllerUtil extends BaseLearningManager {
         }
     }
 
+    public List<Node> getNodes(String graphId, String objectType, List<String> mimeTypes, List<String> status, List<String> contentIdsList, double migrationVersion, int startPosition, int batchSize) {
+        List<Filter> filters = new ArrayList<Filter>();
+        if(!mimeTypes.isEmpty())
+            filters.add(new Filter("mimeType", SearchConditions.OP_IN, mimeTypes));
+        if(!status.isEmpty())
+            filters.add(new Filter("status", SearchConditions.OP_IN, status));
+        if(!contentIdsList.isEmpty()) {
+            filters.add(new Filter("IL_UNIQUE_ID", SearchConditions.OP_IN, contentIdsList));
+        } else {
+            if (migrationVersion == 0) filters.add(new Filter("migrationVersion", SearchConditions.OP_IS, Values.NULL));
+            else filters.add(new Filter("migrationVersion", SearchConditions.OP_EQUAL, migrationVersion));
+        }
+
+        SearchCriteria sc = new SearchCriteria();
+        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+        sc.setObjectType(objectType);
+        sc.setResultSize(batchSize);
+        sc.setStartPosition(startPosition);
+        if(!filters.isEmpty() && filters.size()>0)
+            sc.addMetadata(MetadataCriterion.create(filters));
+        Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), sc);
+        req.put(GraphDACParams.get_tags.name(), true);
+        Response listRes = getResponse(req);
+        if (checkError(listRes))
+            return null;
+        else {
+            List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
+            return nodes;
+        }
+    }
+
     public List<String> getNodesWithInDateRange(String graphId, String objectType, String startDate, String endDate) {
 
         List<String> nodeIds = new ArrayList<>();
@@ -553,15 +591,15 @@ public class ControllerUtil extends BaseLearningManager {
                 Map<String, List<Map<String, Object>>> currentLevelNodes = new HashMap<>();
                 list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth)
                         .collect(Collectors.toList()).forEach(e -> {
-                    String id = (String) e.get("identifier");
-                    List<Map<String, Object>> nodes = currentLevelNodes.get(id);
-                    if (CollectionUtils.isEmpty(nodes)) {
-                        nodes = new ArrayList<>();
-                        currentLevelNodes.put((String) e.get("identifier"), nodes);
-                    }
-                    nodes.add(e);
+                            String id = (String) e.get("identifier");
+                            List<Map<String, Object>> nodes = currentLevelNodes.get(id);
+                            if (CollectionUtils.isEmpty(nodes)) {
+                                nodes = new ArrayList<>();
+                                currentLevelNodes.put((String) e.get("identifier"), nodes);
+                            }
+                            nodes.add(e);
 
-                });
+                        });
 
                 List<Map<String, Object>> nextLevelNodes = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth + 1)
                         .collect(Collectors.toList());
@@ -663,19 +701,19 @@ public class ControllerUtil extends BaseLearningManager {
 //		startTime = System.currentTimeMillis();
         Response getList = getDataNodes(graphId, ids);
 //		System.out.println("Time to get required data nodes: " + (System.currentTimeMillis() - startTime));
-		if (null != getList && !checkError(getList)) {
-			List<Node> nodeList = (List<Node>) getList.get("node_list");
-			Map<String, Map<String, Object>> contentsWithMetadata = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
-					(n, graphId, definition, fields)).map(contentMap -> {
-				contentMap.remove("collections");
-				contentMap.remove("children");
-				contentMap.remove("usedByContent");
-				contentMap.remove("item_sets");
-				contentMap.remove("methods");
-				contentMap.remove("libraries");
-				contentMap.remove("editorState");
-				return contentMap;
-			}).collect(Collectors.toMap(e -> (String) e.get("identifier"), e -> e));
+        if (null != getList && !checkError(getList)) {
+            List<Node> nodeList = (List<Node>) getList.get("node_list");
+            Map<String, Map<String, Object>> contentsWithMetadata = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
+                    (n, graphId, definition, fields)).map(contentMap -> {
+                contentMap.remove("collections");
+                contentMap.remove("children");
+                contentMap.remove("usedByContent");
+                contentMap.remove("item_sets");
+                contentMap.remove("methods");
+                contentMap.remove("libraries");
+                contentMap.remove("editorState");
+                return contentMap;
+            }).collect(Collectors.toMap(e -> (String) e.get("identifier"), e -> e));
 
             contentList = contentList.stream().map(n -> {
                 n.putAll(contentsWithMetadata.get(n.get("identifier")));
@@ -684,16 +722,16 @@ public class ControllerUtil extends BaseLearningManager {
 //			startTime = System.currentTimeMillis();
             collectionHierarchy = contentCleanUp(constructHierarchy(contentList));
 //			System.out.println("Time to construct hierarchy: " + (System.currentTimeMillis() - startTime));
-		} else {
-			if (null != getList && getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
-				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), getList.getParams().getErrmsg());
-			} else {
-				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), getList.getParams().getErrmsg());
-			}
-		}
-		hierarchyCleanUp(collectionHierarchy);
-		return collectionHierarchy;
-	}
+        } else {
+            if (null != getList && getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+                throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), getList.getParams().getErrmsg());
+            } else {
+                throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), getList.getParams().getErrmsg());
+            }
+        }
+        hierarchyCleanUp(collectionHierarchy);
+        return collectionHierarchy;
+    }
 
 
     public List<String> getPublishedCollections(String graphId, int offset, int limit) {
@@ -756,6 +794,50 @@ public class ControllerUtil extends BaseLearningManager {
             for (Map<String, Object> child : children)
                 hierarchyCleanUp(child);
         }
+    }
+
+    public Map<String, Long> getCSPMigrationObjectCount(String graphId, List<String> objectTypes, List<String> mimeTypeList, List<String> statusList, List<String> contentIdsList, double migrationVersion) {
+        Map<String, Long> counts = new HashMap<String, Long>();
+        Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
+        StringBuilder queryString = new StringBuilder();
+        queryString.append("MATCH (n:{0}) WHERE EXISTS(n.IL_FUNC_OBJECT_TYPE) AND n.IL_SYS_NODE_TYPE=\"DATA_NODE\" AND n.IL_FUNC_OBJECT_TYPE IN {1} ");
+
+        if(mimeTypeList!=null && !mimeTypeList.isEmpty())
+            queryString.append(" AND n.mimeType IN {2} ");
+
+        if(statusList!=null && !statusList.isEmpty())
+            queryString.append(" AND n.status IN {3} ");
+
+        if(contentIdsList!=null && !contentIdsList.isEmpty())
+            queryString.append(" AND n.IL_UNIQUE_ID IN {5} ");
+        else {
+            if (migrationVersion == 0) queryString.append(" AND NOT EXISTS(n.migrationVersion) ");
+            else queryString.append(" AND n.migrationVersion={4} ");
+        }
+
+        queryString.append("RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;");
+
+        System.out.println("Count queryString:: " + MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(mimeTypeList), new JSONArray(statusList), migrationVersion, new JSONArray(contentIdsList)));
+
+        request.put(GraphDACParams.query.name(), MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(mimeTypeList), new JSONArray(statusList), migrationVersion, new JSONArray(contentIdsList)));
+
+        List<String> props = new ArrayList<String>();
+        props.add("objectType");
+        props.add("count");
+        request.put(GraphDACParams.property_keys.name(), props);
+        Response response = getResponse(request);
+        if (!checkError(response)) {
+            Map<String, Object> result = response.getResult();
+            List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
+            if (null != list && !list.isEmpty()) {
+                for (int i = 0; i < list.size(); i++) {
+                    Map<String, Object> properties = list.get(i);
+                    counts.put((String) properties.get("objectType"), (Long) properties.get("count"));
+                }
+            }
+
+        }
+        return counts;
     }
 
 }

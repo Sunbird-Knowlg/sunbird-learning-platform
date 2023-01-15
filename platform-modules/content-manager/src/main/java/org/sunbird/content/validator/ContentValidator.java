@@ -478,6 +478,13 @@ public class ContentValidator {
 	 */
 	public Boolean isValidUrl(String fileURL, String mimeType) {
 		Boolean isValid = false;
+
+		String strBlobPrefix = Platform.config.hasPath("cloudstorage.relative_path_prefix")?	Platform.config.getString("cloudstorage.relative_path_prefix"): "CONTENT_STORAGE_BASE_PATH";
+		if(fileURL.contains(strBlobPrefix)) {
+			String absolutePath = Platform.config.getString("cloudstorage.read_base_path") + java.io.File.separator + Platform.config.getString("cloud_storage_container");
+			fileURL = StringUtils.replace(fileURL,strBlobPrefix,absolutePath);
+		}
+
 		File file = HttpDownloadUtility.downloadFile(fileURL, BUNDLE_PATH);
 		try {
 			if (exceptionChecks(mimeType, file)) {
