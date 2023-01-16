@@ -63,13 +63,7 @@
 		<dependency>
 			<groupId>org.sunbird</groupId>
     		<artifactId>cloud-store-sdk_2.11</artifactId>
-			<version>${cloud.store.version}</version>
-			<exclusions>
-				<exclusion>
-				<groupId>com.google.guava</groupId>
-				<artifactId>guava</artifactId>
-				</exclusion>
-			</exclusions>			
+			<version>${cloud.store.version}</version>			
 		</dependency>
 	</dependencies>
   
