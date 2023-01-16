@@ -30,7 +30,8 @@
 		<dependency>
 			<groupId>com.datastax.cassandra</groupId>
 			<artifactId>cassandra-driver-core</artifactId>
-			<version>3.1.2</version>
+			<!-- <version>3.1.2</version> -->
+			<version>3.2.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.google.guava</groupId>
@@ -41,7 +42,8 @@
 		<dependency>
 			<groupId>com.datastax.cassandra</groupId>
 			<artifactId>cassandra-driver-mapping</artifactId>
-			<version>3.1.2</version>
+			<!-- <version>3.1.2</version> -->
+			<version>3.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
