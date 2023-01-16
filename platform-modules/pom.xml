@@ -22,12 +22,23 @@
 		<cloud.store.version>1.4.5</cloud.store.version>
 	</properties>
 
-	<modules>
+	<!-- <modules>
 		<module>common</module>
 		<module>taxonomy-manager</module>
 		<module>assessment-manager</module>
 		<module>manager</module>
 		<module>service</module>
+		<module>actors</module>
+		<module>content-manager</module>
+		<module>sunbird-framework</module>
+	</modules> -->
+
+	<modules>
+		<module>common</module>
+		<module>taxonomy-manager</module>
+		<module>assessment-manager</module>
+		<module>service</module>
+		<module>manager</module>
 		<module>actors</module>
 		<module>content-manager</module>
 		<module>sunbird-framework</module>
