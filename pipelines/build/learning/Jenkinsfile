@@ -31,6 +31,8 @@ node() {
 
         stage('Build') {
             sh 'mvn clean install -DskipTests -P ${profile_id} -T10'
+            sh('chmod 777 build/build.sh')
+            sh("build/build.sh ${build_tag} ${"learning-service"} ${env.NODE_NAME} ${hub_org}")
         }
 
         stage('Post_Build-Action') {
