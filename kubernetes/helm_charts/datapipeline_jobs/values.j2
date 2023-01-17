@@ -1137,6 +1137,16 @@ csp-migrator:
         assessment_table = "question_data"
     }
 
+    cloud_storage {
+      folder {
+        content = "content"
+        artifact = "artifact"
+      }
+    }
+
+    gdrive.application_name=drive-download
+    g_service_acct_cred="{{ auto_creator_g_service_acct_cred }}"
+
     questionset.hierarchy.keyspace="{{ questionset_hierarchy_keyspace_name }}"
     questionset.hierarchy.table="questionset_hierarchy"
 
