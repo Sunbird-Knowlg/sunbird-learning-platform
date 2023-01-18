@@ -73,7 +73,7 @@ base_config: |
     }
     job {
       env = "{{ env_name }}"
-      enable.distributed.checkpointing = false
+      enable.distributed.checkpointing = true
       statebackend {
         blob {
           storage {
@@ -1144,7 +1144,7 @@ csp-migrator:
       }
     }
 
-    gdrive.application_name=drive-download
+    gdrive.application_name="{{ gdrive_application_name }}"
     g_service_acct_cred="{{ auto_creator_g_service_acct_cred }}"
 
     questionset.hierarchy.keyspace="{{ questionset_hierarchy_keyspace_name }}"
