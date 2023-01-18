@@ -1,76 +1,50 @@
 @Library('deploy-conf') _
-node() {
+node('build-slave') {
     try {
         String ANSI_GREEN = "\u001B[32m"
         String ANSI_NORMAL = "\u001B[0m"
         String ANSI_BOLD = "\u001B[1m"
         String ANSI_RED = "\u001B[31m"
         String ANSI_YELLOW = "\u001B[33m"
-        
+
         ansiColor('xterm') {
-            stage('Checkout') {
-               
-                tag_name = env.JOB_NAME.split("/")[-1]
-                pre_checks()
+            withEnv(["JAVA_HOME=${JAVA8_HOME}"]) {
+                stage('Checkout') {
+                    tag_name = env.JOB_NAME.split("/")[-1]
+                    pre_checks()
+                    if (!env.hub_org) {
+                        println(ANSI_BOLD + ANSI_RED + "Uh Oh! Please set a Jenkins environment variable named hub_org with value as registery/sunbidrded" + ANSI_NORMAL)
+                        error 'Please resolve the errors and rerun..'
+                    } else
+                        println(ANSI_BOLD + ANSI_GREEN + "Found environment variable named hub_org with value as: " + hub_org + ANSI_NORMAL)
+                }
                 cleanWs()
                 def scmVars = checkout scm
                 checkout scm: [$class: 'GitSCM', branches: [[name: "refs/tags/$tag_name"]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
+                build_tag = tag_name + "_" + env.BUILD_NUMBER
                 commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                 artifact_version = tag_name + "_" + commit_hash
-                echo "artifact_version: "+ artifact_version
+                echo "build_tag: " + build_tag
+
+                //        stage Build
+                env.NODE_ENV = "build"
+                print "Environment will be : ${env.NODE_ENV}"
+                sh 'mvn clean install -DskipTests=true '
+
+                //          stage Package
+                sh('chmod 777 build/build.sh')
+                sh("build/build.sh ${build_tag} ${"learning-service"} ${env.NODE_NAME} ${hub_org}")
+
+                //          stage ArchiveArtifacts
+                archiveArtifacts "metadata.json"
+                currentBuild.description = "${build_tag}"
+
             }
-        }
-
- //       stage Pre-Build
-            sh """
-                java -version
-                rm -rf /data/logs/*
-                rm -rf /data/graphDB/*
-                rm -rf /data/testgraphDB/*
-                rm -rf /data/testGraphDB/*
-                vim -esnc '%s/dialcode.es_conn_info="localhost:9200"/dialcode.es_conn_info="10.6.0.11:9200"/g|:wq' platform-core/unit-tests/src/test/resources/application.conf
-                vim -esnc '%s/search.es_conn_info="localhost:9200"/search.es_conn_info="10.6.0.11:9200"/g|:wq' platform-core/unit-tests/src/test/resources/application.conf
-                """
-
- //       stage Build
-            sh 'mvn clean install -DskipTests -P learning-services -T10'
-            sh('chmod 777 build/build.sh')
-            sh("build/build.sh ${build_tag} ${"learning-service"} ${env.NODE_NAME} ${hub_org}")
-        
-
-//        stage Post_Build-Action
-            jacoco exclusionPattern: '**/common/**,**/dto/**,**/enums/**,**/pipeline/**,**/servlet/**,**/interceptor/**,**/batch/**,**/models/**,**/model/**,**/EnrichActor*.class,**/language/controller/**,**/wordchain/**,**/importer/**,**/Base**,**/ControllerUtil**,**/Indowordnet**,**/Import**'
-
-        
-
-//        stage Archive artifacts
-            if(params.profile_id == "platform-services"){
-                 sh """
-                        mkdir lp_artifacts
-                        cp platform-modules/service/target/learning-service.war lp_artifacts
-                        cp platform-tools/spikes/sync-tool/target/sync-tool*.jar lp_artifacts
-                        cp platform-tools/spikes/content-tool/target/content-tool-*.jar lp_artifacts
-                        zip -j lp_artifacts.zip:${artifact_version} lp_artifacts/*
-                    """
-            }        
-            else {
-                 sh """
-                        mkdir lp_artifacts
-                        cp platform-modules/service/target/learning-service.war lp_artifacts
-                        zip -j lp_artifacts.zip:${artifact_version} lp_artifacts/*
-                    """
-              }
-                 
-            archiveArtifacts artifacts: "lp_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
-            sh """echo {\\"artifact_name\\" : \\"lp_artifacts.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
-            archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
             currentBuild.result = "SUCCESS"
-            currentBuild.description = "Artifact: ${artifact_version}, Public: ${params.github_release_tag}"
-        
-        currentBuild.result = "SUCCESS"    
-        slack_notify(currentBuild.result, tag_name)
-        email_notify()  
-        auto_build_deploy()
+            slack_notify(currentBuild.result, tag_name)
+            email_notify()
+            auto_build_deploy()
+        }
     }
     catch (err) {
         currentBuild.result = "FAILURE"
