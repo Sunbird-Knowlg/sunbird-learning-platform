@@ -85,8 +85,8 @@ search_es7_host: "{{ groups['es7']|join(':9200,')}}:9200"
 
 mlworkbench: "{{ groups['mlworkbench'][0]}}"
 
-azure_account: "{{ sunbird_public_storage_account_name }}"
-azure_secret: "{{ sunbird_public_storage_account_key }}"
+azure_account: "{{ cloud_public_storage_accountname }}"
+azure_secret: "{{ cloud_public_storage_secret }}"
 dedup_redis_host: "{{ dp_redis_host }}"
 kp_redis_host: "{{ groups['redisall'][0] }}"
 neo4j_route_path: "bolt://{{ groups['learning-neo4j-node1'][0] }}:7687"
@@ -119,3 +119,11 @@ download_neo4j: true
 neo4j_upstream_download: false
 enable_suppress_exception: false
 enable_rc_certificate: true
+
+# SB-31155
+plugin_storage: "{{ plugin_container_name }}"
+
+
+cloudstorage_relative_path_prefix_content: "CONTENT_STORAGE_BASE_PATH"
+cloudstorage_relative_path_prefix_dial: "DIAL_STORAGE_BASE_PATH"
+cloudstorage_metadata_list: '["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "assetsMap", "certTemplate", "itemSetPreviewUrl", "grayScaleAppIcon", "sourceURL", "variants", "downloadUrl", "streamingUrl", "toc_url", "data", "question", "solutions", "editorState", "media", "pdfUrl", "transcripts"]'

@@ -30,23 +30,37 @@
     name: azure-cloud-storage
     tasks_from: blob-upload.yml
   vars:
-    blob_container_name: "{{ neo4j_backup_storage }}"
+    blob_container_name: "{{ cloud_storage_neo4jbackup_foldername }}"
     blob_file_name: "{{ var1.stdout }}"
     container_public_access: "off"
     local_file_or_folder_path: "/home/learning/backup/{{ var1.stdout }}"
-    storage_account_name: "{{ azure_management_storage_account_name }}"
-    storage_account_key: "{{ azure_management_storage_account_key }}"
+    storage_account_name: "{{ cloud_management_storage_accountname }}"
+    storage_account_key: "{{ cloud_management_storage_secret }}"
   when: cloud_service_provider == "azure"
+
+- name: upload file to aws s3
+  include_role:
+    name: aws-cloud-storage
+    tasks_from: upload.yml
+  vars:
+    s3_bucket_name: "{{ cloud_storage_neo4jbackup_bucketname }}"
+    aws_access_key_id: "{{ cloud_management_storage_accountname }}"
+    aws_secret_access_key: "{{ cloud_management_storage_secret }}"
+    aws_default_region: "{{ cloud_public_storage_region }}"
+    local_file_or_folder_path: "/home/learning/backup/{{ var1.stdout }}"
+    s3_path: "{{ cloud_storage_neo4jbackup_foldername }}/{{ var1.stdout }}"
+  when: cloud_service_provider == "aws"
 
 - name: upload file to gcloud storage
   include_role:
     name: gcp-cloud-storage
     tasks_from: upload.yml
   vars:
-    gcp_bucket_name: "{{ gcloud_management_bucket_name }}"
-    dest_folder_name: "{{ neo4j_backup_storage }}"
-    dest_file_name: "{{ var1.stdout }}"
-    local_file_or_folder_path: "{{ neo4j_backup_dir }}/{{ var1.stdout }}"
+    gcp_storage_service_account_name: "{{ cloud_management_storage_accountname }}"
+    gcp_storage_key_file: "{{ cloud_management_storage_secret }}"
+    gcp_bucket_name: "{{ cloud_storage_neo4jbackup_bucketname }}"
+    gcp_path: "{{ cloud_storage_neo4jbackup_foldername }}/{{ var1.stdout }}"
+    local_file_or_folder_path: "/home/learning/backup/{{ var1.stdout }}"
   when: cloud_service_provider == "gcloud"
 
 - name: clean up backup dir after upload
