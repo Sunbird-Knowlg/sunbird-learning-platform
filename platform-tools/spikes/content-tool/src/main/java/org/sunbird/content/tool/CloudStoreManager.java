@@ -22,13 +22,16 @@ public class CloudStoreManager {
 
     protected String destStorageType = Platform.config.getString("destination.storage_type");
     protected scala.Option<String> awsEndpoint = scala.Option.apply("");
-    protected BaseStorageService awsService = StorageServiceFactory.getStorageService(new StorageConfig("aws", Platform.config.getString("aws_storage_key"), Platform.config.getString("aws_storage_secret"),awsEndpoint,""));
+    protected scala.Option<String> awsRegion = scala.Option.apply("");
+    protected BaseStorageService awsService = StorageServiceFactory.getStorageService(new StorageConfig("aws", Platform.config.getString("aws_storage_key"), Platform.config.getString("aws_storage_secret"),awsEndpoint,awsRegion));
 
     protected scala.Option<String> azureEndpoint = scala.Option.apply("");
-    protected BaseStorageService azureService = StorageServiceFactory.getStorageService(new StorageConfig("azure", Platform.config.getString("azure_storage_key"), Platform.config.getString("azure_storage_secret"),azureEndpoint,""));
+    protected scala.Option<String> azureRegion = scala.Option.apply("");
+    protected BaseStorageService azureService = StorageServiceFactory.getStorageService(new StorageConfig("azure", Platform.config.getString("azure_storage_key"), Platform.config.getString("azure_storage_secret"),azureEndpoint,azureRegion));
 
     protected scala.Option<String> ociEndpoint = scala.Option.apply(Platform.config.getString("oci_storage_endpoint"));
-    protected BaseStorageService ociService = StorageServiceFactory.getStorageService(new StorageConfig("oci", Platform.config.getString("oci_storage_key"), Platform.config.getString("oci_storage_secret"),ociEndpoint,""));
+    protected scala.Option<String> ociRegion = scala.Option.apply("");
+    protected BaseStorageService ociService = StorageServiceFactory.getStorageService(new StorageConfig("oci", Platform.config.getString("oci_storage_key"), Platform.config.getString("oci_storage_secret"),ociEndpoint,ociRegion));
 
     private String cloudSrcBaseURL = Platform.config.getString("cloud.src.baseurl");
     private String cloudDestBaseURL = Platform.config.getString("cloud.dest.baseurl");

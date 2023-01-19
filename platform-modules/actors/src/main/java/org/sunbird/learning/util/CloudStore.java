@@ -27,7 +27,8 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 		String storageKey = Platform.config.getString("cloud_storage_key");
 		String storageSecret = Platform.config.getString("cloud_storage_secret");
 		scala.Option<String> storageEndpoint = scala.Option.apply(Platform.config.getString("cloud_storage_endpoint"));
-		storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret,storageEndpoint,""));
+		scala.Option<String> storageRegion = scala.Option.apply("");
+		storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret,storageEndpoint,storageRegion));
 	}
 	
 	public static BaseStorageService getCloudStoreService() {
