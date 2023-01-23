@@ -28,8 +28,8 @@ uci_keyspace_name: "{{instance}}_uci_store"
 
 
 dp_cassandra_connection: "{{ groups['dp-cassandra'][0] }}:9042"
-core_cassandra_connection: "{{groups['lp-cassandra']|join(':9042,')}}:9042"
-core_cassandra_connection_ip: "{{ groups['lp-cassandra'][0] }}"
+core_cassandra_connection: "{{groups['core-cassandra']|join(':9042,')}}:9042"
+core_cassandra_connection_ip: "{{ groups['core-cassandra'][0] }}"
 
 dial_service_generate_url: "http://{{private_ingressgateway_ip}}/dial/dialcode/v3/generate"
 search_service_endpoint: "{{ekstep_domain_name}}/api/search/v2/search"
