@@ -172,7 +172,7 @@ flink_job_names:
     replica: 1
     jobmanager_memory: 1024m
     taskmanager_memory: 1024m
-    taskslots: 1
+    taskslots: "{{search_indexer_taskslots | default('1') }}"
     cpu_requests: 0.3
   enrolment-reconciliation:
     job_class_name: 'org.sunbird.job.recounciliation.task.EnrolmentReconciliationStreamTask'
@@ -275,10 +275,10 @@ flink_job_names:
   live-node-publisher:
     job_class_name: 'org.sunbird.job.livenodepublisher.task.LiveNodePublisherStreamTask'
     replica: 1
-    jobmanager_memory: 1024m
-    taskmanager_memory: 1024m
-    taskslots: 1
-    cpu_requests: 0.3
+    jobmanager_memory: "{{live_node_publisher_job_memory | default('2048m') }}"
+    taskmanager_memory: "{{live_node_publisher_task_memory | default('2048m') }}"
+    taskslots: "{{live_node_publisher_taskslots | default('3') }}"
+    cpu_requests: "{{live_node_publisher_cpu_requests | default('0.7') }}"
   live-video-stream-generator:
     job_class_name: 'org.sunbird.job.livevideostream.task.LiveVideoStreamGeneratorStreamTask'
     replica: 1
@@ -395,8 +395,4 @@ content_republish_topic_name: "{{ env_name }}.republish.job.request"
 video_stream_topic_name: "{{ env_name }}.live.video.stream.request"
 content_hierarchy_keyspace_name: "{{ hierarchy_keyspace_name }}"
 questionset_hierarchy_keyspace_name: "{{ hierarchy_keyspace_name }}"
-
-cloudstorage_relative_path_prefix_content: "CLOUD_STORAGE_BASE_PATH"
-cloudstorage_relative_path_prefix_dial: "DIAL_STORAGE_BASE_PATH"
-cloudstorage_metadata_list: '["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "assetsMap", "certTemplate", "itemSetPreviewUrl", "grayScaleAppIcon", "sourceURL", "variants", "downloadUrl", "streamingUrl", "toc_url", "data", "question", "solutions", "editorState", "media", "pdfUrl"]'
-
+gdrive_application_name: "drive-download"
