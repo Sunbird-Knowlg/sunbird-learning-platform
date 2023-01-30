@@ -42,9 +42,9 @@ ALTER KEYSPACE {{ hierarchy_keyspace_name }} WITH replication = {
   'datacenter1' : 2
 };
 
-ALTER TABLE {{ hierarchy_keyspace_name }}.content_hierarchy ADD relational_metadata text;
-
 {% endif %}
+
+ALTER TABLE {{ hierarchy_keyspace_name }}.content_hierarchy ADD relational_metadata text;
 
 
 CREATE TRIGGER IF NOT EXISTS content_data_trigger ON {{ content_keyspace_name }}.content_data USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
