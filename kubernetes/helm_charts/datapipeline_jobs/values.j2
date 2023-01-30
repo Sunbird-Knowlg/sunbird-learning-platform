@@ -1043,12 +1043,13 @@ csp-migrator:
     questionset.hierarchy.table="questionset_hierarchy"
 
     key_value_strings_to_migrate = {
-        "https://community.ekstep.in/assets/public": "CLOUD_STORAGE_BASE_PATH",
-        "https://sunbirddev.blob.core.windows.net": "CLOUD_STORAGE_BASE_PATH",
-        "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com": "CLOUD_STORAGE_BASE_PATH",
-        "https://ntpproductionall.blob.core.windows.net/ntp-content-production": "CLOUD_STORAGE_BASE_PATH",
-        "https://vdn.diksha.gov.in/assets/public": "CLOUD_STORAGE_BASE_PATH",
-        "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging": "CLOUD_STORAGE_BASE_PATH"
+        "https://community.ekstep.in/assets/public": "CONTENT_STORAGE_BASE_PATH",
+        "https://sunbirddev.blob.core.windows.net": "CONTENT_STORAGE_BASE_PATH",
+        "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com": "CONTENT_STORAGE_BASE_PATH",
+        "https://ntpproductionall.blob.core.windows.net/ntp-content-production": "CONTENT_STORAGE_BASE_PATH",
+        "https://vdn.diksha.gov.in/assets/public": "CONTENT_STORAGE_BASE_PATH",
+        "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging": "CONTENT_STORAGE_BASE_PATH",
+        "CLOUD_STORAGE_BASE_PATH": "CONTENT_STORAGE_BASE_PATH"
     }
 
     neo4j_fields_to_migrate = {
