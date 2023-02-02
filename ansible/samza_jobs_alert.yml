@@ -1,9 +1,0 @@
----
-- hosts: lp-yarn-master
-  vars_files:
-    - "{{inventory_dir}}/secrets.yml"
-  tasks:
-     - command: ./samza_alerts.sh
-       args:
-        chdir: /home/hduser
-       become: yes

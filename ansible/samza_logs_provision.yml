@@ -1,8 +1,0 @@
----
-- hosts: dp-yarn-slave
-  vars_files:
-    - "{{inventory_dir}}/secrets.yml"
-  become: yes
-  tasks:
-    - name: copy the backup script to yarn slaves
-      copy: src=resources/upload_samza_logs dest="{{script_path}}/upload_samza_logs.sh" mode=755
