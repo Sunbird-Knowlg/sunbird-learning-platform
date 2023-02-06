@@ -24,7 +24,6 @@
 	<modules>
 		<module>module/searchindex-elasticsearch</module>
 		<module>module/searchindex-common</module>
-		<module>module/mvcsearchindex-elasticsearch</module>
 	</modules>
 
 	<dependencies>
