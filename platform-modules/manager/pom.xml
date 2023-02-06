@@ -11,18 +11,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.sunbird</groupId>
-			<artifactId>searchindex-elasticsearch</artifactId>
-			<version>1.1-SNAPSHOT</version>
-			<type>jar</type>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.logging.log4j</groupId>
-					<artifactId>log4j-core</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.sunbird</groupId>
 			<artifactId>content-manager</artifactId>
 			<version>1.1-beta</version>
 			<type>jar</type>
