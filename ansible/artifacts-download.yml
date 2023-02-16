@@ -27,6 +27,9 @@
     - name: download artifact from oci oss storage
       include_role:
         name: oci-cloud-storage
+        apply:
+          environment:
+           OCI_CLI_AUTH: "instance_principal"        
         tasks_from: download.yml
       vars:
         oss_bucket_name: "{{ oci_artifact_oss_bucket_name }}"
