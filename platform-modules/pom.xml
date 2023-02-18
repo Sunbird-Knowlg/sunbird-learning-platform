@@ -19,7 +19,7 @@
 		<version.compiler.plugin>2.3.1</version.compiler.plugin>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
-		<cloud.store.version>1.4.4</cloud.store.version>
+		<cloud.store.version>1.4.6</cloud.store.version>
 	</properties>
 
 	<modules>
