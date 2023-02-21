@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sunbird.cassandra.connector.util.CassandraConnector;
 import org.sunbird.common.Platform;
 import org.sunbird.common.exception.ServerException;
@@ -25,7 +26,10 @@ public class DialcodeSync {
     private static String table = null;
 	private static String qrImageKeyspace = null;
 	private static String qrImageTable = null;
-   
+
+	private static boolean isReplaceString = Platform.config.getBoolean("is_replace_string");
+	private static String replaceSrcStringDIALStore = Platform.config.getString("replace_src_string_DIAL_store");
+	private static String replaceDestStringDIALStore = Platform.config.getString("replace_dest_string_DIAL_store");
     
     public DialcodeSync() {
     	indexName = Platform.config.hasPath("dialcode.index.name") 
@@ -85,6 +89,11 @@ public class DialcodeSync {
                     }};
 
                     String imageUrl = getQRImageFromDB(dialcodeId);
+
+					if(isReplaceString) {
+						imageUrl = StringUtils.replaceEach(imageUrl, new String[]{replaceSrcStringDIALStore}, new String[]{replaceDestStringDIALStore});
+					}
+
                     if(imageUrl != null && !imageUrl.isEmpty()) syncRequest.put("imageUrl", imageUrl);
         			messages.put(dialcodeId, syncRequest);
             	}
