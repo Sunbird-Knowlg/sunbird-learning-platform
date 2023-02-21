@@ -93,7 +93,7 @@ public class DialcodeSync {
 					if(isReplaceString) {
 						imageUrl = StringUtils.replaceEach(imageUrl, new String[]{replaceSrcStringDIALStore}, new String[]{replaceDestStringDIALStore});
 					}
-
+					System.out.println("Replaced imageUrl: " + imageUrl);
                     if(imageUrl != null && !imageUrl.isEmpty()) syncRequest.put("imageUrl", imageUrl);
         			messages.put(dialcodeId, syncRequest);
             	}
