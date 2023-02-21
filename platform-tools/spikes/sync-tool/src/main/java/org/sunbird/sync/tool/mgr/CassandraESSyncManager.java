@@ -32,6 +32,7 @@ import org.sunbird.content.entity.Manifest;
 import org.sunbird.content.entity.Media;
 import org.sunbird.content.entity.Plugin;
 import org.sunbird.content.operation.initializer.BaseInitializer;
+import org.sunbird.content.util.SyncMessageGenerator;
 import org.sunbird.graph.cache.util.RedisStoreUtil;
 import org.sunbird.graph.dac.model.Node;
 import org.sunbird.graph.model.node.DefinitionDTO;
@@ -43,7 +44,6 @@ import org.sunbird.learning.util.ControllerUtil;
 import org.sunbird.sync.tool.util.DialcodeSync;
 import org.sunbird.sync.tool.util.ElasticSearchConnector;
 import org.sunbird.sync.tool.util.GraphUtil;
-import org.sunbird.sync.tool.util.SyncMessageGenerator;
 import org.sunbird.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
@@ -230,7 +230,7 @@ public class CassandraESSyncManager {
             node.setObjectType("Collection");
             node.setNodeType(nodeType);
             Map<String, Object> nodeMap = SyncMessageGenerator.getMessage(node);
-            Map<String, Object>  message = SyncMessageGenerator.getJSONMessage(nodeMap, relationMap);
+            Map<String, Object>  message = SyncMessageGenerator.getJSONMessage(nodeMap, relationMap, new ArrayList<String>());
             childData = refactorUnit(child);
             Object variants = message.get("variants");
             if(null != variants && !(variants instanceof String))
@@ -316,7 +316,7 @@ public class CassandraESSyncManager {
             return null;
         }).filter(node -> null!=node).collect(Collectors.toList());
 
-        Map<String, Object> esDocument = SyncMessageGenerator.getMessages(nodes, "Content", new HashMap<>());
+        Map<String, Object> esDocument = SyncMessageGenerator.getMessages(nodes, "Content", new HashMap<>(), new HashMap<>(), false);
         return esDocument;
     }
 

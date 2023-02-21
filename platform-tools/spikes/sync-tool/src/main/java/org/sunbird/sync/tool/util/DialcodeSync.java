@@ -23,6 +23,8 @@ public class DialcodeSync {
 	private static String documentType = null;
 	private static String keyspace = null;
     private static String table = null;
+	private static String qrImageKeyspace = null;
+	private static String qrImageTable = null;
    
     
     public DialcodeSync() {
@@ -34,6 +36,10 @@ public class DialcodeSync {
                 ? Platform.config.getString("dialcode.keyspace.name") : "sunbirddev_dialcode_store";
         table = Platform.config.hasPath("dialcode.table") 
         		? Platform.config.getString("dialcode.table") : "dial_code";
+		qrImageKeyspace = Platform.config.hasPath("dialcode.qrImageKeyspace.name")
+				? Platform.config.getString("dialcode.qrImageKeyspace.name") : "dialcodes";
+		qrImageTable = Platform.config.hasPath("dialcode.qrImageTable")
+				? Platform.config.getString("dialcode.qrImageTable") : "dialcode_images";
         ElasticSearchUtil.initialiseESClient(indexName, Platform.config.getString("search.es_conn_info"));
 	}
     		
@@ -77,6 +83,9 @@ public class DialcodeSync {
             			put("published_on", row.getString("published_on"));
             			put("objectType", "DialCode");
                     }};
+
+                    String imageUrl = getQRImageFromDB(dialcodeId);
+                    if(imageUrl != null && !imageUrl.isEmpty()) syncRequest.put("imageUrl", imageUrl);
         			messages.put(dialcodeId, syncRequest);
             	}
             	System.out.println("total dialcodes fetched from cassandra: " + dialCodesFromDB);
@@ -97,5 +106,16 @@ public class DialcodeSync {
 		String query = "SELECT * FROM " + keyspace + "." + table + " WHERE identifier IN ('" + dialcodes + "')";
 		Session session = CassandraConnector.getSession();
 		return session.execute(query);
+	}
+
+	private String getQRImageFromDB(String dialcodeId) {
+		String query = "SELECT url FROM " + qrImageKeyspace + "." + qrImageTable + " WHERE dialcode ='" + dialcodeId + "';";
+		Session session = CassandraConnector.getSession();
+		 ResultSet rs = session.execute(query);
+		while(rs.iterator().hasNext()) {
+			Row row = rs.iterator().next();
+			return row.getString("url");
+		}
+		return "";
 	}
 }
