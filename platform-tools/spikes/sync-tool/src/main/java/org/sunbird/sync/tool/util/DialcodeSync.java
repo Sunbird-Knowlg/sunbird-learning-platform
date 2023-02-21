@@ -118,7 +118,7 @@ public class DialcodeSync {
 	}
 
 	private String getQRImageFromDB(String dialcodeId) {
-		String query = "SELECT url FROM " + qrImageKeyspace + "." + qrImageTable + " WHERE dialcode ='" + dialcodeId + "';";
+		String query = "SELECT url FROM " + qrImageKeyspace + "." + qrImageTable + " WHERE dialcode ='" + dialcodeId + "' ALLOW FILTERING;";
 		Session session = CassandraConnector.getSession();
 		 ResultSet rs = session.execute(query);
 		while(rs.iterator().hasNext()) {
