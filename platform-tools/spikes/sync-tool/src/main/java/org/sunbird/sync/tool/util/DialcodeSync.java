@@ -89,15 +89,16 @@ public class DialcodeSync {
                     }};
 
                     String imageUrl = getQRImageFromDB(dialcodeId);
-
+					System.out.println("Returned imageUrl: " + imageUrl);
 					if(isReplaceString) {
 						imageUrl = StringUtils.replaceEach(imageUrl, new String[]{replaceSrcStringDIALStore}, new String[]{replaceDestStringDIALStore});
 					}
-
+					System.out.println("Replaced imageUrl: " + imageUrl);
                     if(imageUrl != null && !imageUrl.isEmpty()) syncRequest.put("imageUrl", imageUrl);
         			messages.put(dialcodeId, syncRequest);
             	}
             	System.out.println("total dialcodes fetched from cassandra: " + dialCodesFromDB);
+				System.out.println("messages: " + JSONUtils.serialize(messages));
             	return messages;
                 
             } else {
@@ -119,10 +120,12 @@ public class DialcodeSync {
 
 	private String getQRImageFromDB(String dialcodeId) {
 		String query = "SELECT url FROM " + qrImageKeyspace + "." + qrImageTable + " WHERE dialcode ='" + dialcodeId + "' ALLOW FILTERING;";
+		System.out.println("getQRImageFromDB query: " + query);
 		Session session = CassandraConnector.getSession();
 		 ResultSet rs = session.execute(query);
 		while(rs.iterator().hasNext()) {
 			Row row = rs.iterator().next();
+			System.out.println("getQRImageFromDB url: " + row.getString("url"));
 			return row.getString("url");
 		}
 		return "";
