@@ -98,6 +98,7 @@ public class DialcodeSync {
         			messages.put(dialcodeId, syncRequest);
             	}
             	System.out.println("total dialcodes fetched from cassandra: " + dialCodesFromDB);
+				System.out.println("messages: " + JSONUtils.serialize(messages));
             	return messages;
                 
             } else {
