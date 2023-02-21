@@ -2,6 +2,9 @@ env: dev
 ingestion_kafka_topics: ""
 ingestion_kafka_overriden_topics: ""
 
+ingestion_zookeeper_ip: "{{ groups['ingestion-cluster-zookeeper'][0] }}"
+processing_zookeeper_ip: "{{ groups['processing-cluster-zookeepers'][0] }}"
+
 processing_kafka_topics:
   - name: telemetry.raw
     num_of_partitions: 4
