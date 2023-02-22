@@ -96,14 +96,7 @@ public class DialcodeSync {
 					}
 					System.out.println("Replaced imageUrl: " + imageUrl);
                     if(imageUrl != null && !imageUrl.isEmpty()) syncRequest.put("imageUrl", imageUrl);
-
-					String documentJson  = ElasticSearchUtil.getDocumentAsStringById(indexName, documentType, dialcodeId);
-					System.out.println("Fetched Document: " + documentJson);
-					if (documentJson != null && !documentJson.isEmpty()) {
-						String updatedDocString = JSONUtils.serialize(syncRequest);
-						ElasticSearchUtil.updateDocument(indexName, documentType, updatedDocString, dialcodeId);
-						System.out.println("Document Updated: " + updatedDocString);
-					} else messages.put(dialcodeId, syncRequest);
+                    messages.put(dialcodeId, syncRequest);
             	}
             	System.out.println("total dialcodes fetched from cassandra: " + dialCodesFromDB);
 				System.out.println("messages: " + JSONUtils.serialize(messages));
