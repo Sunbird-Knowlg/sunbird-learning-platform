@@ -1,5 +1,6 @@
 package org.sunbird.sync.tool.util;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +96,14 @@ public class DialcodeSync {
 					}
 					System.out.println("Replaced imageUrl: " + imageUrl);
                     if(imageUrl != null && !imageUrl.isEmpty()) syncRequest.put("imageUrl", imageUrl);
-        			messages.put(dialcodeId, syncRequest);
+
+					String documentJson  = ElasticSearchUtil.getDocumentAsStringById(indexName, documentType, dialcodeId);
+					System.out.println("Fetched Document: " + documentJson);
+					if (documentJson != null && !documentJson.isEmpty()) {
+						String updatedDocString = JSONUtils.serialize(syncRequest);
+						ElasticSearchUtil.updateDocument(indexName, documentType, updatedDocString, dialcodeId);
+						System.out.println("Document Updated: " + updatedDocString);
+					} else messages.put(dialcodeId, syncRequest);
             	}
             	System.out.println("total dialcodes fetched from cassandra: " + dialCodesFromDB);
 				System.out.println("messages: " + JSONUtils.serialize(messages));
@@ -130,4 +138,6 @@ public class DialcodeSync {
 		}
 		return "";
 	}
+
+
 }
