@@ -98,6 +98,7 @@ public class DialcodeSync {
                     if(imageUrl != null && !imageUrl.isEmpty()) syncRequest.put("imageUrl", imageUrl);
 
 					String documentJson  = ElasticSearchUtil.getDocumentAsStringById(indexName, documentType, dialcodeId);
+					System.out.println("Fetched Document: " + documentJson);
 					if (documentJson != null && !documentJson.isEmpty()) {
 						String updatedDocString = JSONUtils.serialize(syncRequest);
 						ElasticSearchUtil.updateDocument(indexName, documentType, updatedDocString, dialcodeId);
