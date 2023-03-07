@@ -119,5 +119,8 @@ contentTypeToPrimaryCategory {
 csp.migration.request.topic="{{ csp_migration_topic_name }}"
 csp.migration.batch.size={{ csp_migration_batch_size }}
 is_replace_string={{ sync_tool_is_replace_string | default('false') }}
-replace_src_string= "{{ sync_tool_replace_src_string | default('') }}"
-replace_dest_string="{{ sync_tool_replace_dest_string | default('') }}"
+replace_src_string= "{{ sync_tool_replace_src_string | default('CONTENT_STORAGE_BASE_PATH') }}"
+replace_dest_string="{{ sync_tool_replace_dest_string | default('https://sunbirddevbbpublic.blob.core.windows.net/sunbird-content-dev') }}"
+
+replace_src_string_DIAL_store= "{{ sync_tool_replace_src_string_DIAL_store | default('DIAL_STORAGE_BASE_PATH') }}"
+replace_dest_string_DIAL_store="{{ sync_tool_replace_dest_string_DIAL_store | default('https://sunbirddevbbpublic.blob.core.windows.net/dial') }}"
