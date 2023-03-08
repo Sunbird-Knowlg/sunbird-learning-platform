@@ -62,6 +62,11 @@ node() {
             currentBuild.result = "SUCCESS"
             currentBuild.description = "Artifact: ${artifact_version}, Public: ${params.github_release_tag}"
         }
+
+        stage('Package') {
+            sh('chmod 777 build/build.sh')
+            sh("build/build.sh ${build_tag} ${"learning"} ${env.NODE_NAME} ${hub_org}")
+        }
     }
     catch (err) {
         currentBuild.result = "FAILURE"
