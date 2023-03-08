@@ -64,8 +64,8 @@ node() {
         }
 
         stage('Package') {
-            sh('chmod 777 build/build.sh')
-            sh("build/build.sh ${build_tag} ${"learning"} ${env.NODE_NAME} ${hub_org}")
+            sh('chmod 777 pipelines/build/build.sh')
+            sh("pipelines/build/build.sh ${build_tag} ${"learning"} ${env.NODE_NAME} ${hub_org}")
         }
     }
     catch (err) {
