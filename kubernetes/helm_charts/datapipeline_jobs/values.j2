@@ -1230,8 +1230,9 @@ cassandra-data-migration:
 
     migrate = {
         key_value_strings_to_migrate = {
-            "https://sunbirdstagingpublic.blob.core.windows.net/dial": "{{ cloudstorage_relative_path_prefix_dial }}"
-            "https://ntpproductionall.blob.core.windows.net/dial": "{{ cloudstorage_relative_path_prefix_dial }}",
+            "https://sunbirdstagingpublic.blob.core.windows.net/dial": "{{ cloudstorage_relative_path_prefix_dial }}",
+            "https://preprodall.blob.core.windows.net/ntp-content-preprod": "{{ cloudstorage_relative_path_prefix_dial }}",
+            "https://ntpproductionall.blob.core.windows.net/dial": "{{ cloudstorage_relative_path_prefix_dial }}"
         }
     }
 
