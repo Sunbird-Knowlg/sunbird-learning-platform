@@ -1163,6 +1163,8 @@ csp-migrator:
         "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging": "{{ cloudstorage_relative_path_prefix_content }}",
         "https://preprodall.blob.core.windows.net/ntp-content-preprod": "{{ cloudstorage_relative_path_prefix_content }}",
         "https://ntpproductionall.blob.core.windows.net/ntp-content-production": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://dockpreprodall.blob.core.windows.net/dock-content-preprod": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://dockprodall.blob.core.windows.net/dock-content-prod": "{{ cloudstorage_relative_path_prefix_content }}",
         "CLOUD_STORAGE_BASE_PATH": "{{ cloudstorage_relative_path_prefix_content }}"
     }
 
@@ -1229,6 +1231,7 @@ cassandra-data-migration:
     migrate = {
         key_value_strings_to_migrate = {
             "https://sunbirdstagingpublic.blob.core.windows.net/dial": "{{ cloudstorage_relative_path_prefix_dial }}"
+            "https://ntpproductionall.blob.core.windows.net/dial": "{{ cloudstorage_relative_path_prefix_dial }}",
         }
     }
 
