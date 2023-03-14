@@ -508,6 +508,7 @@ asset-enrichment:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['asset-enrichment'].jobmanager_memory }}
@@ -569,6 +570,7 @@ auto-creator-v2:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     source {
       baseUrl="{{ source_base_url }}"
@@ -617,6 +619,7 @@ content-auto-creator:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     content_auto_creator {
         actions=auto-create
@@ -1001,6 +1004,7 @@ content-publish:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
     service {
@@ -1042,6 +1046,7 @@ qrcode-image-generator:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     lms-cassandra {
       keyspace = "dialcodes"
