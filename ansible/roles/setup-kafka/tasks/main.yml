@@ -2,7 +2,7 @@
   command: /opt/kafka/bin/kafka-topics.sh --zookeeper {{ingestion_zookeeper_ip}}:2181 --create --topic {{env}}.{{item.name}} --partitions {{ item.num_of_partitions }} --replication-factor {{ item.replication_factor }}
   with_items: "{{ingestion_kafka_topics}}"
   ignore_errors: true
-  when: kafka_id=="1"
+  when: kafka_id=="1" and ingestion_kafka_topics | length > 0
   tags:
     - ingestion-kafka
 
