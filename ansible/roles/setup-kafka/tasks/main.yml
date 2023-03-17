@@ -13,12 +13,6 @@
   tags:
     - ingestion-kafka
 
-- name: override replication count
-  command: /opt/kafka/bin/kafka-topics.sh --zookeeper {{ingestion_zookeeper_ip}}:2181 --alter --topic {{env}}.{{item.name}} --replication-factor {{ item.replication_factor }}
-  with_items: "{{ingestion_kafka_overriden_topics}}"
-  when: kafka_id=="1" and item.replication_factor is defined
-  tags:
-    - ingestion-kafka
 
 - name: override partition count
   command: /opt/kafka/bin/kafka-topics.sh --zookeeper {{ingestion_zookeeper_ip}}:2181 --alter --topic {{env}}.{{item.name}} --partitions {{ item.num_of_partitions }}
@@ -42,13 +36,6 @@
   tags:
     - processing-kafka
 
-
-- name: override replication count
-  command: /opt/kafka/bin/kafka-topics.sh --zookeeper {{processing_zookeeper_ip}}:2181 --alter --topic {{env}}.{{item.name}} --replication-factor {{ item.replication_factor }}
-  with_items: "{{processing_kafka_overriden_topics}}"
-  when: kafka_id=="1" and item.replication_factor is defined
-  tags:
-    - processing-kafka
 
 - name: override partition count
   command: /opt/kafka/bin/kafka-topics.sh --zookeeper {{processing_zookeeper_ip}}:2181 --alter --topic {{env}}.{{item.name}} --partitions {{ item.num_of_partitions }}
