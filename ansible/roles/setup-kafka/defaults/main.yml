@@ -142,12 +142,24 @@ processing_kafka_topics:
     num_of_partitions: 1
     replication_factor: 1
   - name: republish.job.request
-    num_of_partitions: 1
+    num_of_partitions: 4
     replication_factor: 1
   - name: cassandra.data.migration.request
     num_of_partitions: 1
     replication_factor: 1
   - name: cassandra.data.migration.job.request.failed
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: assessment.republish.request
+    num_of_partitions: 1
+    replication_factor: 1  
+  - name: assessment.postpublish.request
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: republish.events.failed
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: republish.events.skipped
     num_of_partitions: 1
     replication_factor: 1
 
@@ -293,4 +305,16 @@ processing_kafka_overriden_topics:
     replication_factor: 1
   - name: cassandra.data.migration.job.request.failed
     retention_time: 1209600000
+    replication_factor: 1
+  - name: assessment.republish.request
+    retention_time: 1209600000
+    replication_factor: 1 
+  - name: assessment.postpublish.request
+    retention_time: 1209600000
+    replication_factor: 1   
+  - name: republish.events.failed
+    retention_time: 604800000
+    replication_factor: 1
+  - name: republish.events.skipped
+    retention_time: 604800000
     replication_factor: 1
