@@ -363,6 +363,7 @@ asset-enrichment:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     cloudstorage {
       metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
@@ -481,6 +482,7 @@ content-auto-creator:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     cloudstorage {
       metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
@@ -777,6 +779,7 @@ content-publish:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     cloudstorage {
       metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
@@ -834,6 +837,7 @@ qrcode-image-generator:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_dial_bucketname | default('dial') }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     lms-cassandra {
       keyspace = "dialcodes"
@@ -1046,6 +1050,7 @@ live-node-publisher:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
     service {
@@ -1250,6 +1255,7 @@ csp-migrator:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['content-publish'].jobmanager_memory }}
