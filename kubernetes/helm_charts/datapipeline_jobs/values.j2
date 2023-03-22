@@ -838,6 +838,7 @@ qrcode-image-generator:
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_dial_bucketname | default('dial') }}"
     cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
+    cloud_storage_proxy_host="{{files.odev.oci.diksha.gov.in}}"
 
     lms-cassandra {
       keyspace = "dialcodes"
