@@ -1115,6 +1115,7 @@ csp-migrator:
     task {
       timer.duration = {{ csp_migrator_timer_duration }}
       consumer.parallelism = {{ csp_migrator_consumer_parallelism }}
+      router.parallelism = {{csp_migrator_router_parallelism }}
       parallelism = {{ csp_migrator_parallelism }}
       max.retries = {{ csp_migrator_max_retries }}
       cassandra-migrator.parallelism = {{csp_migrator_cassandra_parallelism}}
