@@ -42,31 +42,6 @@ node() {
 
         }
 
-        // stage('Archive artifacts'){
-        //     if(params.profile_id == "platform-services"){
-        //          sh """
-        //                 mkdir lp_artifacts
-        //                 cp platform-modules/service/target/learning-service.war lp_artifacts
-        //                 cp platform-tools/spikes/sync-tool/target/sync-tool*.jar lp_artifacts
-        //                 cp platform-tools/spikes/content-tool/target/content-tool-*.jar lp_artifacts
-        //                 zip -j lp_artifacts.zip:${artifact_version} lp_artifacts/*
-        //             """
-        //     }        
-        //     else {
-        //          sh """
-        //                 mkdir lp_artifacts
-        //                 cp platform-modules/service/target/learning-service.war lp_artifacts
-        //                 zip -j lp_artifacts.zip:${artifact_version} lp_artifacts/*
-        //             """
-        //       }
-                 
-        //     archiveArtifacts artifacts: "lp_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
-        //     sh """echo {\\"artifact_name\\" : \\"lp_artifacts.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
-        //     archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
-        //     currentBuild.result = "SUCCESS"
-        //     currentBuild.description = "Artifact: ${artifact_version}, Public: ${params.github_release_tag}"
-        // }
-
         stage('Package') {
             sh('chmod 777 pipelines/build/build.sh')
             sh("pipelines/build/build.sh ${build_tag} ${"learning"} ${env.NODE_NAME} ${hub_org}")
