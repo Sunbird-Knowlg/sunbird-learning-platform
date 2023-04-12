@@ -23,14 +23,15 @@ public class CloudStoreManager {
     protected String destStorageType = Platform.config.getString("destination.storage_type");
 
     protected scala.Option<String> awsEndpoint = scala.Option.apply("");
+    protected scala.Option<String> region = scala.Option.apply("");
 
-    protected BaseStorageService awsService = StorageServiceFactory.getStorageService(new StorageConfig("aws", Platform.config.getString("aws_storage_key"), Platform.config.getString("aws_storage_secret"),awsEndpoint,""));
+    protected BaseStorageService awsService = StorageServiceFactory.getStorageService(new StorageConfig("aws", Platform.config.getString("aws_storage_key"), Platform.config.getString("aws_storage_secret"),awsEndpoint,region));
 
     protected scala.Option<String> azureEndpoint = scala.Option.apply("");
-    protected BaseStorageService azureService = StorageServiceFactory.getStorageService(new StorageConfig("azure", Platform.config.getString("azure_storage_key"), Platform.config.getString("azure_storage_secret"),azureEndpoint,""));
+    protected BaseStorageService azureService = StorageServiceFactory.getStorageService(new StorageConfig("azure", Platform.config.getString("azure_storage_key"), Platform.config.getString("azure_storage_secret"),azureEndpoint,region));
 
     protected scala.Option<String> ociEndpoint = scala.Option.apply(Platform.config.getString("oci_storage_endpoint"));
-    protected BaseStorageService ociService = StorageServiceFactory.getStorageService(new StorageConfig("oci", Platform.config.getString("oci_storage_key"), Platform.config.getString("oci_storage_secret"),ociEndpoint,""));
+    protected BaseStorageService ociService = StorageServiceFactory.getStorageService(new StorageConfig("oci", Platform.config.getString("oci_storage_key"), Platform.config.getString("oci_storage_secret"),ociEndpoint,region));
 
     private String cloudSrcBaseURL = Platform.config.getString("cloud.src.baseurl");
     private String cloudDestBaseURL = Platform.config.getString("cloud.dest.baseurl");

@@ -24,9 +24,27 @@ private static BaseStorageService storageService = null;
 private static String cloudStoreType = Platform.config.getString("cloud_storage_type");
 	
 	static {
-		String storageKey = Platform.config.getString("cloud_storage_key");
-		String storageSecret = Platform.config.getString("cloud_storage_secret");
-		storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret));
+		if(StringUtils.equalsIgnoreCase(cloudStoreType, "azure")) {
+			String storageKey = Platform.config.getString("cloud_storage_key");
+			String storageSecret = Platform.config.getString("cloud_storage_secret");
+			scala.Option<String> endpoint = scala.Option.apply("");
+			scala.Option<String> region = scala.Option.apply("");
+			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret,endpoint,region));
+		}else if(StringUtils.equalsIgnoreCase(cloudStoreType, "aws")) {
+			String storageKey = Platform.config.getString("cloud_storage_key");
+			String storageSecret = Platform.config.getString("cloud_storage_secret");
+			scala.Option<String> endpoint = scala.Option.apply("");
+			scala.Option<String> region = scala.Option.apply("");
+			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret,endpoint,region));
+		}else if(StringUtils.equalsIgnoreCase(cloudStoreType, "oci")) {
+			String storageKey = Platform.config.getString("cloud_storage_key");
+			String storageSecret = Platform.config.getString("cloud_storage_secret");
+			scala.Option<String> endpoint = scala.Option.apply(Platform.config.getString("cloud_storage_endpoint"));
+			scala.Option<String> region = scala.Option.apply("");
+			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret,endpoint,region));
+		}else {
+			throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while initialising cloud storage");
+		}
 	}
 	
 	public static BaseStorageService getCloudStoreService() {
