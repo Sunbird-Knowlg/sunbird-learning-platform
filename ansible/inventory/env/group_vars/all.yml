@@ -85,8 +85,8 @@ search_es7_host: "{{ groups['es7']|join(':9200,')}}:9200"
 
 mlworkbench: "{{ groups['mlworkbench'][0]}}"
 
-azure_account: "{{ sunbird_public_storage_account_name }}"
-azure_secret: "{{ sunbird_public_storage_account_key }}"
+azure_account: "{{ cloud_public_storage_accountname }}"
+azure_secret: "{{ cloud_public_storage_secret }}"
 dedup_redis_host: "{{ dp_redis_host }}"
 kp_redis_host: "{{ groups['redisall'][0] }}"
 neo4j_route_path: "bolt://{{ groups['learning-neo4j-node1'][0] }}:7687"
@@ -97,6 +97,7 @@ middleware_hierarchy_keyspace: "{{ instance }}_hierarchy_store"
 kp_print_service_base_url: "http://{{private_ingressgateway_ip}}/print"
 cert_reg_service_base_url: "http://{{private_ingressgateway_ip}}/certreg"
 kp_search_service_base_url: "http://{{private_ingressgateway_ip}}/search"
+kp_dial_service_base_url: "http://{{private_ingressgateway_ip}}/dial"
 lms_service_base_url: "http://{{private_ingressgateway_ip}}/lms"
 learner_service_base_url: "http://{{private_ingressgateway_ip}}/learner"
 sourcing_content_service_base_url: "http://{{dock_private_ingressgateway_ip | default('localhost') }}/content"
@@ -104,6 +105,8 @@ content_service_base_url: "http://{{private_ingressgateway_ip}}/content"
 kp_content_service_base_url: "http://{{private_ingressgateway_ip}}/content"
 cert_service_base_url: "http://{{private_ingressgateway_ip}}/cert"
 enc_service_base_url: "http://{{private_ingressgateway_ip}}/enc"
+cert_rc_base_url: "http://{{private_ingressgateway_ip}}/registry-service/api/v1"
+cert_rc_entity: "TrainingCertificate"
 certificate_base_path: "https://{{domain_name}}/certs"
 cert_domain_url:  "{{proto}}://{{domain_name}}"
 cert_container_name: "{{cert_env_prefix}}-e-credentials"
@@ -112,3 +115,15 @@ cert_azure_storage_secret: "{{sunbird_private_storage_account_key}}"
 cert_azure_storage_key: "{{sunbird_private_storage_account_name}}"
 
 default_channel: "org.sunbird"
+download_neo4j: true
+neo4j_upstream_download: false
+enable_suppress_exception: false
+enable_rc_certificate: true
+
+# SB-31155
+plugin_storage: "{{ plugin_container_name }}"
+
+
+cloudstorage_relative_path_prefix_content: "CONTENT_STORAGE_BASE_PATH"
+cloudstorage_relative_path_prefix_dial: "DIAL_STORAGE_BASE_PATH"
+cloudstorage_metadata_list: '["appIcon", "artifactUrl", "posterImage", "previewUrl", "thumbnail", "assetsMap", "certTemplate", "itemSetPreviewUrl", "grayScaleAppIcon", "sourceURL", "variants", "downloadUrl", "streamingUrl", "toc_url", "data", "question", "solutions", "editorState", "media", "pdfUrl", "transcripts"]'

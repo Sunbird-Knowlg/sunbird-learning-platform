@@ -1,6 +1,7 @@
-cassandra_backup_azure_container_name: lp-cassandra-backup
-
 user: "{{ ansible_ssh_user }}"
 restore_path: /home/{{user}}
 backup_folder_name: cassandra_backup
 backup_dir: "{{restore_path}}/cassandra_backup"
+
+cloud_storage_cassandrabackup_bucketname: "{{cloud_storage_management_bucketname}}"
+cloud_storage_cassandrabackup_foldername: lp-cassandra-backup

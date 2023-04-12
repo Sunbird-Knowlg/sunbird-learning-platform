@@ -24,25 +24,9 @@ private static BaseStorageService storageService = null;
 private static String cloudStoreType = Platform.config.getString("cloud_storage_type");
 	
 	static {
-
-		if(StringUtils.equalsIgnoreCase(cloudStoreType, "azure")) {
-			String storageKey = Platform.config.getString("azure_storage_key");
-			String storageSecret = Platform.config.getString("azure_storage_secret");
-			scala.Option<String> endpoint = scala.Option.apply("");
-			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret,endpoint,""));
-		}else if(StringUtils.equalsIgnoreCase(cloudStoreType, "aws")) {
-			String storageKey = Platform.config.getString("aws_storage_key");
-			String storageSecret = Platform.config.getString("aws_storage_secret");
-			scala.Option<String> endpoint = scala.Option.apply("");
-			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret,endpoint,""));
-		}else if(StringUtils.equalsIgnoreCase(cloudStoreType, "oci")) {
-			String storageKey = Platform.config.getString("oci_storage_key");
-			String storageSecret = Platform.config.getString("oci_storage_secret");
-			scala.Option<String> endpoint = scala.Option.apply(Platform.config.getString("oci_storage_endpoint"));
-			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret,endpoint,""));
-		}else {
-			throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while initialising cloud storage");
-		}
+		String storageKey = Platform.config.getString("cloud_storage_key");
+		String storageSecret = Platform.config.getString("cloud_storage_secret");
+		storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret));
 	}
 	
 	public static BaseStorageService getCloudStoreService() {
@@ -50,10 +34,8 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 	}
 	
 	public static String getContainerName() {
-		if(StringUtils.equalsIgnoreCase(cloudStoreType, "azure")) {
-			return Platform.config.getString("azure_storage_container");
-		}else if(StringUtils.equalsIgnoreCase(cloudStoreType, "aws")) {
-			return S3PropertyReader.getProperty("aws_storage_container");
+		if(Platform.config.hasPath("cloud_storage_container") && !Platform.config.getString("cloud_storage_container").equalsIgnoreCase("")) {
+			return Platform.config.getString("cloud_storage_container");
 		}else {
 			throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while getting container name");
 		}

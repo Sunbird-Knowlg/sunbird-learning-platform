@@ -1,4 +1,7 @@
 cassandra_root_dir: /etc/cassandra
 cassandra_backup_dir: /data/cassandra/backup
-cassandra_backup_azure_container_name: lp-cassandra-backup
+data_dir: '/var/lib/cassandra/data'
+
+cloud_storage_cassandrabackup_bucketname: "{{cloud_storage_management_bucketname}}"
+cloud_storage_cassandrabackup_foldername: lp-cassandra-backup
 

@@ -7,7 +7,7 @@
 	  <version>1.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>publish-pipeline</artifactId>
-	<version>0.0.385</version>
+	<version>0.0.386</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.sunbird</groupId>
