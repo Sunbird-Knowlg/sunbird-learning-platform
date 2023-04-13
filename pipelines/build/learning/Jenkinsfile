@@ -12,6 +12,8 @@ node() {
                 cleanWs()
                 checkout scm
                 commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                build_tag = sh(script: "echo " + params.github_release_tag.split('/')[-1] + "_" + commit_hash + "_" + env.BUILD_NUMBER, returnStdout: true).trim()
+                echo "build_tag: " + build_tag
                 artifact_version = sh(script: "echo " + params.github_release_tag.split('/')[-1] + "_" + commit_hash + "_" + env.BUILD_NUMBER, returnStdout: true).trim()
                 echo "artifact_version: "+ artifact_version
             }
@@ -30,6 +32,8 @@ node() {
         }
 
         stage('Build') {
+            env.NODE_ENV = "build"
+            print "Environment will be : ${env.NODE_ENV}"
             sh 'mvn clean install -DskipTests -P ${profile_id} -T10'
         }
 
@@ -38,29 +42,14 @@ node() {
 
         }
 
-        stage('Archive artifacts'){
-            if(params.profile_id == "platform-services"){
-                 sh """
-                        mkdir lp_artifacts
-                        cp platform-modules/service/target/learning-service.war lp_artifacts
-                        cp platform-tools/spikes/sync-tool/target/sync-tool*.jar lp_artifacts
-                        cp platform-tools/spikes/content-tool/target/content-tool-*.jar lp_artifacts
-                        zip -j lp_artifacts.zip:${artifact_version} lp_artifacts/*
-                    """
-            }        
-            else {
-                 sh """
-                        mkdir lp_artifacts
-                        cp platform-modules/service/target/learning-service.war lp_artifacts
-                        zip -j lp_artifacts.zip:${artifact_version} lp_artifacts/*
-                    """
-              }
-                 
-            archiveArtifacts artifacts: "lp_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
-            sh """echo {\\"artifact_name\\" : \\"lp_artifacts.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
-            archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
-            currentBuild.result = "SUCCESS"
-            currentBuild.description = "Artifact: ${artifact_version}, Public: ${params.github_release_tag}"
+        stage('Package') {
+            sh('chmod 777 pipelines/build/build.sh')
+            sh("pipelines/build/build.sh ${build_tag} ${"learning"} ${env.NODE_NAME} ${hub_org}")
+        }
+
+        stage('ArchiveArtifacts') {
+            archiveArtifacts "metadata.json"
+            currentBuild.description = "${build_tag}"
         }
     }
     catch (err) {
