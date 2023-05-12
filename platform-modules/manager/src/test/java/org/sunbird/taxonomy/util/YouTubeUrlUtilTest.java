@@ -84,7 +84,7 @@ public class YouTubeUrlUtilTest extends GraphEngineTestSetup {
 	// check license of valid youtube url.
 	@Test
 	public void testYouTubeService_01() throws Exception {
-		String artifactUrl = "https://www.youtube.com/watch?v=srVPLrmlBJY";
+		String artifactUrl = "https://www.youtube.com/watch?v=GHmQ8euNwv8";
 		String result = YouTubeUrlUtil.getLicense(artifactUrl);
 		assertEquals("creativeCommon", result);
 	}
