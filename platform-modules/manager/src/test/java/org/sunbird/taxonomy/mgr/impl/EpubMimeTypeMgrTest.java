@@ -58,8 +58,7 @@ public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 		ClassLoader classLoader = getClass().getClassLoader();
 		File file = new File(classLoader.getResource("Contents/sample.epub").getFile());
 
-		// Response resp = mgr.upload(node_id, file, null);
-		Response resp = mgr.upload(node_id, file, "application/epub");
+		Response resp = mgr.upload(node_id, file, null);
 		Map<String, Object> mapData = resp.getResult();
 		assertEquals(ResponseCode.OK, resp.getResponseCode());
 		assertEquals(true, mapData.containsKey("content_url"));
