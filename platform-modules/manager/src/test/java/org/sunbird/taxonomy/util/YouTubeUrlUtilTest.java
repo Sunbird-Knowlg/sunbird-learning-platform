@@ -146,7 +146,7 @@ public class YouTubeUrlUtilTest extends GraphEngineTestSetup {
 	public void testYouTubeService_08() throws Exception {
 		//upload content
 		String mimeType = "video/x-youtube";
-		String fileUrl = "https://www.youtube.com/watch?v=srVPLrmlBJY";
+		String fileUrl = "https://www.youtube.com/watch?v=eKT1IbPjH1Q";
 		Response response = contentManager.upload(contentId, fileUrl, mimeType);
 		String responseCode = (String) response.getResponseCode().toString();
 		assertEquals("OK", responseCode);
