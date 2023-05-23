@@ -248,11 +248,11 @@ learning.content.type.not.copied.list=["Asset"]
 #Youtube License Validation Regex Pattern
 youtube.license.regex.pattern=["\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)","^([A-Za-z0-9\\-\\_]*)"]
 
-#Azure Storage details
-cloud_storage_type="{{ cloud_store }}"
-azure_storage_key="{{sunbird_public_storage_account_name}}"
-azure_storage_secret="{{sunbird_public_storage_account_key}}"
-azure_storage_container="{{ azure_public_container }}"
+#Cloud Storage details
+cloud_storage_type="{{ cloud_service_provider }}"
+cloud_storage_key="{{ cloud_public_storage_accountname }}"
+cloud_storage_secret="{{ cloud_public_storage_secret }}"
+cloud_storage_container="{{ cloud_storage_content_bucketname }}"
 
 installation.id="{{ instance_name }}"
 
@@ -304,3 +304,12 @@ content.tagging.property="subject,medium"
 
 # Search Service Config
 kp.search_service.base_url="{{ kp_search_service_base_url }}"
+
+# CNAME migration variables
+cloudstorage {
+  metadata.replace_absolute_path=true
+  relative_path_prefix={{ cloudstorage_relative_path_prefix_content }}
+  metadata.list={{ cloudstorage_metadata_list }}
+  read_base_path="{{ cloudstorage_base_path }}"
+  write_base_path={{ valid_cloudstorage_base_urls }}
+}
