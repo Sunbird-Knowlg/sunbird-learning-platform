@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS {{ question_keyspace_name }}.question_data (
   PRIMARY KEY (identifier)
 );
 
+ALTER TABLE {{ question_keyspace_name }}.question_data ADD (outcomeDeclaration text, feedback text);
 
 {% if groups['cassandra-node-2'] is defined %}
 ALTER KEYSPACE {{ hierarchy_keyspace_name }} WITH replication = {
