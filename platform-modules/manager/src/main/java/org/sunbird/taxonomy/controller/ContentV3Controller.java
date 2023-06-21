@@ -184,8 +184,8 @@ public class ContentV3Controller extends BaseController {
 	 *         Set.
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = { "/publish/{id:.+}", "/public/publish/{id:.+}" }, method = RequestMethod.POST)
-	@ResponseBody
+//	@RequestMapping(value = { "/publish/{id:.+}", "/public/publish/{id:.+}" }, method = RequestMethod.POST)
+//	@ResponseBody
 	public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.content.publish";
@@ -224,8 +224,8 @@ public class ContentV3Controller extends BaseController {
 	 *         Set.
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/unlisted/publish/{id:.+}", method = RequestMethod.POST)
-	@ResponseBody
+//	@RequestMapping(value = "/unlisted/publish/{id:.+}", method = RequestMethod.POST)
+//	@ResponseBody
 	public ResponseEntity<Response> publishUnlisted(@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.content.unlisted.publish";
@@ -262,8 +262,8 @@ public class ContentV3Controller extends BaseController {
 	 *            The Content Id which needs to be published.
 	 * @return The Response entity with Content Id in its Result Set.
 	 */
-	@RequestMapping(value = "/review/{id:.+}", method = RequestMethod.POST)
-	@ResponseBody
+//	@RequestMapping(value = "/review/{id:.+}", method = RequestMethod.POST)
+//	@ResponseBody
 	public ResponseEntity<Response> review(@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.content.review";
@@ -446,8 +446,8 @@ public class ContentV3Controller extends BaseController {
 	 * @param requestMap
 	 * @return
 	 */
-	@RequestMapping(value = "/dialcode/link", method = RequestMethod.POST)
-	@ResponseBody
+//	@RequestMapping(value = "/dialcode/link", method = RequestMethod.POST)
+//	@ResponseBody
 	public ResponseEntity<Response> linkDialCode(@RequestBody Map<String, Object> requestMap,
 			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
 		String apiId = "ekstep.content.dialcode.link";
@@ -470,8 +470,8 @@ public class ContentV3Controller extends BaseController {
 	 *            The Content Id for whom DIAL Codes have to be reserved           
 	 * @return
 	 */
-	@RequestMapping(value = "/dialcode/reserve/{id:.+}", method = RequestMethod.POST)
-	@ResponseBody
+//	@RequestMapping(value = "/dialcode/reserve/{id:.+}", method = RequestMethod.POST)
+//	@ResponseBody
 	public ResponseEntity<Response> reserveDialCode(
 			@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> requestMap,
@@ -496,8 +496,8 @@ public class ContentV3Controller extends BaseController {
 	 * 				The Content Id of the Textbook from which DIAL Codes have to be released
 	 * @return The Response Entity with list of Released QR Codes
 	 */
-	@RequestMapping(value="/dialcode/release/{id}", method = RequestMethod.PATCH)
-	@ResponseBody
+//	@RequestMapping(value="/dialcode/release/{id}", method = RequestMethod.PATCH)
+//	@ResponseBody
 	public ResponseEntity<Response> releaseDialcodes(@PathVariable(value="id") String contentId,
 													 @RequestHeader(value = CHANNEL_ID) String channelId) {
 		String apiId = "ekstep.learning.content.dialcode.release";
@@ -545,8 +545,8 @@ public class ContentV3Controller extends BaseController {
 		return API_VERSION_3;
 	}
 
-	@RequestMapping(value="/retire/{id:.+}", method = RequestMethod.DELETE)
-	@ResponseBody
+//	@RequestMapping(value="/retire/{id:.+}", method = RequestMethod.DELETE)
+//	@ResponseBody
 	public ResponseEntity<Response> retire(@PathVariable(value = "id") String contentId) {
 		String apiId = "ekstep.content.retire";
 		TelemetryManager.log("Retiring content | Content Id : " + contentId);
@@ -583,8 +583,8 @@ public class ContentV3Controller extends BaseController {
 	 * @return The Response entity with Content Id and Version Key in its Result
 	 *         Set.
 	 */
-	@RequestMapping(value="/flag/reject/{id:.+}", method = RequestMethod.POST)
-	@ResponseBody
+//	@RequestMapping(value="/flag/reject/{id:.+}", method = RequestMethod.POST)
+//	@ResponseBody
 	public ResponseEntity<Response> rejectFlag(@PathVariable(value = "id") String contentId){
 		String apiId = "ekstep.learning.content.rejectFlag";
 		TelemetryManager.log("Reject flagged content | Content Id : " + contentId);
@@ -650,8 +650,8 @@ public class ContentV3Controller extends BaseController {
 	 * @param contentId
 	 * @return
 	 */
-	@RequestMapping(value = "/reject/{id:.+}", method = RequestMethod.POST)
-	@ResponseBody
+//	@RequestMapping(value = "/reject/{id:.+}", method = RequestMethod.POST)
+//	@ResponseBody
 	public ResponseEntity<Response> rejectContent(@PathVariable(value = "id") String contentId,
 												  @RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.content.reject";
