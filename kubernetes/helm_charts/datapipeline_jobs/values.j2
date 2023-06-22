@@ -259,6 +259,24 @@ video-stream-generator:
       }
     }
 
+    #OCI Elemental Media Convert Config
+    oci {
+      region="{{oci_media_region}}"
+      compartment_id="{{oci_media_compartment}}"
+      namespace="{{oci_media_namespace}}"
+      bucket {
+        content_bucket_name="{{oci_media_source_bucket}}"
+        processed_bucket_name="{{oci_media_target_bucket}}"
+      }
+      stream {
+        prefix_input="{{oci_media_prefix_input}}"
+        distribution_channel_id="{{oci_media_dist_channel_id}}"
+        work_flow_id="{{ oci_media_work_flow_id }}"
+        stream_package_config_id="{{oci_media_stream_config_id}}"
+        gateway_domain="{{oci_media_gateway_domain}}"
+      }
+    }
+
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].jobmanager_memory }}
@@ -346,6 +364,7 @@ asset-enrichment:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     cloudstorage {
       metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
@@ -415,6 +434,7 @@ auto-creator-v2:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     source {
       baseUrl="{{ source_base_url }}"
@@ -463,6 +483,7 @@ content-auto-creator:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     cloudstorage {
       metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
@@ -759,6 +780,7 @@ content-publish:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     cloudstorage {
       metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
@@ -816,6 +838,8 @@ qrcode-image-generator:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_dial_bucketname | default('dial') }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
+    cloud_storage_proxy_host="{{cloud_storage_proxy_host}}"
 
     lms-cassandra {
       keyspace = "dialcodes"
@@ -1028,6 +1052,7 @@ live-node-publisher:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
     service {
@@ -1233,6 +1258,7 @@ csp-migrator:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['content-publish'].jobmanager_memory }}

@@ -29,7 +29,7 @@
     </audio>
     <org.sunbird.video y="7.9" x="10.97" w="78.4" h="79.51" rotate="0" z-index="2" id="0c049488-17ac-4d65-a50b-b3dbd93d1b91">
       <config>
-        <![CDATA[{"autoplay":true,"controls":false,"muted":false,"visible":true,"url":"https://www.youtube.com/watch?v=owr198WQpM8"}]]>
+        <![CDATA[{"autoplay":true,"controls":false,"muted":false,"visible":true,"url":"https://www.youtube.com/watch?v=srVPLrmlBJY"}]]>
       </config>
     </org.sunbird.video>
   </stage>
@@ -191,7 +191,7 @@
     <manifest/>
   </stage>
   <manifest>
-    <media id="0c049488-17ac-4d65-a50b-b3dbd93d1b91" src="https://www.youtube.com/watch?v=owr198WQpM8" assetId="0c049488-17ac-4d65-a50b-b3dbd93d1b91" type="youtube"/>
+    <media id="0c049488-17ac-4d65-a50b-b3dbd93d1b91" src="https://www.youtube.com/watch?v=srVPLrmlBJY" assetId="0c049488-17ac-4d65-a50b-b3dbd93d1b91" type="youtube"/>
   </manifest>
   <plugin-manifest>
     <plugin id="org.sunbird.navigation" ver="1.0" type="plugin" depends=""/>
