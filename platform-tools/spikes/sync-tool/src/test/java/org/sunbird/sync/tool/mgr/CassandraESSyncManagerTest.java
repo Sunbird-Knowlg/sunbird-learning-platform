@@ -31,21 +31,21 @@ public class CassandraESSyncManagerTest {
 	@Test
     public void testsyncDialcodesByIdsWithDialcodes() throws Exception {
         DialcodeSync dialcodeSync = PowerMockito.mock(DialcodeSync.class);
-        PowerMockito.when(dialcodeSync.sync(Mockito.anyList())).thenReturn(1);
+        PowerMockito.when(dialcodeSync.sync(Mockito.anyList(), Mockito.anyList())).thenReturn(1);
         List<String> dialcodes = Arrays.asList("A1B2C3");
         
         CassandraESSyncManager cassandraESSyncManager = new CassandraESSyncManager(dialcodeSync);
-        cassandraESSyncManager.syncDialcodesByIds(dialcodes);
+        cassandraESSyncManager.syncDialcodesByIds(dialcodes,null);
     }
 
 	@Test
     public void testsyncDialcodesByIdsWithoutDialcodes() throws Exception {
         DialcodeSync dialcodeSync = PowerMockito.mock(DialcodeSync.class);
-        PowerMockito.when(dialcodeSync.sync(Mockito.anyList())).thenReturn(1);
+        PowerMockito.when(dialcodeSync.sync(Mockito.anyList(),Mockito.anyList())).thenReturn(1);
         List<String> dialcodes = null;
         
         CassandraESSyncManager cassandraESSyncManager = new CassandraESSyncManager(dialcodeSync);
-        cassandraESSyncManager.syncDialcodesByIds(dialcodes);
+        cassandraESSyncManager.syncDialcodesByIds(dialcodes,null);
     }
 
     @Test

@@ -37,7 +37,7 @@ public class DialcodeSyncTest {
 		PowerMockito.when(CassandraConnector.getSession()).thenReturn(session);
 		
 		DialcodeSync dialcodeSync = new DialcodeSync();
-        Assert.isTrue(dialcodeSync.sync(Arrays.asList("A1B2C3")) == 0);
+        Assert.isTrue(dialcodeSync.sync(Arrays.asList("A1B2C3"), null) == 0);
     }
 	
 	@Test
@@ -73,6 +73,6 @@ public class DialcodeSyncTest {
 		
 		
 		DialcodeSync dialcodeSync = new DialcodeSync();
-        Assert.isTrue(dialcodeSync.sync(Arrays.asList("A1B2C3")) == 1);
+        Assert.isTrue(dialcodeSync.sync(Arrays.asList("A1B2C3"), null) == 1);
     }
 }
