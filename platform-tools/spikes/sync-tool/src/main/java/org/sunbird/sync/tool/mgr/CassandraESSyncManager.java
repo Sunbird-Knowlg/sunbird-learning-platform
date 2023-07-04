@@ -533,13 +533,13 @@ public class CassandraESSyncManager {
 		return isExternal;
 	}
 	
-	public void syncDialcodesByIds(List<String> dialcodes) throws Exception {
-		if(CollectionUtils.isEmpty(dialcodes)) {
+	public void syncDialcodesByIds(List<String> dialcodes, List<String> filenames) throws Exception {
+		if(CollectionUtils.isEmpty(dialcodes) && CollectionUtils.isEmpty(filenames)) {
 			System.out.println("CassandraESSyncManager:syncDialcodesByIds:No dialcodes for syncing.");
 			return;
 		}
 		System.out.println("CassandraESSyncManager:syncDialcodesByIds:No dialcodes for syncing: " + dialcodes.size());
-		int dialcodeSyncedCount = dialcodeSync.sync(dialcodes);
+		int dialcodeSyncedCount = dialcodeSync.sync(dialcodes, filenames);
 		System.out.println("CassandraESSyncManager:syncDialcodesByIds::dialcodeSyncedCount: " + dialcodeSyncedCount);
 		
 	}
