@@ -76,11 +76,11 @@ public class CassandraESSyncManager {
     private List<String> validCollectionStatus = Arrays.asList("Live", "Unlisted");
 
     public CassandraESSyncManager() {}
-    
+
     public CassandraESSyncManager(DialcodeSync dialcodeSync) {
 		this.dialcodeSync = dialcodeSync;
 	}
-    
+
     @PostConstruct
     private void init() throws Exception {
         definitionDTO = util.getDefinition(graphId, objectType);
@@ -95,7 +95,7 @@ public class CassandraESSyncManager {
                     System.out.println("Bookmark Id's shouldn't be provided for Multiple textbooks");
                 resourceIds.forEach(textbook->{
                     Boolean flag = syncByBookmarkId(graphId, textbook, null, false);
-                        System.out.println("Textbook id : " + textbook + " Sync status : " + flag);
+                    System.out.println("Textbook id : " + textbook + " Sync status : " + flag);
                 });
             } else
                 resourceIds.forEach(textbook->{
@@ -151,20 +151,20 @@ public class CassandraESSyncManager {
     }
 
     private void updateLeafNodeCount(Map<String, Object> hierarchy, String resourceId) throws Exception {
-            //Update Collection leafNodesCount in the hierarchy
-            int collectionLeafNodesCount = getLeafNodesCount(hierarchy);
-            hierarchy.put("leafNodesCount", collectionLeafNodesCount);
-            // Update RootNode in Neo4j
-            updateTextBookNode(resourceId, "leafNodesCount", collectionLeafNodesCount);
+        //Update Collection leafNodesCount in the hierarchy
+        int collectionLeafNodesCount = getLeafNodesCount(hierarchy);
+        hierarchy.put("leafNodesCount", collectionLeafNodesCount);
+        // Update RootNode in Neo4j
+        updateTextBookNode(resourceId, "leafNodesCount", collectionLeafNodesCount);
 
-            //Update leafNodesCount of children in the hierarchy
-            updateLeafNodesCountInHierarchyMetadata((List<Map<String, Object>>) hierarchy.get("children"));
+        //Update leafNodesCount of children in the hierarchy
+        updateLeafNodesCountInHierarchyMetadata((List<Map<String, Object>>) hierarchy.get("children"));
 
-            //Update cassandra with updatedHierarchy
-            hierarchyStore.saveOrUpdateHierarchy(resourceId, hierarchy);
+        //Update cassandra with updatedHierarchy
+        hierarchyStore.saveOrUpdateHierarchy(resourceId, hierarchy);
 
-            //Clear Redis Cache of hierarchy data
-            RedisStoreUtil.delete("hierarchy_" + resourceId);
+        //Clear Redis Cache of hierarchy data
+        RedisStoreUtil.delete("hierarchy_" + resourceId);
     }
 
     private Boolean updateElasticSearch(List<Map<String, Object>> units, List<String> bookmarkIds, String resourceId) throws Exception {
@@ -208,9 +208,9 @@ public class CassandraESSyncManager {
         if (CollectionUtils.isNotEmpty(children)) {
             children.forEach(child -> {
                 if (child.containsKey("visibility") && StringUtils.equalsIgnoreCase((String) child.get("visibility"), "parent")) {
-                		if (flag || bookmarkIds.contains(child.get("identifier"))){
-                		    populateESDoc(unitsMetadata, child);
-                        }
+                    if (flag || bookmarkIds.contains(child.get("identifier"))){
+                        populateESDoc(unitsMetadata, child);
+                    }
                     if (child.containsKey("children")) {
                         List<Map<String,Object>> newChildren = mapper.convertValue(child.get("children"), new TypeReference<List<Map<String, Object>>>(){});
                         getUnitsToBeSynced(unitsMetadata, newChildren , bookmarkIds, flag);
@@ -252,44 +252,44 @@ public class CassandraESSyncManager {
     }
 
     private Map<String, Object> refactorUnit(Map<String, Object> child) {
-    		Map<String, Object> childData = new HashMap<>();
+        Map<String, Object> childData = new HashMap<>();
         childData.putAll(child);
         for(String property : relationshipProperties) {
-        		if(childData.containsKey(property)) {
-        			List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get(property);
-        	        List<String> finalPropertyList = new ArrayList<>();
-        			if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
-        				finalPropertyList = nextLevelNodes.stream().map(nextLevelNode -> {
-        					String identifier = (String)nextLevelNode.get("identifier");
-        					return identifier;
-        				}).collect(Collectors.toList());
-        			}
-        			childData.remove(property);
-        			childData.put(property, finalPropertyList);
-        		}
+            if(childData.containsKey(property)) {
+                List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get(property);
+                List<String> finalPropertyList = new ArrayList<>();
+                if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
+                    finalPropertyList = nextLevelNodes.stream().map(nextLevelNode -> {
+                        String identifier = (String)nextLevelNode.get("identifier");
+                        return identifier;
+                    }).collect(Collectors.toList());
+                }
+                childData.remove(property);
+                childData.put(property, finalPropertyList);
+            }
         }
         return childData;
-	}
+    }
 
     private List<String> getFailedUnitIds(List<Map<String, Object>> units, List<String> bookmarkIds) {
         List<String> failedUnits = new ArrayList<>();
         if(CollectionUtils.isNotEmpty(bookmarkIds)) {
-        	    if (units.size() == bookmarkIds.size())
+            if (units.size() == bookmarkIds.size())
                 return failedUnits;
-        	    failedUnits.addAll(bookmarkIds);
+            failedUnits.addAll(bookmarkIds);
             units.forEach(unit -> {
                 if (bookmarkIds.contains(unit.get("identifier")))
-                		failedUnits.remove(unit.get("identifier"));
+                    failedUnits.remove(unit.get("identifier"));
             });
         }
         return failedUnits;
     }
     private List<String> getSyncedUnitIds(List<Map<String, Object>> units){
-    		List<String> syncedUnits = new ArrayList<>();
-    		units.forEach(unit -> {
-    			syncedUnits.add((String)unit.get("identifier"));
-    		});
-    		return syncedUnits;
+        List<String> syncedUnits = new ArrayList<>();
+        units.forEach(unit -> {
+            syncedUnits.add((String)unit.get("identifier"));
+        });
+        return syncedUnits;
     }
 
     private Map<String,Object> getTBMetaData(String textBookId) throws Exception {
@@ -328,7 +328,7 @@ public class CassandraESSyncManager {
     }
 
     private Map<String, Object> getDefinition() {
-    		this.graphId = RequestValidatorUtil.isEmptyOrNull(graphId) ? "domain" : graphId;
+        this.graphId = RequestValidatorUtil.isEmptyOrNull(graphId) ? "domain" : graphId;
         if (RequestValidatorUtil.isEmptyOrNull(definitionDTO)) {
             throw new ServerException("ERR_DEFINITION_NOT_FOUND", "No Definition found for " + objectType);
         }
@@ -461,88 +461,88 @@ public class CassandraESSyncManager {
             }
         }
     }
-    
+
     public void syncECMLContent(List<String> contentIds) {
-    	if(CollectionUtils.isNotEmpty(contentIds)) {
-    		System.out.println("Content came for handling external link:  " + contentIds.toString());
-    		List<String> contentWithNoBody = new ArrayList<>();
-    		List<String> contentWithExternalLink = new ArrayList<>();
-    		List<String> contentWithNoExternalLink = new ArrayList<>();
-    		contentIds.stream().forEach(x -> handleAssetWithExternalLink(contentWithNoExternalLink, contentWithExternalLink, contentWithNoBody, x));
-    		System.out.println("Content Body not exists for content:  " + contentWithNoBody.toString());
-    		System.out.println("Content with External Link:  " + contentWithExternalLink.toString());
-    		System.out.println("Content with no External Link:  " + contentWithNoExternalLink.toString());
-    	}
+        if(CollectionUtils.isNotEmpty(contentIds)) {
+            System.out.println("Content came for handling external link:  " + contentIds.toString());
+            List<String> contentWithNoBody = new ArrayList<>();
+            List<String> contentWithExternalLink = new ArrayList<>();
+            List<String> contentWithNoExternalLink = new ArrayList<>();
+            contentIds.stream().forEach(x -> handleAssetWithExternalLink(contentWithNoExternalLink, contentWithExternalLink, contentWithNoBody, x));
+            System.out.println("Content Body not exists for content:  " + contentWithNoBody.toString());
+            System.out.println("Content with External Link:  " + contentWithExternalLink.toString());
+            System.out.println("Content with no External Link:  " + contentWithNoExternalLink.toString());
+        }
     }
-    
+
     public void handleAssetWithExternalLink(List<String> contentWithNoExternalLink, List<String> contentWithExternalLink, List<String> contentWithNoBody, String contentId) {
-    	String contentBody = contentStore.getContentBody(contentId);
-    	
-    	if(StringUtils.isNoneBlank(contentBody)) {
-    		BaseInitializer baseInitializer = new BaseInitializer();
-    		Plugin plugin = null;
-    		
-    		try {
-    			plugin = baseInitializer.getPlugin(contentBody);
-    		}catch(Exception e) {
-    			System.out.println("Exception while rendring body for content : " + contentId + " ** Exception: " + e);
-    		}
-    		
-    		if (null != plugin) {
-    			try {
-    				Manifest manifest = plugin.getManifest();
-    				if (null != manifest) {
-    					List<Media> medias = manifest.getMedias();
-    					if(CollectionUtils.isNotEmpty(medias)) {
-    						List<Map<String, Object>> externalLink = new ArrayList<Map<String,Object>>();
-    						for (Media media: medias) {
-    							TelemetryManager.log("Validating Asset for External link: " + media.getId());
-    							if(validateAssetMediaForExternalLink(media)) {
-    								Map<String, Object> assetMap = new HashMap<String, Object>();
-    								assetMap.put("id", media.getId());
-    								assetMap.put("src", media.getSrc());
-    								assetMap.put("type", media.getType());
-    								externalLink.add(assetMap);
-    							}
-    						}
-    						if(CollectionUtils.isNotEmpty(externalLink)) {
-    							contentWithExternalLink.add(contentId);
-    							contentStore.updateExternalLink(contentId, externalLink);
-    						}else {
-    							contentWithNoExternalLink.add(contentId);
-    						}
-    					}
-    				}
-    			}catch(Exception e) {
-    				TelemetryManager.error("Error while pushing externalLink details of content Id: " + contentId +" into cassandra.", e);
-    			}
-    		}
-    	}else {
-    		contentWithNoBody.add(contentId);
-    	}
+        String contentBody = contentStore.getContentBody(contentId);
+
+        if(StringUtils.isNoneBlank(contentBody)) {
+            BaseInitializer baseInitializer = new BaseInitializer();
+            Plugin plugin = null;
+
+            try {
+                plugin = baseInitializer.getPlugin(contentBody);
+            }catch(Exception e) {
+                System.out.println("Exception while rendring body for content : " + contentId + " ** Exception: " + e);
+            }
+
+            if (null != plugin) {
+                try {
+                    Manifest manifest = plugin.getManifest();
+                    if (null != manifest) {
+                        List<Media> medias = manifest.getMedias();
+                        if(CollectionUtils.isNotEmpty(medias)) {
+                            List<Map<String, Object>> externalLink = new ArrayList<Map<String,Object>>();
+                            for (Media media: medias) {
+                                TelemetryManager.log("Validating Asset for External link: " + media.getId());
+                                if(validateAssetMediaForExternalLink(media)) {
+                                    Map<String, Object> assetMap = new HashMap<String, Object>();
+                                    assetMap.put("id", media.getId());
+                                    assetMap.put("src", media.getSrc());
+                                    assetMap.put("type", media.getType());
+                                    externalLink.add(assetMap);
+                                }
+                            }
+                            if(CollectionUtils.isNotEmpty(externalLink)) {
+                                contentWithExternalLink.add(contentId);
+                                contentStore.updateExternalLink(contentId, externalLink);
+                            }else {
+                                contentWithNoExternalLink.add(contentId);
+                            }
+                        }
+                    }
+                }catch(Exception e) {
+                    TelemetryManager.error("Error while pushing externalLink details of content Id: " + contentId +" into cassandra.", e);
+                }
+            }
+        }else {
+            contentWithNoBody.add(contentId);
+        }
     }
-	
-	protected boolean validateAssetMediaForExternalLink(Media media){
-		boolean isExternal = false;
-		UrlValidator validator = new UrlValidator();
-		String urlLink = media.getSrc();
-		if(StringUtils.isNotBlank(urlLink) && 
-				validator.isValid(media.getSrc()) &&
-				!StringUtils.contains(urlLink, CloudStore.getContainerName()))
-			isExternal = true; 
-		return isExternal;
-	}
-	
-	public void syncDialcodesByIds(List<String> dialcodes) throws Exception {
-		if(CollectionUtils.isEmpty(dialcodes)) {
-			System.out.println("CassandraESSyncManager:syncDialcodesByIds:No dialcodes for syncing.");
-			return;
-		}
-		System.out.println("CassandraESSyncManager:syncDialcodesByIds:No dialcodes for syncing: " + dialcodes.size());
-		int dialcodeSyncedCount = dialcodeSync.sync(dialcodes);
-		System.out.println("CassandraESSyncManager:syncDialcodesByIds::dialcodeSyncedCount: " + dialcodeSyncedCount);
-		
-	}
+
+    protected boolean validateAssetMediaForExternalLink(Media media){
+        boolean isExternal = false;
+        UrlValidator validator = new UrlValidator();
+        String urlLink = media.getSrc();
+        if(StringUtils.isNotBlank(urlLink) &&
+                validator.isValid(media.getSrc()) &&
+                !StringUtils.contains(urlLink, CloudStore.getContainerName()))
+            isExternal = true;
+        return isExternal;
+    }
+
+    public void syncDialcodesByIds(List<String> dialcodes, List<String> filenames) throws Exception {
+        if(CollectionUtils.isEmpty(dialcodes) && CollectionUtils.isEmpty(filenames)) {
+            System.out.println("CassandraESSyncManager:syncDialcodesByIds:No dialcodes for syncing.");
+            return;
+        }
+
+        int dialcodeSyncedCount = dialcodeSync.sync(dialcodes, filenames);
+        System.out.println("CassandraESSyncManager:syncDialcodesByIds::dialcodeSyncedCount: " + dialcodeSyncedCount);
+
+    }
 
     public void syncCollectionIds(String graphId, List<String> resourceIds) {
         List<String> success = new ArrayList<String>();

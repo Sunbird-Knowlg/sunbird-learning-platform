@@ -1,10 +1,8 @@
 package org.sunbird.sync.tool.util;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.cassandra.connector.util.CassandraConnector;
@@ -14,9 +12,11 @@ import org.sunbird.learning.contentstore.ContentStoreParams;
 import org.sunbird.searchindex.elasticsearch.ElasticSearchUtil;
 import org.sunbird.telemetry.logger.TelemetryManager;
 
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class DialcodeSync {
 
@@ -48,10 +48,9 @@ public class DialcodeSync {
 		ElasticSearchUtil.initialiseESClient(indexName, Platform.config.getString("search.es_conn_info"));
 	}
 
-	public int sync(List<String> dialcodes) throws Exception {
-		System.out.println("DialcodeSync:sync:message:: Total number of Dialcodes to be fetched from cassandra: " + dialcodes.size());
+	public int sync(List<String> dialcodes, List<String> filenames) throws Exception {
 		// Get dialcodes data from cassandra
-		Map<String, Object> messages = getDialcodesFromIds(dialcodes);
+		Map<String, Object> messages = getDialcodesFromIds(dialcodes, filenames);
 		if(MapUtils.isEmpty(messages)) {
 			System.out.println("DialcodeSync:sync:message:: No dialcodes data fetched from cassandra.");
 			return 0;
@@ -66,15 +65,27 @@ public class DialcodeSync {
 		ElasticSearchUtil.bulkIndexWithIndexId(indexName, documentType, messages);
 	}
 
-	public Map<String, Object> getDialcodesFromIds(List<String> identifiers) {
+	public Map<String, Object> getDialcodesFromIds(List<String> identifiers, List<String> filenames) {
 		try {
+			List<String> updateddialcodes = null;
+			HashMap<String,String> filenamesmap = null;
+
+			if(identifiers != null || !identifiers.isEmpty())
+				updateddialcodes = identifiers;
+			else {
+				filenamesmap = (HashMap<String, String>)filenames.stream().collect(Collectors.toMap(s->s.split("_")[1],Function.identity()));
+				updateddialcodes = filenamesmap.keySet().stream().collect(Collectors.toList());
+			}
+
+			System.out.println("DialcodeSync:sync:message:: Total number of Dialcodes to be fetched from cassandra: " + updateddialcodes.size());
+
 			Map<String, Object> messages = new HashMap<String, Object>();
-			ResultSet rs = getDialcodesFromDB(identifiers);
+			ResultSet rs = getDialcodesFromDB(updateddialcodes);
 			if (null != rs) {
 				Map<String, Object> dialCodesFromDB = new HashMap<String, Object>();
 				while(rs.iterator().hasNext()) {
 					Row row = rs.iterator().next();
-					String dialcodeId = (String)row.getString("identifier");
+					String dialcodeId = row.getString("identifier");
 					dialCodesFromDB.put(dialcodeId, row);
 
 					Map<String, Object> syncRequest = new HashMap<String, Object>(){{
@@ -89,7 +100,11 @@ public class DialcodeSync {
 						put("objectType", "DialCode");
 					}};
 
-					String imageUrl = getQRImageFromDB(dialcodeId);
+					String imageUrl = "";
+					if(filenamesmap!=null && !filenamesmap.isEmpty())
+						imageUrl = getQRImageFromDB(filenamesmap.get(dialcodeId), true);
+					else imageUrl = getQRImageFromDB(dialcodeId, false);
+
 					System.out.println("Returned imageUrl: " + imageUrl);
 					if(isReplaceString) {
 						imageUrl = StringUtils.replaceEach(imageUrl, new String[]{replaceSrcStringDIALStore}, new String[]{replaceDestStringDIALStore});
@@ -120,8 +135,12 @@ public class DialcodeSync {
 		return session.execute(query);
 	}
 
-	private String getQRImageFromDB(String dialcodeId) {
-		String query = "SELECT url FROM " + qrImageKeyspace + "." + qrImageTable + " WHERE dialcode ='" + dialcodeId + "' ALLOW FILTERING;";
+	private String getQRImageFromDB(String dialcodeId, boolean isFileName) {
+		String query = "";
+		if(isFileName)
+			query = "SELECT url FROM " + qrImageKeyspace + "." + qrImageTable + " WHERE filename ='" + dialcodeId + "';";
+		else
+			query = "SELECT url FROM " + qrImageKeyspace + "." + qrImageTable + " WHERE dialcode ='" + dialcodeId + "' ALLOW FILTERING;";
 		System.out.println("getQRImageFromDB query: " + query);
 		Session session = CassandraConnector.getSession();
 		ResultSet rs = session.execute(query);
