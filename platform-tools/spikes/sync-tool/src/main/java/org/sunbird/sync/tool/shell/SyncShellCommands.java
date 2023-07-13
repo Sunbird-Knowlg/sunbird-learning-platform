@@ -143,7 +143,8 @@ public class SyncShellCommands implements CommandMarker {
 	
 	@CliCommand(value = "syncdialcodes", help = "Refresh leafNodes by Id(s) for Collection MimeTypes")
 	public void syncDialcodes(
-			@CliOption(key = {"id","ids"}, mandatory = false, help = "Unique Id of node object") final String[] ids)
+			@CliOption(key = {"id","ids"}, mandatory = false, help = "Unique Id of node object") final String[] ids,
+			@CliOption(key = {"filename", "filenames"}, mandatory = false, help = "dialcode filename") final String[] filenames)
 			throws Exception {
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -151,7 +152,7 @@ public class SyncShellCommands implements CommandMarker {
 
 		if(null != ids && ids.length > 0) {
 			System.out.println("SyncShellCommands:syncDialcodes:Total dialcodes for syncing:: " + ids);
-			syncManager.syncDialcodesByIds(new ArrayList<String>(Arrays.asList(ids)));
+			syncManager.syncDialcodesByIds(new ArrayList<String>(Arrays.asList(ids)), new ArrayList<String>(Arrays.asList(filenames)));
 		}
 
 		long endTime = System.currentTimeMillis();
