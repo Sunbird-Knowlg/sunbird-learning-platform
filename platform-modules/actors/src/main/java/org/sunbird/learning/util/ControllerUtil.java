@@ -444,6 +444,39 @@ public class ControllerUtil extends BaseLearningManager {
         }
     }
 
+    public List<Node> getNodes(String graphId, String objectType, List<String> status, List<String> contentIdsList, double migrationVersion, int startPosition, int batchSize) {
+        List<Filter> filters = new ArrayList<Filter>();
+        if(!status.isEmpty())
+            filters.add(new Filter("status", SearchConditions.OP_IN, status));
+        if(!contentIdsList.isEmpty()) {
+            filters.add(new Filter("IL_UNIQUE_ID", SearchConditions.OP_IN, contentIdsList));
+        } else {
+            if (migrationVersion == 0) {
+                filters.add(new Filter("qumlVersion", SearchConditions.OP_IS, Values.NULL));
+                filters.add(new Filter("schemaVersion", SearchConditions.OP_IS, Values.NULL));
+            }
+            else if (migrationVersion > 2) filters.add(new Filter("migrationVersion", SearchConditions.OP_EQUAL, migrationVersion));
+        }
+
+        SearchCriteria sc = new SearchCriteria();
+        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+        sc.setObjectType(objectType);
+        sc.setResultSize(batchSize);
+        sc.setStartPosition(startPosition);
+        if(!filters.isEmpty() && filters.size()>0)
+            sc.addMetadata(MetadataCriterion.create(filters));
+        Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), sc);
+        req.put(GraphDACParams.get_tags.name(), true);
+        Response listRes = getResponse(req);
+        if (checkError(listRes))
+            return null;
+        else {
+            List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
+            return nodes;
+        }
+    }
+
     public List<String> getNodesWithInDateRange(String graphId, String objectType, String startDate, String endDate) {
 
         List<String> nodeIds = new ArrayList<>();
@@ -820,6 +853,46 @@ public class ControllerUtil extends BaseLearningManager {
         System.out.println("Count queryString:: " + MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(mimeTypeList), new JSONArray(statusList), migrationVersion, new JSONArray(contentIdsList)));
 
         request.put(GraphDACParams.query.name(), MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(mimeTypeList), new JSONArray(statusList), migrationVersion, new JSONArray(contentIdsList)));
+
+        List<String> props = new ArrayList<String>();
+        props.add("objectType");
+        props.add("count");
+        request.put(GraphDACParams.property_keys.name(), props);
+        Response response = getResponse(request);
+        if (!checkError(response)) {
+            Map<String, Object> result = response.getResult();
+            List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
+            if (null != list && !list.isEmpty()) {
+                for (int i = 0; i < list.size(); i++) {
+                    Map<String, Object> properties = list.get(i);
+                    counts.put((String) properties.get("objectType"), (Long) properties.get("count"));
+                }
+            }
+
+        }
+        return counts;
+    }
+
+    public Map<String, Long> getQumlMigrationObjectCount(String graphId, List<String> objectTypes, List<String> statusList, List<String> objectIdList, double migrationVersion) {
+        Map<String, Long> counts = new HashMap<String, Long>();
+        Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
+        StringBuilder queryString = new StringBuilder();
+        queryString.append("MATCH (n:{0}) WHERE EXISTS(n.IL_FUNC_OBJECT_TYPE) AND n.IL_SYS_NODE_TYPE=\"DATA_NODE\" AND n.IL_FUNC_OBJECT_TYPE IN {1} ");
+
+        if(statusList!=null && !statusList.isEmpty())
+            queryString.append(" AND n.status IN {2} ");
+
+        if(objectIdList!=null && !objectIdList.isEmpty())
+            queryString.append(" AND n.IL_UNIQUE_ID IN {3} ");
+
+        if(migrationVersion != 0 && migrationVersion > 2)
+            queryString.append(" AND n.migrationVersion={4} ");
+
+        queryString.append("AND NOT EXISTS(n.qumlVersion) AND NOT EXISTS(n.schemaVersion) RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;");
+
+        System.out.println("Count queryString:: " + MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(statusList), migrationVersion, new JSONArray(objectIdList)));
+
+        request.put(GraphDACParams.query.name(), MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(statusList), migrationVersion, new JSONArray(objectIdList)));
 
         List<String> props = new ArrayList<String>();
         props.add("objectType");
