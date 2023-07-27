@@ -29,3 +29,7 @@ azure_account_name:
 
 csp_migration_batch_size: 100
 csp_migration_topic_name: "{{ env }}.csp.migration.job.request"
+
+# Default Values For QuML Data Migration
+quml_migration_batch_size: 50
+quml_migration_topic_name: "{{ env }}.quml.migration.job.request"

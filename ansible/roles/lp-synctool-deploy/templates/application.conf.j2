@@ -124,3 +124,7 @@ replace_dest_string="{{ sync_tool_replace_dest_string | default('https://sunbird
 
 replace_src_string_DIAL_store= "{{ sync_tool_replace_src_string_DIAL_store | default('DIAL_STORAGE_BASE_PATH') }}"
 replace_dest_string_DIAL_store="{{ sync_tool_replace_dest_string_DIAL_store | default('https://sunbirddevbbpublic.blob.core.windows.net/dial') }}"
+
+# Config For QuML Data Migration
+quml.migration.request.topic="{{ quml_migration_topic_name }}"
+quml.migration.batch.size={{ quml_migration_batch_size }}
