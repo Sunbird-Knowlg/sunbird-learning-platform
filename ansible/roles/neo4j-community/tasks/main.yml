@@ -62,3 +62,9 @@
   template: src=neo4j-wrapper.conf.j2 dest={{ neo4j_home }}/conf/neo4j-wrapper.conf group={{learner_user}} owner={{learner_user}}
   when: dbms_mode != "ARBITER"
 
+- name: Start neo4j
+  become: yes
+  become_user: "{{ learner_user }}"
+  shell:  bin/neo4j start
+  args:
+      chdir: "{{ neo4j_home }}"
