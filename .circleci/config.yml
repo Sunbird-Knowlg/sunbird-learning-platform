@@ -9,8 +9,7 @@ jobs:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
       - run:
           name: Build
-          command: |
-            JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 mvn clean install -DskipTests=true -DCLOUD_STORE_GROUP_ID=$CLOUD_STORE_GROUP_ID -DCLOUD_STORE_ARTIFACT_ID=CLOUD_STORE_ARTIFACT_ID -DCLOUD_STORE_VERSION=$CLOUD_STORE_VERSION
+          command: JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 mvn clean install -DskipTests=true -DCLOUD_STORE_GROUP_ID=$CLOUD_STORE_GROUP_ID -DCLOUD_STORE_ARTIFACT_ID=$CLOUD_STORE_ARTIFACT_ID -DCLOUD_STORE_VERSION=$CLOUD_STORE_VERSION
 
       - save_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
