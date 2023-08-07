@@ -64,9 +64,9 @@
             <version>1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.sunbird</groupId>
-            <artifactId>cloud-store-sdk</artifactId>
-            <version>1.4.6</version>
+            <groupId>${CLOUD_STORE_GROUP_ID}</groupId>
+            <artifactId>${CLOUD_STORE_ARTIFACT_ID}</artifactId>
+            <version>${CLOUD_STORE_VERSION}</version>
         </dependency>
     </dependencies>
 
