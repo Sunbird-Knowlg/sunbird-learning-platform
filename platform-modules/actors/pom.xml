@@ -61,9 +61,9 @@
 			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.sunbird</groupId>
-    		<artifactId>cloud-store-sdk</artifactId>
-			<version>${cloud.store.version}</version>
+			<groupId>${CLOUD_STORE_GROUP_ID}</groupId>
+			<artifactId>${CLOUD_STORE_ARTIFACT_ID}</artifactId>
+			<version>${CLOUD_STORE_VERSION}</version>
 		</dependency>
 	</dependencies>
   
