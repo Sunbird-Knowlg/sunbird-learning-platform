@@ -84,7 +84,7 @@ public class YouTubeUrlUtilTest extends GraphEngineTestSetup {
 	// check license of valid youtube url.
 	@Test
 	public void testYouTubeService_01() throws Exception {
-		String artifactUrl = "https://www.youtube.com/watch?v=owr198WQpM8";
+		String artifactUrl = "https://www.youtube.com/watch?v=GHmQ8euNwv8";
 		String result = YouTubeUrlUtil.getLicense(artifactUrl);
 		assertEquals("creativeCommon", result);
 	}
@@ -146,7 +146,7 @@ public class YouTubeUrlUtilTest extends GraphEngineTestSetup {
 	public void testYouTubeService_08() throws Exception {
 		//upload content
 		String mimeType = "video/x-youtube";
-		String fileUrl = "https://www.youtube.com/watch?v=owr198WQpM8";
+		String fileUrl = "https://www.youtube.com/watch?v=eKT1IbPjH1Q";
 		Response response = contentManager.upload(contentId, fileUrl, mimeType);
 		String responseCode = (String) response.getResponseCode().toString();
 		assertEquals("OK", responseCode);
