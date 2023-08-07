@@ -274,7 +274,7 @@ flink_job_names:
     cpu_requests: 0.3
   live-node-publisher:
     job_class_name: 'org.sunbird.job.livenodepublisher.task.LiveNodePublisherStreamTask'
-    replica: 4
+    replica: 1
     jobmanager_memory: "{{live_node_publisher_job_memory | default('2048m') }}"
     taskmanager_memory: "{{live_node_publisher_task_memory | default('2048m') }}"
     taskslots: "{{live_node_publisher_taskslots | default('1') }}"
