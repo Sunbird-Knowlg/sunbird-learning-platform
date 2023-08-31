@@ -258,7 +258,7 @@ video-stream-generator:
         protocol="Hls"
       }
     }
-
+{% if cloud_service_provider == "oci" %}
     #OCI Elemental Media Convert Config
     oci {
       region="{{oci_media_region}}"
@@ -276,7 +276,7 @@ video-stream-generator:
         gateway_domain="{{oci_media_gateway_domain}}"
       }
     }
-
+{% endif %}
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].jobmanager_memory }}
