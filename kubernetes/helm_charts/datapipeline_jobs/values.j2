@@ -85,7 +85,7 @@ base_config: |
     }
     job {
       env = "{{ env_name }}"
-      enable.distributed.checkpointing = true
+      enable.distributed.checkpointing = false
 {% if cloud_service_provider == "oci" %}
       statebackend {
         s3 {
