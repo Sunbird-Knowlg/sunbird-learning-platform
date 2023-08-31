@@ -388,6 +388,7 @@ csp_migrator_timer_duration: 1800
 csp_migrator_max_retries: 10
 csp_migrator_consumer_parallelism: 1
 csp_migrator_cassandra_parallelism: 1
+csp_migrator_router_parallelism: 1
 csp_migration_topic_name: "{{ env_name }}.csp.migration.job.request"
 csp_migrator_group_name: "{{ env_name }}-csp-migrator-group"
 csp_migrator_failed_topic_name: "{{ env_name }}.csp.migration.job.request.failed"
