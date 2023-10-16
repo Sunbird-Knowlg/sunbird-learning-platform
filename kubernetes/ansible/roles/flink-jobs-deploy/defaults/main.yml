@@ -277,7 +277,7 @@ flink_job_names:
     replica: 1
     jobmanager_memory: "{{live_node_publisher_job_memory | default('2048m') }}"
     taskmanager_memory: "{{live_node_publisher_task_memory | default('2048m') }}"
-    taskslots: "{{live_node_publisher_taskslots | default('3') }}"
+    taskslots: "{{live_node_publisher_taskslots | default('1') }}"
     cpu_requests: "{{live_node_publisher_cpu_requests | default('0.7') }}"
   live-video-stream-generator:
     job_class_name: 'org.sunbird.job.livevideostream.task.LiveVideoStreamGeneratorStreamTask'
@@ -388,6 +388,7 @@ csp_migrator_timer_duration: 1800
 csp_migrator_max_retries: 10
 csp_migrator_consumer_parallelism: 1
 csp_migrator_cassandra_parallelism: 1
+csp_migrator_router_parallelism: 1
 csp_migration_topic_name: "{{ env_name }}.csp.migration.job.request"
 csp_migrator_group_name: "{{ env_name }}-csp-migrator-group"
 csp_migrator_failed_topic_name: "{{ env_name }}.csp.migration.job.request.failed"

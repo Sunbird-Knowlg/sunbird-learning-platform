@@ -109,8 +109,16 @@ spec:
         workingDir: /opt/flink
         command: ["/opt/flink/bin/standalone-job.sh"]
         args: ["start-foreground",
-               "--job-classname={{ .Values.job_classname }}", 
+               "--job-classname={{ .Values.job_classname }}",
+               {{- if eq .Values.csp "oci" }}
+               "-Dpresto.s3.access-key={{ .Values.s3_access_key}}",
+               "-Dpresto.s3.secret-key={{ .Values.s3_secret_key }}",
+               "-Dpresto.s3.endpoint={{ .Values.s3_endpoint }}",
+               "-Dpresto.s3.region={{ .Values.s3_region }}",
+               "-Dpresto.s3.path-style-access={{ .Values.s3_path_style_access }}",
+               {{- else}}
                "-Dfs.azure.account.key.{{ .Values.azure_account }}.blob.core.windows.net={{ .Values.azure_secret }}",
+               {{- end}}
                "-Dweb.submit.enable=false",
                "-Dmetrics.reporter.prom.class=org.apache.flink.metrics.prometheus.PrometheusReporter",
                "-Dmetrics.reporter.prom.port={{ .Values.jobmanager.prom_port }}",
@@ -183,7 +191,15 @@ spec:
         workingDir: {{ .Values.taskmanager.flink_work_dir }}
         command: ["/opt/flink/bin/taskmanager.sh"]
         args: ["start-foreground",
+          {{- if eq .Values.csp "oci" }}
+          "-Dpresto.s3.access.key={{ .Values.s3_access_key}}",
+          "-Dpresto.s3.secret.key={{ .Values.s3_secret_key }}",
+          "-Dpresto.s3.endpoint={{ .Values.s3_endpoint }}",
+          "-Dpresto.s3.endpoint={{ .Values.s3_region }}",
+          "-Dpresto.s3.path.style.access={{ .Values.s3_path_style_access }}",
+          {{- else}}
           "-Dfs.azure.account.key.{{ .Values.azure_account }}.blob.core.windows.net={{ .Values.azure_secret }}",
+          {{- end}}
           "-Dweb.submit.enable=false",
           "-Dmetrics.reporter.prom.class=org.apache.flink.metrics.prometheus.PrometheusReporter",
           "-Dmetrics.reporter.prom.host={{ .Release.Name }}-taskmanager",
