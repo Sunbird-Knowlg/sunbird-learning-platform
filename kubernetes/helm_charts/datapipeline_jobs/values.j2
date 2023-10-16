@@ -4,6 +4,10 @@ dockerhub: {{ dockerhub }}
 repository: {{flink_repository|default('knowledge-platform-jobs')}}
 image_tag: {{ image_tag }}
 csp: {{cloud_service_provider}}
+cloud_storage_key: {{cloud_public_storage_accountname}}
+cloud_storage_secret: {{cloud_public_storage_secret}}
+cloud_storage_container: {{cloud_storage_content_bucketname}}
+cloud_storage_endpoint: {{cloudstorage_sdk_endpoint}}
 azure_account: {{ azure_account }}
 azure_secret: {{ azure_secret }}
 s3_access_key: {{ cloud_public_storage_accountname }}
@@ -97,7 +101,7 @@ base_config: |
         }
         base.url = "s3://"${job.statebackend.s3.storage.container}"/"${job.statebackend.s3.storage.checkpointing.dir}
       }
-{% else %}
+{% else if cloud_service_provider == "azure" %}
       statebackend {
         blob {
           storage {
@@ -107,6 +111,17 @@ base_config: |
           }
         }
         base.url = "wasbs://"${job.statebackend.blob.storage.container}"@"${job.statebackend.blob.storage.account}"/"${job.statebackend.blob.storage.checkpointing.dir}
+      }
+{% else if cloud_service_provider == "aws" %}
+      statebackend {
+        s3 {
+          storage {
+            endpoint = "{{ cloud_storage_endpoint }}"
+            container = "{{ cloud_storage_container }}"
+            checkpointing.dir = "checkpoint"
+          }
+        }
+        base.url = "s3://"${job.statebackend.s3.storage.container}"/"${job.statebackend.s3.storage.checkpointing.dir}
       }
 {% endif %}
 
