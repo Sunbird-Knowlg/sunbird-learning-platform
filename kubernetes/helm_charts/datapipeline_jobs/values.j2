@@ -101,7 +101,7 @@ base_config: |
         }
         base.url = "s3://"${job.statebackend.s3.storage.container}"/"${job.statebackend.s3.storage.checkpointing.dir}
       }
-{% else if cloud_service_provider == "azure" %}
+{% elif cloud_service_provider == "azure" %}
       statebackend {
         blob {
           storage {
@@ -112,7 +112,7 @@ base_config: |
         }
         base.url = "wasbs://"${job.statebackend.blob.storage.container}"@"${job.statebackend.blob.storage.account}"/"${job.statebackend.blob.storage.checkpointing.dir}
       }
-{% else if cloud_service_provider == "aws" %}
+{% elif cloud_service_provider == "aws" %}
       statebackend {
         s3 {
           storage {
