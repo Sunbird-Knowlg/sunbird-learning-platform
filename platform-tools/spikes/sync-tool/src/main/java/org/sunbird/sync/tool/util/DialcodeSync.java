@@ -34,6 +34,7 @@ public class DialcodeSync {
                 ? Platform.config.getString("dialcode.keyspace.name") : "sunbirddev_dialcode_store";
         table = Platform.config.hasPath("dialcode.table") 
         		? Platform.config.getString("dialcode.table") : "dial_code";
+				System.out.println("dialcode.index.name.samarth["+indexName+"]\n dialcode.document.type["+documentType+"]\n dialcode.keyspace.name["+keyspace+"] dialcode.table["+table+"]");
         ElasticSearchUtil.initialiseESClient(indexName, Platform.config.getString("search.es_conn_info"));
 	}
     		

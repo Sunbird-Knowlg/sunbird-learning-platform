@@ -276,6 +276,7 @@ public class ElasticSearchUtil {
 					if (count % BATCH_SIZE == 0 || (count % BATCH_SIZE < BATCH_SIZE && count == jsonObjects.size())) {
 						BulkResponse bulkResponse = client.bulk(request);
 						if (bulkResponse.hasFailures()) {
+							System.out.println("Failures in Elasticsearch bulkIndex Samarth: " + bulkResponse.buildFailureMessage());
 							TelemetryManager
 									.log("Failures in Elasticsearch bulkIndex : " + bulkResponse.buildFailureMessage());
 						}
