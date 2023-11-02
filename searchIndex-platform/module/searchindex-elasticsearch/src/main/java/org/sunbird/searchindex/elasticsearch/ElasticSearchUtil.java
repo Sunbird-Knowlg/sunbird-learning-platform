@@ -279,6 +279,7 @@ public class ElasticSearchUtil {
 						BulkResponse bulkResponse = client.bulk(request);
 						System.out.println("ElasticSearchUtil: bulkIndexWithIndexId: bulkResponse: " + bulkResponse.status());
 						if (bulkResponse.hasFailures()) {
+							System.out.println("Failures in Elasticsearch bulkIndex : " + bulkResponse.buildFailureMessage());
 							TelemetryManager
 									.log("Failures in Elasticsearch bulkIndex : " + bulkResponse.buildFailureMessage());
 						}
