@@ -55,11 +55,6 @@ ALTER KEYSPACE {{ hierarchy_keyspace_name }} WITH replication = {
 
 ALTER TABLE {{ hierarchy_keyspace_name }}.content_hierarchy ADD relational_metadata text;
 
-CREATE TRIGGER IF NOT EXISTS content_data_trigger ON {{ content_keyspace_name }}.content_data USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
-CREATE TRIGGER IF NOT EXISTS question_data_trigger ON {{ content_keyspace_name }}.question_data USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
-CREATE TRIGGER IF NOT EXISTS framework_hierarchy_trigger ON {{ hierarchy_keyspace_name }}.framework_hierarchy USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
-CREATE TRIGGER IF NOT EXISTS content_hierarchy_trigger ON {{ hierarchy_keyspace_name }}.content_hierarchy USING 'org.sunbird.cassandra.triggers.TransactionEventTrigger';
-
 
 CREATE KEYSPACE IF NOT EXISTS {{ category_keyspace_name }} WITH replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': '2'}  AND durable_writes = true;
 
@@ -95,7 +90,6 @@ CREATE TABLE IF NOT EXISTS {{ hierarchy_keyspace_name }}.questionset_hierarchy (
   PRIMARY KEY (identifier)
 );
 
-ALTER TABLE {{ hierarchy_keyspace_name }}.questionset_hierarchy ADD outcomeDeclaration text;
 
 CREATE KEYSPACE IF NOT EXISTS {{ platform_keyspace_name }} WITH replication = {
   'class': 'SimpleStrategy',
