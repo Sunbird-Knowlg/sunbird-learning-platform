@@ -890,9 +890,9 @@ public class ControllerUtil extends BaseLearningManager {
 
         queryString.append("AND NOT EXISTS(n.qumlVersion) AND NOT EXISTS(n.schemaVersion) RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;");
 
-        System.out.println("Count queryString:: " + MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(statusList), migrationVersion, new JSONArray(objectIdList)));
+        System.out.println("Count queryString:: " + MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(statusList), new JSONArray(objectIdList), migrationVersion));
 
-        request.put(GraphDACParams.query.name(), MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(statusList), migrationVersion, new JSONArray(objectIdList)));
+        request.put(GraphDACParams.query.name(), MessageFormat.format(queryString.toString(), graphId, new JSONArray(objectTypes), new JSONArray(statusList), new JSONArray(objectIdList), migrationVersion));
 
         List<String> props = new ArrayList<String>();
         props.add("objectType");
