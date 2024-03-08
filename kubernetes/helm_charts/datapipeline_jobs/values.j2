@@ -3,8 +3,18 @@ imagepullsecrets: {{ imagepullsecrets }}
 dockerhub: {{ dockerhub }}
 repository: {{flink_repository|default('knowledge-platform-jobs')}}
 image_tag: {{ image_tag }}
+csp: {{cloud_service_provider}}
 azure_account: {{ azure_account }}
 azure_secret: {{ azure_secret }}
+s3_access_key: {{ cloud_public_storage_accountname }}
+s3_secret_key: {{cloud_public_storage_secret}}
+{% if cloud_service_provider == "oci" %}
+s3_endpoint: {{oci_flink_s3_storage_endpoint}}
+s3_region: {{s3_region}}
+s3_path_style_access: true
+{% else %}
+s3_endpoint: {{cloud_public_storage_endpoint}}
+{% endif %}
 serviceMonitor:
   enabled: {{ service_monitor_enabled | lower}}
 
@@ -38,8 +48,8 @@ log4j_console_properties: |
   rootLogger.appenderRef.console.ref = ConsoleAppender
 
   # Uncomment this if you want to _only_ change Flink's logging
-  #logger.flink.name = org.apache.flink
-  #logger.flink.level = {{ flink_jobs_console_log_level | default(INFO) }}
+  # logger.flink.name = org.apache.flink
+  # logger.flink.level = {{ flink_jobs_console_log_level | default(INFO) }}
 
   # The following lines keep the log level of common libraries/connectors on
   # log level INFO. The root logger does not override this. You have to manually
@@ -52,6 +62,8 @@ log4j_console_properties: |
   logger.hadoop.level = {{ flink_libraries_log_level | default(INFO) }}
   logger.zookeeper.name = org.apache.zookeeper
   logger.zookeeper.level = {{ flink_libraries_log_level | default(INFO) }}
+
+
 
   # Log all infos to the console
   appender.console.name = ConsoleAppender
@@ -74,6 +86,18 @@ base_config: |
     job {
       env = "{{ env_name }}"
       enable.distributed.checkpointing = true
+{% if cloud_service_provider == "oci" %}
+      statebackend {
+        s3 {
+          storage {
+            endpoint = "{{ oci_flink_s3_storage_endpoint }}"
+            container = "{{ flink_container_name }}"
+            checkpointing.dir = "checkpoint"
+          }
+        }
+        base.url = "s3://"${job.statebackend.s3.storage.container}"/"${job.statebackend.s3.storage.checkpointing.dir}
+      }
+{% else %}
       statebackend {
         blob {
           storage {
@@ -84,6 +108,8 @@ base_config: |
         }
         base.url = "wasbs://"${job.statebackend.blob.storage.container}"@"${job.statebackend.blob.storage.account}"/"${job.statebackend.blob.storage.checkpointing.dir}
       }
+{% endif %}
+
     }
     task {
       parallelism = 1
@@ -233,6 +259,24 @@ video-stream-generator:
       }
     }
 
+    #OCI Elemental Media Convert Config
+    oci {
+      region="{{oci_media_region}}"
+      compartment_id="{{oci_media_compartment}}"
+      namespace="{{oci_media_namespace}}"
+      bucket {
+        content_bucket_name="{{oci_media_source_bucket}}"
+        processed_bucket_name="{{oci_media_target_bucket}}"
+      }
+      stream {
+        prefix_input="{{oci_media_prefix_input}}"
+        distribution_channel_id="{{oci_media_dist_channel_id}}"
+        work_flow_id="{{ oci_media_work_flow_id }}"
+        stream_package_config_id="{{oci_media_stream_config_id}}"
+        gateway_domain="{{oci_media_gateway_domain}}"
+      }
+    }
+
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['video-stream-generator'].jobmanager_memory }}
@@ -320,6 +364,7 @@ asset-enrichment:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     cloudstorage {
       metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
@@ -336,6 +381,7 @@ asset-enrichment:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+
 
 audit-history-indexer:
   audit-history-indexer: |+
@@ -388,6 +434,7 @@ auto-creator-v2:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     source {
       baseUrl="{{ source_base_url }}"
@@ -436,6 +483,7 @@ content-auto-creator:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     cloudstorage {
       metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
@@ -732,6 +780,7 @@ content-publish:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     cloudstorage {
       metadata.replace_absolute_path={{ cloudstorage_replace_absolute_path | default('false') }}
@@ -789,6 +838,8 @@ qrcode-image-generator:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_dial_bucketname | default('dial') }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
+    cloud_storage_proxy_host="{{cloud_storage_proxy_host}}"
 
     lms-cassandra {
       keyspace = "dialcodes"
@@ -1001,6 +1052,7 @@ live-node-publisher:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
     service {
@@ -1115,6 +1167,7 @@ csp-migrator:
     task {
       timer.duration = {{ csp_migrator_timer_duration }}
       consumer.parallelism = {{ csp_migrator_consumer_parallelism }}
+      router.parallelism = {{csp_migrator_router_parallelism }}
       parallelism = {{ csp_migrator_parallelism }}
       max.retries = {{ csp_migrator_max_retries }}
       cassandra-migrator.parallelism = {{csp_migrator_cassandra_parallelism}}
@@ -1163,6 +1216,8 @@ csp-migrator:
         "https://sunbirdstagingpublic.blob.core.windows.net/sunbird-content-staging": "{{ cloudstorage_relative_path_prefix_content }}",
         "https://preprodall.blob.core.windows.net/ntp-content-preprod": "{{ cloudstorage_relative_path_prefix_content }}",
         "https://ntpproductionall.blob.core.windows.net/ntp-content-production": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://dockpreprodall.blob.core.windows.net/dock-content-preprod": "{{ cloudstorage_relative_path_prefix_content }}",
+        "https://dockprodall.blob.core.windows.net/dock-content-prod": "{{ cloudstorage_relative_path_prefix_content }}",
         "CLOUD_STORAGE_BASE_PATH": "{{ cloudstorage_relative_path_prefix_content }}"
     }
 
@@ -1203,6 +1258,7 @@ csp-migrator:
     cloud_storage_key="{{ cloud_public_storage_accountname }}"
     cloud_storage_secret="{{ cloud_public_storage_secret }}"
     cloud_storage_container="{{ cloud_storage_content_bucketname }}"
+    cloud_storage_endpoint="{{cloudstorage_sdk_endpoint}}"
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['content-publish'].jobmanager_memory }}
@@ -1228,7 +1284,9 @@ cassandra-data-migration:
 
     migrate = {
         key_value_strings_to_migrate = {
-            "https://sunbirdstagingpublic.blob.core.windows.net/dial": "{{ cloudstorage_relative_path_prefix_dial }}"
+            "https://sunbirdstagingpublic.blob.core.windows.net/dial": "{{ cloudstorage_relative_path_prefix_dial }}",
+            "https://preprodall.blob.core.windows.net/dial": "{{ cloudstorage_relative_path_prefix_dial }}",
+            "https://ntpproductionall.blob.core.windows.net/dial": "{{ cloudstorage_relative_path_prefix_dial }}"
         }
     }
 

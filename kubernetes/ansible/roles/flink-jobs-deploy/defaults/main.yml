@@ -277,7 +277,7 @@ flink_job_names:
     replica: 1
     jobmanager_memory: "{{live_node_publisher_job_memory | default('2048m') }}"
     taskmanager_memory: "{{live_node_publisher_task_memory | default('2048m') }}"
-    taskslots: "{{live_node_publisher_taskslots | default('3') }}"
+    taskslots: "{{live_node_publisher_taskslots | default('1') }}"
     cpu_requests: "{{live_node_publisher_cpu_requests | default('0.7') }}"
   live-video-stream-generator:
     job_class_name: 'org.sunbird.job.livevideostream.task.LiveVideoStreamGeneratorStreamTask'
